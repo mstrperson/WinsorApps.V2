@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AsyncAwaitBestPractices;
 using WinsorApps.MAUI.Shared.ViewModels;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 
@@ -46,7 +48,16 @@ public partial class LoginPage : ContentPage
     }
 
     private void ViewModelOnOnLogin(object? sender, EventArgs e)
-    {
-        Navigation.PopAsync();
+    {/*
+        try
+        {
+            Navigation.PopAsync().SafeFireAndForget(ex => ex.LogException(_logging));
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine(exception);
+            throw;
+        }*/
+        
     }
 }

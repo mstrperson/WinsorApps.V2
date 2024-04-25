@@ -34,7 +34,7 @@ public partial class LoginViewModel : ObservableObject
     [RelayCommand]
     public async Task Login()
     {
-        await _api.Login(Email, Password, 
+        await _api.Login(Email.ToLowerInvariant(), Password, 
             err =>
             {
                 StatusMessage = err.error;

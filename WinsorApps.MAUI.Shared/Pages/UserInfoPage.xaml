@@ -6,52 +6,37 @@
              x:DataType="vm:UserViewModel"
              x:Class="WinsorApps.MAUI.Shared.Pages.UserInfoPage">
     <ContentPage.Content>
-        <VerticalStackLayout>
-            <Label
-                StyleClass="Header"
-                Text="{Binding DisplayName}" />
-            <Label
-                Text="{Binding Email}" />
-            <Button
-                Text="Load Schedule"
-                Command="{Binding LoadMyScheduleCommand}" />
-            <CollectionView
-                ItemsSource="{Binding AcademicSchedule}" 
-                Header="Academic Schedule">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="vm:SectionViewModel">
-                        <VerticalStackLayout>
-                            <Label Text="{Binding DisplayName}" />
-                            <CollectionView
-                                ItemsSource="{Binding Teachers}"
-                                Header="Teachers">
-                                <CollectionView.ItemTemplate>
-                                    <DataTemplate x:DataType="vm:UserViewModel">
-                                        <Label Text="{Binding DisplayName}">
-                                            <Label.GestureRecognizers>
-                                                <TapGestureRecognizer Command="{Binding SelectCommand}"/>
-                                            </Label.GestureRecognizers>
-                                        </Label>
-                                    </DataTemplate>
-                                </CollectionView.ItemTemplate>
-                            </CollectionView>
-                            <CollectionView
-                                ItemsSource="{Binding Students}"
-                                Header="Students">
-                                <CollectionView.ItemTemplate>
-                                    <DataTemplate x:DataType="vm:UserViewModel">
-                                        <Label Text="{Binding DisplayName}">
-                                            <Label.GestureRecognizers>
-                                                <TapGestureRecognizer Command="{Binding SelectCommand}"/>
-                                            </Label.GestureRecognizers>
-                                        </Label>
-                                    </DataTemplate>
-                                </CollectionView.ItemTemplate>
-                            </CollectionView>
-                        </VerticalStackLayout>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </VerticalStackLayout>
+        <ScrollView>
+            <VerticalStackLayout>
+                <Label
+                    StyleClass="Header"
+                    Text="{Binding DisplayName}" />
+                <Label
+                    Text="{Binding Email}" />
+                <Button
+                    Text="Load Schedule"
+                    Command="{Binding LoadMyScheduleCommand}"
+                    IsVisible="{Binding ShowButton}"/>
+                <CollectionView
+                    ItemsSource="{Binding AcademicSchedule}" 
+                    Header="Academic Schedule">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:SectionViewModel">
+                            <VerticalStackLayout>
+                                <VerticalStackLayout.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SelectCommand}"/>
+                                </VerticalStackLayout.GestureRecognizers>
+                                <Label 
+                                    Text="{Binding DisplayName}" 
+                                    StyleClass="SubHeader"/>
+                                <BoxView
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource WinsorRed}, Dark=White}"
+                                    HeightRequest="1"/>
+                            </VerticalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
     </ContentPage.Content>
 </ContentPage>

@@ -14,6 +14,7 @@ public partial class MainPage : ContentPage
     /// Dependency Injection!
     /// </summary>
     /// <param name="logging"></param>
+    /// <param name="api"></param>
     public MainPage(LocalLoggingService logging, ApiService api)
     {
         _logging = logging;
@@ -37,7 +38,13 @@ public partial class MainPage : ContentPage
     private void ViewModelOnOnLogin(object? sender, EventArgs e)
     {
         var vm = new UserViewModel(_api.UserInfo!.Value);
+        vm.SectionSelected += VmOnSectionSelected;
         UserInfoPage page = new() {BindingContext = vm};
         Navigation.PushAsync(page);
+    }
+
+    private void VmOnSectionSelected(object? sender, SectionRecord e)
+    {
+        
     }
 }
