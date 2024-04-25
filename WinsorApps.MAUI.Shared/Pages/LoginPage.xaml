@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels"
+             x:DataType="vm:LoginViewModel"
+             x:Class="WinsorApps.MAUI.Shared.Pages.LoginPage">
+    <ContentPage.Content>
+        <VerticalStackLayout>
+            <Image StyleClass="wordmark_oneline"/>
+            <HorizontalStackLayout
+                Margin="0"
+                Padding="0">
+                <Label 
+                    Text="Email"
+                    FontSize="Large"
+                    WidthRequest="150"/>
+                <Entry 
+                    Text="{Binding Email}" 
+                    IsReadOnly="{Binding IsLoggedIn}" 
+                    WidthRequest="400"/>
+            </HorizontalStackLayout>
+            <HorizontalStackLayout
+                Margin="0"
+                Padding="0"
+                IsVisible="{Binding ShowPasswordField}">
+                <Label 
+                    Text="Password" 
+                    FontSize="Large"
+                    WidthRequest="150"/>
+                <Entry 
+                    Text="{Binding Password}" 
+                    IsPassword="True" 
+                    WidthRequest="400"/>
+            </HorizontalStackLayout>
+            <Button 
+                Text="Login" 
+                Command="{Binding LoginCommand}" 
+                IsVisible="{Binding ShowPasswordField}" /> 
+            <Button
+                Text = "Logout"
+                Command = "{Binding LogoutCommand}"
+                IsVisible="{Binding IsLoggedIn}"/>
+            <BoxView
+                BackgroundColor="{AppThemeBinding Light=Black, Dark=White}"
+                HeightRequest="1" />
+            <Label
+                StyleClass="ErrorLabel"
+                Text="{Binding StatusMessage}"
+                IsVisible="False"
+                x:Name="StatusLabel" />
+            <Button 
+                Text="Forgot Password"
+                Command="{Binding ForgotPasswordCommand}"
+                IsVisible="{Binding ShowPasswordField}" />
+        </VerticalStackLayout>
+    </ContentPage.Content>
+</ContentPage>

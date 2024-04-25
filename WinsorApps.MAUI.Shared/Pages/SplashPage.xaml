@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels"
+             x:DataType="vm:SplashPageViewModel"
+             x:Class="WinsorApps.MAUI.Shared.Pages.SplashPage"
+             Title="{Binding Title}">
+    <ContentPage.Content>
+        <VerticalStackLayout>
+            <Image StyleClass="wordmark_oneline"/>
+            <Label StyleClass="Header" Text="{Binding SubTitle}" />
+            <ListView
+                ItemsSource="{Binding Messages}">
+            </ListView>
+        </VerticalStackLayout>
+    </ContentPage.Content>
+</ContentPage>
