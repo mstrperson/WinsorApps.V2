@@ -34,7 +34,7 @@ public partial class UserViewModel : ObservableObject
     [RelayCommand]
     public async Task LoadMySchedule()
     {
-        var schedule = await _registrar.MyAcademicSchedule();
+        var schedule = await _registrar.GetMyAcademicScheduleAsync();
         AcademicSchedule = schedule
             .Select(sec => new SectionViewModel(sec))
             .ToImmutableArray();

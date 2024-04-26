@@ -26,7 +26,7 @@ if (!api.Ready)
 
 await registrar.Initialize(OnError);
 
-foreach(var item in await registrar.MySchedule())
+foreach(var item in await registrar.GetMyScheduleAsync())
     Console.WriteLine(item);
 
 void OnError(ErrorRecord err)
