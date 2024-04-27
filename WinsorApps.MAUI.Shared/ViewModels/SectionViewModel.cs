@@ -23,13 +23,18 @@ public partial class SectionViewModel : ObservableObject
 
     public SectionViewModel(SectionRecord section)
     {
-        _section = section;var registrar = ServiceHelper.GetService<RegistrarService>()!;
+        _section = section;
+        // Get the RegistrarService from the service helper...
+        var registrar = ServiceHelper.GetService<RegistrarService>()!;
         
+        // Get data about the teachers of this section
+        // and create UserViewModels for each of them
         teachers = registrar.TeacherList
             .Where(t => _section.teachers.Any(tch => t.id == tch.id))
             .Select(t => new UserViewModel(t))
             .ToImmutableArray();
         
+        // 
         foreach (var teacher in Teachers)
             teacher.Selected += (sender, tch) => TeacherSelected?.Invoke(sender, tch);
         
