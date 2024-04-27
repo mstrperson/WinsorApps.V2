@@ -16,6 +16,8 @@ namespace WinsorApps.Services.Global.Services;
 
 public class ApiService
 {
+    public event EventHandler? OnLoginSuccess;
+    
     public string? AuthUserId => AuthorizedUser?.userId;
     public DateTime? AuthExpires => AuthorizedUser?.expires;
 
@@ -145,6 +147,7 @@ public class ApiService
                 _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Login Successful:  {email}");
                 Ready = true;
                 SavedCredential.SaveJwt(AuthorizedUser.jwt, AuthorizedUser.refreshToken);
+                OnLoginSuccess?.Invoke(this, EventArgs.Empty);
             }
         }
         catch (Exception e)

@@ -1,7 +1,9 @@
-﻿using CommunityToolkit.Maui.Core;
+﻿using AsyncAwaitBestPractices;
+using CommunityToolkit.Maui.Core;
 using Microsoft.Extensions.Logging;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.Pages;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.Example;
@@ -36,8 +38,24 @@ public static class MauiProgram
 
         var app = builder.Build();
 
+        // Initialize the ServiceHelper...
         ServiceHelper.Initialize(app.Services);
+
+        var api = ServiceHelper.GetService<ApiService>()!;
+        
+        api.OnLoginSuccess += ApiOnOnLoginSuccess;
+        
         
         return app;
+    }
+
+    private static void ApiOnOnLoginSuccess(object? sender, EventArgs e)
+    {
+        var registrar = ServiceHelper.GetService<RegistrarService>()!;
+        var logging = ServiceHelper.GetService<LocalLoggingService>()!;
+        registrar.Initialize(err =>
+            logging.LogMessage(LocalLoggingService.LogLevel.Error,
+                err.type, err.error))
+            .SafeFireAndForget(e => e.LogException(logging));
     }
 }
