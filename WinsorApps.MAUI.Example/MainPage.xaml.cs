@@ -22,6 +22,15 @@ public partial class MainPage : ContentPage
         InitializeComponent();
     }
 
+    /// <summary>
+    /// WHEN the Login Button on the MainPage is clicked...
+    /// create a new LoginPage,
+    /// Connect up the OnLogin and OnError events
+    /// then Push the new page to the front of the Navigation stack.
+    /// (This means display the LoginPage you just created~
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void Button_OnClicked(object? sender, EventArgs e)
     {
         LoginPage page = new(_logging);
@@ -30,21 +39,27 @@ public partial class MainPage : ContentPage
         Navigation.PushAsync(page);
     }
 
+    /// <summary>
+    /// WHEN an error occurs...
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void ViewModelOnOnError(object? sender, ErrorRecord e)
     {
-        
+        // TODO:  We should probably do something here....
     }
 
+    /// <summary>
+    /// WHEN the user Successfully Logs in...
+    /// Create a new UserInfoPage using the logged in UserInfo...
+    /// And present that UserInfoPage on top of the Navigation Stack.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void ViewModelOnOnLogin(object? sender, EventArgs e)
     {
         var vm = new UserViewModel(_api.UserInfo!.Value);
-        vm.SectionSelected += VmOnSectionSelected;
         UserInfoPage page = new() {BindingContext = vm};
         Navigation.PushAsync(page);
-    }
-
-    private void VmOnSectionSelected(object? sender, SectionRecord e)
-    {
-        
     }
 }
