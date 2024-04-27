@@ -16,7 +16,7 @@ public partial class UserViewModel : ObservableObject
     public string Email => _user.email;
 
     [ObservableProperty] private ImmutableArray<SectionViewModel> academicSchedule = [];
-    [ObservableProperty] private bool showButton = true;
+    [ObservableProperty] private bool showButton = false;
 
     public event EventHandler<UserRecord>? Selected;
     public event EventHandler<SectionRecord>? SectionSelected;
@@ -27,14 +27,18 @@ public partial class UserViewModel : ObservableObject
         displayName = $"{user.firstName} {user.lastName}";
         _registrar = ServiceHelper.GetService<RegistrarService>()!;
         _registrar.Initialize(err => { })
-            .WhenCompleted(() => DisplayName = _registrar.AllUsers.GetUniqueNameWithin(user));
+            .WhenCompleted(() =>
+            {
+                ShowButton = true;
+                DisplayName = _registrar.AllUsers.GetUniqueNameWithin(user);
+            });
     }
 
 
     [RelayCommand]
-    public async Task LoadMySchedule()
+    public void LoadMySchedule()
     {
-        var schedule = await _registrar.GetMyAcademicScheduleAsync();
+        var schedule = _registrar.MyAcademicSchedule;
         AcademicSchedule = schedule
             .Select(sec => new SectionViewModel(sec))
             .ToImmutableArray();
