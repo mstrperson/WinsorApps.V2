@@ -45,7 +45,7 @@ namespace WinsorApps.Services.Global.Models;
     /// <param name="password"></param>
     public readonly record struct Login(string email, string password);
 
-    public readonly record struct AuthResponse(string userId = "", string jwt = "", DateTime expires = default, string refreshToken = "")
+    public sealed record AuthResponse(string userId = "", string jwt = "", DateTime expires = default, string refreshToken = "")
     {
         public JwtSecurityToken? GetJwt()
         {
