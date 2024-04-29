@@ -36,9 +36,16 @@ namespace WinsorApps.Services.Global.Models;
             ((IDisposable)contentStream).Dispose();
         }
     }
-    public sealed record ErrorRecord(string type, string error);
-    public sealed record Login(string email, string password);
-    public sealed record AuthResponse(string userId = "", string jwt = "", DateTime expires = default, string refreshToken = "")
+    public readonly record struct ErrorRecord(string type, string error);
+
+    /// <summary>
+    /// Login Model used for Logging into the App!
+    /// </summary>
+    /// <param name="email"></param>
+    /// <param name="password"></param>
+    public readonly record struct Login(string email, string password);
+
+    public readonly record struct AuthResponse(string userId = "", string jwt = "", DateTime expires = default, string refreshToken = "")
     {
         public JwtSecurityToken? GetJwt()
         {
