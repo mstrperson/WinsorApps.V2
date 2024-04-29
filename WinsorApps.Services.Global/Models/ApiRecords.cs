@@ -37,7 +37,7 @@ namespace WinsorApps.Services.Global.Models;
         }
     }
     public sealed record ErrorRecord(string type, string error);
-    public sealed record LoginRequest(string email, string password);
+    public sealed record Login(string email, string password);
     public sealed record AuthResponse(string userId = "", string jwt = "", DateTime expires = default, string refreshToken = "")
     {
         public JwtSecurityToken? GetJwt()

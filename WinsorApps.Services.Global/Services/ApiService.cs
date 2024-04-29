@@ -136,7 +136,7 @@ public class ApiService
 
     public async Task Login(string email, string password, ErrorAction onError)
     {
-        LoginRequest login = new(email, password);
+        Login login = new(email, password);
         try
         {
             AuthorizedUser = await SendAsync<AuthResponse>(HttpMethod.Post, "api/auth",
@@ -159,7 +159,7 @@ public class ApiService
 
     public async Task ForgotPassword(string email, string password, Action<string> onCompleteAction, ErrorAction onError)
     {
-        LoginRequest login = new LoginRequest(email, password);
+        Login login = new Login(email, password);
 
         try
         {
@@ -175,7 +175,7 @@ public class ApiService
 
     public async Task Register(string email, string password, Action<string> onCompleteAction, ErrorAction onError)
     {
-        LoginRequest login = new LoginRequest(email, password);
+        Login login = new Login(email, password);
 
         try
         {

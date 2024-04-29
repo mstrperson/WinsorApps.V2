@@ -62,4 +62,5 @@ public partial class MainPage : ContentPage
         UserInfoPage page = new() {BindingContext = vm};
         Navigation.PushAsync(page);
     }
+
 }
