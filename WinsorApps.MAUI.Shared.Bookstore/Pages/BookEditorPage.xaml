@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.Bookstore.ViewModels"
+             x:DataType="vm:BookViewModel"
+             x:Class="WinsorApps.MAUI.Shared.Bookstore.Pages.BookEditorPage"
+             Title="Edit Book Details">
+    <ContentPage.Content>
+        <Grid
+            RowDefinitions="*,*,*,*,*"
+            ColumnDefinitions="*,Auto">
+            <Label
+                Grid.Row="0"
+                Grid.Column="0"
+                Text="Title:" />
+            <Entry
+                Grid.Row="0"
+                Grid.Column="1"
+                WidthRequest="400"
+                Text="{Binding Title}"/>
+            <Label
+                Grid.Row="1"
+                Grid.Column="0"
+                Text="Author(s):" />
+            <Entry
+                Placeholder="Last, First; Last, First"
+                Grid.Row="1"
+                Grid.Column="1"
+                WidthRequest="400"
+                Text="{Binding AuthorList}"/>
+            <Label
+                Grid.Row="2"
+                Grid.Column="0"
+                Text="Edition:"/>
+            <Entry
+                Grid.Row="2"
+                Grid.Column="1"
+                WidthRequest="400"
+                Text="{Binding Edition}"/>
+            <Label
+                Grid.Row="3"
+                Grid.Column="0"
+                Text="Publisher:"/>
+            <Entry
+                Grid.Row="3"
+                Grid.Column="1"
+                WidthRequest="400"
+                Text="{Binding Publisher}"/>
+            <Label
+                Grid.Row="4"
+                Grid.Column="0"
+                Text="Publication Date:"/>
+            <DatePicker
+                Grid.Row="4"
+                Grid.Column="1"
+                WidthRequest="400"
+                Date="{Binding PublicationDate}"/>
+            <CollectionView
+                Grid.Row="5"
+                Grid.ColumnSpan="2"
+                ItemsSource="{Binding Isbns}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:IsbnViewModel">
+                        <HorizontalStackLayout>
+                            <Switch 
+                                IsToggled="{Binding Available}"
+                                IsEnabled="False" />
+                            <Label 
+                                Text="{Binding DisplayName}"/>
+                        </HorizontalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

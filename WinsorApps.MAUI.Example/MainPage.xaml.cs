@@ -1,6 +1,4 @@
-﻿using System;
-using Microsoft.Maui.Controls;
-using WinsorApps.MAUI.Shared.Pages;
+﻿using WinsorApps.MAUI.Shared.Pages;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;

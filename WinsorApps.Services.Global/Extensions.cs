@@ -2,12 +2,9 @@ global using ErrorAction = System.Action<WinsorApps.Services.Global.Models.Error
 using System.Collections;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Numerics;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using AsyncAwaitBestPractices;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.VisualBasic.FileIO;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 
@@ -446,6 +443,17 @@ public static partial class Extensions
         if (noRepeats)
             entries = entries.Distinct();
         return entries.Aggregate((a, b) => $"{a}{delimeter}{b}");
+    }
+
+    public static IEnumerable<string> DelimeteredList(this string list, char delimeter = ';', bool noRepeats = true,
+        bool removeEmpty = true)
+    {
+        var output = list.Split(delimeter).Select(str => str.Trim());
+        if (noRepeats)
+            output = output.Distinct();
+        if (removeEmpty)
+            output = output.Where(str => !string.IsNullOrWhiteSpace(str));
+        return output;
     }
 
     /// <summary>

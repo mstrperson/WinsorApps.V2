@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using WinsorApps.Services.Bookstore.Models;
-using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.Services.Bookstore.Services;

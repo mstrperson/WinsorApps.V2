@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using WinsorApps.Services.Bookstore.Models;
-using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 using SectionRecord = WinsorApps.Services.Bookstore.Models.SectionRecord;
@@ -26,13 +25,13 @@ public partial class TeacherBookstoreService
 
         public ImmutableArray<OrderStatus> OrderStatusOptions { get; private set; } = [];
 
-        public async Task Initialize(bool rerun = false)
+        public async Task Initialize(ErrorAction onError, bool rerun = false)
         {
             if (Ready && !rerun) 
                 return;
             
             var orderOptionTask = _api.SendAsync<ImmutableArray<OrderOption>>(HttpMethod.Get,
-                "api/book-orders/order-options");
+                "api/book-orders/order-options", onError: onError);
             orderOptionTask.WhenCompleted(() =>
             {
                 if (orderOptionTask.IsCompletedSuccessfully)
@@ -42,14 +41,14 @@ public partial class TeacherBookstoreService
             });
 
             var statusTask = _api.SendAsync<ImmutableArray<OrderStatus>>(HttpMethod.Get,
-                "api/book-orders/teachers/status-list");
+                "api/book-orders/teachers/status-list", onError: onError);
             statusTask.WhenCompleted(() =>
             {
                 OrderStatusOptions = statusTask.Result;
             });
 
             var courseTask = _api.SendAsync<Dictionary<string, ImmutableArray<CourseRecord>>>(
-                HttpMethod.Get, "api/registrar/course/by-department?getsBooks=true");
+                HttpMethod.Get, "api/registrar/course/by-department?getsBooks=true", onError: onError);
 
             courseTask.WhenCompleted(() =>
             {
@@ -58,7 +57,7 @@ public partial class TeacherBookstoreService
             });
 
             var sectionTask = _api.SendAsync<List<SectionRecord>>(HttpMethod.Get,
-                "api/book-orders/teachers/sections");
+                "api/book-orders/teachers/sections", onError: onError);
             sectionTask.WhenCompleted(() =>
             {
                 if (sectionTask.IsCompletedSuccessfully)
@@ -66,7 +65,7 @@ public partial class TeacherBookstoreService
             });
 
             var myOrdersTask = _api.SendAsync<List<TeacherBookOrder>>(HttpMethod.Get,
-                "api/book-orders/teachers");
+                "api/book-orders/teachers", onError: onError);
             myOrdersTask.WhenCompleted(() =>
             {
                 _myOrders = myOrdersTask.Result;

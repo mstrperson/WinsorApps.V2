@@ -1,10 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Graphics;
-using Microsoft.Maui.Hosting;
+using AsyncAwaitBestPractices;
 using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Services;
 
@@ -43,6 +37,20 @@ public static class Extensions
         builder.Services.AddSingleton<LocalLoggingService>();
 
         return builder;
+    }
+
+    public static void InitializeGlobalServices(this MauiApp app)
+    {
+        var api = ServiceHelper.GetService<ApiService>()!;
+        api.OnLoginSuccess += (_, _) =>
+        {
+            var registrar = ServiceHelper.GetService<RegistrarService>()!;
+            var logging = ServiceHelper.GetService<LocalLoggingService>()!;
+            registrar.Initialize(err =>
+                    logging.LogMessage(LocalLoggingService.LogLevel.Error,
+                        err.type, err.error))
+                .SafeFireAndForget(e => e.LogException(logging));
+        };
     }
 }
 

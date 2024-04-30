@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using AsyncAwaitBestPractices;
 using WinsorApps.Services.Bookstore.Models;
-using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 using SectionRecord = WinsorApps.Services.Bookstore.Models.SectionRecord;
