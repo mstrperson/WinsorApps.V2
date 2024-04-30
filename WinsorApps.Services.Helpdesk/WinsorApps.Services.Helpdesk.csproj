@@ -10,9 +10,4 @@
       <ProjectReference Include="..\WinsorApps.Services.Global\WinsorApps.Services.Global.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Models\" />
-      <Folder Include="Services\" />
-    </ItemGroup>
-
 </Project>
