@@ -61,7 +61,7 @@
         How should Buttons look and feel
     -->
     <Style TargetType="Button">
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource CoolGrey}}" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource CoolGrey}}" />
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource WarmGrey}, Dark={StaticResource SlateDark}}" />
         <Setter Property="FontFamily" Value="SansSerif"/>
         <Setter Property="FontSize" Value="14"/>

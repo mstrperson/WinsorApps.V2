@@ -1,6 +1,10 @@
-﻿using AsyncAwaitBestPractices;
+﻿using System;
+using AsyncAwaitBestPractices;
 using CommunityToolkit.Maui.Core;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Maui.Controls.Hosting;
+using Microsoft.Maui.Hosting;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.Pages;
 using WinsorApps.Services.Global;

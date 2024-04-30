@@ -1,4 +1,6 @@
-﻿namespace WinsorApps.MAUI.Example;
+﻿using Microsoft.Maui.Controls;
+
+namespace WinsorApps.MAUI.Example;
 
 public partial class App : Application
 {
