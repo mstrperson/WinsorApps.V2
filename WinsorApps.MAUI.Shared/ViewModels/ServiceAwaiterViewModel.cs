@@ -44,7 +44,7 @@ public partial class ServiceAwaiterViewModel : ObservableObject
             Progress = _service.Progress;
             Started = _service.Started;
         }
-
+        
         Ready = true;
         OnCompletion?.Invoke(this, EventArgs.Empty);
     }
