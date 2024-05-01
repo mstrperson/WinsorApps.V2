@@ -9,6 +9,8 @@ namespace WinsorApps.MAUI.Shared.ViewModels;
 
 public partial class UserViewModel : ObservableObject
 {
+    public static UserViewModel Empty => new();
+    
     private readonly RegistrarService _registrar;
     private readonly UserRecord _user;
 
@@ -21,6 +23,11 @@ public partial class UserViewModel : ObservableObject
     public event EventHandler<UserRecord>? Selected;
     public event EventHandler<SectionRecord>? SectionSelected;
 
+    private UserViewModel()
+    {
+        _user = new();
+        displayName = "";
+    }
     public UserViewModel(UserRecord user)
     {
         _user = user;

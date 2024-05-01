@@ -7,11 +7,12 @@ using WinsorApps.Services.Helpdesk.Models;
 
 namespace WinsorApps.Services.Helpdesk.Services;
 
-public class ServiceCaseService
+public class ServiceCaseService : IAsyncInitService
 {
     private readonly ApiService _api;
     private readonly LocalLoggingService _logging;
     public bool Ready { get; private set; } = false;
+    public double Progress { get; private set; } = 0;
 
     private ImmutableArray<ServiceStatus>? _serviceStatuses;
 
@@ -22,7 +23,7 @@ public class ServiceCaseService
             if (!Ready)
                 throw new ServiceNotReadyException(_logging, "Device Service has not retrieved ServiceStatuses yet.");
 
-            return _serviceStatuses ?? Enumerable.Empty<ServiceStatus>().ToImmutableArray();
+            return _serviceStatuses ?? [];
         }
     }
 
@@ -35,7 +36,7 @@ public class ServiceCaseService
             if (!Ready)
                 throw new ServiceNotReadyException(_logging, "Device Service has not retrieved CommonIssues yet.");
 
-            return _commonIssues ?? Enumerable.Empty<ServiceCaseCommonIssue>().ToImmutableArray();
+            return _commonIssues ?? [];
         }
     }
 
@@ -53,23 +54,26 @@ public class ServiceCaseService
         {
             if (!Ready)
                 throw new ServiceNotReadyException(_logging, "Device Service has not populated the Service Case Cache yet.");
-            return _openCasesCache?.ToDictionary(c => c.id) ?? new Dictionary<string, ServiceCase>();
+            return _openCasesCache.ToDictionary(c => c.id) ?? new Dictionary<string, ServiceCase>();
         }
     }
 
     public ImmutableArray<ServiceCase> OpenCases =>
-        Ready ? _openCasesCache.ToImmutableArray() : Array.Empty<ServiceCase>().ToImmutableArray();
+        Ready ? _openCasesCache.ToImmutableArray() : [];
 
     public async Task Initialize(ErrorAction onError)
     {
         _serviceStatuses = await _api.SendAsync<ImmutableArray<ServiceStatus>>(
             HttpMethod.Get, "api/helpdesk/service-cases/status-list", onError: onError);
+        Progress = 1 / 3.0;
         _commonIssues = await _api.SendAsync<ImmutableArray<ServiceCaseCommonIssue>>(
             HttpMethod.Get, "api/helpdesk/service-cases/common-issue-list", onError: onError);
 
+        Progress = 2 / 3.0;
         _openCasesCache = (await _api.SendAsync<List<ServiceCase>>(
             HttpMethod.Get, "api/helpdesk/service-cases", onError: onError))!;
 
+        Progress = 1;
         Ready = true;
     }
 

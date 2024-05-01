@@ -5,7 +5,7 @@ using WinsorApps.Services.Helpdesk.Models;
 
 namespace WinsorApps.Services.Helpdesk.Services;
 
-public sealed class DeviceService
+public sealed class DeviceService : IAsyncInitService
 {
     private readonly ApiService _api;
     private readonly LocalLoggingService _logging;
@@ -68,12 +68,14 @@ public sealed class DeviceService
             }
         }
 
+        public double Progress { get; private set; } = 0;
         public async Task Initialize(ErrorAction onError)
         {
             var loanersTask = _api.SendAsync<List<DeviceRecord>>(HttpMethod.Get,
                 "api/devices/loaners", onError: onError);
             loanersTask.WhenCompleted(() =>
             {
+                Progress += 1 / 3.0;
                 _loaners = loanersTask.Result;
             });
             
@@ -82,6 +84,7 @@ public sealed class DeviceService
 
             devicesTask.WhenCompleted(() =>
             {
+                Progress += 1 / 3.0;
                 _deviceCache = devicesTask.Result;
             });
 
@@ -89,6 +92,7 @@ public sealed class DeviceService
                 "api/devices/categories", onError: onError);
             categoriesTask.WhenCompleted(() =>
             {
+                Progress += 1 / 3.0;
                 _categories = categoriesTask.Result;
             });
 
@@ -96,6 +100,7 @@ public sealed class DeviceService
 
             await Task.WhenAll(loanersTask, devicesTask, categoriesTask);
 
+            Progress = 1;
             Ready = true;
         }
 

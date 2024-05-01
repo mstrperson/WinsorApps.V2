@@ -9,8 +9,9 @@ using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.Services.Global.Services;
 
-public class ApiService
+public class ApiService : IAsyncInitService
 {
+    public double Progress => 1;
     public event EventHandler? OnLoginSuccess;
     
     public string? AuthUserId => AuthorizedUser?.userId;

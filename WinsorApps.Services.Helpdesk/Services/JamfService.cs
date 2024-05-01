@@ -5,7 +5,7 @@ using WinsorApps.Services.Helpdesk.Models;
 
 namespace WinsorApps.Services.Helpdesk.Services;
 
-public class JamfService
+public class JamfService : IAsyncInitService
 {
     private readonly ApiService _api;
     private readonly LocalLoggingService _logging;
@@ -30,11 +30,13 @@ public class JamfService
             }
         }
 
-        public async Task Initialize()
+        public double Progress { get; private set; } = 0;
+        
+        public async Task Initialize(ErrorAction onError)
         {
             _departments = await _api.SendAsync<ImmutableArray<Department>>(HttpMethod.Get,
-                "api/devices/jamf/departments");
-
+                "api/devices/jamf/departments", onError: onError);
+            Progress = 1;
             Ready = true;
         }
 
