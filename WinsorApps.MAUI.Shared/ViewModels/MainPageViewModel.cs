@@ -43,18 +43,18 @@ public partial class MainPageViewModel : ObservableObject
 
     private void LoginVMOnOnForgotPassword(object? sender, string e)
     {
-        throw new NotImplementedException();
     }
 
     private void LoginVMOnOnLogout(object? sender, EventArgs e)
     {
-        throw new NotImplementedException();
     }
 
     private void LoginVMOnOnLogin(object? sender, EventArgs e)
     {
         OnSplashPageReady?.Invoke(this, SplashPageVM);
-        foreach(var serv in PostLoginServices)
+        var api = ServiceHelper.GetService<ApiService>()!;
+        UserVM = new(api.UserInfo!.Value);
+        foreach (var serv in PostLoginServices.Where(serv => !serv.Started))
             serv.Initialize();
     }
 

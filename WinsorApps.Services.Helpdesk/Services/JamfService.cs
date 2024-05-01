@@ -1,3 +1,4 @@
+using System.Reflection.Metadata.Ecma335;
 using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
@@ -30,10 +31,14 @@ public class JamfService : IAsyncInitService
             }
         }
 
+        public bool Started { get; private set; }
         public double Progress { get; private set; } = 0;
         
         public async Task Initialize(ErrorAction onError)
         {
+            if (Started) return;
+
+            Started = true;
             _departments = await _api.SendAsync<ImmutableArray<Department>>(HttpMethod.Get,
                 "api/devices/jamf/departments", onError: onError);
             Progress = 1;

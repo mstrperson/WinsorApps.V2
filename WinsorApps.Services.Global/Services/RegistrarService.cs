@@ -389,6 +389,7 @@ namespace WinsorApps.Services.Global.Services
 
         public double Progress { get; private set; } = 0;
         
+        public bool Started { get; private set; }
         /// <summary>
         /// Initialize the Registrar Service.
         /// This should be called after a user has logged into the application.
@@ -399,6 +400,13 @@ namespace WinsorApps.Services.Global.Services
             if (Ready)
                 return; // this has already been initalized...
 
+            if (Started)
+            {
+                _logging.LogMessage(LocalLoggingService.LogLevel.Debug, "Api Initialization called multiple times...");
+                return;
+            }
+            
+            Started = true;
             while (string.IsNullOrEmpty(_api.AuthUserId))
             {
                 Thread.Sleep(500);

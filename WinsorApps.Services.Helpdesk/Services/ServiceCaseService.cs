@@ -61,8 +61,12 @@ public class ServiceCaseService : IAsyncInitService
     public ImmutableArray<ServiceCase> OpenCases =>
         Ready ? _openCasesCache.ToImmutableArray() : [];
 
+    public bool Started { get; private set; }
+    
     public async Task Initialize(ErrorAction onError)
     {
+        if (Started) return;
+        Started = true;
         _serviceStatuses = await _api.SendAsync<ImmutableArray<ServiceStatus>>(
             HttpMethod.Get, "api/helpdesk/service-cases/status-list", onError: onError);
         Progress = 1 / 3.0;

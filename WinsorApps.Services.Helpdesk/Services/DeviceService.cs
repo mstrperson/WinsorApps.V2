@@ -67,10 +67,17 @@ public sealed class DeviceService : IAsyncInitService
                 return _categories!.Value;
             }
         }
+        
+        public bool Started { get; private set; }
 
         public double Progress { get; private set; } = 0;
         public async Task Initialize(ErrorAction onError)
         {
+            if (Started)
+                return;
+
+            Started = true;
+            
             var loanersTask = _api.SendAsync<List<DeviceRecord>>(HttpMethod.Get,
                 "api/devices/loaners", onError: onError);
             loanersTask.WhenCompleted(() =>

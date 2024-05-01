@@ -12,7 +12,9 @@ namespace WinsorApps.Services.Global.Services;
 public class ApiService : IAsyncInitService
 {
     public double Progress => 1;
-    public event EventHandler? OnLoginSuccess;
+    public bool Started { get; private set; }
+
+public event EventHandler? OnLoginSuccess;
     
     public string? AuthUserId => AuthorizedUser?.userId;
     public DateTime? AuthExpires => AuthorizedUser?.expires;
@@ -49,6 +51,7 @@ public class ApiService : IAsyncInitService
     /// <param name="onErrorAction">If something encounters an error, what do.</param>
     public async Task Initialize(ErrorAction onError)
     {
+        Started = true;
         var savedCredential = await SavedCredential.GetSavedCredential();
         if (savedCredential is not null)
         {

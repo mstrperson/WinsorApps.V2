@@ -13,6 +13,7 @@ public partial class ServiceAwaiterViewModel : ObservableObject
     [ObservableProperty] private bool ready;
     [ObservableProperty] private string serviceName;
     [ObservableProperty] private double progress;
+    [ObservableProperty] private bool started;
 
     public event EventHandler? OnCompletion;
     public event EventHandler<ErrorRecord>? OnError;
@@ -28,6 +29,8 @@ public partial class ServiceAwaiterViewModel : ObservableObject
     [RelayCommand]
     public void Initialize()
     {
+        if (_service.Started) return;
+        
         _service.Initialize(err => 
                 OnError?.Invoke(this, err))
             .SafeFireAndForget(e => 
@@ -39,6 +42,7 @@ public partial class ServiceAwaiterViewModel : ObservableObject
         {
             await Task.Delay(250);
             Progress = _service.Progress;
+            Started = _service.Started;
         }
 
         Ready = true;

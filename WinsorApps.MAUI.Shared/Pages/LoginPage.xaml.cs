@@ -7,9 +7,20 @@ namespace WinsorApps.MAUI.Shared.Pages;
 public partial class LoginPage : ContentPage
 {
     private readonly LocalLoggingService _logging;
-    
+
+    public event EventHandler? OnLoginComplete;
     public LoginViewModel ViewModel => (LoginViewModel) BindingContext;
-    
+
+    public LoginPage(LocalLoggingService logging, LoginViewModel viewModel)
+    {
+        _logging = logging;
+        viewModel.OnLogin += ViewModelOnOnLogin;
+        viewModel.OnLogout += ViewModelOnOnLogout;
+        viewModel.OnForgotPassword += ViewModelOnOnForgotPassword;
+        viewModel.OnError += ViewModelOnOnError;
+        BindingContext = viewModel;
+        InitializeComponent();
+    }
     public LoginPage(LocalLoggingService logging)
     {
         _logging = logging;
@@ -41,16 +52,7 @@ public partial class LoginPage : ContentPage
     }
 
     private void ViewModelOnOnLogin(object? sender, EventArgs e)
-    {/*
-        try
-        {
-            Navigation.PopAsync().SafeFireAndForget(ex => ex.LogException(_logging));
-        }
-        catch (Exception exception)
-        {
-            Console.WriteLine(exception);
-            throw;
-        }*/
-        
+    {
+        OnLoginComplete?.Invoke(this, e);
     }
 }
