@@ -27,8 +27,6 @@ public class CheqroomService
 
         public async Task<ImmutableArray<CheqroomCheckoutSearchResult>> GetOpenOrders(ErrorAction onError)
         {
-            
-
             var result = await _api.SendAsync<ImmutableArray<CheqroomCheckoutSearchResult>>(HttpMethod.Get, $"api/cheqroom/list-checkouts",
                 onError: onError);
 

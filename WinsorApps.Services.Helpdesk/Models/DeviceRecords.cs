@@ -28,7 +28,7 @@ public readonly record struct DeviceAssignmentRecord(string assetTag, UserRecord
     }
     public readonly record struct WinsorDeviceRecord(string id, string assetTag, DeviceCategoryRecord category, string cheqroomId,
         int jamfId, int jamfInventoryPreloadId,
-        bool loaner, DateTime purchaseDate);
+        bool loaner, DateTime purchaseDate, double purchaseCost = 0.0);
     public readonly record struct WinsorDeviceStub(
         string assetTag, string category, string cheqroomId,
         int jamfId, int jamfInventoryPreloadId, bool loaner)

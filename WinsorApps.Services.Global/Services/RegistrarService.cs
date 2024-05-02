@@ -403,6 +403,10 @@ namespace WinsorApps.Services.Global.Services
             if (Started)
             {
                 _logging.LogMessage(LocalLoggingService.LogLevel.Debug, "Api Initialization called multiple times...");
+                while (!Ready)
+                {
+                    await Task.Delay(250);
+                }
                 return;
             }
             

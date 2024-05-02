@@ -12,10 +12,13 @@ public partial class UserViewModel : ObservableObject
     public static UserViewModel Empty => new();
     
     private readonly RegistrarService _registrar;
-    private readonly UserRecord _user;
+    public readonly UserRecord User;
 
+    public string BlackbaudId => $"{User.blackbaudId}";
+    public string Id => User.id;
+    
     [ObservableProperty] private string displayName;
-    public string Email => _user.email;
+    public string Email => User.email;
 
     [ObservableProperty] private ImmutableArray<SectionViewModel> academicSchedule = [];
     [ObservableProperty] private bool showButton = false;
@@ -25,12 +28,12 @@ public partial class UserViewModel : ObservableObject
 
     private UserViewModel()
     {
-        _user = new();
+        User = new();
         displayName = "";
     }
     public UserViewModel(UserRecord user)
     {
-        _user = user;
+        User = user;
         displayName = $"{user.firstName} {user.lastName}";
         _registrar = ServiceHelper.GetService<RegistrarService>()!;
         _registrar.Initialize(err => { })
@@ -57,6 +60,6 @@ public partial class UserViewModel : ObservableObject
     [RelayCommand]
     public void Select()
     {
-        Selected?.Invoke(this, _user);
+        Selected?.Invoke(this, User);
     }
 }

@@ -70,4 +70,8 @@
       <ProjectReference Include="..\WinsorApps.Services.Helpdesk\WinsorApps.Services.Helpdesk.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="ViewModels\Jamf\" />
+    </ItemGroup>
+
 </Project>

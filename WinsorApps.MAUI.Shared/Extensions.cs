@@ -59,9 +59,9 @@ public static class Extensions
 /// </summary>
 public static class ServiceHelper
 {
-    public static IServiceProvider? Services { get; private set; } = null!;
+    public static IServiceProvider Services { get; private set; } = null!;
 
     public static void Initialize(IServiceProvider sp) => Services = sp;
 
-    public static T? GetService<T>() => Services is null ? default : Services.GetService<T>();
+    public static T GetService<T>() => Services.GetService<T>()!;
 }
