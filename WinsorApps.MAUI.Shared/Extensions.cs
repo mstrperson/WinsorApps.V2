@@ -11,6 +11,8 @@ namespace WinsorApps.MAUI.Shared;
 
 public static class Extensions
 {
+    public static EventHandler<T> PassAlong<T>(this EventHandler<T>? handler) => (sender, e) => handler?.Invoke(sender, e);
+
     public static ErrorAction DefaultBehavior(this EventHandler<ErrorRecord>? OnError, object? sender) => err => OnError?.Invoke(sender, err);
 
     public static void PushErrorPage(this ContentPage parent, ErrorRecord err, Action? onConfirmAction = null)

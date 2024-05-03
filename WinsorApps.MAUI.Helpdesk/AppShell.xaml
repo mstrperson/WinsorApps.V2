@@ -14,8 +14,13 @@
         Route="MainPage" />
 
     <ShellContent
-        Title="Quick Checkout"
+        Title="Quick Check-Out"
         ContentTemplate="{DataTemplate pages:QuickCheckout}"
         Route="QuickCheckout" />
+
+    <ShellContent
+        Title="Quick Check-In"
+        ContentTemplate="{DataTemplate pages:QuickCheckin}"
+        Route="QuickCheckin" />
 
 </Shell>

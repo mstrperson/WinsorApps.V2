@@ -76,6 +76,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <MauiXaml Update="Pages\QuickCheckin.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
       <MauiXaml Update="Pages\QuickCheckout.xaml">
         <Generator>MSBuild:Compile</Generator>
       </MauiXaml>

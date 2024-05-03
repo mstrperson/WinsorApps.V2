@@ -53,7 +53,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
 
         private async Task GetItems()
         {
-            var tasks = _searchResult.items.Select(id => _cheqroom.GetItem(id, Err));
+            var tasks = _searchResult.items.Select(id => _cheqroom.GetItem(id, OnError.DefaultBehavior(this)));
 
             await Task.WhenAll(tasks);
        
@@ -63,12 +63,11 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
                 .ToImmutableArray();
         }
 
-        private void Err(ErrorRecord e) => OnError?.Invoke(this, e);
 
         [RelayCommand]
         public async Task CheckIn()
         {
-            await _cheqroom.CheckInItem(_searchResult._id, Err);
+            await _cheqroom.CheckInItem(_searchResult._id, OnError.DefaultBehavior(this));
         }
     }
 }

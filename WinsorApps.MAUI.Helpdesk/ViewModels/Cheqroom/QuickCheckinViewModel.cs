@@ -40,9 +40,14 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         {
             _cheqroom = cheqroom;
             var cacheTask = _cheqroom.WaitForInit(OnError.DefaultBehavior(this));
+            selected = IEmptyViewModel<CheckoutSearchResultViewModel>.Empty;
             cacheTask.WhenCompleted(() =>
             {
                 Available = _cheqroom.OpenOrders.Select(o => new CheckoutSearchResultViewModel(o)).ToImmutableArray();
+                foreach(var order in Available)
+                {
+                    order.OnError += OnError.PassAlong();
+                }    
             });
         }
 
@@ -50,7 +55,8 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         public void Search()
         {
             var possible = Available
-                .Where(ord => ord.Items.Any(item => item.AssetTag.Equals(SearchText, StringComparison.InvariantCultureIgnoreCase))); switch (SelectionMode)
+                .Where(ord => ord.Items.Any(item => item.AssetTag.Equals(SearchText, StringComparison.InvariantCultureIgnoreCase)));
+            switch (SelectionMode)
             {
                 case SelectionMode.Multiple:
                     AllSelected = [.. possible];

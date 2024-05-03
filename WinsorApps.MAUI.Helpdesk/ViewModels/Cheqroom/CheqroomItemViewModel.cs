@@ -5,7 +5,7 @@ using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Helpdesk.Models;
 using WinsorApps.Services.Helpdesk.Services;
 
-namespace WinsorApps.MAUI.Helpdesk.ViewModels;
+namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom;
 
 public partial class CheqroomItemViewModel : ObservableObject, IEmptyViewModel<CheqroomItemViewModel>
 {
