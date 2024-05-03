@@ -14,5 +14,15 @@
         <Button 
             Text="Check In"
             Command="{Binding SearchCommand}" />
+        <CollectionView
+            ItemsSource="{Binding Options}"
+            IsVisible="{Binding ShowOptions}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:CheckoutSearchResultViewModel">
+                    <VerticalStackLayout
+                        Margin="0"></VerticalStackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
     </VerticalStackLayout>
 </ContentPage>
