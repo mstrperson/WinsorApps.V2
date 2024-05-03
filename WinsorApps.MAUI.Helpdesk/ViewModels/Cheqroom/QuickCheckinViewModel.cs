@@ -1,4 +1,4 @@
-﻿using Android.Content.PM;
+﻿
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;

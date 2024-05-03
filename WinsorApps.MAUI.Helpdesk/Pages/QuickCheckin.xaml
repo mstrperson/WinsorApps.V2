@@ -10,9 +10,9 @@
             Text="Asset Tag"
             StyleClass="H3"/>
         <Entry 
-            Text="{Binding AssetTag}"/>
+            Text="{Binding SearchText}"/>
         <Button 
             Text="Check In"
-            Command="{Binding CheckInCommand}" />
+            Command="{Binding SearchCommand}" />
     </VerticalStackLayout>
 </ContentPage>
