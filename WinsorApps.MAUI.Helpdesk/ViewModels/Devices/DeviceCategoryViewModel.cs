@@ -5,7 +5,7 @@ using WinsorApps.Services.Helpdesk.Services;
 
 namespace WinsorApps.MAUI.Helpdesk.ViewModels;
 
-public class DeviceCategoryViewModel
+public partial class DeviceCategoryViewModel : ObservableObject
 {
     private readonly DeviceCategoryRecord _category;
 
@@ -39,7 +39,7 @@ public class DeviceCategoryViewModel
                 cat.name.Contains(name, StringComparison.InvariantCultureIgnoreCase));
         
         _category = category;
-        name = category.name;
+        this.name = category.name;
         assignCustody = category.assignCustodyToOwner;
         prefix = category.assetTagPrefix;
         cheqroomCategory = category.cheqroomCategory;

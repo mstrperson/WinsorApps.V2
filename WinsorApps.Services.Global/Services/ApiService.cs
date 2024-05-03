@@ -2,6 +2,8 @@
 //#define API_DEBUG
 
 using System.Net;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using WinsorApps.Services.Global.Models;
@@ -15,6 +17,8 @@ public class ApiService : IAsyncInitService
     public bool Started { get; private set; }
 
 public event EventHandler? OnLoginSuccess;
+
+    public bool FirstLogin = true;
     
     public string? AuthUserId => AuthorizedUser?.userId;
     public DateTime? AuthExpires => AuthorizedUser?.expires;
@@ -45,6 +49,23 @@ public event EventHandler? OnLoginSuccess;
 
     public AuthResponse? MasqueradingAdminCred { get; private set; }
 
+    public async Task Refresh(ErrorAction onError)
+    {
+        await RenewTokenAsync(onError: onError);
+    }
+
+    public async Task WaitForInit(ErrorAction onError)
+    {
+        if (Ready) return;
+
+        if (!this.Started)
+            await this.Initialize(onError);
+
+        while (!this.Ready)
+        {
+            await Task.Delay(250);
+        }
+    }
     /// <summary>
     /// Attempts to retrieve saved credentials and if possible, log in to the API.
     /// </summary>
@@ -147,6 +168,7 @@ public event EventHandler? OnLoginSuccess;
                 Ready = true;
                 SavedCredential.SaveJwt(AuthorizedUser.jwt, AuthorizedUser.refreshToken);
                 OnLoginSuccess?.Invoke(this, EventArgs.Empty);
+                FirstLogin = false;
             }
         }
         catch (Exception e)
@@ -211,6 +233,11 @@ public event EventHandler? OnLoginSuccess;
                 _logging.LogMessage(LocalLoggingService.LogLevel.Information,
                     $"Login Successful:  {UserInfo.Value.email}");
                 Ready = true;
+                if(FirstLogin)
+                {
+                    OnLoginSuccess?.Invoke(this, EventArgs.Empty);
+                    FirstLogin = false;
+                }
                 SavedCredential.SaveJwt(AuthorizedUser.jwt, AuthorizedUser.refreshToken);
             }
             else

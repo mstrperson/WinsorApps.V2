@@ -1,11 +1,40 @@
+global using ErrorAction = System.Action<WinsorApps.Services.Global.Models.ErrorRecord>;
+
 using AsyncAwaitBestPractices;
+using WinsorApps.MAUI.Shared.Pages;
+using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Global;
+using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.Shared;
 
 public static class Extensions
 {
+    public static ErrorAction DefaultBehavior(this EventHandler<ErrorRecord>? OnError, object? sender) => err => OnError?.Invoke(sender, err);
+
+    public static void PushErrorPage(this ContentPage parent, ErrorRecord err, Action? onConfirmAction = null)
+    {
+        ServiceHelper.GetService<LocalLoggingService>().LogMessage(LocalLoggingService.LogLevel.Error,
+            err.type, err.error);
+        SplashPageViewModel spvm = new(err.type, [err.error], TimeSpan.FromSeconds(30)) { IsCaptive = false };
+        spvm.OnClose += (_, _) =>
+        {
+            if (onConfirmAction is not null)
+                onConfirmAction();
+
+            parent.Navigation.PopAsync();
+        };
+
+        SplashPage page = new() { BindingContext = spvm };
+        parent.Navigation.PushAsync(page);
+    }
+
+    public static ErrorAction DefaultOnErrorAction(this ContentPage parent, Action? onConfirmAction = null) => err => parent.PushErrorPage(err, onConfirmAction);
+
+    public static EventHandler<ErrorRecord> DefaultOnErrorHandler(this ContentPage parent, Action? onConfirmAction = null) => 
+        (sender, err) => parent.DefaultOnErrorAction(onConfirmAction)(err);
+
     private static Dictionary<string, ResourceDictionary> _resources = null!;
     public static Dictionary<string, ResourceDictionary> Resources
     {

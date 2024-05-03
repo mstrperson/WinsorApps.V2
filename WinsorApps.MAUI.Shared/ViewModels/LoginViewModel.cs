@@ -50,12 +50,16 @@ public partial class LoginViewModel : ObservableObject
     {
         // Inject this service from the Service Helper!
         _api = ServiceHelper.GetService<ApiService>()!;
+        _api.OnLoginSuccess += _api_OnLoginSuccess;
         email = "";
         password = "";
         statusMessage = _api.Ready ? "Login Successful" : "Please Log In";
         isLoggedIn = _api.Ready;
-        if(isLoggedIn)
-            OnLogin?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void _api_OnLoginSuccess(object? sender, EventArgs e)
+    {
+        OnLogin?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -76,8 +80,6 @@ public partial class LoginViewModel : ObservableObject
                 OnError?.Invoke(this, err);
             });
         IsLoggedIn = _api.Ready;
-        if(IsLoggedIn)
-            OnLogin?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>

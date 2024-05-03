@@ -6,31 +6,36 @@ using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.Shared.ViewModels;
 
-public partial class SectionViewModel : ObservableObject
+public partial class SectionViewModel : ObservableObject, IEmptyViewModel<SectionViewModel>, ISelectable<SectionViewModel>
 {
-    private readonly SectionRecord _section;
+    public readonly SectionRecord Section;
 
-    public event EventHandler<UserRecord>? TeacherSelected;
-    public event EventHandler<UserRecord>? StudentSelected;
+    public event EventHandler<UserViewModel>? TeacherSelected;
+    public event EventHandler<UserViewModel>? StudentSelected;
 
-    public event EventHandler<SectionRecord>? Selected;
+    public event EventHandler<SectionViewModel>? Selected;
     
-    public string DisplayName => _section.displayName;
+    public string DisplayName => Section.displayName;
 
-    [ObservableProperty] private ImmutableArray<UserViewModel> teachers;
+    [ObservableProperty] private ImmutableArray<UserViewModel> teachers = [];
 
-    [ObservableProperty] private ImmutableArray<UserViewModel> students;
+    [ObservableProperty] private ImmutableArray<UserViewModel> students = [];
+
+    public SectionViewModel()
+    {
+        Section = new();
+    }
 
     public SectionViewModel(SectionRecord section)
     {
-        _section = section;
+        Section = section;
         // Get the RegistrarService from the service helper...
         var registrar = ServiceHelper.GetService<RegistrarService>()!;
         
         // Get data about the teachers of this section
         // and create UserViewModels for each of them
         teachers = registrar.TeacherList
-            .Where(t => _section.teachers.Any(tch => t.id == tch.id))
+            .Where(t => Section.teachers.Any(tch => t.id == tch.id))
             .Select(t => new UserViewModel(t))
             .ToImmutableArray();
         
@@ -39,7 +44,7 @@ public partial class SectionViewModel : ObservableObject
             teacher.Selected += (sender, tch) => TeacherSelected?.Invoke(sender, tch);
         
         students = registrar.StudentList
-            .Where(s => _section.students.Any(stu => stu.id == s.id))
+            .Where(s => Section.students.Any(stu => stu.id == s.id))
             .Select(s => new UserViewModel(s))
             .ToImmutableArray();
         
@@ -50,6 +55,6 @@ public partial class SectionViewModel : ObservableObject
     [RelayCommand]
     public void Select()
     {
-        Selected?.Invoke(this, _section);
+        Selected?.Invoke(this, this);
     }
 }

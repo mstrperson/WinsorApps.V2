@@ -27,6 +27,13 @@ namespace WinsorApps.Services.Global.Services
             _sectionsByCourse = [];
         }
         
+        public async Task Refresh(ErrorAction onError)
+        {
+            Started = false;
+            Ready = false;
+            await Initialize(onError);
+        }
+
         /// <summary>
         /// Sections by Course Cache download.
         /// </summary>
@@ -390,6 +397,20 @@ namespace WinsorApps.Services.Global.Services
         public double Progress { get; private set; } = 0;
         
         public bool Started { get; private set; }
+
+        public async Task WaitForInit(ErrorAction onError)
+        {
+            if (Ready) return;
+
+            if (!this.Started)
+                await this.Initialize(onError);
+
+            while (!this.Ready)
+            {
+                await Task.Delay(250);
+            }
+        }
+
         /// <summary>
         /// Initialize the Registrar Service.
         /// This should be called after a user has logged into the application.

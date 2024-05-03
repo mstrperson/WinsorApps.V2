@@ -6,55 +6,68 @@ using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.Shared.ViewModels;
 
-public partial class UserSearchViewModel : ObservableObject
+public partial class UserSearchViewModel : ObservableObject, ICachedSearchViewModel<UserViewModel>, IErrorHandling
 {
-    [ObservableProperty] private ImmutableArray<UserViewModel> availableUsers;
-    [ObservableProperty] private ImmutableArray<UserViewModel> selectedUsers = [];
+    [ObservableProperty] private ImmutableArray<UserViewModel> available;
+    [ObservableProperty] private ImmutableArray<UserViewModel> allSelected = [];
     [ObservableProperty] private ImmutableArray<UserViewModel> options = [];
     [ObservableProperty] private SelectionMode selectionMode = SelectionMode.Single;
-    [ObservableProperty] private UserViewModel selectedUser;
+    [ObservableProperty] private UserViewModel selected;
     [ObservableProperty] private string searchText = "";
     [ObservableProperty] private bool isSelected;
     [ObservableProperty] private bool showOptions;
 
     public event EventHandler<ImmutableArray<UserViewModel>>? OnMultipleResult;
     public event EventHandler<UserViewModel>? OnSingleResult;
+    public event EventHandler<ErrorRecord>? OnError;
 
     public UserSearchViewModel()
     {
         var registrar = ServiceHelper.GetService<RegistrarService>();
         isSelected = false;
-        selectedUser = UserViewModel.Empty;
-        availableUsers = registrar.AllUsers.Select(u => new UserViewModel(u)).ToImmutableArray();
-        foreach(var user in AvailableUsers)
+        selected = IEmptyViewModel<UserViewModel>.Empty;
+        available = registrar.AllUsers.Select(u => new UserViewModel(u)).ToImmutableArray();
+        foreach(var user in Available)
             user.Selected += UserOnSelected;
     }
 
-    public void SelectUser(UserViewModel user)
+    [RelayCommand]
+    public void ClearSelection()
     {
-        UserOnSelected(this, user.User);
+        AllSelected = [];
+        Options = [];
+        Selected = IEmptyViewModel<UserViewModel>.Empty;
+        IsSelected = false;
+        ShowOptions = false;
+        SearchText = "";
+    }
+
+    public void Select(UserViewModel user)
+    {
+        UserOnSelected(this, user);
     }
     
-    private void UserOnSelected(object? sender, UserRecord selectedUser)
+    private void UserOnSelected(object? sender, UserViewModel selectedUser)
     {
         switch (SelectionMode)
         {
             case SelectionMode.Single:
-                SelectedUser = AvailableUsers.FirstOrDefault(user => user.Id == selectedUser.id) ?? UserViewModel.Empty;
-                IsSelected = string.IsNullOrEmpty(SelectedUser.Id);
+                Selected = Available.FirstOrDefault(user => user.Id == selectedUser.Id) ?? IEmptyViewModel<UserViewModel>.Empty;
+                IsSelected = string.IsNullOrEmpty(Selected.Id);
                 Options = [];
                 ShowOptions = false;
-                OnSingleResult?.Invoke(this, SelectedUser);
+                SearchText = Selected.DisplayName;
+                OnSingleResult?.Invoke(this, Selected);
                 return;
             case SelectionMode.Multiple:
-                var user = AvailableUsers.FirstOrDefault(user => user.Id == selectedUser.id);
+                var user = Available.FirstOrDefault(user => user.Id == selectedUser.Id);
                 if (user is null) return;
-                if (SelectedUsers.Contains(user))
-                    SelectedUsers = [.. SelectedUsers.Except([user])];
+                if (AllSelected.Contains(user))
+                    AllSelected = [.. AllSelected.Except([user])];
                 else
-                    SelectedUsers = [..SelectedUsers, user];
+                    AllSelected = [.. AllSelected, user];
 
-                IsSelected = SelectedUsers.Length > 0;
+                IsSelected = AllSelected.Length > 0;
                 return;
             case SelectionMode.None:
             default: return;
@@ -62,35 +75,25 @@ public partial class UserSearchViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public void ClearSelection()
-    {
-        SelectedUsers = [];
-        Options = [];
-        SelectedUser = UserViewModel.Empty;
-        IsSelected = false;
-        ShowOptions = false;
-    }
-
-    [RelayCommand]
     public void Search()
     {
-        var possible = AvailableUsers
+        var possible = Available
             .Where(user => 
                 user.DisplayName.Contains(SearchText, StringComparison.InvariantCultureIgnoreCase)
                 || user.BlackbaudId == SearchText);
         switch (SelectionMode)
         {
             case SelectionMode.Multiple:
-                SelectedUsers = [..possible];
-                IsSelected = SelectedUsers.Length > 0;
-                OnMultipleResult?.Invoke(this, SelectedUsers);
+                AllSelected = [..possible];
+                IsSelected = AllSelected.Length > 0;
+                OnMultipleResult?.Invoke(this, AllSelected);
                 return;
             case SelectionMode.Single:
                 Options = [..possible];
                 if (Options.Length == 0)
                 {
                     ShowOptions = false;
-                    SelectedUser = UserViewModel.Empty;
+                    Selected = IEmptyViewModel<UserViewModel>.Empty;
                     IsSelected = false;
                     return;
                 }
@@ -98,17 +101,23 @@ public partial class UserSearchViewModel : ObservableObject
                 if (Options.Length == 1)
                 {
                     ShowOptions = false;
-                    SelectedUser = Options.First();
+                    Selected = Options.First();
                     IsSelected = true;
-                    OnSingleResult?.Invoke(this, SelectedUser);
+                    SearchText = Selected.DisplayName;
+                    OnSingleResult?.Invoke(this, Selected);
                     return;
                 }
 
                 ShowOptions = true;
-                SelectedUser = UserViewModel.Empty;
+                Selected = IEmptyViewModel<UserViewModel>.Empty;
                 IsSelected = false;
                 return;
             default: return;
         }
+    }
+
+    async Task IAsyncSearchViewModel<UserViewModel>.Search()
+    {
+        await Task.Run(Search);
     }
 }

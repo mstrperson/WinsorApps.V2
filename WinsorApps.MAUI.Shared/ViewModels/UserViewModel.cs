@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using AsyncAwaitBestPractices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using WinsorApps.Services.Global;
@@ -7,10 +8,8 @@ using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.Shared.ViewModels;
 
-public partial class UserViewModel : ObservableObject
+public partial class UserViewModel : ObservableObject, IEmptyViewModel<UserViewModel>, ISelectable<UserViewModel>
 {
-    public static UserViewModel Empty => new();
-    
     private readonly RegistrarService _registrar;
     public readonly UserRecord User;
 
@@ -23,11 +22,12 @@ public partial class UserViewModel : ObservableObject
     [ObservableProperty] private ImmutableArray<SectionViewModel> academicSchedule = [];
     [ObservableProperty] private bool showButton = false;
 
-    public event EventHandler<UserRecord>? Selected;
-    public event EventHandler<SectionRecord>? SectionSelected;
+    public event EventHandler<UserViewModel>? Selected;
+    public event EventHandler<SectionViewModel>? SectionSelected;
 
-    private UserViewModel()
+    public UserViewModel()
     {
+        _registrar = ServiceHelper.GetService<RegistrarService>()!;
         User = new();
         displayName = "";
     }
@@ -36,12 +36,14 @@ public partial class UserViewModel : ObservableObject
         User = user;
         displayName = $"{user.firstName} {user.lastName}";
         _registrar = ServiceHelper.GetService<RegistrarService>()!;
-        _registrar.Initialize(err => { })
-            .WhenCompleted(() =>
-            {
-                ShowButton = true;
-                DisplayName = _registrar.AllUsers.GetUniqueNameWithin(user);
-            });
+        var task = _registrar.WaitForInit(err => { });
+        task
+        .WhenCompleted(() =>
+        {
+            ShowButton = true;
+            DisplayName = _registrar.GetUniqueDisplayNameFor(user);
+        });
+        task.SafeFireAndForget(e => e.LogException(ServiceHelper.GetService<LocalLoggingService>()));
     }
 
 
@@ -60,6 +62,6 @@ public partial class UserViewModel : ObservableObject
     [RelayCommand]
     public void Select()
     {
-        Selected?.Invoke(this, User);
+        Selected?.Invoke(this, this);
     }
 }

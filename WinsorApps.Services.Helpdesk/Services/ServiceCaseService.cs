@@ -15,7 +15,18 @@ public class ServiceCaseService : IAsyncInitService
     public double Progress { get; private set; } = 0;
 
     private ImmutableArray<ServiceStatus>? _serviceStatuses;
+    public async Task WaitForInit(ErrorAction onError)
+    {
+        if (Ready) return;
 
+        if (!this.Started)
+            await this.Initialize(onError);
+
+        while (!this.Ready)
+        {
+            await Task.Delay(250);
+        }
+    }
     public ImmutableArray<ServiceStatus> ServiceStatuses
     {
         get
@@ -62,6 +73,13 @@ public class ServiceCaseService : IAsyncInitService
         Ready ? _openCasesCache.ToImmutableArray() : [];
 
     public bool Started { get; private set; }
+
+    public async Task Refresh(ErrorAction onError)
+    {
+        Started = false;
+        Progress = 0;
+        await Initialize(onError);
+    }
     
     public async Task Initialize(ErrorAction onError)
     {

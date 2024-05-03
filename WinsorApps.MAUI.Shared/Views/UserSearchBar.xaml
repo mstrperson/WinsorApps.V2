@@ -5,27 +5,40 @@
              xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels"
              x:DataType="vm:UserSearchViewModel"
              x:Class="WinsorApps.MAUI.Shared.Views.UserSearchBar">
-    <VerticalStackLayout>
-        <HorizontalStackLayout>
-            <SearchBar 
-                Text="{Binding SearchText}"
-                SearchCommand="{Binding SearchCommand}"/>
-            <Button
-                StyleClass="DeleteButton"
-                Command="{Binding ClearSelectionCommand}" />
-        </HorizontalStackLayout>
-        <CollectionView 
-            ItemsSource="{Binding Options}"
-            IsVisible="{Binding ShowOptions}">
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="vm:UserViewModel">
-                    <Label Text="{Binding DisplayName}">
-                        <Label.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding SelectCommand}"/>
-                        </Label.GestureRecognizers>
-                    </Label>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
-    </VerticalStackLayout>
+    <Grid
+        RowDefinitions="*,*"
+        ColumnDefinitions="250,50">
+        <SearchBar 
+            Grid.Row="0"
+            Grid.Column="0"
+            Text="{Binding SearchText}"
+            SearchCommand="{Binding SearchCommand}"
+            WidthRequest="250"
+            HeightRequest="50"/>
+        <Button
+            Grid.Row="0"
+            Grid.Column="1"
+            StyleClass="DeleteButton"
+            Command="{Binding ClearSelectionCommand}" />
+        <ScrollView
+            Grid.Row="1"
+            Grid.ColumnSpan="2">
+            <CollectionView 
+                ItemsSource="{Binding Options}"
+                IsVisible="{Binding ShowOptions}"
+                BackgroundColor="Transparent">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:UserViewModel">
+                        <Label 
+                            Text="{Binding DisplayName}"
+                            BackgroundColor="{AppThemeBinding Dark={StaticResource SlateDark}, Light={StaticResource WarmGrey}}">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </ScrollView>
+    </Grid>
 </ContentView>

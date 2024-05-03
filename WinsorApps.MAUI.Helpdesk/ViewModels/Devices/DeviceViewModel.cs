@@ -6,9 +6,9 @@ using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Helpdesk.Models;
 using WinsorApps.Services.Helpdesk.Services;
 
-namespace WinsorApps.MAUI.Helpdesk.ViewModels;
+namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices;
 
-public partial class DeviceViewModel : ObservableObject
+public partial class DeviceViewModel : ObservableObject, IEmptyViewModel<DeviceViewModel>, ISelectable<DeviceViewModel>, IErrorHandling
 {
     private readonly DeviceService _deviceService;
     private DeviceRecord _device;
@@ -23,16 +23,22 @@ public partial class DeviceViewModel : ObservableObject
     [ObservableProperty] private bool isWinsorDevice;
     [ObservableProperty] private WinsorDeviceViewModel winsorDevice;
 
+    [ObservableProperty] private string displayName;
+
     public event EventHandler<ErrorRecord>? OnError;
+
+
+    public event EventHandler<DeviceViewModel>? Selected;
 
     public DeviceViewModel()
     {
         _deviceService = ServiceHelper.GetService<DeviceService>()!;
         _device = new();
+        displayName = "";
         id = "";
         type = "";
         serialNumber = "";
-        owner = UserViewModel.Empty;
+        owner = IEmptyViewModel<UserViewModel>.Empty;
         winsorDevice = new();
     }
 
@@ -40,17 +46,21 @@ public partial class DeviceViewModel : ObservableObject
     {
         _deviceService = ServiceHelper.GetService<DeviceService>()!;
         _device = device;
+        displayName = device.serialNumber;
         id = device.id;
         serialNumber = device.serialNumber;
         owner = device.owner.HasValue ? 
             new UserViewModel(device.owner!.Value) 
-            : UserViewModel.Empty;
+            : IEmptyViewModel<UserViewModel>.Empty;
         unicorn = device.unicorn;
         firstSeen = device.firstSeen;
         isActive = device.isActive;
         type = device.type;
         isWinsorDevice = device.isWinsorDevice;
+
         WinsorDevice = new(device);
+        if (IsWinsorDevice)
+            DisplayName = device.winsorDevice!.Value.assetTag;
     }
 
     public CreateDeviceRecord GetCreateRecord(CreateWinsorDeviceRecord? winsorDevice = null) =>
@@ -89,11 +99,12 @@ public partial class DeviceViewModel : ObservableObject
         if (_device.isWinsorDevice)
         {
             WinsorDevice = new(_device);
+            DisplayName = _device.winsorDevice!.Value.assetTag;
         }
     }
 
     [RelayCommand]
-    public async Task Dispose()
+    public async Task DisposeDevice()
     {
         var result = await _deviceService.DisposeDevice(Id, OnErr);
         if (result)
@@ -103,6 +114,9 @@ public partial class DeviceViewModel : ObservableObject
             WinsorDevice = new(_device);
         }
     }
+
+    [RelayCommand]
+    public void Select() => Selected?.Invoke(this, this);
     
     private void OnErr(ErrorRecord err)
     {

@@ -194,7 +194,7 @@ public static partial class Extensions
             name = $"{user.firstName} {name}";
         }
 
-        Debug.WriteLine($"Found unique name {name}");
+        //Debug.WriteLine($"Found unique name {name}");
         return name;
     }
 

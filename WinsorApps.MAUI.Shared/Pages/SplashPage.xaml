@@ -13,6 +13,9 @@
             <ListView
                 ItemsSource="{Binding Messages}">
             </ListView>
+            <Button
+                Text="Ok"
+                Command="{Binding CloseCommand}" />
         </VerticalStackLayout>
     </ContentPage.Content>
 </ContentPage>

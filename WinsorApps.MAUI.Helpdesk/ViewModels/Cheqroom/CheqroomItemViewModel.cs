@@ -1,12 +1,13 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using WinsorApps.MAUI.Shared;
+using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Helpdesk.Models;
 using WinsorApps.Services.Helpdesk.Services;
 
 namespace WinsorApps.MAUI.Helpdesk.ViewModels;
 
-public partial class CheqroomItemViewModel : ObservableObject
+public partial class CheqroomItemViewModel : ObservableObject, IEmptyViewModel<CheqroomItemViewModel>
 {
     private readonly CheqroomService _cheqroom;
     private CheqroomItem _item;
@@ -21,6 +22,14 @@ public partial class CheqroomItemViewModel : ObservableObject
     [ObservableProperty] private string owner = "";
     [ObservableProperty] private string ownerId = "";
     [ObservableProperty] private string serialNubmer = "";
+
+    public CheqroomItemViewModel()
+    {
+
+        _cheqroom = ServiceHelper.GetService<CheqroomService>()!;
+        _item = new();
+        LoadItem(_item);
+    }
 
     public CheqroomItemViewModel(CheqroomItem item)
     {

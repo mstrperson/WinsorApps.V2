@@ -1,3 +1,4 @@
+using AsyncAwaitBestPractices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,14 +13,14 @@ public partial class UserSearchBar : ContentView
 {
     public static BindableProperty SelectedUserProperty = 
         BindableProperty.Create(nameof(SelectedUser), typeof(UserViewModel), typeof(UserSearchBar),
-            UserViewModel.Empty, BindingMode.TwoWay);
+            IEmptyViewModel<UserViewModel>.Empty, BindingMode.TwoWay);
     
     public UserViewModel SelectedUser
     {
         get => (UserViewModel)GetValue(SelectedUserProperty);
         set
         {
-            ViewModel?.SelectUser(value);
+            ViewModel?.Select(value);
             SetValue(SelectedUserProperty, value);
         }
     }
@@ -30,6 +31,8 @@ public partial class UserSearchBar : ContentView
     public UserSearchBar()
     {
         _registrar = ServiceHelper.GetService<RegistrarService>();
+
+        WaitForInit().SafeFireAndForget();
         
         InitializeComponent();
     }

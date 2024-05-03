@@ -5,10 +5,22 @@ using WinsorApps.Services.Helpdesk.Models;
 
 namespace WinsorApps.Services.Helpdesk.Services;
 
-public class CheqroomService
+public class CheqroomService : IAsyncInitService
 {
     private readonly ApiService _api;
     private readonly LocalLoggingService _logging;
+
+    public ImmutableArray<CheqroomCheckoutSearchResult> OpenOrders
+    {
+        get;
+        private set;
+    } = [];
+
+    public bool Started { get; private set; }
+
+    public bool Ready { get; private set; }
+
+    public double Progress { get; private set; } = 0;
 
     public CheqroomService(ApiService api, LocalLoggingService logging)
     {
@@ -17,69 +29,96 @@ public class CheqroomService
     }
 
     public async Task<CheqroomCheckoutResult> QuickCheckOutItem(string assetTag, string userId, ErrorAction onError)
-        {
+    {
 
-            var result = await _api.SendAsync<CheqroomCheckoutResult>(HttpMethod.Get, $"api/cheqroom/quick-checkout?assetTag={assetTag}&userId={userId}",
-               onError: onError);
+        var result = await _api.SendAsync<CheqroomCheckoutResult>(HttpMethod.Get, $"api/cheqroom/quick-checkout?assetTag={assetTag}&userId={userId}",
+           onError: onError);
 
-            return result;
-        }
-
-        public async Task<ImmutableArray<CheqroomCheckoutSearchResult>> GetOpenOrders(ErrorAction onError)
-        {
-            var result = await _api.SendAsync<ImmutableArray<CheqroomCheckoutSearchResult>>(HttpMethod.Get, $"api/cheqroom/list-checkouts",
-                onError: onError);
-
-            return result;
-        }
-
-        public async Task SendReminder(string orderId, ErrorAction onError)
-        {
-            
-
-            await _api.SendAsync(HttpMethod.Get, $"api/cheqroom/checkouts/{orderId}/reminder",
-                onError: onError);
-        }
-
-        
-
-        public async Task CheckInItem(string orderId, ErrorAction onError)
-        {
-            
-
-            await _api.SendAsync(HttpMethod.Get, $"api/cheqroom/checkouts/{orderId}/checkin",
-                onError: onError);
-
-        }
-
-        public async Task ForceCheckIn(string deviceId, ErrorAction onError)
-        {
-            
-            var openOrders = await GetOpenOrders(onError);
-            if (!openOrders.Any(order => order.items.Contains(deviceId)))
-                return;
-
-            var order = openOrders.First(order => order.items.Contains(deviceId));
-            await CheckInItem(order._id, onError);
-        }
-
-        public async Task<string> GetItemStatus(string id, ErrorAction onError)
-        {
-            
-            var result = await _api.SendAsync<CheqroomItemStatus>(HttpMethod.Get,
-                $"api/devices/{id}/cheqroom/status",
-                onError: onError);
-
-            return result.status;
-        }
-
-        public async Task<CheqroomItem?> GetItem(string id, ErrorAction onError)
-        {
-            
-            var result = await _api.SendAsync<CheqroomItem?>(HttpMethod.Get,
-                $"api/devices/{id}/cheqroom",
-                onError: onError);
-
-            return result;
-        }
+        return result;
     }
+
+    public async Task<ImmutableArray<CheqroomCheckoutSearchResult>> GetOpenOrders(ErrorAction onError)
+    {
+        var result = await _api.SendAsync<ImmutableArray<CheqroomCheckoutSearchResult>>(HttpMethod.Get, $"api/cheqroom/list-checkouts",
+            onError: onError);
+
+        return result;
+    }
+
+    public async Task SendReminder(string orderId, ErrorAction onError)
+    {
+
+
+        await _api.SendAsync(HttpMethod.Get, $"api/cheqroom/checkouts/{orderId}/reminder",
+            onError: onError);
+    }
+
+
+
+    public async Task CheckInItem(string orderId, ErrorAction onError)
+    {
+
+
+        await _api.SendAsync(HttpMethod.Get, $"api/cheqroom/checkouts/{orderId}/checkin",
+            onError: onError);
+
+    }
+
+    public async Task ForceCheckIn(string deviceId, ErrorAction onError)
+    {
+
+        var openOrders = await GetOpenOrders(onError);
+        if (!openOrders.Any(order => order.items.Contains(deviceId)))
+            return;
+
+        var order = openOrders.First(order => order.items.Contains(deviceId));
+        await CheckInItem(order._id, onError);
+    }
+
+    public async Task<string> GetItemStatus(string id, ErrorAction onError)
+    {
+
+        var result = await _api.SendAsync<CheqroomItemStatus>(HttpMethod.Get,
+            $"api/devices/{id}/cheqroom/status",
+            onError: onError);
+
+        return result.status;
+    }
+
+    public async Task<CheqroomItem?> GetItem(string id, ErrorAction onError)
+    {
+
+        var result = await _api.SendAsync<CheqroomItem?>(HttpMethod.Get,
+            $"api/devices/{id}/cheqroom",
+            onError: onError);
+
+        return result;
+    }
+
+    public async Task Initialize(ErrorAction onError)
+    {
+        if (Started) return;
+        Started = true;
+        Progress = 0;
+        OpenOrders = await GetOpenOrders(onError);
+        Ready = true;
+        Progress = 1;
+    }
+
+    public async Task WaitForInit(ErrorAction onError)
+    {
+        if (!Started)
+            await Initialize(onError);
+
+        while (!Ready)
+            await Task.Delay(250);
+    }
+
+    public async Task Refresh(ErrorAction onError)
+    {
+        Started = false;
+        Ready = false;
+        Progress = 0;
+        await Initialize(onError);
+    }
+}

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.Helpdesk.ViewModels.Devices"
+             x:DataType="vm:DeviceSearchViewModel"
+             x:Class="WinsorApps.MAUI.Helpdesk.Views.DeviceSearchBar">
+    <Grid
+    RowDefinitions="*,500"
+    ColumnDefinitions="250,50">
+        <SearchBar 
+        Grid.Row="0"
+        Grid.Column="0"
+        Text="{Binding SearchText}"
+        SearchCommand="{Binding SearchCommand}"
+        WidthRequest="250"
+        HeightRequest="50"/>
+        <Button
+        Grid.Row="0"
+        Grid.Column="1"
+        StyleClass="DeleteButton"
+        Command="{Binding ClearSelectionCommand}" />
+        <ScrollView
+        Grid.Row="1"
+        Grid.ColumnSpan="2">
+            <CollectionView 
+            ItemsSource="{Binding Options}"
+            IsVisible="{Binding ShowOptions}"
+            BackgroundColor="Transparent">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:DeviceViewModel">
+                        <Label 
+                        Text="{Binding DisplayName}"
+                        BackgroundColor="{AppThemeBinding Dark={StaticResource SlateDark}, Light={StaticResource WarmGrey}}">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </ScrollView>
+    </Grid>
+</ContentView>

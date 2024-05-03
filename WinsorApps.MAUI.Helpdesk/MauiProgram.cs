@@ -1,6 +1,10 @@
-﻿using AsyncAwaitBestPractices;
+﻿global using ErrorAction = System.Action<WinsorApps.Services.Global.Models.ErrorRecord>;
+
+using AsyncAwaitBestPractices;
 using CommunityToolkit.Maui.Core;
 using Microsoft.Extensions.Logging;
+using WinsorApps.MAUI.Helpdesk.Pages;
+using WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.Pages;
 using WinsorApps.Services.Global;
@@ -32,6 +36,10 @@ public static class MauiProgram
 
         builder.Services.AddSingleton<MainPage>();
         builder.Services.AddSingleton<LoginPage>();
+        builder.Services.AddSingleton<QuickCheckinViewModel>();
+        builder.Services.AddSingleton<QuickCheckoutViewModel>();
+        builder.Services.AddSingleton<QuickCheckout>();
+        builder.Services.AddSingleton<QuickCheckin>();
 
 #if DEBUG
         builder.Logging.AddDebug();
@@ -40,6 +48,10 @@ public static class MauiProgram
         var app = builder.Build();
 
         ServiceHelper.Initialize(app.Services);
+
+        var logging = ServiceHelper.GetService<LocalLoggingService>();
+        ServiceHelper.GetService<ApiService>().Initialize(err => logging.LogMessage(LocalLoggingService.LogLevel.Error,
+            err.type, err.error)).SafeFireAndForget(e => e.LogException(logging));
         
         return app;
     }

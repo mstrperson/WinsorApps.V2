@@ -1,32 +1,35 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinsorApps.Services.Global", "WinsorApps.Services.Global\WinsorApps.Services.Global.csproj", "{EDB630D7-1A79-4517-933C-91207AF8AEF3}"
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinsorApps.Services.Global", "WinsorApps.Services.Global\WinsorApps.Services.Global.csproj", "{EDB630D7-1A79-4517-933C-91207AF8AEF3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{0199C9DF-CE60-4C52-B67D-8B9DA716AB1B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTests", "UnitTests", "{EE09C7F7-7587-4CC2-AD3B-BEA9BDA8AB8E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing in Console", "Testing in Console\Testing in Console.csproj", "{2746AC63-F224-49CF-A3A9-4646331E815E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Testing in Console", "Testing in Console\Testing in Console.csproj", "{2746AC63-F224-49CF-A3A9-4646331E815E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MAUI", "MAUI", "{38BB539C-C33B-48B4-8876-A714EB362F16}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinsorApps.MAUI.Shared", "WinsorApps.MAUI.Shared\WinsorApps.MAUI.Shared.csproj", "{1697E4AD-A31C-4414-97DE-4A1FF9E5BE56}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinsorApps.MAUI.Shared", "WinsorApps.MAUI.Shared\WinsorApps.MAUI.Shared.csproj", "{1697E4AD-A31C-4414-97DE-4A1FF9E5BE56}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinsorApps.MAUI.Example", "WinsorApps.MAUI.Example\WinsorApps.MAUI.Example.csproj", "{29866B2A-810A-4841-829C-61BF41DCC5C0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinsorApps.MAUI.Example", "WinsorApps.MAUI.Example\WinsorApps.MAUI.Example.csproj", "{29866B2A-810A-4841-829C-61BF41DCC5C0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinsorApps.Services.Bookstore", "WinsorApps.Services.Bookstore\WinsorApps.Services.Bookstore.csproj", "{5C0F76CA-8B2A-41A7-986D-7EAF4F5EC588}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinsorApps.Services.Bookstore", "WinsorApps.Services.Bookstore\WinsorApps.Services.Bookstore.csproj", "{5C0F76CA-8B2A-41A7-986D-7EAF4F5EC588}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinsorApps.Services.AssessmentCalendar", "WinsorApps.Services.AssessmentCalendar\WinsorApps.Services.AssessmentCalendar.csproj", "{07A6152F-1751-42ED-8D9D-B22968A9EB63}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinsorApps.Services.AssessmentCalendar", "WinsorApps.Services.AssessmentCalendar\WinsorApps.Services.AssessmentCalendar.csproj", "{07A6152F-1751-42ED-8D9D-B22968A9EB63}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MauiApps", "MauiApps", "{FC3004BF-B329-4BCE-BDE9-ED055008E277}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SharedControls", "SharedControls", "{F1AE28A1-24F3-435A-80FB-66D3688D054B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinsorApps.MAUI.Shared.Bookstore", "WinsorApps.MAUI.Shared.Bookstore\WinsorApps.MAUI.Shared.Bookstore.csproj", "{99BEEE19-A8DB-4D4D-8600-69733638568E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinsorApps.MAUI.Shared.Bookstore", "WinsorApps.MAUI.Shared.Bookstore\WinsorApps.MAUI.Shared.Bookstore.csproj", "{99BEEE19-A8DB-4D4D-8600-69733638568E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinsorApps.Services.Helpdesk", "WinsorApps.Services.Helpdesk\WinsorApps.Services.Helpdesk.csproj", "{941D1135-1D3F-4F13-B39F-00309C4CA13F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinsorApps.Services.Helpdesk", "WinsorApps.Services.Helpdesk\WinsorApps.Services.Helpdesk.csproj", "{941D1135-1D3F-4F13-B39F-00309C4CA13F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinsorApps.MAUI.Helpdesk", "WinsorApps.MAUI.Helpdesk\WinsorApps.MAUI.Helpdesk.csproj", "{6F194F95-C90A-47BE-BC23-52018FD7A796}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinsorApps.MAUI.Helpdesk", "WinsorApps.MAUI.Helpdesk\WinsorApps.MAUI.Helpdesk.csproj", "{6F194F95-C90A-47BE-BC23-52018FD7A796}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -48,6 +51,7 @@ Global
 		{1697E4AD-A31C-4414-97DE-4A1FF9E5BE56}.Release|Any CPU.Build.0 = Release|Any CPU
 		{29866B2A-810A-4841-829C-61BF41DCC5C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{29866B2A-810A-4841-829C-61BF41DCC5C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29866B2A-810A-4841-829C-61BF41DCC5C0}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{29866B2A-810A-4841-829C-61BF41DCC5C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{29866B2A-810A-4841-829C-61BF41DCC5C0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5C0F76CA-8B2A-41A7-986D-7EAF4F5EC588}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -68,18 +72,22 @@ Global
 		{941D1135-1D3F-4F13-B39F-00309C4CA13F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6F194F95-C90A-47BE-BC23-52018FD7A796}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6F194F95-C90A-47BE-BC23-52018FD7A796}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F194F95-C90A-47BE-BC23-52018FD7A796}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{6F194F95-C90A-47BE-BC23-52018FD7A796}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F194F95-C90A-47BE-BC23-52018FD7A796}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{EDB630D7-1A79-4517-933C-91207AF8AEF3} = {0199C9DF-CE60-4C52-B67D-8B9DA716AB1B}
 		{2746AC63-F224-49CF-A3A9-4646331E815E} = {EE09C7F7-7587-4CC2-AD3B-BEA9BDA8AB8E}
+		{1697E4AD-A31C-4414-97DE-4A1FF9E5BE56} = {F1AE28A1-24F3-435A-80FB-66D3688D054B}
+		{29866B2A-810A-4841-829C-61BF41DCC5C0} = {FC3004BF-B329-4BCE-BDE9-ED055008E277}
 		{5C0F76CA-8B2A-41A7-986D-7EAF4F5EC588} = {0199C9DF-CE60-4C52-B67D-8B9DA716AB1B}
 		{07A6152F-1751-42ED-8D9D-B22968A9EB63} = {0199C9DF-CE60-4C52-B67D-8B9DA716AB1B}
 		{FC3004BF-B329-4BCE-BDE9-ED055008E277} = {38BB539C-C33B-48B4-8876-A714EB362F16}
 		{F1AE28A1-24F3-435A-80FB-66D3688D054B} = {38BB539C-C33B-48B4-8876-A714EB362F16}
-		{29866B2A-810A-4841-829C-61BF41DCC5C0} = {FC3004BF-B329-4BCE-BDE9-ED055008E277}
-		{1697E4AD-A31C-4414-97DE-4A1FF9E5BE56} = {F1AE28A1-24F3-435A-80FB-66D3688D054B}
 		{99BEEE19-A8DB-4D4D-8600-69733638568E} = {F1AE28A1-24F3-435A-80FB-66D3688D054B}
 		{941D1135-1D3F-4F13-B39F-00309C4CA13F} = {0199C9DF-CE60-4C52-B67D-8B9DA716AB1B}
 		{6F194F95-C90A-47BE-BC23-52018FD7A796} = {FC3004BF-B329-4BCE-BDE9-ED055008E277}

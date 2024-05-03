@@ -16,6 +16,18 @@ public class JamfService : IAsyncInitService
         _api = api;
         _logging = logging;
     }
+    public async Task WaitForInit(ErrorAction onError)
+    {
+        if (Ready) return;
+
+        if (!this.Started)
+            await this.Initialize(onError);
+
+        while (!this.Ready)
+        {
+            await Task.Delay(250);
+        }
+    }
 
     public bool Ready { get; private set; } = false;
 
@@ -34,6 +46,13 @@ public class JamfService : IAsyncInitService
         public bool Started { get; private set; }
         public double Progress { get; private set; } = 0;
         
+    public async Task Refresh(ErrorAction onError)
+    {
+        Started = false;
+        Progress = 0;
+        await Initialize(onError);
+    }
+
         public async Task Initialize(ErrorAction onError)
         {
             if (Started) return;
