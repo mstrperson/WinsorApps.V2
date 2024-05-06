@@ -16,6 +16,7 @@ public partial class MainPage : ContentPage
         DeviceService devService, 
         JamfService jamfService, 
         ServiceCaseService caseService,
+        CheqroomService cheqroom,
         LocalLoggingService logging)
     {
         MainPageViewModel vm = new(
@@ -23,6 +24,7 @@ public partial class MainPage : ContentPage
             new(registrar, "Registrar Data"),
             new(devService, "Device Service"),
             new(jamfService, "Jamf Service"),
+            new(cheqroom, "Cheqroom Checkouts"),
             new(caseService, "Service Cases")
         ]);
 

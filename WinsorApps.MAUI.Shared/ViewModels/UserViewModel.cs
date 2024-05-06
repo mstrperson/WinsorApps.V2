@@ -8,7 +8,7 @@ using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.Shared.ViewModels;
 
-public partial class UserViewModel : ObservableObject, IEmptyViewModel<UserViewModel>, ISelectable<UserViewModel>
+public partial class UserViewModel : ObservableObject, IEmptyViewModel<UserViewModel>, ISelectable<UserViewModel>, IErrorHandling
 {
     private readonly RegistrarService _registrar;
     public readonly UserRecord User;
@@ -24,6 +24,7 @@ public partial class UserViewModel : ObservableObject, IEmptyViewModel<UserViewM
 
     public event EventHandler<UserViewModel>? Selected;
     public event EventHandler<SectionViewModel>? SectionSelected;
+    public event EventHandler<ErrorRecord>? OnError;
 
     public UserViewModel()
     {
@@ -36,14 +37,21 @@ public partial class UserViewModel : ObservableObject, IEmptyViewModel<UserViewM
         User = user;
         displayName = $"{user.firstName} {user.lastName}";
         _registrar = ServiceHelper.GetService<RegistrarService>()!;
-        var task = _registrar.WaitForInit(err => { });
-        task
-        .WhenCompleted(() =>
+        
+    }
+
+
+    [RelayCommand]
+    public void GetUniqueDisplayName()
+    {
+        try
         {
-            ShowButton = true;
-            DisplayName = _registrar.GetUniqueDisplayNameFor(user);
-        });
-        task.SafeFireAndForget(e => e.LogException(ServiceHelper.GetService<LocalLoggingService>()));
+            DisplayName = _registrar.GetUniqueDisplayNameFor(User);
+        }
+        catch (ServiceNotReadyException)
+        {
+            // ignore
+        }
     }
 
 

@@ -11,8 +11,10 @@ using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.Services.Global.Services;
 
-public class ApiService : IAsyncInitService
+public class ApiService : IAsyncInitService, IAutoRefreshingService
 {
+    public TimeSpan RefreshInterval => TimeSpan.FromMinutes(45);
+    public bool Refreshing { get; private set; }
     public double Progress => 1;
     public bool Started { get; private set; }
 
@@ -113,22 +115,19 @@ public event EventHandler? OnLoginSuccess;
 
     }
 
-    public Task MaintainAuthorization(CancellationToken cancellationToken) => Task.Run(() =>
+    public async Task RefreshInBackground(CancellationToken cancellationToken, ErrorAction onError)
     {
         while (!cancellationToken.IsCancellationRequested)
         {
+            await Task.Delay(RefreshInterval);
             if (AuthorizedUser is not null && AuthorizedUser.expires < DateTime.Now.AddMinutes(-2))
             {
-                var task = RenewTokenAsync();
-                while (!task.IsCompleted)
-                {
-                    Thread.Sleep(500);
-                }
+                Refreshing = true;
+                await RenewTokenAsync(onError: onError);
+                Refreshing = false;
             }
-
-            Thread.Sleep(TimeSpan.FromMinutes(1));
         }
-    }, cancellationToken);
+    }
 
     public async Task DropMasq()
     {

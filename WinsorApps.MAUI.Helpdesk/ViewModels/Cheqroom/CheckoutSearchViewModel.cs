@@ -1,6 +1,8 @@
 ﻿
+using AsyncAwaitBestPractices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Csv;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -15,7 +17,7 @@ using WinsorApps.Services.Helpdesk.Services;
 
 namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
 {
-    public partial class QuickCheckinViewModel : ObservableObject, ICachedSearchViewModel<CheckoutSearchResultViewModel>, IErrorHandling
+    public partial class CheckoutSearchViewModel : ObservableObject, ICachedSearchViewModel<CheckoutSearchResultViewModel>, IErrorHandling
     {
         private readonly CheqroomService _cheqroom;
 
@@ -24,38 +26,80 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         [ObservableProperty]
         private ImmutableArray<CheckoutSearchResultViewModel> allSelected = [];
 
-        [ObservableProperty] private SelectionMode selectionMode;
+        [ObservableProperty] private SelectionMode selectionMode = SelectionMode.Single;
         [ObservableProperty] private string searchText = "";
         [ObservableProperty] private bool showOptions;
         [ObservableProperty] private bool isSelected;
-        [ObservableProperty] private ImmutableArray<CheckoutSearchResultViewModel> options;
+        [ObservableProperty] private ImmutableArray<CheckoutSearchResultViewModel> options = [];
 
         [ObservableProperty] private CheckoutSearchResultViewModel selected;
+
+        [ObservableProperty]
+        public ImmutableArray<string> searchModes = ["By Asset Tag", "By User"];
+
+        private Func<CheckoutSearchResultViewModel, bool> SearchFilter =>
+            SearchMode switch
+            {
+                "By Asset Tag" => ord => ord.Items.Any(item => item.Contains(SearchText, StringComparison.InvariantCultureIgnoreCase)),
+                "By User" => ord => ord.User.DisplayName.Contains(SearchText, StringComparison.InvariantCultureIgnoreCase),
+                _ => ord => true
+            };
+
+        [ObservableProperty]
+        private string searchMode;
 
         public event EventHandler<ErrorRecord>? OnError;
         public event EventHandler<ImmutableArray<CheckoutSearchResultViewModel>>? OnMultipleResult;
         public event EventHandler<CheckoutSearchResultViewModel>? OnSingleResult;
 
-        public QuickCheckinViewModel(CheqroomService cheqroom)
+        public event EventHandler? OnZeroResults;
+
+        public event EventHandler<CheckoutSearchResultViewModel>? OnCheckedIn;
+
+        public event EventHandler<(byte[], string)>? OnExport;
+
+        public CheckoutSearchViewModel(CheqroomService cheqroom)
         {
             _cheqroom = cheqroom;
-            var cacheTask = _cheqroom.WaitForInit(OnError.DefaultBehavior(this));
+            searchMode = SearchModes[0];
             selected = IEmptyViewModel<CheckoutSearchResultViewModel>.Empty;
-            cacheTask.WhenCompleted(() =>
+            LoadServiceCases();
+        }
+
+        [RelayCommand]
+        public void Clear()
+        {
+            Options = [];
+            Selected = IEmptyViewModel<CheckoutSearchResultViewModel>.Empty;
+            AllSelected = [];
+        }
+
+        [RelayCommand]
+        public void LoadServiceCases()
+        {
+            Available = _cheqroom.OpenOrders.Select(o => new CheckoutSearchResultViewModel(o)).ToImmutableArray();
+            foreach (var order in Available)
             {
-                Available = _cheqroom.OpenOrders.Select(o => new CheckoutSearchResultViewModel(o)).ToImmutableArray();
-                foreach(var order in Available)
-                {
-                    order.OnError += OnError.PassAlong();
-                }    
-            });
+                order.OnError += OnError.PassAlong();
+            }
+        }
+
+        [RelayCommand]
+        public async Task Refresh()
+        {
+            await _cheqroom.Refresh(OnError.DefaultBehavior(this));
         }
 
         [RelayCommand]
         public void Search()
         {
+            if (Available.Length == 0)
+                LoadServiceCases();
+
             var possible = Available
-                .Where(ord => ord.Items.Any(item => item.AssetTag.Equals(SearchText, StringComparison.InvariantCultureIgnoreCase)));
+                .Where(SearchFilter);
+            if (!possible.Any())
+                OnZeroResults?.Invoke(this, EventArgs.Empty);
             switch (SelectionMode)
             {
                 case SelectionMode.Multiple:
@@ -92,9 +136,30 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
 
         public void Select(CheckoutSearchResultViewModel item)
         {
-
+            OnSingleResult?.Invoke(this, item);
         }
 
         async Task IAsyncSearchViewModel<CheckoutSearchResultViewModel>.Search() => await Task.Run(Search);
+
+        [RelayCommand]
+        public async Task Export()
+        {
+            CSV output = 
+                new(
+                Options.Select(ord => new Row
+                {
+                    { "User", ord.User.DisplayName },
+                    { "Item(s)", ord.Items.DelimeteredList() },
+                    { "Due", $"{ord.Due:dd MMMM yyyy}" },
+                    { "Overdue", ord.IsOverdue ? "X" : "" }
+                })
+                .ToList());
+
+            using MemoryStream ms = new();
+            output.Save(ms);
+
+            var data = ms.ToArray();
+            OnExport?.Invoke(this, (data, $"open-checkouts-{SearchMode}-{SearchText}.csv".ToLowerInvariant().Replace(' ', '-')));
+        }
     }
 }

@@ -40,6 +40,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices
         public event EventHandler<ImmutableArray<DeviceViewModel>>? OnMultipleResult;
         public event EventHandler<DeviceViewModel>? OnSingleResult;
         public event EventHandler<ErrorRecord>? OnError;
+        public event EventHandler? OnZeroResults;
 
         private SearchFilter _filter = SearchFilter.ActiveOnly;
         public SearchFilter Filter 
@@ -98,6 +99,8 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices
                 .Where(dev =>
                     dev.SerialNumber.Contains(SearchText, StringComparison.InvariantCultureIgnoreCase)
                     || (dev.IsWinsorDevice && dev.WinsorDevice.AssetTag.Contains(SearchText, StringComparison.InvariantCultureIgnoreCase)));
+            if (!possible.Any())
+                OnZeroResults?.Invoke(this, EventArgs.Empty);
             switch (SelectionMode)
             {
                 case SelectionMode.Multiple:

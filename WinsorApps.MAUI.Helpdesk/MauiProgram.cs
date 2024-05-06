@@ -36,10 +36,11 @@ public static class MauiProgram
 
         builder.Services.AddSingleton<MainPage>();
         builder.Services.AddSingleton<LoginPage>();
-        builder.Services.AddSingleton<QuickCheckinViewModel>();
+        builder.Services.AddSingleton<CheckoutSearchViewModel>();
         builder.Services.AddSingleton<QuickCheckoutViewModel>();
-        builder.Services.AddSingleton<QuickCheckout>();
-        builder.Services.AddSingleton<QuickCheckin>();
+        builder.Services.AddSingleton<CheqroomQuickTasksViewModel>();
+        builder.Services.AddSingleton<CheqroomQuickTaskPage>();
+        builder.Services.AddSingleton<CheckoutSearchPage>();
 
 #if DEBUG
         builder.Logging.AddDebug();

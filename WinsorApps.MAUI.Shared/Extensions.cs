@@ -11,9 +11,34 @@ namespace WinsorApps.MAUI.Shared;
 
 public static class Extensions
 {
+    public static void LogException(this Exception e)
+    {
+        var logging = ServiceHelper.GetService<LocalLoggingService>();
+        e.LogException(logging);
+    }
+
+    /// <summary>
+    /// Creates an EventHandler that passes along the event handler from Child to Parent.
+    /// 
+    /// <typeparam name="T"></typeparam>
+    /// <param name="handler"></param>
+    /// <returns></returns>
     public static EventHandler<T> PassAlong<T>(this EventHandler<T>? handler) => (sender, e) => handler?.Invoke(sender, e);
 
+
+    /// <summary>
+    /// returns an ErrorAction: err => OnError?.Invoke(sender, err)
+    /// </summary>
+    /// <param name="OnError"></param>
+    /// <param name="sender"></param>
+    /// <returns></returns>
     public static ErrorAction DefaultBehavior(this EventHandler<ErrorRecord>? OnError, object? sender) => err => OnError?.Invoke(sender, err);
+
+    public static void Splash(this ContentPage parent, Func<SplashPageViewModel> pageGenerator)
+    {
+        SplashPage page = new() { BindingContext = pageGenerator() };
+        parent.Navigation.PushAsync(page);
+    }
 
     public static void PushErrorPage(this ContentPage parent, ErrorRecord err, Action? onConfirmAction = null)
     {
@@ -34,6 +59,12 @@ public static class Extensions
 
     public static ErrorAction DefaultOnErrorAction(this ContentPage parent, Action? onConfirmAction = null) => err => parent.PushErrorPage(err, onConfirmAction);
 
+    /// <summary>
+    /// Pushes a SplashPage with the Error information provided from the Event.
+    /// </summary>
+    /// <param name="parent"></param>
+    /// <param name="onConfirmAction"></param>
+    /// <returns></returns>
     public static EventHandler<ErrorRecord> DefaultOnErrorHandler(this ContentPage parent, Action? onConfirmAction = null) => 
         (sender, err) => parent.DefaultOnErrorAction(onConfirmAction)(err);
 

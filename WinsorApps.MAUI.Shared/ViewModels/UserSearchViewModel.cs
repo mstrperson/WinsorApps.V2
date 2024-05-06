@@ -20,6 +20,7 @@ public partial class UserSearchViewModel : ObservableObject, ICachedSearchViewMo
     public event EventHandler<ImmutableArray<UserViewModel>>? OnMultipleResult;
     public event EventHandler<UserViewModel>? OnSingleResult;
     public event EventHandler<ErrorRecord>? OnError;
+    public event EventHandler? OnZeroResults;
 
     public UserSearchViewModel()
     {
@@ -81,6 +82,10 @@ public partial class UserSearchViewModel : ObservableObject, ICachedSearchViewMo
             .Where(user => 
                 user.DisplayName.Contains(SearchText, StringComparison.InvariantCultureIgnoreCase)
                 || user.BlackbaudId == SearchText);
+
+        if (!possible.Any())
+            OnZeroResults?.Invoke(this, EventArgs.Empty);
+
         switch (SelectionMode)
         {
             case SelectionMode.Multiple:

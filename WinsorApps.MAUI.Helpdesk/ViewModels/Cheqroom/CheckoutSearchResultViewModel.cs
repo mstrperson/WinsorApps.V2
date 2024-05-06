@@ -22,20 +22,25 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         private readonly CheqroomCheckoutSearchResult _searchResult;
         private readonly CheqroomService _cheqroom;
 
-        [ObservableProperty] private ImmutableArray<CheqroomItemViewModel> items = [];
+        [ObservableProperty] private ImmutableArray<string> items = [];
         [ObservableProperty] private UserViewModel user;
         [ObservableProperty] private DateTime created;
         [ObservableProperty] private DateTime due;
         [ObservableProperty] private string status;
         [ObservableProperty] private bool isOverdue;
 
+        [ObservableProperty] private string[] style;
+
         public event EventHandler<ErrorRecord>? OnError;
+        public event EventHandler<CheckoutSearchResultViewModel>? OnSelected;
+        public event EventHandler<CheckoutSearchResultViewModel>? OnCheckedIn;
 
         public CheckoutSearchResultViewModel()
         {
             _searchResult = new();
             _cheqroom = ServiceHelper.GetService<CheqroomService>();
             user = IEmptyViewModel<UserViewModel>.Empty;
+            style = [];
             status = "";
         }
 
@@ -45,29 +50,28 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
             _cheqroom = ServiceHelper.GetService<CheqroomService>();
             user = new(result.user);
             created = result.created.LocalDateTime;
+            items = result.items;
             due = result.due.LocalDateTime;
             status = result.status;
             isOverdue = result.isOverdue;
-            GetItems().SafeFireAndForget(e => e.LogException(ServiceHelper.GetService<LocalLoggingService>())); 
-        }
-
-        private async Task GetItems()
-        {
-            var tasks = _searchResult.items.Select(id => _cheqroom.GetItem(id, OnError.DefaultBehavior(this)));
-
-            await Task.WhenAll(tasks);
-       
-            Items = tasks
-                .Where(item => item.Result.HasValue)
-                .Select(item => new CheqroomItemViewModel(item.Result!.Value))
-                .ToImmutableArray();
+            style = IsOverdue ? ["Error"] : [];
         }
 
 
         [RelayCommand]
-        public async Task CheckIn()
+        public void Select()
         {
-            await _cheqroom.CheckInItem(_searchResult._id, OnError.DefaultBehavior(this));
+            OnSelected?.Invoke(this, this);
+        }
+
+        [RelayCommand]
+        public async Task<bool> CheckIn()
+        {
+            bool success = true;
+            await _cheqroom.CheckInItem(_searchResult._id,
+                err => { success = false; OnError.DefaultBehavior(this)(err); });
+
+            return success;
         }
     }
 }

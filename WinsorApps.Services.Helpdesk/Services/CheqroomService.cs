@@ -1,11 +1,13 @@
+using AsyncAwaitBestPractices;
 using System.Text.Json;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 using WinsorApps.Services.Helpdesk.Models;
 
 namespace WinsorApps.Services.Helpdesk.Services;
 
-public class CheqroomService : IAsyncInitService
+public class CheqroomService : IAsyncInitService, IAutoRefreshingService
 {
     private readonly ApiService _api;
     private readonly LocalLoggingService _logging;
@@ -21,6 +23,10 @@ public class CheqroomService : IAsyncInitService
     public bool Ready { get; private set; }
 
     public double Progress { get; private set; } = 0;
+
+    public bool Refreshing { get; private set; }
+
+    public TimeSpan RefreshInterval => TimeSpan.FromMinutes(5);
 
     public CheqroomService(ApiService api, LocalLoggingService logging)
     {
@@ -57,8 +63,6 @@ public class CheqroomService : IAsyncInitService
 
     public async Task CheckInItem(string orderId, ErrorAction onError)
     {
-
-
         await _api.SendAsync(HttpMethod.Get, $"api/cheqroom/checkouts/{orderId}/checkin",
             onError: onError);
 
@@ -66,12 +70,13 @@ public class CheqroomService : IAsyncInitService
 
     public async Task ForceCheckIn(string deviceId, ErrorAction onError)
     {
-
-        var openOrders = await GetOpenOrders(onError);
-        if (!openOrders.Any(order => order.items.Contains(deviceId)))
-            return;
-
-        var order = openOrders.First(order => order.items.Contains(deviceId));
+        TryAgain:
+        var order = OpenOrders.FirstOrDefault(order => order.items.Contains(deviceId));
+        if(order == default)
+        {
+            OpenOrders = await GetOpenOrders(onError);
+            goto TryAgain;
+        }
         await CheckInItem(order._id, onError);
     }
 
@@ -87,7 +92,6 @@ public class CheqroomService : IAsyncInitService
 
     public async Task<CheqroomItem?> GetItem(string id, ErrorAction onError)
     {
-
         var result = await _api.SendAsync<CheqroomItem?>(HttpMethod.Get,
             $"api/devices/{id}/cheqroom",
             onError: onError);
@@ -97,12 +101,16 @@ public class CheqroomService : IAsyncInitService
 
     public async Task Initialize(ErrorAction onError)
     {
-        if (Started) return;
+        if (Started) 
+            return;
         Started = true;
         Progress = 0;
         OpenOrders = await GetOpenOrders(onError);
         Ready = true;
         Progress = 1;
+
+        RefreshInBackground(CancellationToken.None, onError)
+            .SafeFireAndForget(e => e.LogException(_logging));
     }
 
     public async Task WaitForInit(ErrorAction onError)
@@ -116,9 +124,17 @@ public class CheqroomService : IAsyncInitService
 
     public async Task Refresh(ErrorAction onError)
     {
-        Started = false;
-        Ready = false;
-        Progress = 0;
-        await Initialize(onError);
+        OpenOrders = await GetOpenOrders(onError);
+    }
+
+    public async Task RefreshInBackground(CancellationToken token, ErrorAction onError)
+    {
+        while (!token.IsCancellationRequested)
+        {
+            await Task.Delay(RefreshInterval, token);
+            Refreshing = true;
+            await Refresh(onError);
+            Refreshing = false;
+        }
     }
 }

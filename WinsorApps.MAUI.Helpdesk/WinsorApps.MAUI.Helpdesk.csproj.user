@@ -6,10 +6,10 @@
     <ActiveDebugProfile>Windows Machine</ActiveDebugProfile>
   </PropertyGroup>
   <ItemGroup>
-    <MauiXaml Update="Pages\QuickCheckin.xaml">
+    <MauiXaml Update="Pages\CheckoutSearchPage.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
-    <MauiXaml Update="Pages\QuickCheckout.xaml">
+    <MauiXaml Update="Pages\CheqroomQuickTaskPage.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
     <MauiXaml Update="Views\DeviceSearchBar.xaml">

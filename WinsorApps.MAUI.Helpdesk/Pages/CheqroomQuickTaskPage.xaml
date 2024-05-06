@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom"
+             xmlns:view="clr-namespace:WinsorApps.MAUI.Helpdesk.Views"
+             xmlns:shared="clr-namespace:WinsorApps.MAUI.Shared.Views;assembly=WinsorApps.MAUI.Shared"
+             x:DataType="vm:CheqroomQuickTasksViewModel"
+             x:Class="WinsorApps.MAUI.Helpdesk.Pages.CheqroomQuickTaskPage"
+             Title="Cheqroom Quick Actions">
+    <ScrollView>
+        <VerticalStackLayout
+            Margin="0"
+            Padding="0">
+            <HorizontalStackLayout>
+                <Label
+                    Text="{Binding ToggleLabel}"
+                    StyleClass="Header" />
+                <Button 
+                    StyleClass="RefreshButton"
+                    Command="{Binding ToggleInOutCommand}" />
+            </HorizontalStackLayout>
+            <VerticalStackLayout 
+                IsVisible="{Binding ShowCheckout}"
+                WidthRequest="500">
+                <Label 
+                    Text="Asset Tag"
+                    StyleClass="SubHeader" />
+                <Entry
+                    Text="{Binding QuickCheckout.AssetTag}"/>
+                <Label
+                    Text="Check out to"
+                    StyleClass="SubHeader"/>
+                <shared:UserSearchBar BindingContext="{Binding QuickCheckout.UserSearch}" />
+                <Button 
+                    Text="Quick Checkout"
+                    Command="{Binding QuickCheckout.CheckoutCommand}" />
+                <VerticalStackLayout
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CoolGrey}, Dark={StaticResource SlateDark}}"
+                    IsVisible="{Binding QuickCheckout.DisplayResult}"
+                    Margin="0"
+                    Padding="0">
+                    <Label 
+                        Text="Due Back"
+                        StyleClass="H3"/>
+                    <DatePicker
+                        IsEnabled="False"
+                        Date="{Binding QuickCheckout.Result.Due}" />
+                    <Label
+                        Text="{Binding QuickCheckout.Result.Status}"
+                        StyleClass="H3"/>
+                    <Button
+                        Text="Ok"
+                        Command="{Binding QuickCheckout.ClearCommand}" />
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+            <VerticalStackLayout
+                IsVisible="{Binding ShowCheckin}"
+                WidthRequest="500">
+                <Label 
+                                Text="Asset Tag"
+                                StyleClass="SubHeader"/>
+                <Entry 
+                    Text="{Binding CheckoutSearch.SearchText}"/>
+                <Button 
+                    Text="Search Open Checkouts"
+                    Command="{Binding CheckoutSearch.SearchCommand}" />
+                <BoxView
+                    HeightRequest="1"
+                    BackgroundColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                <CollectionView
+                    ItemsSource="{Binding CheckoutSearch.Options}"
+                    IsVisible="{Binding CheckoutSearch.ShowOptions}"
+                    BackgroundColor="Transparent">
+                    <CollectionView.HeaderTemplate>
+                        <DataTemplate>
+                            <Label
+                                StyleClass="Header"
+                                Text="Results"/>
+                        </DataTemplate>
+                    </CollectionView.HeaderTemplate>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:CheckoutSearchResultViewModel">
+                            <VerticalStackLayout
+                                Margin="0"
+                                Padding="0">
+                                <HorizontalStackLayout>
+                                    <Label 
+                                        Text="{Binding User.DisplayName}"
+                                        StyleClass="H3" />
+                                    <Label
+                                        StyleClass="Warning"
+                                        Text="Overdue"
+                                        IsVisible="{Binding IsOverdue}"/>
+                                </HorizontalStackLayout>
+                                <HorizontalStackLayout>
+                                    <Label Text="Due:  "/>
+                                    <Label
+                                        Text="{Binding Due}" />
+                                </HorizontalStackLayout>
+                                <ListView
+                                    ItemsSource="{Binding Items}" 
+                                    Margin="15,0" />
+                                <HorizontalStackLayout>
+                                    <Button 
+                                        Text="Check In"
+                                        Command="{Binding CheckInCommand}" />
+
+                                </HorizontalStackLayout>
+                                <BoxView
+                                    BackgroundColor="{AppThemeBinding Light=Black, Dark=White}" 
+                                    HeightRequest="1"
+                                    Margin="0,15"/>
+                            </VerticalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

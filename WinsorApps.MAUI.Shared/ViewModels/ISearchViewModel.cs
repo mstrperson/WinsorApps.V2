@@ -36,6 +36,7 @@ public interface IAsyncSearchViewModel<T> where T : ObservableObject, IEmptyView
 
     public event EventHandler<ImmutableArray<T>>? OnMultipleResult;
     public event EventHandler<T>? OnSingleResult;
+    public event EventHandler? OnZeroResults;
     public void Select(T item);
 
     [RelayCommand]
