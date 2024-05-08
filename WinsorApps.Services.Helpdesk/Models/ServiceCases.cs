@@ -1,12 +1,22 @@
 using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.Services.Helpdesk.Models;
-public record ServiceCaseHistory(IEnumerable<ServiceCase> serviceCases, double lifetimeRepairCost);
+public readonly record struct ServiceCaseHistory(ImmutableArray<ServiceCase> serviceCases, double lifetimeRepairCost);
 
-    public record ServiceCaseNoteRecord(string notes, string from);
-    public record ServiceCase(string id, DeviceRecord device, UserRecord owner, IEnumerable<string> commonIssues,
-        string intakeNotes, DateTime opened, DateTime? closed, string status, IEnumerable<ServiceCaseNoteRecord> additionalNotes,
-        IEnumerable<DocumentHeader> attachedDocuments, double repairCost = 0, string loaner = "");
+    public readonly record struct ServiceCaseNoteRecord(string notes, string from);
+    public readonly record struct ServiceCase(
+        string id, 
+        DeviceRecord device, 
+        UserRecord owner, 
+        ImmutableArray<string> commonIssues,
+        string intakeNotes, 
+        DateTime opened, 
+        DateTime? closed, 
+        string status, 
+        ImmutableArray<ServiceCaseNoteRecord> additionalNotes,
+        ImmutableArray<DocumentHeader> attachedDocuments, 
+        double repairCost = 0, 
+        string loaner = "");
 
     public readonly record struct ServiceStatus(string id, string text, string description, string defaultNextId, bool isClosed)
     {
@@ -39,8 +49,8 @@ public record ServiceCaseHistory(IEnumerable<ServiceCase> serviceCases, double l
     /// <param name="commonIssueIds">Ids for selected common issues</param>
     /// <param name="intakeNotes">Notes for this case</param>
     /// <param name="openingStatusId">Id of the selected opening status</param>
-    public record struct NewServiceCase(string deviceId, IEnumerable<string> commonIssueIds, string intakeNotes, string openingStatusId);
-    public record struct UpdateServiceCase(string caseId, string? statusId = null, string? notes = null, IEnumerable<string>? commonIssueIds = null);
+    public readonly record struct NewServiceCase(string deviceId, ImmutableArray<string> commonIssueIds, string intakeNotes, string openingStatusId);
+    public readonly record struct UpdateServiceCase(string caseId, string? statusId = null, string? notes = null, ImmutableArray<string>? commonIssueIds = null);
 
     public record ServiceCaseFilter(bool? open = null, string? status = null, string? deviceId = null, string? ownerId = null,
         DateTime start = default, DateTime end = default)
