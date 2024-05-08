@@ -31,21 +31,21 @@ public class JamfService : IAsyncInitService
 
     public bool Ready { get; private set; } = false;
 
-        private ImmutableArray<Department>? _departments;
-        public ImmutableArray<Department> Departments 
+    private ImmutableArray<Department>? _departments;
+    public ImmutableArray<Department> Departments
+    {
+        get
         {
-            get
-            {
-                if (!Ready || !_departments.HasValue)
-                    throw new ServiceNotReadyException(_logging, "Jamf Service has not populated departments yet.");
+            if (!Ready || !_departments.HasValue)
+                throw new ServiceNotReadyException(_logging, "Jamf Service has not populated departments yet.");
 
-                return _departments.Value;
-            }
+            return _departments.Value;
         }
+    }
 
-        public bool Started { get; private set; }
-        public double Progress { get; private set; } = 0;
-        
+    public bool Started { get; private set; }
+    public double Progress { get; private set; } = 0;
+
     public async Task Refresh(ErrorAction onError)
     {
         Started = false;
@@ -53,42 +53,44 @@ public class JamfService : IAsyncInitService
         await Initialize(onError);
     }
 
-        public async Task Initialize(ErrorAction onError)
-        {
-            if (Started) return;
+    public async Task Initialize(ErrorAction onError)
+    {
+        if (Started) return;
 
-            Started = true;
-            _departments = await _api.SendAsync<ImmutableArray<Department>>(HttpMethod.Get,
-                "api/devices/jamf/departments", onError: onError);
-            Progress = 1;
-            Ready = true;
-        }
-
-        public async Task<Computer.Details?> GetComputerDetails(string deviceId, ErrorAction onError)
-        {
-            
-
-            var result = await _api.SendAsync<Computer.Details?>(HttpMethod.Get,
-                $"api/devices/{deviceId}/jamf/computer", onError: onError);
-
-            return result;
-        }
-
-        public async Task<MobileDevice.Details?> GetMobileDeviceDetails(string deviceId, ErrorAction onError)
-        {
-
-            var result = await _api.SendAsync<MobileDevice.Details?>(HttpMethod.Get,
-                $"api/devices/{deviceId}/jamf/mobile-device", onError: onError);
-
-            return result;
-        }
-
-        public async Task<InventoryPreloadEntry?> GetInventoryPreload(string deviceId, ErrorAction onError)
-        {
-
-            var result = await _api.SendAsync<InventoryPreloadEntry?>(HttpMethod.Get,
-                $"api/devices/{deviceId}/jamf/inventory-preload", onError: onError);
-
-            return result;
-        }
+        Started = true;
+        _departments = await _api.SendAsync<ImmutableArray<Department>>(HttpMethod.Get,
+            "api/devices/jamf/departments", onError: onError);
+        Progress = 1;
+        Ready = true;
     }
+
+    public async Task<Computer.Details?> GetComputerDetails(string deviceId, ErrorAction onError)
+    {
+
+
+        var result = await _api.SendAsync<Computer.Details?>(HttpMethod.Get,
+            $"api/devices/{deviceId}/jamf/computer", onError: onError);
+
+        return result;
+    }
+
+    public async Task<MobileDevice.Details?> GetMobileDeviceDetails(string deviceId, ErrorAction onError)
+    {
+
+        var result = await _api.SendAsync<MobileDevice.Details?>(HttpMethod.Get,
+            $"api/devices/{deviceId}/jamf/mobile-device", onError: onError);
+
+        return result;
+    }
+
+    public async Task<InventoryPreloadEntry?> GetInventoryPreload(string deviceId, ErrorAction onError)
+    {
+
+        var result = await _api.SendAsync<InventoryPreloadEntry?>(HttpMethod.Get,
+            $"api/devices/{deviceId}/jamf/inventory-preload", onError: onError);
+
+        return result;
+    }
+
+    public Department GetDepartmentByName(string name) => Departments.First(dept => dept.name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
+}

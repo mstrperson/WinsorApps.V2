@@ -19,7 +19,6 @@ public static class Extensions
 
     /// <summary>
     /// Creates an EventHandler that passes along the event handler from Child to Parent.
-    /// 
     /// <typeparam name="T"></typeparam>
     /// <param name="handler"></param>
     /// <returns></returns>

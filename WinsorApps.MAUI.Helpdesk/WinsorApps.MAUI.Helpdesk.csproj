@@ -73,10 +73,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="ViewModels\Jamf\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <Compile Update="Pages\CheckoutSearchPage.xaml.cs">
         <DependentUpon>CheckoutSearchPage.xaml</DependentUpon>
       </Compile>
