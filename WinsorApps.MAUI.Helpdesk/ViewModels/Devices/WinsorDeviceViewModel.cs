@@ -28,7 +28,7 @@ public partial class WinsorDeviceViewModel : ObservableObject, IErrorHandling
     [ObservableProperty] private int jamfId;
     [ObservableProperty] private int jamfInventoryPreloadId;
     [ObservableProperty] private bool loaner;
-    [ObservableProperty] private DeviceCategoryViewModel category;
+    [ObservableProperty] private CategorySearchViewModel categorySearch = new();
     [ObservableProperty] private DateTime purchaseDate;
     [ObservableProperty] private double purchaseCost;
     [ObservableProperty] private JamfViewModel jamfDetails = IEmptyViewModel<JamfViewModel>.Empty;
@@ -45,12 +45,18 @@ public partial class WinsorDeviceViewModel : ObservableObject, IErrorHandling
     public event EventHandler<InventoryPreloadViewModel>? InventoryPreloadSelected;
     public event EventHandler<CheqroomItemViewModel>? CheqroomSelected;
 
+    public DeviceCategoryViewModel Category
+    {
+        get => CategorySearch.Selected;
+        set => CategorySearch.Select(value);
+    }
+
     public WinsorDeviceViewModel()
     {
         _deviceService = ServiceHelper.GetService<DeviceService>();
         _cheqroom = ServiceHelper.GetService<CheqroomService>();
         _jamf = ServiceHelper.GetService<JamfService>();
-        category = new(_deviceService.Categories.First());
+        CategorySearch.Select(new(_deviceService.Categories.First()));
         hasWinsorData = false;
         _device = new();
         assetTag = _device.assetTag;
@@ -74,7 +80,7 @@ public partial class WinsorDeviceViewModel : ObservableObject, IErrorHandling
         jamfId = _device.jamfId;
         jamfInventoryPreloadId = _device.jamfInventoryPreloadId;
         loaner = _device.loaner;
-        category = new(_device.category);
+        CategorySearch.Select(new(_device.category));
         var task = _deviceService.GetWinsorDeviceDetails(dev.id);
         task.WhenCompleted(() =>
         {

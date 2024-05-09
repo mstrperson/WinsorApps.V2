@@ -8,7 +8,7 @@ namespace WinsorApps.MAUI.Shared.ViewModels;
 
 public partial class DocumentViewModel : ObservableObject, IErrorHandling
 {
-    private readonly ApiService _api;
+    private readonly ApiService _api = ServiceHelper.GetService<ApiService>();
     private readonly DocumentHeader _document;
 
     public event EventHandler<ErrorRecord>? OnError;
@@ -16,10 +16,9 @@ public partial class DocumentViewModel : ObservableObject, IErrorHandling
     [ObservableProperty] private string fileName;
     [ObservableProperty] private string type;
     
-    public DocumentViewModel(DocumentHeader document, ApiService api)
+    public DocumentViewModel(DocumentHeader document)
     {
         _document = document;
-        _api = api;
         fileName = document.fileName;
         type = document.mimeType;
     }

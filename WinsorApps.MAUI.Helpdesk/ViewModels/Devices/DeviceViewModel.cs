@@ -10,18 +10,19 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices;
 
 public partial class DeviceViewModel : ObservableObject, IEmptyViewModel<DeviceViewModel>, ISelectable<DeviceViewModel>, IErrorHandling
 {
-    private readonly DeviceService _deviceService;
-    private DeviceRecord _device;
+    protected readonly DeviceService _deviceService;
+    protected DeviceRecord _device;
 
     [ObservableProperty] private string id;
     [ObservableProperty] private string serialNumber;
-    [ObservableProperty] private UserViewModel owner;
+    [ObservableProperty] private UserSearchViewModel owner = new();
     [ObservableProperty] private bool unicorn;
     [ObservableProperty] private DateTime firstSeen;
     [ObservableProperty] private bool isActive;
     [ObservableProperty] private string type;
     [ObservableProperty] private bool isWinsorDevice;
     [ObservableProperty] private WinsorDeviceViewModel winsorDevice;
+    [ObservableProperty] private bool isSelected;
 
     [ObservableProperty] private string displayName;
 
@@ -38,7 +39,6 @@ public partial class DeviceViewModel : ObservableObject, IEmptyViewModel<DeviceV
         id = "";
         type = "";
         serialNumber = "";
-        owner = IEmptyViewModel<UserViewModel>.Empty;
         winsorDevice = new();
     }
 
@@ -49,9 +49,8 @@ public partial class DeviceViewModel : ObservableObject, IEmptyViewModel<DeviceV
         displayName = device.serialNumber;
         id = device.id;
         serialNumber = device.serialNumber;
-        owner = device.owner.HasValue ? 
-            new UserViewModel(device.owner!.Value) 
-            : IEmptyViewModel<UserViewModel>.Empty;
+        if (device.owner.HasValue)
+            Owner.Select(new(device.owner.Value));
         unicorn = device.unicorn;
         firstSeen = device.firstSeen;
         isActive = device.isActive;
@@ -64,11 +63,11 @@ public partial class DeviceViewModel : ObservableObject, IEmptyViewModel<DeviceV
     }
 
     public CreateDeviceRecord GetCreateRecord(CreateWinsorDeviceRecord? winsorDevice = null) =>
-        new(SerialNumber, Type, string.IsNullOrEmpty(Owner.Id) ? null : Owner.Id, Unicorn,
+        new(SerialNumber, Type, string.IsNullOrEmpty(Owner.Selected.Id) ? null : Owner.Selected.Id, Unicorn,
             IsActive, winsorDevice);
 
     public UpdateDeviceRecord GetUpdateRecord(UpdateWinsorDeviceRecord? winsorDevice = null) =>
-        new(string.IsNullOrEmpty(Owner.Id) ? null : Owner.Id, Type, Unicorn, IsActive, winsorDevice);
+        new(string.IsNullOrEmpty(Owner.Selected.Id) ? null : Owner.Selected.Id, Type, Unicorn, IsActive, winsorDevice);
 
     [RelayCommand]
     public async Task Save()

@@ -17,32 +17,28 @@ using WinsorApps.Services.Helpdesk.Services;
 
 namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
 {
-    public partial class CheckoutSearchViewModel : ObservableObject, ICachedSearchViewModel<CheckoutSearchResultViewModel>, IErrorHandling
+    public partial class CheckoutSearchViewModel : ObservableObject, ICachedSearchViewModel<CheckoutSearchResultViewModel>, IErrorHandling, IMultiModalSearch<CheckoutSearchResultViewModel>
     {
         private readonly CheqroomService _cheqroom;
 
         [ObservableProperty] private ImmutableArray<CheckoutSearchResultViewModel> available;
-
-        [ObservableProperty]
-        private ImmutableArray<CheckoutSearchResultViewModel> allSelected = [];
-
+        [ObservableProperty] private ImmutableArray<CheckoutSearchResultViewModel> allSelected = [];
         [ObservableProperty] private SelectionMode selectionMode = SelectionMode.Single;
         [ObservableProperty] private string searchText = "";
         [ObservableProperty] private bool showOptions;
         [ObservableProperty] private bool isSelected;
         [ObservableProperty] private ImmutableArray<CheckoutSearchResultViewModel> options = [];
-
         [ObservableProperty] private CheckoutSearchResultViewModel selected;
 
         [ObservableProperty]
         public ImmutableArray<string> searchModes = ["By Asset Tag", "By User"];
 
-        private Func<CheckoutSearchResultViewModel, bool> SearchFilter =>
+        public Func<CheckoutSearchResultViewModel, bool> SearchFilter =>
             SearchMode switch
             {
                 "By Asset Tag" => ord => ord.Items.Any(item => item.Contains(SearchText, StringComparison.InvariantCultureIgnoreCase)),
                 "By User" => ord => ord.User.DisplayName.Contains(SearchText, StringComparison.InvariantCultureIgnoreCase),
-                _ => ord => true
+                _ => _ => true
             };
 
         [ObservableProperty]
@@ -63,7 +59,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
             _cheqroom = cheqroom;
             searchMode = SearchModes[0];
             selected = IEmptyViewModel<CheckoutSearchResultViewModel>.Empty;
-            LoadServiceCases();
+            LoadCheckouts();
         }
 
         [RelayCommand]
@@ -75,7 +71,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         }
 
         [RelayCommand]
-        public void LoadServiceCases()
+        public void LoadCheckouts()
         {
             Available = _cheqroom.OpenOrders.Select(o => new CheckoutSearchResultViewModel(o)).ToImmutableArray();
             foreach (var order in Available)
@@ -94,7 +90,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         public void Search()
         {
             if (Available.Length == 0)
-                LoadServiceCases();
+                LoadCheckouts();
 
             var possible = Available
                 .Where(SearchFilter);
@@ -114,6 +110,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
                         ShowOptions = false;
                         Selected = IEmptyViewModel<CheckoutSearchResultViewModel>.Empty;
                         IsSelected = false;
+                        OnZeroResults?.Invoke(this, EventArgs.Empty);
                         return;
                     }
 
@@ -136,6 +133,8 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
 
         public void Select(CheckoutSearchResultViewModel item)
         {
+            Selected = item;
+            IsSelected = true;
             OnSingleResult?.Invoke(this, item);
         }
 

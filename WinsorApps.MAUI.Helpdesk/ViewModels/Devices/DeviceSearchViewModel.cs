@@ -157,6 +157,8 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices
                         AllSelected = [.. AllSelected, user];
 
                     IsSelected = AllSelected.Length > 0;
+                    if (IsSelected)
+                        OnMultipleResult?.Invoke(this, AllSelected);
                     return;
                 case SelectionMode.None:
                 default: return;

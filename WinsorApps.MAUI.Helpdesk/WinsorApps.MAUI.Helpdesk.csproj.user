@@ -15,6 +15,9 @@
     <MauiXaml Update="Pages\Devices\DeviceDetails.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
+    <MauiXaml Update="Pages\Devices\DeviceSearchPage.xaml">
+      <SubType>Designer</SubType>
+    </MauiXaml>
     <MauiXaml Update="Views\DeviceSearchBar.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>

@@ -10,6 +10,13 @@ using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.MAUI.Shared.ViewModels;
 
+public interface IMultiModalSearch<T> where T : ObservableObject
+{
+    ImmutableArray<string> SearchModes { get; }
+
+    Func<T, bool> SearchFilter { get; }
+}
+
 public interface ICachedSearchViewModel<T> : IAsyncSearchViewModel<T> where T : ObservableObject, IEmptyViewModel<T>, new()
 {
     public ImmutableArray<T> Available { get; set; }

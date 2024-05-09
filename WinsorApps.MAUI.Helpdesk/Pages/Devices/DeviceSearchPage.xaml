@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.Helpdesk.ViewModels.Devices"
+             x:DataType="vm:DeviceSearchViewModel"
+             x:Class="WinsorApps.MAUI.Helpdesk.Pages.Devices.DeviceSearchPage"
+             Title="Device Lookup">
+    <VerticalStackLayout>
+        <SearchBar
+            Placeholder="Identifier"
+            Text="{Binding SearchText}"
+            SearchCommand="{Binding SearchCommand}" />
+        <CollectionView
+            ItemsSource="{Binding Options}"
+            IsVisible="{Binding ShowOptions}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:DeviceViewModel">
+                    <HorizontalStackLayout>
+                        <HorizontalStackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                        </HorizontalStackLayout.GestureRecognizers>
+                        <Label
+                            Text="{Binding DisplayName}" />
+                    </HorizontalStackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+        
+
+    </VerticalStackLayout>
+</ContentPage>

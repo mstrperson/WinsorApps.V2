@@ -80,6 +80,7 @@ public partial class JamfViewModel : ObservableObject, IEmptyViewModel<JamfViewM
     [ObservableProperty] private string model = "";
     [ObservableProperty] private UserViewModel user = IEmptyViewModel<UserViewModel>.Empty;
     [ObservableProperty] private JamfDeviceType type = JamfDeviceType.Computer;
+    [ObservableProperty] private bool isSelected;
 
     [RelayCommand]
     public void Select()
@@ -117,6 +118,7 @@ public partial class InventoryPreloadViewModel : ObservableObject, IEmptyViewMod
     [ObservableProperty] private string department = "";
     [ObservableProperty] private string assetTag = "";
     [ObservableProperty] private JamfDeviceType type = JamfDeviceType.Computer;
+    [ObservableProperty] private bool isSelected;
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<UserViewModel>? OnUserSelected;

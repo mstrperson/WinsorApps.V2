@@ -51,7 +51,7 @@ public class ServiceCaseService : IAsyncInitService
         }
     }
 
-    private List<ServiceCase> _openCasesCache;
+    private List<ServiceCase> _openCasesCache = [];
 
     public ServiceCaseService(ApiService api, LocalLoggingService logging)
     {
@@ -81,6 +81,12 @@ public class ServiceCaseService : IAsyncInitService
         await Initialize(onError);
     }
     
+    public async Task<ImmutableArray<ServiceCase>> SearchServiceCaseHistory(ServiceCaseFilter filter, ErrorAction onError)
+    {
+        return await _api.SendAsync<ImmutableArray<ServiceCase>>(HttpMethod.Get,
+            $"api/helpdesk/service-cases?{filter.QueryString}");
+    }
+
     public async Task Initialize(ErrorAction onError)
     {
         if (Started) return;
@@ -110,10 +116,10 @@ public class ServiceCaseService : IAsyncInitService
     public async Task<ServiceCase?> OpenNewServiceCaseAsync(NewServiceCase serviceCase,
         ErrorAction onError)
     {
-        var result = await _api.SendAsync<NewServiceCase, ServiceCase>(
+        var result = await _api.SendAsync<NewServiceCase, ServiceCase?>(
             HttpMethod.Post, "api/helpdesk/service-cases/create", serviceCase, onError: onError);
 
-        if (result is null)
+        if (!result.HasValue)
         {
             _logging.LogMessage(LocalLoggingService.LogLevel.Debug,
                 "Create Service Case endpoint returned a null result.", $"{serviceCase}");
@@ -121,8 +127,8 @@ public class ServiceCaseService : IAsyncInitService
         }
 
         _logging.LogMessage(LocalLoggingService.LogLevel.Information,
-            $"Created new Service Case for {result.device.serialNumber}");
-        _openCasesCache.Add(result);
+            $"Created new Service Case for {result.Value.device.serialNumber}");
+        _openCasesCache.Add(result.Value);
         return result;
     }
 
@@ -179,17 +185,17 @@ public class ServiceCaseService : IAsyncInitService
 
         var oldCase = _openCasesCache.FirstOrDefault(c => c.id == caseId);
 
-        var status = ServiceStatuses.First(st => st.text == result.status);
-        if (status.isClosed && oldCase is not null)
+        var status = ServiceStatuses.First(st => st.text == result.Value.status);
+        if (status.isClosed && oldCase != default)
         {
             _openCasesCache.Remove(oldCase);
             return true;
         }
 
-        if (oldCase is not null)
-            _openCasesCache.Replace(oldCase, result);
+        if (oldCase != default)
+            _openCasesCache.Replace(oldCase, result.Value);
         else
-            _openCasesCache.Add(result);
+            _openCasesCache.Add(result.Value);
 
         return true;
     }
@@ -200,16 +206,16 @@ public class ServiceCaseService : IAsyncInitService
         var endpoint = $"api/helpdesk/service-cases/{caseId}/close";
         if (closingStatus is not null)
             endpoint += $"?closingStatus={closingStatus.Value.id}";
-        var result = await _api.SendAsync<ServiceCase>(HttpMethod.Put, endpoint, onError: onError);
+        var result = await _api.SendAsync<ServiceCase?>(HttpMethod.Put, endpoint, onError: onError);
 
-        if (result is null)
+        if (!result.HasValue)
         {
             _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Closing Service Case failed.");
             return false;
         }
 
         var cachedCase = _openCasesCache.FirstOrDefault(c => c.id == caseId);
-        if (cachedCase is not null)
+        if (cachedCase != default)
         {
             _openCasesCache.Remove(cachedCase);
         }

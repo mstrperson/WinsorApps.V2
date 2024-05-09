@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,6 +21,8 @@ public interface ISelectable<T> where T : ObservableObject
 {
     public event EventHandler<T>? Selected;
 
+    public bool IsSelected { get; set; }
+
     [RelayCommand]
     public void Select();
 }
@@ -27,4 +30,16 @@ public interface ISelectable<T> where T : ObservableObject
 public interface IErrorHandling
 {
     public event EventHandler<ErrorRecord>? OnError;
+}
+
+public interface ILinkedList<T> where T : ObservableObject
+{
+    public T Next();
+}
+
+public interface IAsyncSubmit
+{
+    public Task Submit();
+
+    public bool Working { get; set; }
 }
