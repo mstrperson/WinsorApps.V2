@@ -12,10 +12,13 @@
     <MauiXaml Update="Pages\CheqroomQuickTaskPage.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
-    <MauiXaml Update="Pages\Devices\DeviceDetails.xaml">
+    <MauiXaml Update="Pages\Devices\DeviceDetailsPage.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
     <MauiXaml Update="Pages\Devices\DeviceSearchPage.xaml">
+      <SubType>Designer</SubType>
+    </MauiXaml>
+    <MauiXaml Update="Views\CommonIssueCheckListView.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
     <MauiXaml Update="Views\DeviceSearchBar.xaml">

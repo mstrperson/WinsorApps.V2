@@ -1,12 +1,18 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
+using WinsorApps.Services.Helpdesk.Services;
 
 #region Service Declarations
 LocalLoggingService logging = new();
 ApiService api = new(logging);
 RegistrarService registrar = new RegistrarService(api, logging);
+DeviceService deviceService = new(api, logging);
+CheqroomService cheqroomService = new(api, logging);
+JamfService jamfService = new(api, logging);
+ServiceCaseService serviceCaseService = new(api, logging);
 #endregion
 
 // Do Login Stuff
@@ -24,10 +30,19 @@ if (!api.Ready)
 
 // Initialize Registrar Service
 
-await registrar.Initialize(OnError);
+DateTime start = DateTime.Now;
+Console.WriteLine("Initializing");
 
-foreach(var item in await registrar.GetMyScheduleAsync())
-    Console.WriteLine(item);
+await Task.WhenAll(
+    registrar.Initialize(OnError),
+    deviceService.Initialize(OnError), 
+    jamfService.Initialize(OnError),
+    cheqroomService.Initialize(OnError),
+    serviceCaseService.Initialize(OnError));
+
+var time = DateTime.Now - start;
+
+Console.WriteLine($"Initializing took {time:hh:mm:ss}");
 
 void OnError(ErrorRecord err)
 {

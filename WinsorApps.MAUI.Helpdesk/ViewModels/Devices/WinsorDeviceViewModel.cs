@@ -73,7 +73,7 @@ public partial class WinsorDeviceViewModel : ObservableObject, IErrorHandling
         _cheqroom = ServiceHelper.GetService<CheqroomService>();
         _jamf = ServiceHelper.GetService<JamfService>();
         hasWinsorData = dev.isWinsorDevice;
-        _device = dev.winsorDevice ?? new();
+        _device = dev.winsorDevice ?? WinsorDeviceStub.Default;
         assetTag = _device.assetTag;
         categoryName = _device.category;
         cheqroomId = _device.cheqroomId;
@@ -81,9 +81,10 @@ public partial class WinsorDeviceViewModel : ObservableObject, IErrorHandling
         jamfInventoryPreloadId = _device.jamfInventoryPreloadId;
         loaner = _device.loaner;
         CategorySearch.Select(new(_device.category));
-        var task = _deviceService.GetWinsorDeviceDetails(dev.id);
+        var task = _deviceService.GetWinsorDeviceDetails(dev.id, OnError.DefaultBehavior(this));
         task.WhenCompleted(() =>
         {
+            if (!task.Result.HasValue) return;
             var details = task.Result!.Value;
             PurchaseDate = details.purchaseDate;
             PurchaseCost = details.purchaseCost;

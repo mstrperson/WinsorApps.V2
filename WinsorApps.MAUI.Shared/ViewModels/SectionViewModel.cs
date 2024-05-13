@@ -20,6 +20,7 @@ public partial class SectionViewModel : ObservableObject, IEmptyViewModel<Sectio
     [ObservableProperty] private ImmutableArray<UserViewModel> teachers = [];
 
     [ObservableProperty] private ImmutableArray<UserViewModel> students = [];
+    [ObservableProperty] bool isSelected;
 
     public SectionViewModel()
     {

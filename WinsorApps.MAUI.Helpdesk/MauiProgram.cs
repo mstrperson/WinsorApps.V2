@@ -4,6 +4,7 @@ using AsyncAwaitBestPractices;
 using CommunityToolkit.Maui.Core;
 using Microsoft.Extensions.Logging;
 using WinsorApps.MAUI.Helpdesk.Pages;
+using WinsorApps.MAUI.Helpdesk.Pages.Devices;
 using WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.Pages;
@@ -41,6 +42,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<CheqroomQuickTasksViewModel>();
         builder.Services.AddSingleton<CheqroomQuickTaskPage>();
         builder.Services.AddSingleton<CheckoutSearchPage>();
+        builder.Services.AddSingleton<DeviceSearchPage>();
+        builder.Services.AddTransient<DeviceDetailsPage>();
 
 #if DEBUG
         builder.Logging.AddDebug();

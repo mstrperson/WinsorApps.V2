@@ -17,16 +17,23 @@ public partial class DeviceViewModel
     private readonly ServiceCaseService _caseService = ServiceHelper.GetService<ServiceCaseService>();
 
     [ObservableProperty] ImmutableArray<ServiceCaseViewModel> serviceHistory = [];
+    [ObservableProperty] bool showServiceHistory;
 
     [RelayCommand]
     public async Task LoadServiceHistory()
     {
         var searchResults = await _caseService.SearchServiceCaseHistory(new(deviceId: Id), OnError.DefaultBehavior(this));
         ServiceHistory = searchResults.Select(sc => new ServiceCaseViewModel(sc)).ToImmutableArray();
+        foreach(var serviceCase in ServiceHistory)
+        {
+            serviceCase.OnError += OnError.PassAlong();
+            serviceCase.Selected += ServiceCaseSelected.PassAlong();
+        }
+        ShowServiceHistory = true;
     }
 
 
-
+    public event EventHandler<ServiceCaseViewModel>? ServiceCaseSelected;
     public event EventHandler<DeviceViewModel>? NewServiceCaseRequested;
 
     [RelayCommand]

@@ -84,7 +84,7 @@ public class ServiceCaseService : IAsyncInitService
     public async Task<ImmutableArray<ServiceCase>> SearchServiceCaseHistory(ServiceCaseFilter filter, ErrorAction onError)
     {
         return await _api.SendAsync<ImmutableArray<ServiceCase>>(HttpMethod.Get,
-            $"api/helpdesk/service-cases?{filter.QueryString}");
+            $"api/helpdesk/service-cases?{filter.QueryString}", onError: onError);
     }
 
     public async Task Initialize(ErrorAction onError)

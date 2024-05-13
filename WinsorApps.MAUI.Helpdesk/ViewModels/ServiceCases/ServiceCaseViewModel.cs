@@ -29,6 +29,7 @@ public partial class ServiceCaseViewModel :
     public event EventHandler<ServiceCaseViewModel>? OnUpdate;
     public event EventHandler<ServiceCaseViewModel>? OnCreate;
 
+    [ObservableProperty] string summaryText = "New Service Case";
 
     [RelayCommand]
     public void Select() => Selected?.Invoke(this, this);
@@ -80,6 +81,8 @@ public partial class ServiceCaseViewModel :
         StatusSearch.Select(serviceCase.status);
         AttachedDocuments = serviceCase.attachedDocuments.Select(doc => new DocumentViewModel(doc)).ToImmutableArray();
         RepairCost = serviceCase.repairCost;
+
+        SummaryText = $"[{Status.Status}] {Device.DisplayName} - {Opened:dd MMM yyyy}";
     }
 
     [ObservableProperty] private string id = "";
@@ -96,7 +99,7 @@ public partial class ServiceCaseViewModel :
     [ObservableProperty] private ServiceStatusSearchViewModel statusSearch = new();
     [ObservableProperty] private ImmutableArray<DocumentViewModel> attachedDocuments = [];
     [ObservableProperty] private double repairCost = 0;
-    [ObservableProperty] private DeviceSearchViewModel loanerSearch;
+    [ObservableProperty] private DeviceSearchViewModel loanerSearch = new();
     [ObservableProperty] private bool isSelected;
     [ObservableProperty] private bool working;
 

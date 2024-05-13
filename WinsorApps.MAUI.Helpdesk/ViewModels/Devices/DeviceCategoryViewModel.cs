@@ -41,7 +41,7 @@ public partial class DeviceCategoryViewModel : ObservableObject, IEmptyViewModel
         var service = ServiceHelper.GetService<DeviceService>()!;
         var category =
             service.Categories.FirstOrDefault(cat =>
-                cat.name.Contains(name, StringComparison.InvariantCultureIgnoreCase));
+                cat.name.Contains(name ?? "", StringComparison.InvariantCultureIgnoreCase));
         
         _category = category;
         this.name = category.name;
@@ -53,6 +53,7 @@ public partial class DeviceCategoryViewModel : ObservableObject, IEmptyViewModel
         jamfDeviceType = category.jamfDeviceType;
     }
 
+    public override string ToString() => Name;
 }
 
 public partial class CategorySearchViewModel : ObservableObject, ICachedSearchViewModel<DeviceCategoryViewModel>, IErrorHandling

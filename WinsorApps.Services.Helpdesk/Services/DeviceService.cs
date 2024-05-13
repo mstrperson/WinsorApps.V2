@@ -1,3 +1,6 @@
+using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Security.Cryptography.X509Certificates;
 using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
@@ -11,7 +14,7 @@ public sealed class DeviceService : IAsyncInitService
     private readonly LocalLoggingService _logging;
     public bool Ready { get; private set; } = false;
 
-    private List<DeviceRecord>? _loaners;
+    private List<DeviceRecord> _loaners = [];
     public ImmutableList<DeviceRecord> Loaners
     {
         get
@@ -24,7 +27,7 @@ public sealed class DeviceService : IAsyncInitService
         }
     }
 
-    private List<DeviceRecord>? _deviceCache;
+    private List<DeviceRecord> _deviceCache = [];
     public ImmutableList<DeviceRecord> DeviceCache
     {
         get
@@ -36,7 +39,7 @@ public sealed class DeviceService : IAsyncInitService
         }
     }
 
-    private List<WinsorDeviceRecord>? _winsorDeviceCache;
+    private List<WinsorDeviceRecord> _winsorDeviceCache = [];
     public ImmutableList<WinsorDeviceRecord> WinsorDeviceCache
     {
         get
@@ -102,7 +105,7 @@ public sealed class DeviceService : IAsyncInitService
             "api/devices/loaners", onError: onError);
         loanersTask.WhenCompleted(() =>
         {
-            Progress += 1 / 3.0;
+            Progress += 1 / 4.0;
             _loaners = loanersTask.Result;
         });
 
@@ -111,25 +114,36 @@ public sealed class DeviceService : IAsyncInitService
 
         devicesTask.WhenCompleted(() =>
         {
-            Progress += 1 / 3.0;
-            _deviceCache = devicesTask.Result;
+            Progress += 1 / 4.0;
+            _deviceCache = devicesTask.Result ?? [];
         });
+
+
 
         var categoriesTask = _api.SendAsync<ImmutableArray<DeviceCategoryRecord>>(HttpMethod.Get,
             "api/devices/categories", onError: onError);
         categoriesTask.WhenCompleted(() =>
         {
-            Progress += 1 / 3.0;
+            Progress += 1 / 4.0;
             _categories = categoriesTask.Result;
         });
 
-        _winsorDeviceCache = new();
 
-        await Task.WhenAll(loanersTask, devicesTask, categoriesTask);
+        var winsorDeviceCache = _api.SendAsync<List<WinsorDeviceRecord>>(HttpMethod.Get, "api/devices/winsor-devices", onError: onError);
+        
+
+        winsorDeviceCache.WhenCompleted(() =>
+        {
+            _winsorDeviceCache = winsorDeviceCache.Result ?? [];
+            Progress += 0.25;
+        });
+
+        await Task.WhenAll(loanersTask, devicesTask, categoriesTask, winsorDeviceCache);
 
         Progress = 1;
         Ready = true;
     }
+
 
     public async Task<DeviceRecord?> UpdateDevice(string deviceId, UpdateDeviceRecord update, ErrorAction onError)
     {
@@ -140,7 +154,23 @@ public sealed class DeviceService : IAsyncInitService
         if (result.HasValue && DeviceCache.Any(dev => dev.id == result.Value.id))
             _deviceCache!.Replace(DeviceCache.First(dev => dev.id == result.Value.id), result.Value);
         else if (result.HasValue)
+        {
             _deviceCache!.Add(result.Value);
+            if (result.Value.winsorDevice.HasValue)
+            {
+                var newDetails = await GetWinsorDeviceDetails(deviceId, onError);
+                if (newDetails.HasValue)
+                {
+                    if (_winsorDeviceCache.Any(dev => dev.assetTag == result.Value.winsorDevice.Value.assetTag))
+                    {
+                        var rep = _winsorDeviceCache.First(dev => dev.assetTag == result.Value.winsorDevice.Value.assetTag);
+                        _winsorDeviceCache.Replace(rep, newDetails.Value);
+                    }
+                    else
+                        _winsorDeviceCache.Add(newDetails.Value);
+                }
+            }
+        }
 
         return result;
     }
@@ -199,11 +229,16 @@ public sealed class DeviceService : IAsyncInitService
 
     public async Task<WinsorDeviceRecord?> GetWinsorDeviceDetails(string id, ErrorAction? onError = null)
     {
+        if (string.IsNullOrEmpty(id)) 
+            return null;
+
         if (WinsorDeviceCache.Any(dev => dev.id == id))
             return WinsorDeviceCache.First(dev => dev.id == id);
 
         var result = await _api.SendAsync<WinsorDeviceRecord?>(HttpMethod.Get,
-            $"api/{id}/winsor-device-info", onError: onError);
+            $"api/devices/{id}/winsor-device-info", onError: onError);
+        if (result.HasValue)
+            _winsorDeviceCache?.Add(result.Value);
         return result;
     }
 

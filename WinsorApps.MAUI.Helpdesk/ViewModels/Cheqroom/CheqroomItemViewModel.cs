@@ -27,7 +27,7 @@ public partial class CheqroomItemViewModel : ObservableObject, IEmptyViewModel<C
     {
 
         _cheqroom = ServiceHelper.GetService<CheqroomService>()!;
-        _item = new();
+        _item = CheqroomItem.Default;
         LoadItem(_item);
     }
 

@@ -21,6 +21,7 @@ public partial class UserViewModel : ObservableObject, IEmptyViewModel<UserViewM
 
     [ObservableProperty] private ImmutableArray<SectionViewModel> academicSchedule = [];
     [ObservableProperty] private bool showButton = false;
+    [ObservableProperty] bool isSelected;
 
     public event EventHandler<UserViewModel>? Selected;
     public event EventHandler<SectionViewModel>? SectionSelected;

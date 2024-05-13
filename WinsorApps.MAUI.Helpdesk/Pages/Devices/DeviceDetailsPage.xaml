@@ -4,10 +4,11 @@
              xmlns:vm="clr-namespace:WinsorApps.MAUI.Helpdesk.ViewModels.Devices"
              xmlns:cvm="clr-namespace:WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom"
              xmlns:jvm="clr-namespace:WinsorApps.MAUI.Helpdesk.ViewModels.Jamf"
+             xmlns:svm="clr-namespace:WinsorApps.MAUI.Helpdesk.ViewModels.ServiceCases"
              xmlns:gvm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels;assembly=WinsorApps.MAUI.Shared"
              xmlns:sview="clr-namespace:WinsorApps.MAUI.Shared.Views;assembly=WinsorApps.MAUI.Shared"
              x:DataType="vm:DeviceViewModel"
-             x:Class="WinsorApps.MAUI.Helpdesk.Pages.Devices.DeviceDetails"
+             x:Class="WinsorApps.MAUI.Helpdesk.Pages.Devices.DeviceDetailsPage"
              Title="{Binding DisplayName}">
     <ScrollView>
         <VerticalStackLayout>
@@ -115,6 +116,21 @@
                     Grid.Column="3"
                     Text="{Binding WinsorDevice.CheqroomItem.Status}" />
             </Grid>
+            <CollectionView
+                ItemsSource="{Binding ServiceHistory}"
+                IsVisible="{Binding ShowServiceHistory}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate
+                        x:DataType="svm:ServiceCaseViewModel">
+                        <VerticalStackLayout>
+                            <VerticalStackLayout.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                            </VerticalStackLayout.GestureRecognizers>
+                            <Label Text="{Binding SummaryText}" />
+                        </VerticalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

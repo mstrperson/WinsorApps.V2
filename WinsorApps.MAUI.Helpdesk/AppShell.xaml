@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:WinsorApps.MAUI.Helpdesk"
     xmlns:pages="clr-namespace:WinsorApps.MAUI.Helpdesk.Pages"
+    xmlns:devices="clr-namespace:WinsorApps.MAUI.Helpdesk.Pages.Devices"
     Shell.FlyoutBehavior="Flyout"
     Title="WinsorApps.MAUI.Helpdesk">
 
@@ -22,5 +23,10 @@
         Title="Cheqroom Checkout Search"
         ContentTemplate="{DataTemplate pages:CheckoutSearchPage}"
         Route="QuickCheckin" />
+
+    <ShellContent
+        Title="Devices"
+        ContentTemplate="{DataTemplate devices:DeviceSearchPage}"
+        Route="DeviceSearchPage" />
 
 </Shell>

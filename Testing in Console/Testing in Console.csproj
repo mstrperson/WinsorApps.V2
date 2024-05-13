@@ -10,6 +10,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\WinsorApps.Services.Global\WinsorApps.Services.Global.csproj" />
+      <ProjectReference Include="..\WinsorApps.Services.Helpdesk\WinsorApps.Services.Helpdesk.csproj" />
     </ItemGroup>
 
 </Project>

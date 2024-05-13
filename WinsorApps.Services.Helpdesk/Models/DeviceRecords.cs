@@ -33,6 +33,8 @@ public readonly record struct DeviceAssignmentRecord(string assetTag, UserRecord
         string assetTag, string category, string cheqroomId,
         int jamfId, int jamfInventoryPreloadId, bool loaner)
     {
+    public static WinsorDeviceStub Default => new("", "", "", -1, -1, false);
+
         public static implicit operator WinsorDeviceStub?(WinsorDeviceRecord? dev) => dev.HasValue ? null :
             new(dev.Value.assetTag, dev.Value.category.name, 
                 dev.Value.cheqroomId, dev.Value.jamfId, dev.Value.jamfInventoryPreloadId, dev.Value.loaner);

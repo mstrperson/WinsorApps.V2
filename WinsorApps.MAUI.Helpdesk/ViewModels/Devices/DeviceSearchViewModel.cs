@@ -49,14 +49,11 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices
             set
             {
                 _filter = value; 
-                ((IAsyncInitService)_deviceService).WaitForInit(err => OnError?.Invoke(this, err))
-                    .WhenCompleted(() =>
-                    {
-                        Available = _deviceService.DeviceCache
-                            .Where(GenerateFilter(Filter))
-                            .Select(dev => new DeviceViewModel(dev))
-                            .ToImmutableArray();
-                    });
+                
+                Available = _deviceService.DeviceCache
+                    .Where(GenerateFilter(Filter))
+                    .Select(dev => new DeviceViewModel(dev))
+                    .ToImmutableArray();
             }
         }
 
@@ -64,19 +61,16 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices
         public DeviceSearchViewModel()
         {
             _deviceService = ServiceHelper.GetService<DeviceService>();
-            ((IAsyncInitService)_deviceService).WaitForInit(err => OnError?.Invoke(this, err))
-                .WhenCompleted(() =>
-                {
-                    Available = _deviceService.DeviceCache
-                        .Where(GenerateFilter(Filter))
-                        .Select(dev => new DeviceViewModel(dev))
-                        .ToImmutableArray();
+            
+            Available = _deviceService.DeviceCache
+                .Where(GenerateFilter(Filter))
+                .Select(dev => new DeviceViewModel(dev))
+                .ToImmutableArray();
 
-                    foreach(var dev in Available) 
-                    {
-                        dev.Selected += Dev_Selected;
-                    }
-                });
+            foreach(var dev in Available) 
+            {
+                dev.Selected += Dev_Selected;
+            }
 
             selected = IEmptyViewModel<DeviceViewModel>.Empty;
         }
