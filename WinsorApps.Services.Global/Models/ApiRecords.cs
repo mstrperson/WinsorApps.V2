@@ -71,4 +71,6 @@ namespace WinsorApps.Services.Global.Models;
 
     }
 
+public readonly record struct FileContentResult(string documentId, string fileName, string mimeType, byte[] b64data);
+
     

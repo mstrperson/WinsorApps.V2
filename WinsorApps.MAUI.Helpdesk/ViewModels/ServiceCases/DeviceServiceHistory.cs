@@ -23,7 +23,7 @@ public partial class DeviceViewModel
     public async Task LoadServiceHistory()
     {
         var searchResults = await _caseService.SearchServiceCaseHistory(new(deviceId: Id), OnError.DefaultBehavior(this));
-        ServiceHistory = searchResults.Select(sc => new ServiceCaseViewModel(sc)).ToImmutableArray();
+        ServiceHistory = searchResults.Select(sc => ServiceCaseViewModel.Get(sc)).ToImmutableArray();
         foreach(var serviceCase in ServiceHistory)
         {
             serviceCase.OnError += OnError.PassAlong();

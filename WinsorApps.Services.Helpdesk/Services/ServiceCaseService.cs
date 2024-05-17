@@ -89,7 +89,9 @@ public class ServiceCaseService : IAsyncInitService
 
     public async Task Initialize(ErrorAction onError)
     {
-        if (Started) return;
+        if (Started)
+            return;
+
         Started = true;
         _serviceStatuses = await _api.SendAsync<ImmutableArray<ServiceStatus>>(
             HttpMethod.Get, "api/helpdesk/service-cases/status-list", onError: onError);
@@ -99,7 +101,7 @@ public class ServiceCaseService : IAsyncInitService
 
         Progress = 2 / 3.0;
         _openCasesCache = (await _api.SendAsync<List<ServiceCase>>(
-            HttpMethod.Get, "api/helpdesk/service-cases", onError: onError))!;
+            HttpMethod.Get, "api/helpdesk/service-cases?open=true", onError: onError))!;
 
         Progress = 1;
         Ready = true;

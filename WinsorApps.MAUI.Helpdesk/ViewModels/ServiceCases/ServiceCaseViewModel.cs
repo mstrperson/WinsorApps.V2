@@ -1,12 +1,17 @@
+using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using AsyncAwaitBestPractices;
+using CommunityToolkit.Maui.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using WinsorApps.MAUI.Helpdesk.ViewModels.Devices;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.ViewModels;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
+using WinsorApps.Services.Global.Services;
 using WinsorApps.Services.Helpdesk.Models;
 using WinsorApps.Services.Helpdesk.Services;
 
@@ -17,7 +22,8 @@ public partial class ServiceCaseViewModel :
     IEmptyViewModel<ServiceCaseViewModel>, 
     ISelectable<ServiceCaseViewModel>,
     IErrorHandling,
-    IAsyncSubmit
+    IAsyncSubmit,
+    ICachedViewModel<ServiceCaseViewModel, ServiceCase, ServiceCaseService>
 {
     private readonly ServiceCaseService _caseService = ServiceHelper.GetService<ServiceCaseService>();
     private readonly DeviceService _deviceService = ServiceHelper.GetService<DeviceService>();
@@ -29,6 +35,8 @@ public partial class ServiceCaseViewModel :
     public event EventHandler<ServiceCaseViewModel>? OnUpdate;
     public event EventHandler<ServiceCaseViewModel>? OnCreate;
 
+    public ServiceCaseViewModel Self => this;
+
     [ObservableProperty] string summaryText = "New Service Case";
 
     [RelayCommand]
@@ -38,41 +46,38 @@ public partial class ServiceCaseViewModel :
     public ServiceCaseViewModel()
     {
         _case = new();
-        loanerSearch = new()
-        {
-            Available = _deviceService.Loaners
-                .Select(dev => new DeviceViewModel(dev))
-                .ToImmutableArray()
-        };
+        
 
         StatusSearch.Select("Intake");
     }
 
-    public ServiceCaseViewModel(ServiceCase serviceCase)
+    private ServiceCaseViewModel(ServiceCase serviceCase)
     {
-        LoanerSearch = new()
+        using (DebugTimer _ = new($"Initializing ServiceCaseViewModel for {serviceCase.id}", ServiceHelper.GetService<LocalLoggingService>()))
         {
-            Available = _deviceService.Loaners
-                .Select(dev => new DeviceViewModel(dev))
-                .ToImmutableArray()
-        };
-
-        LoadServiceCase(serviceCase);
+            LoadServiceCase(serviceCase);
+        }
     }
 
     private void LoadServiceCase(ServiceCase serviceCase)
     {
         _case = serviceCase;
         Id = serviceCase.id;
-        LoanerSearch = new()
+
+        Owner = UserViewModel.Get(serviceCase.owner);
+        Owner.GetPhoto().SafeFireAndForget(e => e.LogException());
+        this.Device = DeviceViewModel.Get(serviceCase.device);
+        Loaner =
+            IEmptyViewModel<DeviceViewModel>.Empty;
+        if(!string.IsNullOrEmpty(serviceCase.loaner))
         {
-            Available = _deviceService.Loaners
-                .Select(dev => new DeviceViewModel(dev))
-                .ToImmutableArray()
-        };
-        LoanerSearch.Select(LoanerSearch.Available.FirstOrDefault(dev => dev.WinsorDevice.AssetTag == serviceCase.loaner) ?? IEmptyViewModel<DeviceViewModel>.Empty);
-        OwnerSearch.Select(OwnerSearch.Available.FirstOrDefault(u => u.Id == serviceCase.owner.id) ?? IEmptyViewModel<UserViewModel>.Empty);
-        DeviceSearch.Select(DeviceSearch.Available.FirstOrDefault(dev => dev.Id == serviceCase.device.id) ?? IEmptyViewModel<DeviceViewModel>.Empty);
+            var l = _deviceService.Loaners.FirstOrDefault(dev => dev.winsorDevice.HasValue && dev.winsorDevice.Value.assetTag == serviceCase.loaner);
+            if(l != default)
+            {
+                Loaner = DeviceViewModel.Get(l);
+            }
+        }
+
         CommonIssues.Select(serviceCase.commonIssues);
         IntakeNotes = serviceCase.intakeNotes;
         Opened = serviceCase.opened;
@@ -87,9 +92,9 @@ public partial class ServiceCaseViewModel :
 
     [ObservableProperty] private string id = "";
 
-    [ObservableProperty] private DeviceSearchViewModel deviceSearch = new();
+    [ObservableProperty] private DeviceViewModel device = IEmptyViewModel<DeviceViewModel>.Empty;
 
-    [ObservableProperty] private UserSearchViewModel ownerSearch = new();
+    [ObservableProperty] private UserViewModel owner = IEmptyViewModel<UserViewModel>.Empty;
 
     [ObservableProperty] private CommonIssueSelectionViewModel commonIssues = new();
     [ObservableProperty] private string intakeNotes = "";
@@ -99,26 +104,10 @@ public partial class ServiceCaseViewModel :
     [ObservableProperty] private ServiceStatusSearchViewModel statusSearch = new();
     [ObservableProperty] private ImmutableArray<DocumentViewModel> attachedDocuments = [];
     [ObservableProperty] private double repairCost = 0;
-    [ObservableProperty] private DeviceSearchViewModel loanerSearch = new();
+    [ObservableProperty] private DeviceViewModel loaner = IEmptyViewModel<DeviceViewModel>.Empty;
     [ObservableProperty] private bool isSelected;
     [ObservableProperty] private bool working;
 
-    public DeviceViewModel Device
-    {
-        get => DeviceSearch.Selected;
-        set => DeviceSearch.Select(value);
-    }
-    public DeviceViewModel Loaner
-    {
-        get => LoanerSearch.Selected;
-        set => LoanerSearch.Select(value);
-    }
-   
-    public UserViewModel Owner
-    {
-        get => OwnerSearch.Selected;
-        set => OwnerSearch.Select(value);
-    }
     public ServiceStatusViewModel Status
     {
         get => StatusSearch.Selected;
@@ -129,6 +118,8 @@ public partial class ServiceCaseViewModel :
         get => CommonIssues.Selected;
         set => CommonIssues.Select(value);
     }
+
+    public static ConcurrentBag<ServiceCaseViewModel> ViewModelCache { get; private set; } = [];
 
     [RelayCommand]
     public async Task Submit()
@@ -187,13 +178,63 @@ public partial class ServiceCaseViewModel :
             OnClose?.Invoke(this, this);
         Working = false;
     }
+
+    [RelayCommand]
+    public async Task PrintSticker()
+    {
+        var data = await _caseService.PrintSticker(Id, OnError.DefaultBehavior(this));
+        var result = await FileSaver.SaveAsync($"{Id}_{Device.SerialNumber}.pdf", new MemoryStream(data));
+        if(result.IsSuccessful &&
+            !string.IsNullOrEmpty(result.FilePath) &&
+            Environment.OSVersion.Platform == PlatformID.Win32NT)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo("msedge.exe", result.FilePath) 
+                { 
+                    UseShellExecute = true
+                });
+            }
+            catch(Exception ex)
+            {
+                ex.LogException();
+            }
+        }
+    }
+
+    public static List<ServiceCaseViewModel> GetClonedViewModels(IEnumerable<ServiceCase> models)
+    {
+        List<ServiceCaseViewModel> output = [];
+        foreach (var model in models)
+            output.Add(Get(model));
+        return output;
+    }
+
+    public static async Task Initialize(ServiceCaseService service, ErrorAction onError)
+    {
+        await service.WaitForInit(onError);
+        ViewModelCache = [..
+            service.OpenCases.Select(sc => new ServiceCaseViewModel(sc))];
+    }
+
+    public static ServiceCaseViewModel Get(ServiceCase model)
+    {
+        var vm = ViewModelCache.FirstOrDefault(cvm => cvm.Id == model.id);
+        if (vm is null)
+        {
+            vm = new ServiceCaseViewModel(model);
+            ViewModelCache.Add(vm);
+        }
+        return vm.Clone();
+    }
+
+    public ServiceCaseViewModel Clone() => (ServiceCaseViewModel)this.MemberwiseClone();
 }
 
-public partial class ServiceCaseSearchViewModel : ObservableObject, ICachedSearchViewModel<ServiceCaseViewModel>, IErrorHandling, IMultiModalSearch<ServiceCaseViewModel>
+public partial class ServiceCaseSearchViewModel : ObservableObject, IAsyncSearchViewModel<ServiceCaseViewModel>, IErrorHandling
 {
     private readonly ServiceCaseService _caseService = ServiceHelper.GetService<ServiceCaseService>();
 
-    [ObservableProperty] private ImmutableArray<ServiceCaseViewModel> available;
     [ObservableProperty] private ImmutableArray<ServiceCaseViewModel> allSelected = [];
     [ObservableProperty] private ImmutableArray<ServiceCaseViewModel> options = [];
     [ObservableProperty] private ServiceCaseViewModel selected = IEmptyViewModel<ServiceCaseViewModel>.Empty;
@@ -201,18 +242,12 @@ public partial class ServiceCaseSearchViewModel : ObservableObject, ICachedSearc
     [ObservableProperty] private bool showOptions;
     [ObservableProperty] private string searchText = "";
     [ObservableProperty] private SelectionMode selectionMode = SelectionMode.Single;
-    [ObservableProperty] private string searchMode;
     [ObservableProperty] private ServiceCaseFilterViewModel filter = new();
+    [ObservableProperty] private bool showFilter;
 
     public ServiceCaseSearchViewModel()
     {
-        available = _caseService.OpenCases.Select(c => new ServiceCaseViewModel(c)).ToImmutableArray();
-        foreach(var serviceCase in Available)
-        {
-            serviceCase.OnError += OnError.PassAlong();
-            serviceCase.Selected += (_, sc) => Select(sc);
-        }
-        searchMode = SearchModes[0];
+        
     }
 
     public event EventHandler<ServiceCaseViewModel>? OnSingleResult;
@@ -224,35 +259,10 @@ public partial class ServiceCaseSearchViewModel : ObservableObject, ICachedSearc
     public event EventHandler<ServiceCaseViewModel>? OnCaseUpdated;
     public event EventHandler<ServiceCaseViewModel>? OnCaseCreated;
 
-    public ImmutableArray<string> SearchModes => ["By Device", "By User", "By Status", "By Common Issue"];
-
-    public Func<ServiceCaseViewModel, bool> SearchFilter =>
-        SearchMode switch
-        {
-            "By Device" => (ServiceCaseViewModel serviceCase) =>
-                serviceCase.Device.SerialNumber.Equals(SearchText, StringComparison.InvariantCultureIgnoreCase) ||
-                serviceCase.Device.WinsorDevice.AssetTag.Contains(SearchText, StringComparison.InvariantCultureIgnoreCase),
-            "By User" => (ServiceCaseViewModel serviceCase) =>
-                serviceCase.Owner.DisplayName.Contains(SearchText, StringComparison.InvariantCultureIgnoreCase),
-            "By Status" => (ServiceCaseViewModel serviceCase) =>
-                serviceCase.Status.Status.Contains(SearchText, StringComparison.InvariantCultureIgnoreCase),
-            "By Common Issue" => (ServiceCaseViewModel serviceCase) =>
-                serviceCase.CommonIssueList.Any(issue => issue.IsSelected && issue.Status.Contains(SearchText, StringComparison.InvariantCultureIgnoreCase)),
-            _ => sc => true
-        };
-
+   
     [RelayCommand]
-    public async Task Refresh()
-    {
-        await _caseService.Refresh(OnError.DefaultBehavior(this)); 
-        
-        Available = _caseService.OpenCases.Select(c => new ServiceCaseViewModel(c)).ToImmutableArray();
-        foreach (var serviceCase in Available)
-        {
-            serviceCase.OnError += OnError.PassAlong();
-            serviceCase.Selected += (_, sc) => Select(sc);
-        }
-    }
+    public void ToggleShowFilter() => ShowFilter = !ShowFilter;
+
 
     [RelayCommand]
     public void Select(ServiceCaseViewModel serviceCase)
@@ -260,19 +270,17 @@ public partial class ServiceCaseSearchViewModel : ObservableObject, ICachedSearc
         switch (SelectionMode)
         {
             case SelectionMode.Single:
-                Selected = Available.FirstOrDefault(sc => sc.Id == serviceCase.Id) ?? serviceCase;
+                Selected = serviceCase;
                 IsSelected = string.IsNullOrEmpty(Selected.Id);
                 Options = [];
                 ShowOptions = false;
                 OnSingleResult?.Invoke(this, Selected);
                 return;
             case SelectionMode.Multiple:
-                var user = Available.FirstOrDefault(user => user.Id == serviceCase.Id);
-                if (user is null) return;
-                if (AllSelected.Contains(user))
-                    AllSelected = [.. AllSelected.Except([user])];
+                if (AllSelected.Contains(serviceCase))
+                    AllSelected = [.. AllSelected.Except([serviceCase])];
                 else
-                    AllSelected = [.. AllSelected, user];
+                    AllSelected = [.. AllSelected, serviceCase];
 
                 IsSelected = AllSelected.Length > 0;
                 if (IsSelected)
@@ -284,50 +292,7 @@ public partial class ServiceCaseSearchViewModel : ObservableObject, ICachedSearc
     }
 
     [RelayCommand]
-    public void Search()
-    {
-        var possible = Available
-           .Where(SearchFilter);
-        if (!possible.Any())
-            OnZeroResults?.Invoke(this, EventArgs.Empty);
-        switch (SelectionMode)
-        {
-            case SelectionMode.Multiple:
-                AllSelected = [.. possible];
-                IsSelected = AllSelected.Length > 0;
-                OnMultipleResult?.Invoke(this, AllSelected);
-                return;
-            case SelectionMode.Single:
-                Options = [.. possible];
-                if (Options.Length == 0)
-                {
-                    ShowOptions = false;
-                    Selected = IEmptyViewModel<ServiceCaseViewModel>.Empty;
-                    IsSelected = false;
-                    return;
-                }
-
-                if (Options.Length == 1)
-                {
-                    ShowOptions = false;
-                    Selected = Options.First();
-                    IsSelected = true;
-                    OnSingleResult?.Invoke(this, Selected);
-                    return;
-                }
-
-                ShowOptions = true;
-                Selected = IEmptyViewModel<ServiceCaseViewModel>.Empty;
-                IsSelected = false;
-                return;
-            default: return;
-        }
-    }
-
-    async Task IAsyncSearchViewModel<ServiceCaseViewModel>.Search() => await FilteredSearch();
-
-    [RelayCommand]
-    public async Task FilteredSearch()
+    public async Task Search()
     {
         var results = await _caseService.SearchServiceCaseHistory(Filter, OnError.DefaultBehavior(this));
         if(!results.Any())
@@ -335,7 +300,7 @@ public partial class ServiceCaseSearchViewModel : ObservableObject, ICachedSearc
             OnZeroResults?.Invoke(this, EventArgs.Empty);
             return;
         }
-        var possible = results.Select(sc => new ServiceCaseViewModel(sc));
+        var possible = results.Select(ServiceCaseViewModel.Get);
         foreach(var vm in possible)
             vm.Selected += (_, sc) => Select(sc);
 

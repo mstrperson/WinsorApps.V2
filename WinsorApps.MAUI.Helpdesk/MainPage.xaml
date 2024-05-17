@@ -41,6 +41,20 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
+            <CollectionView ItemsSource="{Binding Completion}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:TaskAwaiterViewModel">
+                        <HorizontalStackLayout>
+                            <Label
+                                StyleClass="H3"
+                                Text="{Binding TaskName}" />
+                            <Switch
+                                IsToggled="{Binding Ready}"
+                                IsEnabled="False" />
+                        </HorizontalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

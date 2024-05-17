@@ -19,6 +19,8 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
 {
     public partial class CheckoutSearchViewModel : ObservableObject, ICachedSearchViewModel<CheckoutSearchResultViewModel>, IErrorHandling, IMultiModalSearch<CheckoutSearchResultViewModel>
     {
+        public CheckoutSearchViewModel Self => this;
+
         private readonly CheqroomService _cheqroom;
 
         [ObservableProperty] private ImmutableArray<CheckoutSearchResultViewModel> available;
@@ -73,7 +75,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         [RelayCommand]
         public void LoadCheckouts()
         {
-            Available = _cheqroom.OpenOrders.Select(o => new CheckoutSearchResultViewModel(o)).ToImmutableArray();
+            Available = CheckoutSearchResultViewModel.GetClonedViewModels(_cheqroom.OpenOrders).ToImmutableArray();
             foreach (var order in Available)
             {
                 order.OnError += OnError.PassAlong();

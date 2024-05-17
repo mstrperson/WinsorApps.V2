@@ -5,7 +5,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:WinsorApps.MAUI.Helpdesk"
     xmlns:pages="clr-namespace:WinsorApps.MAUI.Helpdesk.Pages"
+    xmlns:shared="clr-namespace:WinsorApps.MAUI.Shared.Pages;assembly=WinsorApps.MAUI.Shared"
     xmlns:devices="clr-namespace:WinsorApps.MAUI.Helpdesk.Pages.Devices"
+    xmlns:serv="clr-namespace:WinsorApps.MAUI.Helpdesk.Pages.ServiceCase"
     Shell.FlyoutBehavior="Flyout"
     Title="WinsorApps.MAUI.Helpdesk">
 
@@ -13,6 +15,10 @@
         Title="Home"
         ContentTemplate="{DataTemplate local:MainPage}"
         Route="MainPage" />
+    <ShellContent
+        Title="Heads Up Display"
+        ContentTemplate="{DataTemplate pages:HUD}"
+        Route="HUD" />
 
     <ShellContent
         Title="Cheqroom Quick Actions"
@@ -28,5 +34,15 @@
         Title="Devices"
         ContentTemplate="{DataTemplate devices:DeviceSearchPage}"
         Route="DeviceSearchPage" />
+
+    <ShellContent
+        Title="Service Cases"
+        ContentTemplate="{DataTemplate serv:ServiceCaseSearchPage}"
+        Route="ServiceCaseSearchPage" />
+
+    <ShellContent
+        Title="Help"
+        ContentTemplate="{DataTemplate shared:HelpPage}"
+        Route="HelpPage"/>
 
 </Shell>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom"
+             x:DataType="vm:CheckoutSearchViewModel"
+             x:Class="WinsorApps.MAUI.Helpdesk.Views.QuickCheckinRow">
+    <Grid
+        RowDefinitions="*"
+        ColumnDefinitions="*,*">
+        <SearchBar 
+            Grid.Row="0"
+            Grid.Column="0"
+            Placeholder="Asset Tag to Check In"
+            Text="{Binding SearchText}"
+            SearchCommand="{Binding SearchCommand}" />
+        <Button
+            Grid.Row="0"
+            Grid.Column="1"
+            Text="Check In"
+            IsVisible="{Binding IsSelected}"
+            Command="{Binding Selected.CheckInCommand}" />
+    </Grid>
+</ContentView>

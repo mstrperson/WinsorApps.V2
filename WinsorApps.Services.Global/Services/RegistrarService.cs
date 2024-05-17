@@ -507,8 +507,8 @@ namespace WinsorApps.Services.Global.Services
         /// </summary>
         /// <param name="userId">ID of the User you're looking for.</param>
         /// <returns>Stream containing the data for a file to render or save locally</returns>
-        public async Task<Stream> GetUserPhotoAsync(string userId) =>
-            await _api.DownloadStream($"api/users/{userId}/photo");
+        public async Task<FileContentResult?> GetUserPhotoAsync(string userId, ErrorAction onError) =>
+            await _api.SendAsync<FileContentResult?>(HttpMethod.Get, $"api/users/{userId}/photo", onError: onError);
 
     }
 

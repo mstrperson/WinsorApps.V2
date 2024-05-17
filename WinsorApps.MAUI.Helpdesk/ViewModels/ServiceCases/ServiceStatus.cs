@@ -28,6 +28,8 @@ public partial class ServiceStatusViewModel : ObservableObject, ISelectable<Serv
 
     public ServiceStatusViewModel() { }
 
+    public override string ToString() => Status;
+
 }
 
 public partial class ServiceStatusSearchViewModel : ObservableObject, ICachedSearchViewModel<ServiceStatusViewModel>

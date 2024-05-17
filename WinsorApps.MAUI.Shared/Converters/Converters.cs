@@ -38,3 +38,26 @@ public class BoolInverter : IValueConverter
         return false;
     }
 }
+
+public class DateTimeConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is DateTime dt)
+        {
+            if (parameter is string format)
+                return dt.ToString(format);
+            return $"{dt:dd MMMM yyyy}";
+        }
+
+        return "";
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is string str && DateTime.TryParse(str, out var dt))
+            return dt;
+
+        return default(DateTime);
+    }
+}

@@ -96,6 +96,8 @@ public static class Extensions
         builder.Services.AddSingleton<RegistrarService>();
         builder.Services.AddSingleton<AppService>();
         builder.Services.AddSingleton<LocalLoggingService>();
+        builder.Services.AddSingleton<HelpPageViewModel>();
+        builder.Services.AddSingleton<HelpPage>();
 
         return builder;
     }
@@ -111,7 +113,14 @@ public static class Extensions
                     logging.LogMessage(LocalLoggingService.LogLevel.Error,
                         err.type, err.error))
                 .SafeFireAndForget(e => e.LogException(logging));
+
+            UserViewModel.Initialize(registrar, err =>
+                    logging.LogMessage(LocalLoggingService.LogLevel.Error,
+                        err.type, err.error))
+                .SafeFireAndForget(e => e.LogException(logging));
         };
+
+
     }
 }
 

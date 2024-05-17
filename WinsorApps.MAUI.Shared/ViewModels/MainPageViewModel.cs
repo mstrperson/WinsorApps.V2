@@ -10,10 +10,12 @@ namespace WinsorApps.MAUI.Shared.ViewModels;
 public partial class MainPageViewModel : ObservableObject
 {
     [ObservableProperty] private List<ServiceAwaiterViewModel> postLoginServices;
+    [ObservableProperty] private List<TaskAwaiterViewModel> completion;
     [ObservableProperty] private SplashPageViewModel splashPageVM;
     [ObservableProperty] private LoginViewModel loginVM;
     [ObservableProperty] private UserViewModel userVM;
     [ObservableProperty] private bool ready;
+
 
     public event EventHandler<SplashPageViewModel>? OnSplashPageReady;
     public event EventHandler? OnCompleted;
@@ -53,7 +55,7 @@ public partial class MainPageViewModel : ObservableObject
     {
         OnSplashPageReady?.Invoke(this, SplashPageVM);
         var api = ServiceHelper.GetService<ApiService>()!;
-        UserVM = new(api.UserInfo!.Value);
+        UserVM = UserViewModel.Get(api.UserInfo!.Value);
         foreach (var serv in PostLoginServices.Where(serv => !serv.Started))
             serv.Initialize();
     }
@@ -66,7 +68,14 @@ public partial class MainPageViewModel : ObservableObject
         }
 
         var api = ServiceHelper.GetService<ApiService>()!;
-        UserVM = new(api.UserInfo!.Value);
+        UserVM = UserViewModel.Get(api.UserInfo!.Value);
+
+        foreach (var task in Completion)
+            task.Start();
+
+        while (Completion.Any(task => !task.Ready))
+            await Task.Delay(250);
+
         OnCompleted?.Invoke(this, EventArgs.Empty);
         Ready = true;
     }

@@ -35,18 +35,20 @@ public partial class SectionViewModel : ObservableObject, IEmptyViewModel<Sectio
         
         // Get data about the teachers of this section
         // and create UserViewModels for each of them
-        teachers = registrar.TeacherList
-            .Where(t => Section.teachers.Any(tch => t.id == tch.id))
-            .Select(t => new UserViewModel(t))
+        teachers = UserViewModel
+            .GetClonedViewModels(
+                registrar.TeacherList
+                .Where(t => Section.teachers.Any(tch => t.id == tch.id)))
             .ToImmutableArray();
         
         // 
         foreach (var teacher in Teachers)
             teacher.Selected += (sender, tch) => TeacherSelected?.Invoke(sender, tch);
         
-        students = registrar.StudentList
-            .Where(s => Section.students.Any(stu => stu.id == s.id))
-            .Select(s => new UserViewModel(s))
+        students = UserViewModel
+            .GetClonedViewModels(
+                registrar.StudentList
+                .Where(s => Section.students.Any(stu => stu.id == s.id)))
             .ToImmutableArray();
         
         foreach (var student in Students)

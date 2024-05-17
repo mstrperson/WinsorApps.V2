@@ -81,7 +81,7 @@ public sealed class DeviceService : IAsyncInitService
 
         if (!this.Started)
             await this.Initialize(onError);
-
+        
         while (!this.Ready)
         {
             await Task.Delay(250);

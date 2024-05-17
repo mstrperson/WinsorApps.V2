@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters"
+             x:DataType="vm:HelpPageViewModel"
+             x:Class="WinsorApps.MAUI.Shared.Pages.HelpPage"
+             Title="Help">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:DateTimeConverter x:Key="DateConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ScrollView>
+        <VerticalStackLayout>
+            <Label
+                StyleClass="Header"
+                Text="{Binding LoggedInUser.DisplayName}" />
+            <CollectionView
+                ItemsSource="{Binding Services}"
+                Header="Services">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ServiceAwaiterViewModel">
+                        <HorizontalStackLayout>
+                            <Label 
+                                Text="{Binding ServiceName}" />
+                            <ProgressBar 
+                                Progress="{Binding Progress}" />
+                            <Button 
+                                StyleClass="RefreshButton"
+                                Command="{Binding RefreshCommand}"/>
+                        </HorizontalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            <BoxView 
+                BackgroundColor="{AppThemeBinding Light={DynamicResource SlateDark}, Dark=White}" 
+                HeightRequest="1"
+                Margin="15,0"/>
+            <Label
+                StyleClass="SubHeader"
+                Text="Application Logs" />
+            <Label
+                Text="Last Version Updated" />
+            <Label
+                Text="{Binding LastUpdated, Converter={StaticResource DateConverter}}" />
+            <Label
+                Text="Log Start Date" />
+            <DatePicker
+                Date="{Binding LogStart}"/>
+            <Label
+                Text="Log End Date" />
+            <DatePicker
+                Date="{Binding LogEnd}" />
+            <Button
+                Text="Send Logs to Tech"
+                Command="{Binding SubmitLogsCommand}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

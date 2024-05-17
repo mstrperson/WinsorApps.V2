@@ -27,7 +27,7 @@ public partial class UserSearchViewModel : ObservableObject, ICachedSearchViewMo
         var registrar = ServiceHelper.GetService<RegistrarService>();
         isSelected = false;
         selected = IEmptyViewModel<UserViewModel>.Empty;
-        available = registrar.AllUsers.Select(u => new UserViewModel(u)).ToImmutableArray();
+        available = UserViewModel.GetClonedViewModels(registrar.AllUsers).ToImmutableArray();
         foreach(var user in Available)
             user.Selected += UserOnSelected;
     }

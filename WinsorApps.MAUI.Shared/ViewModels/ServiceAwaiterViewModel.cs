@@ -1,10 +1,37 @@
 using AsyncAwaitBestPractices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.Shared.ViewModels;
+
+public partial class TaskAwaiterViewModel : ObservableObject
+{
+    private Task _task;
+
+    [ObservableProperty] bool ready;
+    [ObservableProperty] string taskName;
+
+    public TaskAwaiterViewModel(Task task, string taskName)
+    {
+        _task = task;
+        _task.WhenCompleted(() => { Ready = true; });
+        this.taskName = taskName;
+    }
+
+    [RelayCommand]
+    public void Start()
+    {
+        try
+        {
+            _task.Start();
+        }
+        catch { }
+
+    }
+}
 
 public partial class ServiceAwaiterViewModel : ObservableObject
 {
@@ -31,7 +58,8 @@ public partial class ServiceAwaiterViewModel : ObservableObject
     {
         if (_service.Started) return;
         
-        _service.Initialize(err => 
+        _service
+            .Initialize(err => 
                 OnError?.Invoke(this, err))
             .SafeFireAndForget(e => 
                 OnError?.Invoke(this, new("Intialization Exception", e.Message)));
@@ -46,6 +74,15 @@ public partial class ServiceAwaiterViewModel : ObservableObject
         }
         
         Ready = true;
+        Progress = _service.Progress;
+        Started = _service.Started;
         OnCompletion?.Invoke(this, EventArgs.Empty);
+    }
+
+    [RelayCommand]
+    public void Refresh()
+    {
+        _service.Refresh(OnError.DefaultBehavior(this)).SafeFireAndForget(e => e.LogException());
+        BackgroundAwaiter().SafeFireAndForget(e => e.LogException());
     }
 }

@@ -1,5 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System.Collections.Concurrent;
+using System.ComponentModel;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Helpdesk.Models;
@@ -7,7 +9,10 @@ using WinsorApps.Services.Helpdesk.Services;
 
 namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom;
 
-public partial class CheqroomItemViewModel : ObservableObject, IEmptyViewModel<CheqroomItemViewModel>
+public partial class CheqroomItemViewModel : 
+    ObservableObject, 
+    IEmptyViewModel<CheqroomItemViewModel>,
+    ICachedViewModel<CheqroomItemViewModel, CheqroomItem, CheqroomService>
 {
     private readonly CheqroomService _cheqroom;
     private CheqroomItem _item;
@@ -31,12 +36,43 @@ public partial class CheqroomItemViewModel : ObservableObject, IEmptyViewModel<C
         LoadItem(_item);
     }
 
-    public CheqroomItemViewModel(CheqroomItem item)
+    private CheqroomItemViewModel(CheqroomItem item)
     {
         _cheqroom = ServiceHelper.GetService<CheqroomService>()!;
         _item = item;
         LoadItem(item);
     }
+
+    public static ConcurrentBag<CheqroomItemViewModel> ViewModelCache { get; private set; } = [];
+
+    public static CheqroomItemViewModel Get(CheqroomItem model)
+    {
+        var vm = ViewModelCache.FirstOrDefault(cvm => cvm.AssetTag == model.assetTag);
+        if(vm is null)
+        {
+            vm = new(model);
+            ViewModelCache.Add(vm);
+        }
+
+        return vm.Clone();
+    }
+
+    public static List<CheqroomItemViewModel> GetClonedViewModels(IEnumerable<CheqroomItem> models)
+    {
+        List<CheqroomItemViewModel> output = [];
+        foreach (var model in models)
+            output.Add(Get(model));
+
+        return output;
+    }
+
+    public static async Task Initialize(CheqroomService service, ErrorAction onError)
+    {
+        while (!service.Ready)
+            await Task.Delay(250);
+    }
+
+    public CheqroomItemViewModel Clone() => (CheqroomItemViewModel)this.MemberwiseClone();
 
     private void LoadItem(CheqroomItem item)
     {

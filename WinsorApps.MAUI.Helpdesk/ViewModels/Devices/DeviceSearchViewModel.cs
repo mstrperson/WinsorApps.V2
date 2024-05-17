@@ -50,9 +50,8 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices
             {
                 _filter = value; 
                 
-                Available = _deviceService.DeviceCache
+                Available = DeviceViewModel.ViewModelCache
                     .Where(GenerateFilter(Filter))
-                    .Select(dev => new DeviceViewModel(dev))
                     .ToImmutableArray();
             }
         }
@@ -60,19 +59,21 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices
 
         public DeviceSearchViewModel()
         {
-            _deviceService = ServiceHelper.GetService<DeviceService>();
-            
-            Available = _deviceService.DeviceCache
-                .Where(GenerateFilter(Filter))
-                .Select(dev => new DeviceViewModel(dev))
-                .ToImmutableArray();
-
-            foreach(var dev in Available) 
+            using (DebugTimer _ = new("Initializing Device Search ViewModel...", ServiceHelper.GetService<LocalLoggingService>()))
             {
-                dev.Selected += Dev_Selected;
-            }
+                _deviceService = ServiceHelper.GetService<DeviceService>();
 
-            selected = IEmptyViewModel<DeviceViewModel>.Empty;
+                Available = DeviceViewModel.ViewModelCache
+                    .Where(GenerateFilter(Filter))
+                    .ToImmutableArray();
+
+                foreach (var dev in Available)
+                {
+                    dev.Selected += Dev_Selected;
+                }
+
+                selected = IEmptyViewModel<DeviceViewModel>.Empty;
+            }
         }
 
         [RelayCommand]
@@ -164,15 +165,15 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices
             Dev_Selected(this, item);
         }
 
-        public Func<DeviceRecord, bool> GenerateFilter(SearchFilter filter) => dev =>
+        public Func<DeviceViewModel, bool> GenerateFilter(SearchFilter filter) => dev =>
         {
-            if ((filter & SearchFilter.ActiveOnly) == SearchFilter.ActiveOnly && !dev.isActive)
+            if ((filter & SearchFilter.ActiveOnly) == SearchFilter.ActiveOnly && !dev.IsActive)
                 return false;
 
-            if ((filter & SearchFilter.WinsorDevices) == SearchFilter.WinsorDevices && !dev.isWinsorDevice)
+            if ((filter & SearchFilter.WinsorDevices) == SearchFilter.WinsorDevices && !dev.IsWinsorDevice)
                 return false;
 
-            if ((filter & SearchFilter.Loaners) == SearchFilter.Loaners && (!dev.winsorDevice?.loaner ?? false))
+            if ((filter & SearchFilter.Loaners) == SearchFilter.Loaners && (!dev.WinsorDevice?.Loaner ?? false))
                 return false;
 
             return true;

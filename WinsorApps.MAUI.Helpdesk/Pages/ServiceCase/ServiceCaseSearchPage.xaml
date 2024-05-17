@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.Helpdesk.ViewModels.ServiceCases"
+             xmlns:gvm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels;assembly=WinsorApps.MAUI.Shared"
+             xmlns:dvm="clr-namespace:WinsorApps.MAUI.Helpdesk.ViewModels.Devices"
+             xmlns:views="clr-namespace:WinsorApps.MAUI.Helpdesk.Views"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             xmlns:sviews="clr-namespace:WinsorApps.MAUI.Shared.Views;assembly=WinsorApps.MAUI.Shared"
+             x:DataType="vm:ServiceCaseSearchViewModel"
+             x:Class="WinsorApps.MAUI.Helpdesk.Pages.ServiceCase.ServiceCaseSearchPage"
+             Title="Service Cases">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert" />
+            <conv:DateTimeConverter x:Key="DateConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <VerticalStackLayout>
+        <Button 
+            StyleClass="SearchButton"
+            Command="{Binding ToggleShowFilterCommand}"
+            IsVisible="{Binding ShowFilter, Converter={StaticResource Invert}}" />
+        <Grid
+            RowDefinitions="*,*,100,*,*,*,*"
+            ColumnDefinitions="50,400"
+            IsVisible="{Binding ShowFilter}">
+            <CheckBox
+                Grid.Row="0"
+                Grid.Column="0"
+                IsChecked="{Binding Filter.Open.IsSelected}" />
+            <Label
+                Grid.Row="0"
+                Grid.Column="1"
+                Text="Open Cases" />
+            <CheckBox
+                Grid.Row="1"
+                Grid.Column="0"
+                IsChecked="{Binding Filter.Status.IsSelected}" />
+            <Picker
+                Grid.Row="1"
+                Grid.Column="1"
+                ItemsSource="{Binding Filter.Status.Value.Available}"
+                IsEnabled="{Binding Filter.Status.IsSelected}" 
+                SelectedItem="{Binding Filter.Status.Value.Selected}" />
+            <CheckBox
+                Grid.Row="2"
+                Grid.Column="0"
+                IsChecked="{Binding Filter.Device.IsSelected}" />
+            <views:DeviceSearchMini
+                Grid.Row="2"
+                Grid.Column="1"
+                SelectedDevice="{Binding Filter.Device.Value}" />
+            <CheckBox
+                Grid.Row="3"
+                Grid.Column="0" 
+                IsChecked="{Binding Filter.Owner.IsSelected}" />
+            <sviews:UserSearchBar 
+                Grid.Row="3"
+                Grid.Column="1" 
+                BindingContext="{Binding Filter.Owner.Value}" />
+            <CheckBox
+                Grid.Row="4"
+                Grid.Column="0" 
+                IsChecked="{Binding Filter.Start.IsSelected}" />
+            <HorizontalStackLayout
+                Grid.Row="4"
+                Grid.Column="1">
+                <Label 
+                    Text="Start" />
+                <DatePicker
+                    Date="{Binding Filter.Start.Value}" 
+                    IsVisible="{Binding Filter.Start.IsSelected}"/>
+            </HorizontalStackLayout>
+            <CheckBox
+                Grid.Row="5"
+                Grid.Column="0" 
+                IsChecked="{Binding Filter.End.IsSelected}" />
+            <HorizontalStackLayout
+                Grid.Row="5"
+                Grid.Column="1">
+                <Label 
+                    Text="End" />
+                <DatePicker
+                    Date="{Binding Filter.End.Value}"
+                    IsVisible="{Binding Filter.End.IsSelected}" />
+            </HorizontalStackLayout>
+            <Button
+                Grid.Row="6"
+                Grid.ColumnSpan="2"
+                StyleClass="SearchButton"
+                Command="{Binding SearchCommand}" />
+        </Grid>
+        <CollectionView
+            ItemsSource="{Binding Options}"
+            IsVisible="{Binding ShowOptions}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:ServiceCaseViewModel">
+                    <HorizontalStackLayout>
+                        <HorizontalStackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                        </HorizontalStackLayout.GestureRecognizers>
+                        <Label
+                            Text="{Binding Device.DisplayName}" />
+                        <Label
+                            Text="{Binding Owner.DisplayName}" />
+                        <Label
+                            Text="{Binding Status.Status}" />
+                        <Label
+                            Text="{Binding Opened, Converter={StaticResource DateConverter}}" />
+                    </HorizontalStackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </VerticalStackLayout>
+</ContentPage>
