@@ -40,7 +40,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
                 OnError?.Invoke(this, new("Missing Information", "You must enter an Asset Tag."));
                 return;
             }
-            if (!UserSearch.IsSelected)
+            if (!string.IsNullOrEmpty(UserSearch.Selected.Id))
             {
                 OnError?.Invoke(this, new("Missing Information", $"Please select a person to check out {AssetTag} to."));
                 return;
