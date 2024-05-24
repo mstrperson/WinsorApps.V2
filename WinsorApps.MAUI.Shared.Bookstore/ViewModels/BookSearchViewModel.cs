@@ -27,8 +27,8 @@ public partial class BookSearchViewModel : ObservableObject
 
     public BookSearchViewModel()
     {
-        _bookService = ServiceHelper.GetService<BookService>()!;
-        _logging = ServiceHelper.GetService<LocalLoggingService>()!;
+        _bookService = ServiceHelper.GetService<BookService>();
+        _logging = ServiceHelper.GetService<LocalLoggingService>();
     }
 
     [RelayCommand]
