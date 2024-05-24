@@ -21,22 +21,12 @@
         Route="HUD" />
 
     <ShellContent
-        Title="Cheqroom Quick Actions"
-        ContentTemplate="{DataTemplate pages:CheqroomQuickTaskPage}"
-        Route="QuickCheckout" />
-
-    <ShellContent
-        Title="Cheqroom Checkout Search"
-        ContentTemplate="{DataTemplate pages:CheckoutSearchPage}"
-        Route="QuickCheckin" />
-
-    <ShellContent
-        Title="Devices"
+        Title="Search Devices"
         ContentTemplate="{DataTemplate devices:DeviceSearchPage}"
         Route="DeviceSearchPage" />
 
     <ShellContent
-        Title="Service Cases"
+        Title="Service Case History"
         ContentTemplate="{DataTemplate serv:ServiceCaseSearchPage}"
         Route="ServiceCaseSearchPage" />
 

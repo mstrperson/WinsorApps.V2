@@ -26,6 +26,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
     {
         private readonly CheqroomCheckoutSearchResult _searchResult;
         private readonly CheqroomService _cheqroom;
+        private static readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
 
         [ObservableProperty] private string id = "";
         [ObservableProperty] private ImmutableArray<string> items = [];
@@ -34,6 +35,10 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         [ObservableProperty] private DateTime due;
         [ObservableProperty] private string status;
         [ObservableProperty] private bool isOverdue;
+        [ObservableProperty] private bool working;
+
+        public string CreatedStr => $"{Created:ddd dd MMMM, hh:mm tt}";
+        public string DueStr => $"{Due:ddd dd MMMM, hh:mm tt}";
 
         [ObservableProperty] private string[] style;
 
@@ -76,10 +81,15 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         [RelayCommand]
         public async Task<bool> CheckIn()
         {
+            _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Checking In {_searchResult.items.DelimeteredList(", ")} for {User.DisplayName}");
+            Working = true;
             bool success = true;
-            await _cheqroom.CheckInItem(_searchResult._id,
+            await _cheqroom.CheckInItem(Id,
                 err => { success = false; OnError.DefaultBehavior(this)(err); });
-
+            Working = false;
+            Status = "closed";
+            if(success)
+                OnCheckedIn?.Invoke(this, this);
             return success;
         }
 

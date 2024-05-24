@@ -11,6 +11,7 @@ using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
+using WinsorApps.Services.Helpdesk.Models;
 using WinsorApps.Services.Helpdesk.Services;
 
 namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
@@ -18,19 +19,24 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
     public partial class QuickCheckoutViewModel : ObservableObject, IErrorHandling
     {
         private readonly CheqroomService _cheqroom;
+        private readonly LocalLoggingService _logging;
 
-        public QuickCheckoutViewModel(CheqroomService cheqroom)
+        public QuickCheckoutViewModel(CheqroomService cheqroom, LocalLoggingService logging)
         {
             _cheqroom = cheqroom;
+            _logging = logging;
         }
 
-        [ObservableProperty] public string assetTag = "";
-        [ObservableProperty] public UserSearchViewModel userSearch = new();
-        [ObservableProperty] public CheckoutResultViewModel result = IEmptyViewModel<CheckoutResultViewModel>.Empty;
-        [ObservableProperty] public bool displayResult;
-        [ObservableProperty] public TimeSpan resultTimeout = TimeSpan.FromSeconds(15);
+
+        [ObservableProperty] private string assetTag = "";
+        [ObservableProperty] private UserSearchViewModel userSearch = new();
+        [ObservableProperty] private CheckoutResultViewModel result = IEmptyViewModel<CheckoutResultViewModel>.Empty;
+        [ObservableProperty] private bool displayResult;
+        [ObservableProperty] private TimeSpan resultTimeout = TimeSpan.FromSeconds(15);
+        [ObservableProperty] private bool working;
+
         public event EventHandler<ErrorRecord>? OnError;
-        public event EventHandler<CheckoutResultViewModel>? OnCheckoutSuccessful;
+        public event EventHandler<CheckoutSearchResultViewModel>? OnCheckoutSuccessful;
 
         [RelayCommand]
         public async Task Checkout()
@@ -40,21 +46,29 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
                 OnError?.Invoke(this, new("Missing Information", "You must enter an Asset Tag."));
                 return;
             }
-            if (!string.IsNullOrEmpty(UserSearch.Selected.Id))
+            if (string.IsNullOrEmpty(UserSearch.Selected.Id))
             {
                 OnError?.Invoke(this, new("Missing Information", $"Please select a person to check out {AssetTag} to."));
                 return;
             }
 
-            var result = await _cheqroom.QuickCheckOutItem(AssetTag, UserSearch.Selected.Id, err => OnError?.Invoke(this, err));
+            Working = true;
+            _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Checking out {AssetTag} to {UserSearch.Selected.DisplayName}");
+            var result = await _cheqroom.QuickCheckOutItem(AssetTag, UserSearch.Selected.Id, OnError.DefaultBehavior(this));
 
             if (!string.IsNullOrEmpty(result._id))
             {
                 Result = new(result);
-                OnCheckoutSuccessful?.Invoke(this, Result);
+                CheqroomCheckoutSearchResult sres = new(result._id, UserSearch.Selected.User, [..result.itemSummary.Split(',')], DateTime.Now, result.due, result.status, false);
+
+                OnCheckoutSuccessful?.Invoke(this, CheckoutSearchResultViewModel.Get(sres));
                 DisplayResult = true;
+                AssetTag = "";
+                UserSearch.ClearSelection();
                 TimeOutFireAndForget();
             }
+
+            Working = false;
         }
 
         private void TimeOutFireAndForget()
@@ -67,7 +81,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
                     Clear();
                 }
             });
-            task.SafeFireAndForget(e => e.LogException(ServiceHelper.GetService<LocalLoggingService>()));
+            task.SafeFireAndForget(e => e.LogException(_logging));
         }
 
         [RelayCommand]

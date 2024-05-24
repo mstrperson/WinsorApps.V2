@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom"
+             x:DataType="vm:CheckoutSearchResultViewModel"
+             x:Class="WinsorApps.MAUI.Helpdesk.Pages.CheckoutResultPage"
+             Title="Checkout Result">
+    <Grid
+        RowDefinitions="auto,auto,auto,auto"
+        ColumnDefinitions="auto,auto">
+        <Label
+            Grid.Row="0"
+            Grid.Column="0"
+            FontAttributes="Bold"
+            Text="User:" />
+        <Label
+            Grid.Row="0"
+            Grid.Column="1"
+            FontAttributes="Bold"
+            Text="{Binding User.DisplayName}" />
+        <Label 
+            Grid.Row="1"
+            Grid.Column="0"
+            FontAttributes="Bold"
+            Text="Checkout: " />
+        <Label
+            Grid.Row="1"
+            Grid.Column="1"
+            FontAttributes="Bold"
+            Text="{Binding Status}" />
+        <Label
+            Grid.Row="2"
+            Grid.Column="0"
+            FontAttributes="Bold"
+            Text="From:" />
+        <Label
+            Grid.Row="2"
+            Grid.Column="1"
+            FontAttributes="Bold"
+            Text="{Binding CreatedStr}" />
+        <Label
+            Grid.Row="3"
+            Grid.Column="0"
+            FontAttributes="Bold"
+            Text="Due:" />
+        <Label
+            Grid.Row="3"
+            Grid.Column="1"
+            FontAttributes="Bold"
+            Text="{Binding DueStr}" />
+    </Grid>
+</ContentPage>

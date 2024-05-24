@@ -31,6 +31,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         [ObservableProperty] private bool isSelected;
         [ObservableProperty] private ImmutableArray<CheckoutSearchResultViewModel> options = [];
         [ObservableProperty] private CheckoutSearchResultViewModel selected;
+        [ObservableProperty] private bool working;
 
         [ObservableProperty]
         public ImmutableArray<string> searchModes = ["By Asset Tag", "By User"];
@@ -59,6 +60,9 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         public CheckoutSearchViewModel(CheqroomService cheqroom)
         {
             _cheqroom = cheqroom;
+            _cheqroom.OnCacheRefreshed += 
+                (_, _) => 
+                LoadCheckouts();
             searchMode = SearchModes[0];
             selected = IEmptyViewModel<CheckoutSearchResultViewModel>.Empty;
             LoadCheckouts();
@@ -67,6 +71,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         [RelayCommand]
         public void Clear()
         {
+            SearchText = "";
             Options = [];
             Selected = IEmptyViewModel<CheckoutSearchResultViewModel>.Empty;
             AllSelected = [];
@@ -78,14 +83,19 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
             Available = CheckoutSearchResultViewModel.GetClonedViewModels(_cheqroom.OpenOrders).ToImmutableArray();
             foreach (var order in Available)
             {
-                order.OnError += OnError.PassAlong();
+                order.OnError += (sender, e) => OnError?.Invoke(sender, e);
+                order.OnCheckedIn += (sender, e) => 
+                    OnCheckedIn?.Invoke(sender, e);
             }
         }
 
         [RelayCommand]
         public async Task Refresh()
         {
+            Working = true;
             await _cheqroom.Refresh(OnError.DefaultBehavior(this));
+            Clear();
+            Working = false;
         }
 
         [RelayCommand]
@@ -98,6 +108,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
                 .Where(SearchFilter);
             if (!possible.Any())
                 OnZeroResults?.Invoke(this, EventArgs.Empty);
+
             switch (SelectionMode)
             {
                 case SelectionMode.Multiple:

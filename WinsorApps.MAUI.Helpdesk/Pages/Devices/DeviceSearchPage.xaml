@@ -4,12 +4,16 @@
              xmlns:vm="clr-namespace:WinsorApps.MAUI.Helpdesk.ViewModels.Devices"
              x:DataType="vm:DeviceSearchViewModel"
              x:Class="WinsorApps.MAUI.Helpdesk.Pages.Devices.DeviceSearchPage"
-             Title="Device Lookup">
+             Title="">
     <VerticalStackLayout>
+        <Label
+            StyleClass="Header"
+            Text="Search Devices"/>
         <SearchBar
             Placeholder="Identifier"
             Text="{Binding SearchText}"
-            SearchCommand="{Binding SearchCommand}" />
+            SearchCommand="{Binding SearchCommand}"
+            WidthRequest="500"/>
         <CollectionView
             ItemsSource="{Binding Options}"
             IsVisible="{Binding ShowOptions}">

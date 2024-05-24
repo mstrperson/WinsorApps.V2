@@ -37,6 +37,15 @@
         <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
         <DefaultLanguage>en-us</DefaultLanguage>
+        <AssemblyName>Winsor Helpdesk</AssemblyName>
+        <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
+        <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+        <PackageCertificateThumbprint>08B7D1EC7093C4213DDFAB8A6877EB0159A73BDD</PackageCertificateThumbprint>
+        <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+        <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+        <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
+        <GenerateTestArtifacts>True</GenerateTestArtifacts>
+        <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     </PropertyGroup>
 
     <ItemGroup>
@@ -85,6 +94,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <MauiXaml Update="Pages\CheckoutResultPage.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
       <MauiXaml Update="Pages\CheckoutSearchPage.xaml">
         <Generator>MSBuild:Compile</Generator>
       </MauiXaml>
@@ -98,6 +110,9 @@
         <Generator>MSBuild:Compile</Generator>
       </MauiXaml>
       <MauiXaml Update="Pages\HUD.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Pages\ServiceCase\ServiceCaseEditor.xaml">
         <Generator>MSBuild:Compile</Generator>
       </MauiXaml>
       <MauiXaml Update="Pages\ServiceCase\ServiceCaseSearchPage.xaml">

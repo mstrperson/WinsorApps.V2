@@ -128,8 +128,8 @@ public partial class WinsorDeviceViewModel : ObservableObject, IErrorHandling, I
 
         if (ShowJamf)
         {
-            JamfDetails.OnError += OnError.PassAlong();
-            JamfDetails.Selected += JamfSelected.PassAlong();
+            JamfDetails.OnError += (sender, e) => OnError?.Invoke(sender, e);;
+            JamfDetails.Selected += (sender, e) => JamfSelected?.Invoke(sender, e);
         }
     }
 
@@ -141,8 +141,8 @@ public partial class WinsorDeviceViewModel : ObservableObject, IErrorHandling, I
         if (ShowInventoryPreload)
         {
             JamfInventoryPreload = new(preload.Value);
-            JamfInventoryPreload.OnError += OnError.PassAlong();
-            JamfInventoryPreload.Selected += InventoryPreloadSelected.PassAlong();
+            JamfInventoryPreload.OnError += (sender, e) => OnError?.Invoke(sender, e);;
+            JamfInventoryPreload.Selected += (sender, e) => InventoryPreloadSelected?.Invoke(sender, e);
         }
     }
 

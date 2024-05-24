@@ -13,15 +13,40 @@
             HorizontalOptions="Center">
             <Image
                 StyleClass="wordmark_oneline"/>
-            <Label 
-                StyleClass="Header"
-                Text="Open Service Cases" />
+            <HorizontalStackLayout>
+                <Label
+                    StyleClass="Header"
+                    IsVisible="{Binding Loading}"
+                    Text="Loading..." />
+                <Label 
+                    StyleClass="Header"
+                    Text="Open Service Cases" />
+                <Button
+                    Text="New Service Case"
+                    Command="{Binding StartServiceCaseCommand}" />
+                <Button
+                    StyleClass="RefreshButton"
+                    Command="{Binding RefreshCommand}" />
+            </HorizontalStackLayout>
             <CollectionView
                 ItemsSource="{Binding OpenCases}"
-                ItemsLayout="HorizontalGrid">
+                BackgroundColor="Transparent"
+                HorizontalOptions="Center"
+                WidthRequest="1700">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout
+                        Orientation="Vertical"
+                        Span="3"/>
+                </CollectionView.ItemsLayout>
                 <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="cvm:ServiceCaseViewModel">
-                        <views:ServiceCaseHUD BindingContext="{Binding Self}" />
+                    <DataTemplate 
+                        x:DataType="cvm:ServiceCaseViewModel">
+                        <VerticalStackLayout
+                            BackgroundColor="{StaticResource SlateDark}"
+                            Margin="0"
+                            Padding="0">
+                            <views:ServiceCaseHUD BindingContext="{Binding Self}" />
+                        </VerticalStackLayout>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>

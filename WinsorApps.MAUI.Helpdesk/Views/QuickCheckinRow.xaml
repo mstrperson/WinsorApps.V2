@@ -2,8 +2,14 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
              x:DataType="vm:CheckoutSearchViewModel"
              x:Class="WinsorApps.MAUI.Helpdesk.Views.QuickCheckinRow">
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert" />
+        </ResourceDictionary>
+    </ContentView.Resources>
     <Grid
         RowDefinitions="*"
         ColumnDefinitions="*,*">
@@ -11,8 +17,20 @@
             Grid.Row="0"
             Grid.Column="0"
             Placeholder="Asset Tag to Check In"
+            HeightRequest="40"
+            WidthRequest="200"
             Text="{Binding SearchText}"
+            IsVisible="{Binding Selected.Working, Converter={StaticResource Invert}}"
             SearchCommand="{Binding SearchCommand}" />
+        <HorizontalStackLayout
+            Grid.Row="0"
+            Grid.Column="0"
+            IsVisible="{Binding Selected.Working}">
+            <Label
+                Text="{Binding SearchText}" />
+            <Label
+                Text="Working..." />
+        </HorizontalStackLayout>
         <Button
             Grid.Row="0"
             Grid.Column="1"

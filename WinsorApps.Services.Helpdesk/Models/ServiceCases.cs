@@ -16,7 +16,10 @@ public readonly record struct ServiceCaseHistory(ImmutableArray<ServiceCase> ser
         ImmutableArray<ServiceCaseNoteRecord> additionalNotes,
         ImmutableArray<DocumentHeader> attachedDocuments, 
         double repairCost = 0, 
-        string loaner = "");
+        string loaner = "")
+{
+    public ServiceCase AddLoaner(string assetTag) => new(id, device, owner, commonIssues, intakeNotes, opened, closed, status, additionalNotes, attachedDocuments, repairCost, assetTag);
+}
 
     public readonly record struct ServiceStatus(string id, string text, string description, string defaultNextId, bool isClosed)
     {

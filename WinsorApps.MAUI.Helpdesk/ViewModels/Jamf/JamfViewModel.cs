@@ -45,7 +45,7 @@ public partial class JamfViewModel : ObservableObject, IEmptyViewModel<JamfViewM
         {
             var owner = registrar.AllUsers.FirstOrDefault(u => u.email == computer.userAndLocation.email);
             User = UserViewModel.Get(owner);
-            User.Selected += UserSelected.PassAlong();
+            User.Selected += (sender, e) => UserSelected?.Invoke(sender, e);
         }
         Type = JamfDeviceType.Computer;
         _computer = computer;
@@ -63,7 +63,7 @@ public partial class JamfViewModel : ObservableObject, IEmptyViewModel<JamfViewM
         {
             var owner = registrar.AllUsers.FirstOrDefault(u => u.email == device.location.emailAddress);
             User = UserViewModel.Get(owner);
-            User.Selected += UserSelected.PassAlong();
+            User.Selected += (sender, e) => UserSelected?.Invoke(sender, e);
         }
         Type = JamfDeviceType.MobileDevice;
         _device = device;
@@ -146,7 +146,7 @@ public partial class InventoryPreloadViewModel : ObservableObject, IEmptyViewMod
             var registrar = ServiceHelper.GetService<RegistrarService>();
             var user = registrar.AllUsers.FirstOrDefault(u => u.email == entry.emailAddress);
             Owner = UserViewModel.Get(user);
-            Owner.Selected += OnUserSelected.PassAlong();
+            Owner.Selected += (sender, e) => OnUserSelected?.Invoke(sender, e);
         }
 
         Type = entry.deviceType;

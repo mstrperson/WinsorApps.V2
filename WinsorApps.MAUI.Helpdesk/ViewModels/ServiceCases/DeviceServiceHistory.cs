@@ -26,8 +26,8 @@ public partial class DeviceViewModel
         ServiceHistory = searchResults.Select(sc => ServiceCaseViewModel.Get(sc)).ToImmutableArray();
         foreach(var serviceCase in ServiceHistory)
         {
-            serviceCase.OnError += OnError.PassAlong();
-            serviceCase.Selected += ServiceCaseSelected.PassAlong();
+            serviceCase.OnError += (sender, e) => OnError?.Invoke(sender, e);;
+            serviceCase.Selected += (sender, e) => ServiceCaseSelected?.Invoke(sender, e);
         }
         ShowServiceHistory = true;
     }

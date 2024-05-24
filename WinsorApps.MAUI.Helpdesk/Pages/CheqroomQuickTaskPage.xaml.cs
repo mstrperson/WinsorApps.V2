@@ -20,7 +20,7 @@ public partial class CheqroomQuickTaskPage : ContentPage
         vm.QuickCheckout.OnCheckoutSuccessful += (sender, e) =>
         {
             _logging.LogMessage(LocalLoggingService.LogLevel.Information,
-                $"{e.ItemSummary} was successfully checked out to {vm.QuickCheckout.UserSearch.Selected.DisplayName}");
+                $"{e.Items.DelimeteredList(", ")} was successfully checked out to {vm.QuickCheckout.UserSearch.Selected.DisplayName}");
         };
         vm.CheckoutSearch.OnSingleResult += CheckoutSearch_OnSingleResult;
         BindingContext = vm;

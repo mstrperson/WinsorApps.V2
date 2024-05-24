@@ -28,6 +28,9 @@ public class CheqroomService : IAsyncInitService, IAutoRefreshingService
 
     public TimeSpan RefreshInterval => TimeSpan.FromMinutes(5);
 
+
+    public event EventHandler? OnCacheRefreshed;
+
     public CheqroomService(ApiService api, LocalLoggingService logging)
     {
         _api = api;
@@ -39,6 +42,8 @@ public class CheqroomService : IAsyncInitService, IAutoRefreshingService
 
         var result = await _api.SendAsync<CheqroomCheckoutResult>(HttpMethod.Get, $"api/cheqroom/quick-checkout?assetTag={assetTag}&userId={userId}",
            onError: onError);
+
+        await Refresh(onError);
 
         return result;
     }
@@ -65,17 +70,29 @@ public class CheqroomService : IAsyncInitService, IAutoRefreshingService
     {
         await _api.SendAsync(HttpMethod.Get, $"api/cheqroom/checkouts/{orderId}/checkin",
             onError: onError);
-
+        var ordre = OpenOrders.Where(ord => ord._id == orderId);
+        OpenOrders = [..OpenOrders.Except(ordre)];
+        OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
     }
 
     public async Task ForceCheckIn(string deviceId, ErrorAction onError)
     {
+        bool retry = false;
         TryAgain:
         var order = OpenOrders.FirstOrDefault(order => order.items.Contains(deviceId));
         if(order == default)
         {
             OpenOrders = await GetOpenOrders(onError);
-            goto TryAgain;
+            if (!retry)
+            {
+                retry = true;
+                goto TryAgain;
+            }
+            else
+            {
+                onError(new("Checkout Not Found", $"No Open Checkouts found for device {deviceId}"));
+                return;
+            }
         }
         await CheckInItem(order._id, onError);
     }
@@ -125,6 +142,7 @@ public class CheqroomService : IAsyncInitService, IAutoRefreshingService
     public async Task Refresh(ErrorAction onError)
     {
         OpenOrders = await GetOpenOrders(onError);
+        OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
     }
 
     public async Task RefreshInBackground(CancellationToken token, ErrorAction onError)

@@ -102,15 +102,15 @@ public sealed class DeviceService : IAsyncInitService
         Started = true;
 
         var loanersTask = _api.SendAsync<List<DeviceRecord>>(HttpMethod.Get,
-            "api/devices/loaners", onError: onError);
+            "api/devices/loaners", onError: onError)!;
         loanersTask.WhenCompleted(() =>
         {
             Progress += 1 / 4.0;
-            _loaners = loanersTask.Result;
+            _loaners = loanersTask.Result!;
         });
 
         var devicesTask = _api.SendAsync<List<DeviceRecord>>(HttpMethod.Get,
-            "api/devices", onError: onError);
+            "api/devices?isActive=true", onError: onError);
 
         devicesTask.WhenCompleted(() =>
         {
@@ -129,7 +129,7 @@ public sealed class DeviceService : IAsyncInitService
         });
 
 
-        var winsorDeviceCache = _api.SendAsync<List<WinsorDeviceRecord>>(HttpMethod.Get, "api/devices/winsor-devices", onError: onError);
+        var winsorDeviceCache = _api.SendAsync<List<WinsorDeviceRecord>>(HttpMethod.Get, "api/devices/winsor-devices?isActive=true", onError: onError);
         
 
         winsorDeviceCache.WhenCompleted(() =>

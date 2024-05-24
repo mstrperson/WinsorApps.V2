@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.Helpdesk.ViewModels.ServiceCases"
+             xmlns:views="clr-namespace:WinsorApps.MAUI.Helpdesk.Views"
+             x:DataType="vm:ServiceCaseViewModel"
+             x:Class="WinsorApps.MAUI.Helpdesk.Pages.ServiceCase.ServiceCaseEditor"
+             Title="Service Case Editor">
+    <VerticalStackLayout>
+        <HorizontalStackLayout
+            HorizontalOptions="Center">
+            <Label 
+                StyleClass="Header"
+                HorizontalTextAlignment="Center"
+                Text="{Binding SummaryText}"/>
+            <Button
+                StyleClass="SaveButton"
+                Command="{Binding SubmitCommand}" />
+        </HorizontalStackLayout>
+        
+        <HorizontalStackLayout>
+            <Label
+                Text="Status" />
+            <Picker
+                ItemsSource="{Binding StatusSearch.Available}"
+                SelectedItem="{Binding StatusSearch.Selected}" />
+            <Button
+                Text="Close"
+                Command="{Binding CloseCommand}" />
+        </HorizontalStackLayout>
+        <views:CommonIssueCheckListView 
+            BindingContext="{Binding CommonIssues}" />
+        <Label
+            StyleClass="H3"
+            Text="Intake Notes" />
+        <Editor
+            WidthRequest="500"
+            HeightRequest="100"
+            Text="{Binding IntakeNotes}"/>
+        <Label
+            Text="Loaner"
+            StyleClass="H3" />
+        <HorizontalStackLayout>
+            <views:DeviceSearchMini
+                x:Name="LoanerSearch"
+                LoanerSearch="True"
+                SelectedDevice="{Binding Loaner}" />
+            <Label
+                StyleClass="PositiveSignifier"
+                IsVisible="{Binding LoanerSelected}" />
+        </HorizontalStackLayout>
+    </VerticalStackLayout>
+</ContentPage>

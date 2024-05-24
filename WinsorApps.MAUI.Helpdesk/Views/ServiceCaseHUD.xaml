@@ -30,6 +30,10 @@
                     FontSize="Large"
                     StyleClass="PrintButton"
                     Command="{Binding PrintStickerCommand}" />
+                <Button
+                    IsVisible="{Binding ShowNotifyButton}"
+                    Text="Send Notification"
+                    Command="{Binding SendNotificationCommand}" />
             </HorizontalStackLayout>
             <Image
                 Grid.Row="1"
@@ -43,7 +47,8 @@
             <Label
                 Grid.Row="1"
                 Grid.Column="1"
-                Text="{Binding Owner.DisplayName}" />
+                Text="{Binding Owner.DisplayName}">
+            </Label>
             <Label
                 Grid.Row="2"
                 Grid.Column="0"

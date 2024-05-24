@@ -141,7 +141,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices
                     Options = [];
                     ShowOptions = false;
                     SearchText = Selected.IsWinsorDevice ? Selected.WinsorDevice.AssetTag : Selected.SerialNumber;
-                    OnSingleResult?.Invoke(this, Selected);
+                      OnSingleResult?.Invoke(this, Selected);
                     return;
                 case SelectionMode.Multiple:
                     var user = Available.FirstOrDefault(user => user.Id == e.Id);

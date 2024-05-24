@@ -18,14 +18,6 @@ public static class Extensions
     }
 
     /// <summary>
-    /// Creates an EventHandler that passes along the event handler from Child to Parent.
-    /// <typeparam name="T"></typeparam>
-    /// <param name="handler"></param>
-    /// <returns></returns>
-    public static EventHandler<T> PassAlong<T>(this EventHandler<T>? handler) => (sender, e) => handler?.Invoke(sender, e);
-
-
-    /// <summary>
     /// returns an ErrorAction: err => OnError?.Invoke(sender, err)
     /// </summary>
     /// <param name="OnError"></param>

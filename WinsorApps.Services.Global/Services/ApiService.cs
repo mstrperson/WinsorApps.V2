@@ -18,7 +18,8 @@ public class ApiService : IAsyncInitService, IAutoRefreshingService
     public double Progress => 1;
     public bool Started { get; private set; }
 
-public event EventHandler? OnLoginSuccess;
+    public event EventHandler? OnLoginSuccess;
+    public event EventHandler? OnCacheRefreshed;
 
     public bool FirstLogin = true;
     
@@ -54,6 +55,7 @@ public event EventHandler? OnLoginSuccess;
     public async Task Refresh(ErrorAction onError)
     {
         await RenewTokenAsync(onError: onError);
+        OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
     }
 
     public async Task WaitForInit(ErrorAction onError)

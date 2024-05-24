@@ -13,5 +13,7 @@ namespace WinsorApps.Services.Global.Services
         public bool Refreshing { get; }
 
         public Task RefreshInBackground(CancellationToken token, ErrorAction onError);
+
+        public event EventHandler? OnCacheRefreshed;
     }
 }

@@ -4,8 +4,14 @@
              xmlns:vm="clr-namespace:WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom"
              xmlns:view="clr-namespace:WinsorApps.MAUI.Helpdesk.Views"
              xmlns:sview="clr-namespace:WinsorApps.MAUI.Shared.Views;assembly=WinsorApps.MAUI.Shared"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
              x:DataType="vm:QuickCheckoutViewModel"
              x:Class="WinsorApps.MAUI.Helpdesk.Views.QuickCheckoutRow">
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert" />
+        </ResourceDictionary>
+    </ContentView.Resources>
     <Grid
         RowDefinitions="Auto"
         ColumnDefinitions="*,*,*,*"
@@ -17,22 +23,33 @@
             Placeholder="Asset Tag"
             WidthRequest="200"
             VerticalOptions="Center"
+            IsEnabled="{Binding Working, Converter={StaticResource Invert}}"
             Text="{Binding AssetTag}" />
         <Label
             Grid.Row="0"
             Grid.Column="1"
             VerticalTextAlignment="Center"
             VerticalOptions="Center"
+            IsVisible="{Binding Working, Converter={StaticResource Invert}}"
             Text="Check out to:" />
+        <Label
+            Grid.Row="0"
+            Grid.Column="1"
+            VerticalTextAlignment="Center"
+            VerticalOptions="Center"
+            IsVisible="{Binding Working}"
+            Text="Working" />
         <sview:UserSearchBar 
             Grid.Row="0"
             Grid.Column="2"
+            IsEnabled="{Binding Working, Converter={StaticResource Invert}}"
             BindingContext="{Binding UserSearch}" />
         <Button
             Grid.Row="0"
             Grid.Column="3"
             Text="Check Out"
             HorizontalOptions="Center"
+            IsEnabled="{Binding Working, Converter={StaticResource Invert}}"
             Command="{Binding CheckoutCommand}" />
     </Grid>
 </ContentView>

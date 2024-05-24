@@ -27,6 +27,7 @@ public partial class ServiceCaseViewModel :
 {
     private readonly ServiceCaseService _caseService = ServiceHelper.GetService<ServiceCaseService>();
     private readonly DeviceService _deviceService = ServiceHelper.GetService<DeviceService>();
+    private static readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<ServiceCaseViewModel>? Selected;
@@ -47,13 +48,12 @@ public partial class ServiceCaseViewModel :
     {
         _case = new();
         
-
         StatusSearch.Select("Intake");
     }
 
     private ServiceCaseViewModel(ServiceCase serviceCase)
     {
-        using (DebugTimer _ = new($"Initializing ServiceCaseViewModel for {serviceCase.id}", ServiceHelper.GetService<LocalLoggingService>()))
+        using (DebugTimer _ = new($"Initializing ServiceCaseViewModel for {serviceCase.id}", _logging))
         {
             LoadServiceCase(serviceCase);
         }
@@ -87,6 +87,7 @@ public partial class ServiceCaseViewModel :
         AttachedDocuments = serviceCase.attachedDocuments.Select(doc => new DocumentViewModel(doc)).ToImmutableArray();
         RepairCost = serviceCase.repairCost;
 
+        ShowNotifyButton = Status.Status.Contains("Ready");
         SummaryText = $"[{Status.Status}] {Device.DisplayName} - {Opened:dd MMM yyyy}";
     }
 
@@ -105,8 +106,10 @@ public partial class ServiceCaseViewModel :
     [ObservableProperty] private ImmutableArray<DocumentViewModel> attachedDocuments = [];
     [ObservableProperty] private double repairCost = 0;
     [ObservableProperty] private DeviceViewModel loaner = IEmptyViewModel<DeviceViewModel>.Empty;
+    [ObservableProperty] private bool loanerSelected;
     [ObservableProperty] private bool isSelected;
     [ObservableProperty] private bool working;
+    [ObservableProperty] private bool showNotifyButton;
 
     public ServiceStatusViewModel Status
     {
@@ -122,28 +125,64 @@ public partial class ServiceCaseViewModel :
     public static ConcurrentBag<ServiceCaseViewModel> ViewModelCache { get; private set; } = [];
 
     [RelayCommand]
+    public void SetLoaner(DeviceViewModel loaner)
+    {
+        
+        Loaner = loaner;
+        LoanerSelected = !string.IsNullOrEmpty(loaner.Id);
+    }
+
+    [RelayCommand]
     public async Task Submit()
     {
         Working = true;
         if (!string.IsNullOrEmpty(Id))
         {
+            _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Updating Service Case {Id} for {Device.DisplayName}");
             var result = await _caseService.UpdateServiceCase(new(Id, Status.Id, IntakeNotes, [..CommonIssueList.Select(issue => issue.Id)]), OnError.DefaultBehavior(this));
             Working = result.HasValue;
             if (!result.HasValue)
                 return;
+
+            if(result.Value.loaner != Loaner.WinsorDevice.AssetTag)
+            {
+                _logging.LogMessage(LocalLoggingService.LogLevel.Information,
+                    $"Assigning loaner {Loaner.WinsorDevice.AssetTag} to service case {Id} for {Device.DisplayName}"); 
+                var success = await _caseService.AssignLoanerToCase(Id, Loaner.WinsorDevice.AssetTag, OnError.DefaultBehavior(this));
+                if (success)
+                {
+                    result = result.Value with { loaner = Loaner.WinsorDevice.AssetTag };
+                }
+            }
 
             LoadServiceCase(result.Value);
             Working = false;
             OnUpdate?.Invoke(this, this);
             return;
         }
+        _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Creating new Service Case for {Device.DisplayName}");
         var newResult = await _caseService.OpenNewServiceCaseAsync(new(Device.Id, [..CommonIssueList.Select(issue => issue.Id)], IntakeNotes, Status.Id), OnError.DefaultBehavior(this));
         Working = newResult.HasValue;
-        if(!newResult.HasValue) return;
+        
+        if(!newResult.HasValue) 
+            return;
+
+        if(!string.IsNullOrEmpty(Loaner.Id))
+        {
+            _logging.LogMessage(LocalLoggingService.LogLevel.Information, 
+                $"Assigning loaner {Loaner.WinsorDevice.AssetTag} to service case {newResult.Value.id} for {Device.DisplayName}");
+            var success = await _caseService.AssignLoanerToCase(newResult.Value.id, Loaner.WinsorDevice.AssetTag, OnError.DefaultBehavior(this));
+            if(success)
+            {
+                newResult = newResult.Value with { loaner = Loaner.WinsorDevice.AssetTag };
+            }
+
+        }
 
         LoadServiceCase(newResult.Value);
         Working = false;
         OnCreate?.Invoke(this, this);
+        ShowNotifyButton = Status.Status.Contains("Ready");
     }
 
     [RelayCommand]
@@ -151,11 +190,14 @@ public partial class ServiceCaseViewModel :
     {
         if (Status.NextId == Status.Id)
             return;
+
+        _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Incrementing Status for Service Case {Id} [{Device.DisplayName}]");
         Working = true;
         var success = await _caseService.IncrementCaseStatus(Id, OnError.DefaultBehavior(this));
         if (success)
         {
             Status = Status.Next;
+            ShowNotifyButton = Status.Status.Contains("Ready");
             OnUpdate?.Invoke(this, this);
         }
         Working = false;
@@ -164,6 +206,7 @@ public partial class ServiceCaseViewModel :
     [RelayCommand]
     public async Task SendNotification()
     {
+        _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Sending Pickup Notification to {Device.Owner.DisplayName} for service case {Id} {Device.DisplayName}");
         Working = true;
         await _caseService.SendPickupNotification(Id, OnError.DefaultBehavior(this));
         Working = false;
@@ -172,6 +215,7 @@ public partial class ServiceCaseViewModel :
     [RelayCommand]
     public async Task Close()
     {
+        _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Closing service case {Id} for {Device.DisplayName}");
         Working = true;
         var result = await _caseService.CloseServiceCase(Id, OnError.DefaultBehavior(this));
         if (result)
@@ -182,24 +226,31 @@ public partial class ServiceCaseViewModel :
     [RelayCommand]
     public async Task PrintSticker()
     {
+        _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Printing Sticker for {Id} {Device.DisplayName}");
+        Working = true;
         var data = await _caseService.PrintSticker(Id, OnError.DefaultBehavior(this));
-        var result = await FileSaver.SaveAsync($"{Id}_{Device.SerialNumber}.pdf", new MemoryStream(data));
-        if(result.IsSuccessful &&
-            !string.IsNullOrEmpty(result.FilePath) &&
-            Environment.OSVersion.Platform == PlatformID.Win32NT)
+        Working = false;
+        var resultTask = FileSaver.SaveAsync($"{Id}_{Device.SerialNumber}.pdf", new MemoryStream(data));
+        resultTask.WhenCompleted(() =>
         {
-            try
+            var result = resultTask.Result;
+            if (result.IsSuccessful &&
+                !string.IsNullOrEmpty(result.FilePath) &&
+                Environment.OSVersion.Platform == PlatformID.Win32NT)
             {
-                Process.Start(new ProcessStartInfo("msedge.exe", result.FilePath) 
-                { 
-                    UseShellExecute = true
-                });
+                try
+                {
+                    Process.Start(new ProcessStartInfo("msedge.exe", result.FilePath)
+                    {
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    ex.LogException();
+                }
             }
-            catch(Exception ex)
-            {
-                ex.LogException();
-            }
-        }
+        });
     }
 
     public static List<ServiceCaseViewModel> GetClonedViewModels(IEnumerable<ServiceCase> models)
@@ -212,6 +263,7 @@ public partial class ServiceCaseViewModel :
 
     public static async Task Initialize(ServiceCaseService service, ErrorAction onError)
     {
+        _logging.LogMessage(LocalLoggingService.LogLevel.Information, "Initializing ViewModelCache for ServiceCaseViewModels");
         await service.WaitForInit(onError);
         ViewModelCache = [..
             service.OpenCases.Select(sc => new ServiceCaseViewModel(sc))];
