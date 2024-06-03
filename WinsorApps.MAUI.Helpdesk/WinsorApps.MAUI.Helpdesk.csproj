@@ -21,10 +21,10 @@
         <Nullable>enable</Nullable>
 
         <!-- Display name -->
-        <ApplicationTitle>WinsorApps.MAUI.Helpdesk</ApplicationTitle>
+        <ApplicationTitle>Winsor Helpdesk</ApplicationTitle>
 
         <!-- App Identifier -->
-        <ApplicationId>com.companyname.winsorapps.maui.helpdesk</ApplicationId>
+        <ApplicationId>edu.winsor.helpdesk</ApplicationId>
 
         <!-- Versions -->
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -46,11 +46,18 @@
         <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
         <GenerateTestArtifacts>True</GenerateTestArtifacts>
         <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+        <BaseOutputPath>C:\Users\jcox\Documents\Helpdesk App</BaseOutputPath>
+        <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
+        <Title>Winsor Helpdesk</Title>
+        <Authors>Jason Cox</Authors>
+        <Company>The Winsor School</Company>
+        <Copyright>2024</Copyright>
+        <PackageIcon>icon.png</PackageIcon>
     </PropertyGroup>
 
     <ItemGroup>
         <!-- App Icon -->
-        <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
+        <MauiIcon Include="Resources\AppIcon\icon.png" />
 
         <!-- Splash Screen -->
         <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
@@ -106,6 +113,9 @@
       <MauiXaml Update="Pages\Devices\DeviceDetailsPage.xaml">
         <Generator>MSBuild:Compile</Generator>
       </MauiXaml>
+      <MauiXaml Update="Pages\Devices\DeviceEditor.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
       <MauiXaml Update="Pages\Devices\DeviceSearchPage.xaml">
         <Generator>MSBuild:Compile</Generator>
       </MauiXaml>
@@ -139,6 +149,13 @@
       <MauiXaml Update="Views\ServiceCaseSearchFilter.xaml">
         <Generator>MSBuild:Compile</Generator>
       </MauiXaml>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="Resources\AppIcon\icon.png">
+        <Pack>True</Pack>
+        <PackagePath>\</PackagePath>
+      </None>
     </ItemGroup>
 
 </Project>

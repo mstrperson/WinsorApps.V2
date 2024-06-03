@@ -7,7 +7,7 @@ using WinsorApps.Services.Helpdesk.Models;
 
 namespace WinsorApps.Services.Helpdesk.Services;
 
-public class CheqroomService : IAsyncInitService, IAutoRefreshingService
+public class CheqroomService : IAsyncInitService, IAutoRefreshingCacheService
 {
     private readonly ApiService _api;
     private readonly LocalLoggingService _logging;
@@ -141,7 +141,9 @@ public class CheqroomService : IAsyncInitService, IAutoRefreshingService
 
     public async Task Refresh(ErrorAction onError)
     {
+        Refreshing = true;
         OpenOrders = await GetOpenOrders(onError);
+        Refreshing = false;
         OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
     }
 
@@ -150,9 +152,7 @@ public class CheqroomService : IAsyncInitService, IAutoRefreshingService
         while (!token.IsCancellationRequested)
         {
             await Task.Delay(RefreshInterval, token);
-            Refreshing = true;
             await Refresh(onError);
-            Refreshing = false;
         }
     }
 }

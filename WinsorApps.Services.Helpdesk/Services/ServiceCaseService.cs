@@ -7,7 +7,7 @@ using WinsorApps.Services.Helpdesk.Models;
 
 namespace WinsorApps.Services.Helpdesk.Services;
 
-public class ServiceCaseService : IAsyncInitService
+public class ServiceCaseService : IAsyncInitService, IAutoRefreshingCacheService
 {
     private readonly ApiService _api;
     private readonly LocalLoggingService _logging;
@@ -53,6 +53,8 @@ public class ServiceCaseService : IAsyncInitService
 
     private List<ServiceCase> _openCasesCache = [];
 
+    public event EventHandler? OnCacheRefreshed;
+
     public ServiceCaseService(ApiService api, LocalLoggingService logging)
     {
         _api = api;
@@ -74,11 +76,16 @@ public class ServiceCaseService : IAsyncInitService
 
     public bool Started { get; private set; }
 
+    public TimeSpan RefreshInterval => TimeSpan.FromMinutes(30);
+
+    public bool Refreshing { get; private set; }
+
     public async Task Refresh(ErrorAction onError)
     {
-        Started = false;
-        Progress = 0;
-        await Initialize(onError);
+        Refreshing = true;
+        _openCasesCache = (await _api.SendAsync<List<ServiceCase>>(
+            HttpMethod.Get, "api/helpdesk/service-cases?open=true", onError: onError))!;
+        Refreshing = false;
     }
     
     public async Task<ImmutableArray<ServiceCase>> SearchServiceCaseHistory(ServiceCaseFilter filter, ErrorAction onError)
@@ -223,5 +230,13 @@ public class ServiceCaseService : IAsyncInitService
         }
 
         return true;
+    }
+
+    public async Task RefreshInBackground(CancellationToken token, ErrorAction onError)
+    {
+        while(!token.IsCancellationRequested)
+        {
+            await Task.Delay(RefreshInterval, token);
+        }
     }
 }

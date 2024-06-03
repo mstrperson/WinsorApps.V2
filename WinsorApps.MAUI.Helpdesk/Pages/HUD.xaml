@@ -7,7 +7,7 @@
              x:DataType="vm:HudViewModel"
              
              x:Class="WinsorApps.MAUI.Helpdesk.Pages.HUD"
-             Title="Winsor Helpdesk">
+             Title="Quick Actions">
     <ScrollView>
         <VerticalStackLayout
             HorizontalOptions="Center">

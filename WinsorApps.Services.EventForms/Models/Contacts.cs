@@ -1,0 +1,20 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+
+namespace WinsorApps.Services.EventForms.Models;
+
+public readonly record struct Contact(string id, string firstName, string lastName,
+        string email, string phone, string? associatedUserId, string ownerId, bool isPublic)
+{
+    private static Regex _studentEmailPattern = new(@"[^.]+\.[^@]+@winsor\.edu", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    public bool isStudent => _studentEmailPattern.IsMatch(email);
+}
+
+public readonly record struct NewContact(string firstName, string lastName,
+    string email = "", string phone = "", bool isPublic = false);
+

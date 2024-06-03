@@ -1,4 +1,5 @@
 ﻿using AsyncAwaitBestPractices;
+using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.Services.Global.Services
 {
@@ -120,6 +121,8 @@ namespace WinsorApps.Services.Global.Services
 
         public string AppStoragePath => 
             $"{AppDataPath}{separator}";
+
+        public void LogError(ErrorRecord error) => LogMessage(LogLevel.Error, error.type, error.error);
 
         public void LogMessage(LogLevel log, params string[] messages)
         {

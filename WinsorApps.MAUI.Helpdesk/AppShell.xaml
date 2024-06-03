@@ -9,7 +9,7 @@
     xmlns:devices="clr-namespace:WinsorApps.MAUI.Helpdesk.Pages.Devices"
     xmlns:serv="clr-namespace:WinsorApps.MAUI.Helpdesk.Pages.ServiceCase"
     Shell.FlyoutBehavior="Flyout"
-    Title="WinsorApps.MAUI.Helpdesk">
+    Title="Winsor Helpdesk">
 
     <ShellContent
         Title="Home"

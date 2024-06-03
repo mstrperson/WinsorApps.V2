@@ -1,20 +1,23 @@
 ﻿
 //#define API_DEBUG
 
+using AsyncAwaitBestPractices;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using WinsorApps.Services.Global.Models;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 namespace WinsorApps.Services.Global.Services;
 
-public class ApiService : IAsyncInitService, IAutoRefreshingService
+public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
 {
-    public TimeSpan RefreshInterval => TimeSpan.FromMinutes(45);
+    public TimeSpan RefreshInterval => TimeSpan.FromMinutes(5);
     public bool Refreshing { get; private set; }
+    public bool BypassRefreshing { get; private set; }
     public double Progress => 1;
     public bool Started { get; private set; }
 
@@ -27,7 +30,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingService
     public DateTime? AuthExpires => AuthorizedUser?.expires;
 
     private AuthResponse? AuthorizedUser { get; set; }
-    public UserRecord? UserInfo;
+    public UserRecord? UserInfo = default(UserRecord);
 
     private readonly HttpClient client = new HttpClient()
     {
@@ -48,6 +51,9 @@ public class ApiService : IAsyncInitService, IAutoRefreshingService
     public ApiService(LocalLoggingService localLogging)
     {
         _logging = localLogging;
+
+        RefreshInBackground(CancellationToken.None, err => _logging.LogError(err)).SafeFireAndForget(e => e.LogException(_logging));
+
     }
 
     public AuthResponse? MasqueradingAdminCred { get; private set; }
@@ -114,7 +120,6 @@ public class ApiService : IAsyncInitService, IAutoRefreshingService
                 onError(new("Auto Login Failed", ex.Message));
             }
         }
-
     }
 
     public async Task RefreshInBackground(CancellationToken cancellationToken, ErrorAction onError)
@@ -122,11 +127,9 @@ public class ApiService : IAsyncInitService, IAutoRefreshingService
         while (!cancellationToken.IsCancellationRequested)
         {
             await Task.Delay(RefreshInterval);
-            if (AuthorizedUser is not null && AuthorizedUser.expires < DateTime.Now.AddMinutes(-2))
+            if (AuthorizedUser is not null /* && AuthorizedUser.expires - DateTime.Now < TimeSpan.FromMinutes(2)*/)
             {
-                Refreshing = true;
                 await RenewTokenAsync(onError: onError);
-                Refreshing = false;
             }
         }
     }
@@ -220,26 +223,49 @@ public class ApiService : IAsyncInitService, IAutoRefreshingService
 
     public async Task RenewTokenAsync(bool repeat = false, ErrorAction? onError = null)
     {
+        if(Refreshing)
+        {
+            while(Refreshing)
+            {
+                await Task.Delay(250);
+            }
+
+            return;
+        }
+
+        Refreshing = true;
+        BypassRefreshing = true;
         onError ??= err => _logging.LogMessage(LocalLoggingService.LogLevel.Error, err.error);
         try
         {
             if (AuthorizedUser is not null)
             {
                 var jwt = AuthorizedUser.GetJwt();
+                bool failed = false;
                 AuthorizedUser = await SendAsync<AuthResponse>(HttpMethod.Get,
-                    $"api/auth/renew?refreshToken={AuthorizedUser.refreshToken}", authorize: true);
-                _logging.LogMessage(LocalLoggingService.LogLevel.Information, "Renewed security token.");
-                if (UserInfo is null)
-                    UserInfo = await SendAsync<UserRecord>(HttpMethod.Get, "api/users/self");
-                _logging.LogMessage(LocalLoggingService.LogLevel.Information,
-                    $"Login Successful:  {UserInfo.Value.email}");
-                Ready = true;
-                if(FirstLogin)
+                    $"api/auth/renew?refreshToken={AuthorizedUser.refreshToken}", authorize: true, onError: err =>
+                    {
+                        failed = true;
+                        onError(err);
+                    });
+
+                if (failed)
                 {
-                    OnLoginSuccess?.Invoke(this, EventArgs.Empty);
-                    FirstLogin = false;
+                    Refreshing = false;
+                    
                 }
-                SavedCredential.SaveJwt(AuthorizedUser.jwt, AuthorizedUser.refreshToken);
+                if(AuthorizedUser is null)
+                {
+                    Refreshing = false;
+                    _logging.LogMessage(LocalLoggingService.LogLevel.Error, $"Renewing Token returned a Null result, but did not trigger error.... This should not be possible.");
+                    
+                }
+
+                if (!failed && AuthorizedUser is not null)
+                {
+                    _logging.LogMessage(LocalLoggingService.LogLevel.Information, "Renewed security token.");
+                    SavedCredential.SaveJwt(AuthorizedUser.jwt, AuthorizedUser.refreshToken);
+                }
             }
             else
             {
@@ -257,15 +283,44 @@ public class ApiService : IAsyncInitService, IAutoRefreshingService
         }
         catch (Exception ex)
         {
-            _logging.LogMessage(LocalLoggingService.LogLevel.Error, "Failed to Renew Token", ex.Message);
-            _logging.LogMessage(LocalLoggingService.LogLevel.Debug, ex.StackTrace);
+            ex?.LogException(_logging);
+        }
+
+        Refreshing = false;
+
+        if (AuthorizedUser is not null)
+        {
+            if (UserInfo is null)
+                UserInfo = await SendAsync<UserRecord>(HttpMethod.Get, "api/users/self");
+            _logging.LogMessage(LocalLoggingService.LogLevel.Information,
+                $"Login Successful:  {UserInfo.Value.email}");
+            Ready = true; 
+            
+            if (FirstLogin)
+            {
+                FirstLogin = false;
+                OnLoginSuccess?.Invoke(this, EventArgs.Empty);
+            }
         }
     }
 
-    private HttpRequestMessage BuildRequest(HttpMethod method, string endpoint, string jsonContent = "",
+    private async Task<HttpRequestMessage> BuildRequest(HttpMethod method, string endpoint, string jsonContent = "",
         bool authorize = true, FileStreamWrapper? streamContent = null)
     {
         HttpRequestMessage request = new HttpRequestMessage(method, endpoint);
+
+        if(authorize && Refreshing && !BypassRefreshing)
+        {
+            _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Token is being renewed right now, so I have to wait... Thread: {Thread.CurrentThread.ManagedThreadId}");
+            while(Refreshing)
+            {
+                await Task.Delay(100);
+            }
+            _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Awaited Token Refresh complete Thread: {Thread.CurrentThread.ManagedThreadId}");
+        }
+
+        BypassRefreshing = false;
+
         if (authorize && (AuthorizedUser is null))
         {
             throw new UnauthorizedAccessException("Unable to Authorize request.  Token is missing or expired.");
@@ -296,57 +351,19 @@ public class ApiService : IAsyncInitService, IAutoRefreshingService
         return request;
     }
 
-    /*
-    public async Task SendAsync(HttpMethod method, string endpoint, string jsonContent = "", bool authorize = true,
-        ErrorAction? onError = null, bool isReAuth = false, FileStreamWrapper? stream = null)
-    {
-        var request = BuildRequest(method, endpoint, jsonContent, authorize, stream);
-
-        try
-        {
-            var response = await client.SendAsync(request);
-            if (!response.IsSuccessStatusCode)
-            {
-                if (!isReAuth && response.StatusCode == System.Net.HttpStatusCode.Unauthorized &&
-                    AuthorizedUser is not null)
-                {
-                    await RenewTokenAsync();
-                    await SendAsync(method, endpoint, jsonContent, authorize, onNonSuccessStatus, true);
-                    return;
-                }
-
-                if (onNonSuccessStatus is null)
-                    throw new ApiException(response, _logging);
-
-                onNonSuccessStatus(response);
-            }
-        }
-        catch (ApiException)
-        {
-            throw;
-        }
-        catch (Exception e)
-        {
-            _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"ApiService - SendAsync<T>:  {e.Message}",
-                e.StackTrace ?? "StackTrace not available.");
-            throw new InvalidOperationException($"Api Call to {endpoint} failed.", e);
-        }
-
-    }
-*/
     public async Task<string> SendAsync(HttpMethod method, string endpoint, string jsonContent = "",
         bool authorize = true,
         ErrorAction? onError = null, bool isReAuth = false,
         FileStreamWrapper? stream = null)
     {
         onError ??= err => _logging.LogMessage(LocalLoggingService.LogLevel.Error, err.error);
-        var request = BuildRequest(method, endpoint, jsonContent, authorize, stream);
+        var request = await BuildRequest(method, endpoint, jsonContent, authorize, stream);
 
         var response = await client.SendAsync(request);
-        if (await CheckReAuth(response, () => BuildRequest(method, endpoint, jsonContent, authorize, stream)))
+        if (await CheckReAuth(response, () => BuildRequest(method, endpoint, jsonContent, authorize, stream).Result))
         {
             onError(new("Unauthorized Access", "Current user is not authorized to access this endpoint."));
-            return default;
+            return "";
         }
 
         if (!response.IsSuccessStatusCode)
@@ -368,14 +385,14 @@ public class ApiService : IAsyncInitService, IAutoRefreshingService
         ErrorAction? onError = null, bool isReAuth = false, FileStreamWrapper? stream = null)
     {
         onError ??= err => _logging.LogMessage(LocalLoggingService.LogLevel.Error, err.error);
-        var request = BuildRequest(HttpMethod.Get, endpoint, jsonContent, authorize, stream);
+        var request = await BuildRequest(HttpMethod.Get, endpoint, jsonContent, authorize, stream);
         var response = await client.SendAsync(request);
             if (!response.IsSuccessStatusCode)
             {
                 if (!isReAuth && response.StatusCode == System.Net.HttpStatusCode.Unauthorized &&
                     AuthorizedUser is not null)
                 {
-                    await RenewTokenAsync();
+                    await RenewTokenAsync(onError: onError);
                     return await DownloadStream(endpoint, jsonContent, authorize, onError, true);
                 }
 
@@ -395,7 +412,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingService
         ErrorAction? onError = null, bool isReAuth = false, FileStreamWrapper? stream = null)
     {
         onError ??= err => _logging.LogMessage(LocalLoggingService.LogLevel.Error, err.error);
-        var request = BuildRequest(HttpMethod.Get, endpoint, jsonContent, authorize, stream);
+        var request = await BuildRequest(HttpMethod.Get, endpoint, jsonContent, authorize, stream);
          var response = await client.SendAsync(request);
             if (!response.IsSuccessStatusCode)
             {
@@ -420,7 +437,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingService
         ErrorAction? onError = null, bool isReAuth = false,
         FileStreamWrapper? inStream = null)
     {
-        var request = BuildRequest(
+        var request = await BuildRequest(
             (string.IsNullOrEmpty(jsonContent) && inStream is null) ? HttpMethod.Get : HttpMethod.Post,
             endpoint, jsonContent, authorize, inStream);
         
@@ -458,11 +475,13 @@ public class ApiService : IAsyncInitService, IAutoRefreshingService
         bool authorize = true, ErrorAction? onError = null, bool isReAuth = false)
     {
         onError ??= err => _logging.LogMessage(LocalLoggingService.LogLevel.Error, err.error);
-        var request = BuildRequest(method, endpoint, jsonContent, authorize);
+        var request = await BuildRequest(method, endpoint, jsonContent, authorize);
         var response = await client.SendAsync(request);
-        if (await CheckReAuth(response, () => BuildRequest(method, endpoint, jsonContent, authorize)))
+        if (await CheckReAuth(response, () => BuildRequest(method, endpoint, jsonContent, authorize).Result))
         {
             onError(new("Unauthorized Access", "Current user is not authorized to access this endpoint."));
+            var result = await response.Content.ReadAsStringAsync();
+            _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Call to {method} {endpoint} failed to authorize properly.", result);
             return default;
         }
         
@@ -501,12 +520,19 @@ public class ApiService : IAsyncInitService, IAutoRefreshingService
         return defaultOutput;
     }
 
+    /// <summary>
+    /// Returns TRUE if renewing the Token fails to get passed Unauthorized.
+    /// </summary>
+    /// <param name="response"></param>
+    /// <param name="requestBuilder"></param>
+    /// <returns></returns>
     public async Task<bool> CheckReAuth(HttpResponseMessage response, Func<HttpRequestMessage> requestBuilder)
     {
         for (var i = 0; i < 5; i++)
         {
             if (response.StatusCode != HttpStatusCode.Unauthorized)
                 return false;
+            _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Request to {response.RequestMessage?.RequestUri?.PathAndQuery ?? "unknown uri"} returned Unauthorized. Retry Count: {i}");
             await RenewTokenAsync();
             response = await client.SendAsync(requestBuilder());
         }

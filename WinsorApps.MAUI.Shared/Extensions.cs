@@ -33,6 +33,9 @@ public static class Extensions
 
     public static void PushErrorPage(this ContentPage parent, ErrorRecord err, Action? onConfirmAction = null)
     {
+        if (err.type.Contains("Unauthorized"))
+            return;
+
         ServiceHelper.GetService<LocalLoggingService>().LogMessage(LocalLoggingService.LogLevel.Error,
             err.type, err.error);
         SplashPageViewModel spvm = new(err.type, [err.error], TimeSpan.FromSeconds(30)) { IsCaptive = false };

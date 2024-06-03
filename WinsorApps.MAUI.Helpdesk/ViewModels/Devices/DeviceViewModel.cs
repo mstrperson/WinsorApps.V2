@@ -50,7 +50,7 @@ public partial class DeviceViewModel :
     {
         _deviceService = ServiceHelper.GetService<DeviceService>()!;
         _device = new();
-        displayName = "";
+        displayName = "New Device";
         id = "";
         type = "";
         serialNumber = "";

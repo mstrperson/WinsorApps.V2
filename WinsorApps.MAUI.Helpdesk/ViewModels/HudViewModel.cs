@@ -102,10 +102,9 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels
         public async Task Refresh()
         {
             Loading = true;
-            await Task.WhenAll(
-                _caseService.Refresh(OnError.DefaultBehavior(this)),
-                _devices.Refresh(OnError.DefaultBehavior(this)),
-                _cheqroom.Refresh(OnError.DefaultBehavior(this)));
+
+            while (_caseService.Refreshing)
+                await Task.Delay(100);
 
             OpenCases = ServiceCaseViewModel.GetClonedViewModels(_caseService.OpenCases).ToImmutableArray();
 
@@ -116,6 +115,8 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels
                 serviceCase.OnUpdate += async (_, _) => await Refresh();
                 serviceCase.ShowNotifyButton = serviceCase.Status.Status.Contains("Ready");
             }
+
+           await _cheqroom.Refresh(OnError.DefaultBehavior(this));
 
             Loading = false;
         }
