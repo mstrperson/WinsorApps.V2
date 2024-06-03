@@ -15,7 +15,7 @@ namespace WinsorApps.Services.Global.Services;
 
 public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
 {
-    public TimeSpan RefreshInterval => TimeSpan.FromMinutes(5);
+    public TimeSpan RefreshInterval => TimeSpan.FromMinutes(2);
     public bool Refreshing { get; private set; }
     public bool BypassRefreshing { get; private set; }
     public double Progress => 1;
@@ -127,7 +127,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
         while (!cancellationToken.IsCancellationRequested)
         {
             await Task.Delay(RefreshInterval);
-            if (AuthorizedUser is not null /* && AuthorizedUser.expires - DateTime.Now < TimeSpan.FromMinutes(2)*/)
+            if (AuthorizedUser is not null && AuthorizedUser.expires - DateTime.Now < TimeSpan.FromMinutes(5))
             {
                 await RenewTokenAsync(onError: onError);
             }
