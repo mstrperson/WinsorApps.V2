@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AsyncAwaitBestPractices;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -8,17 +9,20 @@ using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.Services.Global.Services
 {
-    public partial class GadgetService : IAsyncInitService, ICacheService
+    public partial class CycleDayRecurringEventService : IAsyncInitService, ICacheService
     {
         private readonly ApiService _api;
+        private readonly LocalLoggingService _logging;
 
         public event EventHandler? OnCacheRefreshed;
 
         public ImmutableArray<CycleDayRecurringEvent> RecurringEvents { get; private set; } = [];
 
-        public GadgetService(ApiService api)
+        public CycleDayRecurringEventService(ApiService api, LocalLoggingService logging)
         {
             _api = api;
+            _logging = logging;
+            _api.OnLoginSuccess += (_, _) => Initialize(_logging.LogError).SafeFireAndForget(e => e.LogException(_logging));
         }
 
         public bool Started { get; private set; }
