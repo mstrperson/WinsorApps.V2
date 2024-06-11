@@ -8,9 +8,9 @@ public record struct CalendarEventRecord<T>(
     string summary,
     T details,
     UserRecord eventCreator,
-    IEnumerable<LocationRecord> locations);
+    IEnumerable<Location> locations);
 
-public record struct LocationRecord(string id, string label, string type);
+public record struct Location(string id, string label, string type);
 
 public readonly record struct SchoolYear(
     string id,

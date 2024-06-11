@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -10,13 +11,16 @@ using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.EventForms.Services;
 using WinsorApps.Services.Global.Models;
+using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.Shared.EventForms.ViewModels;
 
 public partial class BudgetCodeViewModel : 
     ObservableObject, 
     IEmptyViewModel<BudgetCodeViewModel>,
-    IErrorHandling
+    IErrorHandling,
+    IAutoRefreshingCacheService,
+    ICachedViewModel<BudgetCodeViewModel, BudgetCode, BudgetCodeService>
 {
     private readonly BudgetCodeService _service = ServiceHelper.GetService<BudgetCodeService>();
 
@@ -25,16 +29,22 @@ public partial class BudgetCodeViewModel :
     [ObservableProperty] private string accountNumber = "";
     [ObservableProperty] private string commonName = "";
 
+    public static ConcurrentBag<BudgetCodeViewModel> ViewModelCache { get; protected set; } = [];
+
+    public TimeSpan RefreshInterval => TimeSpan.MaxValue;
+
+    public bool Refreshing => false;
+
     public event EventHandler<ErrorRecord>? OnError;
+    public event EventHandler? OnCacheRefreshed;
 
-    public BudgetCodeViewModel() { }
-
-    public BudgetCodeViewModel(BudgetCode budgetCode)
+    public static implicit operator BudgetCodeViewModel(BudgetCode budgetCode) => new()
     {
-        codeId = budgetCode.codeId;
-        userId = budgetCode.userId;
-        accountNumber = budgetCode.accountNumber;
-    }
+        CodeId = budgetCode.codeId,
+        UserId = budgetCode.userId,
+        AccountNumber = budgetCode.accountNumber,
+        CommonName = budgetCode.name
+    };
 
     [RelayCommand]
     public async Task Create()
@@ -44,8 +54,40 @@ public partial class BudgetCodeViewModel :
         {
             CodeId = result.Value.codeId;
             UserId = result.Value.userId;
+            ViewModelCache.Add((BudgetCodeViewModel)result.Value);
+            OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
     }
+
+    public static List<BudgetCodeViewModel> GetClonedViewModels(IEnumerable<BudgetCode> models)
+    {
+        List<BudgetCodeViewModel> result = [];
+        foreach (var model in models)
+            result.Add(Get(model));
+
+        return result;
+    }
+
+    public static async Task Initialize(BudgetCodeService service, ErrorAction onError)
+    {
+        await service.WaitForInit(onError);
+        _ = GetClonedViewModels(service.BudgetCodes);
+    }
+
+    public static BudgetCodeViewModel Get(BudgetCode model)
+    {
+        var vm = ViewModelCache.FirstOrDefault(code => code.CodeId == model.codeId);
+        if(vm is null)
+        {
+            vm = (BudgetCodeViewModel)model;
+            ViewModelCache.Add(vm);
+        }
+        return vm.Clone();
+    }
+
+    public BudgetCodeViewModel Clone() => (BudgetCodeViewModel)MemberwiseClone();
+
+    public Task RefreshInBackground(CancellationToken token, ErrorAction onError) => Task.CompletedTask;
 }
 
 public partial class BudgetCodeSearchViewModel :
@@ -82,12 +124,15 @@ public partial class BudgetCodeSearchViewModel :
         _service = service;
         _service.OnCacheRefreshed += BudgetCodeCacheRefreshed;
         if (_service.Ready)
-            available = _service.BudgetCodes.Select(code => new BudgetCodeViewModel(code)).ToImmutableArray();
+            available = BudgetCodeViewModel.GetClonedViewModels(_service.BudgetCodes).ToImmutableArray(); 
+        
+        foreach (var vm in Available)
+            vm.OnError += (sender, err) => OnError?.Invoke(sender, err);
     }
 
     private void BudgetCodeCacheRefreshed(object? sender, EventArgs e)
     {
-        Available = _service.BudgetCodes.Select(code => new BudgetCodeViewModel(code)).ToImmutableArray();
+        Available = BudgetCodeViewModel.GetClonedViewModels(_service.BudgetCodes).ToImmutableArray();
         foreach (var vm in Available)
             vm.OnError += (sender, err) => OnError?.Invoke(sender, err);
     }

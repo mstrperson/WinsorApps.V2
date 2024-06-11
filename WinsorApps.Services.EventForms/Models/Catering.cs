@@ -11,13 +11,13 @@ public readonly record struct CateringMenuCategory(string id, string name, bool 
 
 public readonly record struct CateringMenuSelection(string itemId, int quantity);
 
-public readonly record struct DetailedCaterinMenuSelection(CateringMenuItem item, int quantity, double cost);
+public readonly record struct DetailedCateringMenuSelection(CateringMenuItem item, int quantity, double cost);
 
 public readonly record struct NewCateringEvent(bool servers, bool cleanup,
     ImmutableArray<CateringMenuSelection> selectedItemIds, string budgetCodeId);
 
 public readonly record struct CateringEvent(string id, bool servers, bool cleanup, double laborCost,
-    ImmutableArray<DetailedCaterinMenuSelection> menuSelections, BudgetCode budgetCode, double cost);
+    ImmutableArray<DetailedCateringMenuSelection> menuSelections, BudgetCode budgetCode, double cost);
 
 public readonly record struct BudgetCode(string accountNumber, string name, string userId, string codeId);
 

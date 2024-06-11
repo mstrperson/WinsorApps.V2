@@ -15,7 +15,7 @@ public readonly record struct FieldTripHiredBusRequest(int busCount, TimeOnly de
 
 public readonly record struct NewFieldTripCateringRequest(int numberOfLunches, ImmutableArray<string>? menuItemIds, int diningCount, bool eatingAway, TimeOnly pickupTime);
 
-public readonly record struct FieldTripCateringRequest(int numberOfLunches, ImmutableArray<DetailedCaterinMenuSelection> menuItems, int diningInCount,
+public readonly record struct FieldTripCateringRequest(int numberOfLunches, ImmutableArray<DetailedCateringMenuSelection> menuItems, int diningInCount,
     bool eatingAway, TimeOnly pickupTime);
 
 public readonly record struct NewVehicleRequest(string categoryId, int number, string notes = "");

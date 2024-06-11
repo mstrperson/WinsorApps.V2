@@ -50,7 +50,10 @@ public readonly record struct EventFormBase(string id, string summary, string de
         string creatorId, string leaderId, DateOnly preaprovalDate, int attendeeCount, string? managerId = null,
         ImmutableArray<string>? selectedLocations = null, ImmutableArray<string>? selectedCustomLocations = null, ImmutableArray<DocumentHeader>? attachments = null,
         bool hasFacilitiesInfo = false, bool hasTechRequest = false, bool hasCatering = false, bool hasTheaterRequest = false, bool hasFieldTripInfo = false,
-        bool hasZoom = false, bool hasMarCom = false);
+        bool hasZoom = false, bool hasMarCom = false)
+{
+    public static EventFormBase Empty => new("", "", "", "", "", default, default, "", "", default, 0, "", [], [], [], false, false, false, false, false, false, false);
+}
 
 public readonly record struct EventBaseUpdate(int id, string summary, string description, string type, string status, DateTime start, DateTime end,
          int leaderId, DateOnly preaprovalDate, int attendeeCount, int? managerId = null,
