@@ -53,28 +53,27 @@ public partial class ContactViewModel :
     public static ContactViewModel Get(Contact model)
     {
         var vm = ViewModelCache.FirstOrDefault(con => con.Id == model.id);
-        if(vm is null)
+        if (vm is not null) return vm.Clone();
+        
+        vm = new ContactViewModel
         {
-            vm = new ContactViewModel
-            {
-                Id = model.id,
-                FirstName = model.firstName,
-                LastName = model.lastName,
-                FullName = model.FullName,
-                Email = model.email,
-                Phone = model.phone,
-                IsPublic = model.isPublic
-            };
+            Id = model.id,
+            FirstName = model.firstName,
+            LastName = model.lastName,
+            FullName = model.FullName,
+            Email = model.email,
+            Phone = model.phone,
+            IsPublic = model.isPublic
+        };
 
-            if(!string.IsNullOrEmpty(model.associatedUserId))
-            {
-                var user = UserViewModel.ViewModelCache.FirstOrDefault(u => u.Id == model.associatedUserId);
-                if(user is not null) 
-                    vm.AssociatedUser = user.Clone();
-            }
-
-            ViewModelCache.Add(vm);
+        if(!string.IsNullOrEmpty(model.associatedUserId))
+        {
+            var user = UserViewModel.ViewModelCache.FirstOrDefault(u => u.Id == model.associatedUserId);
+            if(user is not null) 
+                vm.AssociatedUser = user.Clone();
         }
+
+        ViewModelCache.Add(vm);
         return vm.Clone();
     }
 

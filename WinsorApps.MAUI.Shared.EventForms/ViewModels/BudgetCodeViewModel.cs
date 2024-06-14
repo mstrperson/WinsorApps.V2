@@ -77,11 +77,9 @@ public partial class BudgetCodeViewModel :
     public static BudgetCodeViewModel Get(BudgetCode model)
     {
         var vm = ViewModelCache.FirstOrDefault(code => code.CodeId == model.codeId);
-        if(vm is null)
-        {
-            vm = (BudgetCodeViewModel)model;
-            ViewModelCache.Add(vm);
-        }
+        if (vm is not null) return vm.Clone();
+        vm = (BudgetCodeViewModel)model;
+        ViewModelCache.Add(vm);
         return vm.Clone();
     }
 

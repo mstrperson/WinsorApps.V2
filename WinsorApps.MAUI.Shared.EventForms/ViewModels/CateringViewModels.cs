@@ -34,19 +34,17 @@ public partial class CateringEventViewModel :
     public static CateringEventViewModel Get(CateringEvent model)
     {
         var vm = ViewModelCache.FirstOrDefault(evt => evt.Id == model.id);
-        if(vm is null)
+        if (vm is not null) return vm.Clone();
+        vm = new CateringEventViewModel()
         {
-            vm = new CateringEventViewModel()
-            {
-                Id = model.id,
-                BudgetCode = BudgetCodeViewModel.Get(model.budgetCode),
-                ServersNeeded = model.servers,
-                CleanupRequired = model.cleanup,
-                LaborCost = model.laborCost,
-                SelectedItems = model.menuSelections.Select(detail => (CateringMenuSelectionViewModel)detail).ToImmutableArray()
-            };
-            ViewModelCache.Add(vm);
-        }
+            Id = model.id,
+            BudgetCode = BudgetCodeViewModel.Get(model.budgetCode),
+            ServersNeeded = model.servers,
+            CleanupRequired = model.cleanup,
+            LaborCost = model.laborCost,
+            SelectedItems = model.menuSelections.Select(detail => (CateringMenuSelectionViewModel)detail).ToImmutableArray()
+        };
+        ViewModelCache.Add(vm);
 
         return vm.Clone();
     }
@@ -175,19 +173,17 @@ public partial class CateringMenuCategoryViewModel :
     public static CateringMenuCategoryViewModel Get(CateringMenuCategory model)
     {
         var vm = ViewModelCache.FirstOrDefault(cat => cat.Id == model.id);
-        if (vm is null)
-        {
-            vm = new() 
-            { 
-                Id = model.id, 
-                FieldTripCategory = model.fieldTripCategory, 
-                IsDeleted = model.isDeleted, 
-                Name = model.name, 
-                Items = model.items.Select(CateringMenuItemViewModel.Get).ToImmutableArray() 
-            };
+        if (vm is not null) return vm.Clone();
+        vm = new() 
+        { 
+            Id = model.id, 
+            FieldTripCategory = model.fieldTripCategory, 
+            IsDeleted = model.isDeleted, 
+            Name = model.name, 
+            Items = model.items.Select(CateringMenuItemViewModel.Get).ToImmutableArray() 
+        };
 
-            ViewModelCache.Add(vm);
-        }
+        ViewModelCache.Add(vm);
 
         return vm.Clone();
     }
