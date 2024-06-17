@@ -2,12 +2,15 @@
 using WinsorApps.MAUI.Shared.Pages;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Bookstore.Services;
+using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.BookstoreManager;
 
 public partial class MainPage : ContentPage
 {
+
+    public EventHandler<ErrorRecord>? OnError;
     public MainPageViewModel ViewModel => (MainPageViewModel)BindingContext;
 
 
@@ -21,14 +24,16 @@ public partial class MainPage : ContentPage
         MainPageViewModel vm = new(
         [
             new(registrar, "Registrar Data"),
-        new(managerService, "Manager Service"),
-        new(bookService, "Books")
+            new(managerService, "Manager Service"),
+            new(bookService, "Books")
         ])
         {
             Completion = [
 
             ]
         };
+
+        this.DefaultOnErrorAction();
 
         BindingContext = vm;
         vm.OnError += this.DefaultOnErrorHandler();

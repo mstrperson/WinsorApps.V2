@@ -19,16 +19,16 @@ public class BookService : IAsyncInitService
     {
         if (Ready) { return; }
 
-        while (!_api.Ready)
-        {
-            await Task.Delay(500);
-        }
+        await _api.WaitForInit(onError);
+        
+        Started = true;
 
         var bindingTask = _api.SendAsync<ImmutableArray<BookBinding>>(HttpMethod.Get,
             "api/books/list-bindings", onError: onError);
         bindingTask.WhenCompleted(() =>
         {
             _bookBindings = bindingTask.Result;
+            Progress += 0.5;
             _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Loaded {_bookBindings.Value.Length} book Bindings");
         });
 
@@ -38,6 +38,7 @@ public class BookService : IAsyncInitService
         bookCache.WhenCompleted(() =>
         {
             _bookCache = bookCache.Result;
+            Progress += 0.5;
             _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Loaded {_bookCache?.Count ?? 0} Books");
         });
 
@@ -73,9 +74,9 @@ public class BookService : IAsyncInitService
         }
     }
 
-    public bool Started => throw new NotImplementedException();
+    public bool Started { get; private set; }
 
-    public double Progress => throw new NotImplementedException();
+    public double Progress { get; private set; }
 
     public async Task Refresh(ErrorAction onError)
     {

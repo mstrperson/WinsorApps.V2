@@ -21,6 +21,11 @@ public partial class LoginPage : ContentPage
         BindingContext = viewModel;
         InitializeComponent();
     }
+
+    /// <summary>
+    /// TODO: WTF MATE why two constructors???
+    /// </summary>
+    /// <param name="logging"></param>
     public LoginPage(LocalLoggingService logging)
     {
         _logging = logging;
