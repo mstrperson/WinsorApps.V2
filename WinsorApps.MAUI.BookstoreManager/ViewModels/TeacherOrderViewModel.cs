@@ -32,7 +32,7 @@ public partial class TeacherOrderViewModel :
         if(string.IsNullOrEmpty(Section.Id))
             
 
-        await _managerService.CreateOrUpdateBookOrder(Section.Teacher.Id, Section.Id, )
+        //await _managerService.CreateOrUpdateBookOrder(Section.Teacher.Id, Section.Id, )
     }
 
     public static ConcurrentBag<TeacherOrderViewModel> ViewModelCache { get; private set; } = [];
