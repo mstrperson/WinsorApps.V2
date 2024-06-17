@@ -4,7 +4,7 @@ using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.Services.Bookstore.Services;
 
-public class StudentBookstoreService
+public class StudentBookstoreService : IAsyncInitService
 {
     private readonly ApiService _api;
     private readonly LocalLoggingService _logging;
@@ -26,6 +26,10 @@ public class StudentBookstoreService
     /// Set to true once the Initialization method has completed.
     /// </summary>
     public bool Ready { get; private set; } = false;
+
+    public bool Started { get; private set; }
+
+    public double Progress { get; private set; }
 
     /// <summary>
     /// Get Data from Cache. This data is populated during initialization and does not need to be refreshed (theoretically...)
@@ -79,6 +83,8 @@ public class StudentBookstoreService
         }
 
         await Task.WhenAll(taskList);
+
+
 
         Ready = true;
     }
@@ -178,5 +184,33 @@ public class StudentBookstoreService
             _myOrders.Add(result.Value);
 
         return result;
+    }
+
+    public async Task WaitForInit(ErrorAction onError)
+    {
+        while (!Ready)
+            await Task.Delay(250);
+    }
+
+    public async Task Refresh(ErrorAction onError)
+    {
+        var mySchedule = await _registrar.GetMyAcademicScheduleAsync();
+
+        var statusTask = _api.SendAsync<ImmutableArray<OrderStatus>>(HttpMethod.Get,
+            "api/book-orders/students/status-list", onError: onError);
+        statusTask.WhenCompleted(() => { OrderStatusOptions = statusTask.Result; });
+
+        var fallOrderTask = GetSemesterBookList(true, onError);
+        var springOrderTask = GetSemesterBookList(false, onError);
+        var myOrdersTask = GetMyOrders(onError);
+
+        List<Task> taskList = [fallOrderTask, springOrderTask, myOrdersTask];
+        foreach (var section in mySchedule)
+        {
+            taskList.Add(GetMyOrdersFor(section.sectionId, onError));
+        }
+
+        await Task.WhenAll(taskList);
+
     }
 }

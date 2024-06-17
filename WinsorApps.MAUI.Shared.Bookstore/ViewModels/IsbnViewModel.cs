@@ -1,35 +1,42 @@
+using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using AsyncAwaitBestPractices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Bookstore.Models;
 using WinsorApps.Services.Bookstore.Services;
 using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.Shared.Bookstore.ViewModels;
 
-public partial class IsbnViewModel : ObservableObject
+public partial class IsbnViewModel : 
+    ObservableObject, 
+    IEmptyViewModel<IsbnViewModel>,
+    ICachedViewModel<IsbnViewModel, ISBNInfo, BookService>
 {
     public event EventHandler<OdinDataViewModel>? OdinUpdateRequested;
     public event EventHandler<IsbnViewModel>? IsbnUpdateRequested;
 
-    [ObservableProperty] bool editable;
+    [ObservableProperty] bool editable = true;
+     
+    [ObservableProperty] string isbn = "";
 
-    [ObservableProperty] string isbn;
+    [ObservableProperty] BookBindingViewModel binding = new("Hardcover");
 
-    [ObservableProperty] BookBindingViewModel binding;
-
-    [ObservableProperty] bool available;
+    [ObservableProperty] bool available = true;
 
     public string AvailableString => Available ? "Available" : "Not Available";
 
-    [ObservableProperty] string displayName;
+    public static ConcurrentBag<IsbnViewModel> ViewModelCache { get; private set; } = [];
 
-    [ObservableProperty] bool hasOdinData;
+    [ObservableProperty] string displayName = "";
 
-    [ObservableProperty] OdinDataViewModel currentOdinData;
+    [ObservableProperty] bool hasOdinData = false;
 
-    [ObservableProperty] ImmutableArray<string> bindingOptions;
+    [ObservableProperty] OdinDataViewModel currentOdinData = IEmptyViewModel<OdinDataViewModel>.Empty;
+
+    [ObservableProperty] ImmutableArray<string> bindingOptions = [];
 
     [ObservableProperty] string bookId = "";
 
@@ -74,6 +81,12 @@ public partial class IsbnViewModel : ObservableObject
     public void ToggleEditable()
     {
         Editable = !Editable;
+    }
+
+    [RelayCommand]
+    public void ToggleAvailable()
+    {
+        Available = !Available;
     }
 
     [RelayCommand]
@@ -143,7 +156,47 @@ public partial class IsbnViewModel : ObservableObject
         CurrentOdinData.UpdateRequested +=
             (sender, e) => OdinUpdateRequested?.Invoke(this, (OdinDataViewModel) sender!);
     }
-}public partial class OdinDataViewModel : ObservableObject
+
+    public static List<IsbnViewModel> GetClonedViewModels(IEnumerable<ISBNInfo> models)
+    {
+        List<IsbnViewModel> result = [];
+        foreach (var model in models)
+            result.Add(Get(model));
+
+        return result;
+    }
+
+    public static async Task Initialize(BookService service, ErrorAction onError)
+    {
+        await service.WaitForInit(onError);
+        _ = GetClonedViewModels(service.BooksCache.SelectMany(book => book.isbns));
+    }
+
+    public static IsbnViewModel Get(string isbn)
+    {
+        var vm = ViewModelCache.FirstOrDefault(i => i.Isbn == isbn);
+        if (vm is null)
+        {
+            return new() { Isbn = isbn };
+        }
+
+        return vm;
+    }
+
+    public static IsbnViewModel Get(ISBNInfo model)
+    {
+        var vm = ViewModelCache.FirstOrDefault(isbn => isbn.Isbn == model.isbn);
+        if(vm is null)
+        {
+            vm = new(model);
+            ViewModelCache.Add(vm);
+        }
+        return vm.Clone();
+    }
+
+    public IsbnViewModel Clone() => (IsbnViewModel)MemberwiseClone();
+}
+public partial class OdinDataViewModel : ObservableObject
 {
     private OdinData? data;
 

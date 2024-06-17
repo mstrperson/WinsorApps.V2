@@ -93,4 +93,10 @@
 	  </MauiImage>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <MauiXaml Update="Pages\ManagerBookEditor.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	</ItemGroup>
+
 </Project>

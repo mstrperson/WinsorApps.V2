@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.Bookstore.ViewModels;assembly=WinsorApps.MAUI.Shared.Bookstore"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             x:Class="WinsorApps.MAUI.BookstoreManager.Pages.ManagerBookEditor"
+             x:DataType="vm:BookViewModel"
+             Title="{Binding Title}">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert" />
+            <conv:CurrencyToStringConverter x:Key="Currency" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.Content>
+        <ScrollView>
+            <VerticalStackLayout>
+                <HorizontalStackLayout>
+                    <Label 
+                        StyleClass="Header" 
+                        Text="Edit Book Details" />
+                    <Button
+                        StyleClass="SaveButton"
+                        Command="{Binding SaveCommand}"/>
+                </HorizontalStackLayout>
+                <HorizontalStackLayout>
+                    <Label VerticalOptions="Center" Text="Title: " />
+                    <Entry Text="{Binding Title}" WidthRequest="250" />
+                </HorizontalStackLayout>
+                <HorizontalStackLayout>
+                    <Label VerticalOptions="Center" Text="Authors: " />
+                    <Entry Text="{Binding AuthorList}" WidthRequest="250"  />
+                </HorizontalStackLayout>
+                <HorizontalStackLayout>
+                    <Label VerticalOptions="Center" Text="Edition: " />
+                    <Entry Text="{Binding Edition}" WidthRequest="250"  />
+                </HorizontalStackLayout>
+                <HorizontalStackLayout>
+                    <Label VerticalOptions="Center" Text="Publisher: " />
+                    <Entry Text="{Binding Publisher}" WidthRequest="250"  />
+                </HorizontalStackLayout>
+                <HorizontalStackLayout>
+                    <Label VerticalOptions="Center" Text="Published Date: " />
+                    <DatePicker Date="{Binding PublicationDate}" />
+                </HorizontalStackLayout>
+                <CollectionView
+                    ItemsSource="{Binding Isbns}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:IsbnViewModel">
+                            <HorizontalStackLayout>
+                                <StackLayout
+                                    Margin="0"
+                                    Padding="0">
+                                    <StackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding ToggleAvailableCommand}" />
+                                    </StackLayout.GestureRecognizers>
+                                    <Label Text="Unavailable" IsVisible="{Binding Available, Converter={StaticResource Invert}}" />
+                                    <Label Text="Available" IsVisible="{Binding Available}" />
+                                </StackLayout>
+                                <Label
+                                    Text="{Binding DisplayName}" />
+                                <Entry 
+                                    Placeholder="Odin PLU"
+                                    Text="{Binding CurrentOdinData.Plu}" />
+                                <Entry
+                                    Placeholder="Cost"
+                                    Text="{Binding CurrentOdinData.CostString}" />
+                            </HorizontalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>
