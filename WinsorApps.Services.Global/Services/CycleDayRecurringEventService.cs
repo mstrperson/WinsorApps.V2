@@ -10,7 +10,7 @@ using WinsorApps.Services.Global.Models;
 namespace WinsorApps.Services.Global.Services
 {
     /// <summary>
-    /// This service is /not/ included in the InitializeGlobalServices Dependenc Injection extension.
+    /// This service is /not/ included in the InitializeGlobalServices Dependency Injection extension.
     /// Please manually add this service if it is relevant to an app~
     /// </summary>
     public partial class CycleDayRecurringEventService : IAsyncInitService, ICacheService

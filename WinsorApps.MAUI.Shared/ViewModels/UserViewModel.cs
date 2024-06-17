@@ -117,7 +117,7 @@ public partial class UserViewModel :
     {
         var schedule = _registrar.MyAcademicSchedule;
         AcademicSchedule = schedule
-            .Select(sec => new SectionViewModel(sec))
+            .Select(SectionViewModel.Get)
             .ToImmutableArray();
         foreach (var section in AcademicSchedule)
             section.Selected += (sender, sec) => SectionSelected?.Invoke(sender, sec); 
