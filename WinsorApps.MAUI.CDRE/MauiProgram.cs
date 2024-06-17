@@ -23,6 +23,7 @@ namespace WinsorApps.MAUI.CDRE
                 .AddGlobalServices();
 
             builder.Services.AddSingleton<CycleDayRecurringEventService>();
+            builder.Services.AddSingleton<MainPage>();
 
 #if DEBUG
     		builder.Logging.AddDebug();
