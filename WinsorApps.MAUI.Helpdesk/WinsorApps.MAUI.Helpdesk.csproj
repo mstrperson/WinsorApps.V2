@@ -46,7 +46,7 @@
         <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
         <GenerateTestArtifacts>True</GenerateTestArtifacts>
         <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
-        <BaseOutputPath>C:\Users\jcox\Documents\Helpdesk App</BaseOutputPath>
+        <BaseOutputPath></BaseOutputPath>
         <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
         <Title>Winsor Helpdesk</Title>
         <Authors>Jason Cox</Authors>
