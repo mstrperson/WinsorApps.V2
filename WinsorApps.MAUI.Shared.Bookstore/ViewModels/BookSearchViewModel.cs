@@ -1,16 +1,22 @@
 using System.Collections.Immutable;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Bookstore.Services;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.Shared.Bookstore.ViewModels;
 
-public partial class BookSearchViewModel : ObservableObject
+public partial class BookSearchViewModel : 
+    ObservableObject, 
+    ICachedSearchViewModel<BookViewModel>
 {
     public event EventHandler<BookViewModel>? BookSelected;
-    
+    public event EventHandler<ImmutableArray<BookViewModel>>? OnMultipleResult;
+    public event EventHandler<BookViewModel>? OnSingleResult;
+    public event EventHandler? OnZeroResults;
+
     [ObservableProperty] private bool searchByAuthor;
     [ObservableProperty] private string authorSearch = "";
     [ObservableProperty] private bool searchByPublisher;
@@ -20,10 +26,25 @@ public partial class BookSearchViewModel : ObservableObject
     [ObservableProperty] private bool searchByIsbn;
     [ObservableProperty] private string isbnSearch = "";
 
-    [ObservableProperty] private ImmutableArray<BookViewModel> searchResults = [];
+    [ObservableProperty] private ImmutableArray<BookViewModel> options = [];
 
     private readonly BookService _bookService;
     private readonly LocalLoggingService _logging;
+
+    [ObservableProperty]
+    private ImmutableArray<BookViewModel> available = [];
+    [ObservableProperty]
+    private ImmutableArray<BookViewModel> allSelected = [];
+    [ObservableProperty]
+    private BookViewModel selected = IEmptyViewModel<BookViewModel>.Empty;
+    [ObservableProperty]
+    private SelectionMode selectionMode = SelectionMode.Multiple;
+    [ObservableProperty]
+    private string searchText = "";
+    [ObservableProperty]
+    private bool isSelected;
+    [ObservableProperty]
+    private bool showOptions;
 
     public BookSearchViewModel()
     {
@@ -59,8 +80,14 @@ public partial class BookSearchViewModel : ObservableObject
                     book.title.Contains(TitleSearch, StringComparison.InvariantCultureIgnoreCase))
                 .ToImmutableArray();
 
-        SearchResults = books.Select(book => new BookViewModel(book)).ToImmutableArray();
-        foreach (var vm in SearchResults)
+        Options = BookViewModel.GetClonedViewModels(books).ToImmutableArray();
+        foreach (var vm in Options)
             vm.Selected += (_, book) => BookSelected?.Invoke(this, book);
     }
+
+    public void Select(BookViewModel item)
+    {
+    }
+
+    async Task IAsyncSearchViewModel<BookViewModel>.Search() => await Task.Run(Search);
 }
