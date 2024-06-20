@@ -20,7 +20,8 @@ public partial class SectionViewModel :
     ObservableObject,
     ICachedViewModel<SectionViewModel, SectionRecord, BookstoreManagerService>,
     IEmptyViewModel<SectionViewModel>,
-    IErrorHandling
+    IErrorHandling,
+    IBusyViewModel
 {
     private static readonly RegistrarService _registrar = ServiceHelper.GetService<RegistrarService>();
     private static readonly BookstoreManagerService _managerService = ServiceHelper.GetService<BookstoreManagerService>();
@@ -30,6 +31,10 @@ public partial class SectionViewModel :
     [ObservableProperty] CourseViewModel course = IEmptyViewModel<CourseViewModel>.Empty;
     [ObservableProperty] UserViewModel teacher = IEmptyViewModel<UserViewModel>.Empty;
     [ObservableProperty] DateTime created;
+    [ObservableProperty] ImmutableArray<BookRequestOptionGroupViewModel> requestGroups = [];
+
+    [ObservableProperty] bool busy;
+    [ObservableProperty] string busyMessage = "";
 
     public event EventHandler<ErrorRecord>? OnError;
 
@@ -43,12 +48,28 @@ public partial class SectionViewModel :
     {
         if (string.IsNullOrEmpty(Course.Id) || string.IsNullOrEmpty(Teacher.Id))
             return;
-
+        Busy = true;
+        BusyMessage = $"Creating new Section of {Course.DisplayName} for {Teacher.DisplayName}";
         var result = await _managerService.CreateSectionForTeacher(Teacher.Id, Course.Id, OnError.DefaultBehavior(this));
-        if (!result.HasValue) return;
+        if (!result.HasValue)
+        {
+            Busy = false;
+            return;
+        }
 
         this.Id = result.Value.id;
         this.SchoolYearId = result.Value.schoolYearId;
+        Busy = false;
+    }
+
+    [RelayCommand]
+    public async Task GetOrderGroups()
+    {
+        Busy = true;
+        BusyMessage = "Getting Book Orders";
+        var groups = await _managerService.GetGroupedOrders(Id, OnError.DefaultBehavior(this));
+        RequestGroups = BookRequestOptionGroupViewModel.GetClonedViewModels(groups).ToImmutableArray();
+        Busy = false;
     }
 
     public static ConcurrentBag<SectionViewModel> ViewModelCache { get; private set; } = [];
@@ -201,4 +222,42 @@ public partial class SectionByDepartmentCollectionViewModel :
     }
 
     public SectionByDepartmentCollectionViewModel Clone() => (SectionByDepartmentCollectionViewModel)MemberwiseClone();
+}
+
+public partial class SectionSearchViewModel :
+    ObservableObject
+{
+    public class SectionSearchMode
+    {
+        public static readonly SectionSearchMode ByTeacher = new("By Teacher");
+        public static readonly SectionSearchMode ByDepartment = new("By Department");
+        public string Label { get; init; }
+
+        private SectionSearchMode(string label) => Label = label;
+
+        public override string ToString() => Label;
+
+        public static implicit operator string(SectionSearchMode mode) => mode.Label;
+
+        public override bool Equals(object? obj)
+
+        {
+            if (obj is SectionSearchMode mode)
+                return mode.Label == this.Label;
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Label);
+        }
+    }
+
+    [ObservableProperty] ImmutableArray<SectionByDepartmentCollectionViewModel> departmentSearch = [];
+    [ObservableProperty] ImmutableArray<SectionByTeacherCollectionViewModel> teacherSearch = [];
+    [ObservableProperty] SectionSearchMode searchMode = SectionSearchMode.ByTeacher;
+    [ObservableProperty] UserSearchViewModel userSearch = new();
+
+
+    [RelayCommand]
 }

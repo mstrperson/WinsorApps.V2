@@ -19,20 +19,36 @@ namespace WinsorApps.MAUI.BookstoreManager.ViewModels;
 public partial class TeacherOrderViewModel :
     ObservableObject,
     ICachedViewModel<TeacherOrderViewModel, TeacherBookOrderDetail, BookstoreManagerService>,
-    IEmptyViewModel<TeacherOrderViewModel>
+    IEmptyViewModel<TeacherOrderViewModel>,
+    IErrorHandling,
+    IBusyViewModel
 {
     private readonly BookstoreManagerService _managerService = ServiceHelper.GetService<BookstoreManagerService>();
 
     [ObservableProperty] SectionViewModel section = IEmptyViewModel<SectionViewModel>.Empty;
     [ObservableProperty] ImmutableArray<BookRequestViewModel> bookRequests = [];
 
+    [ObservableProperty] bool busy;
+    [ObservableProperty] string busyMessage = "";
+
+    public event EventHandler<ErrorRecord>? OnError;
+
     [RelayCommand]
     public async Task Submit()
     {
-        if(string.IsNullOrEmpty(Section.Id))
-            
+        Busy = true;
+        BusyMessage = "Submitting Book Order";
+        if (string.IsNullOrEmpty(Section.Id))
+        {
+            await Section.CreateSection();
+            if (string.IsNullOrEmpty(Section.Id))
+                return;
+        }
 
-        //await _managerService.CreateOrUpdateBookOrder(Section.Teacher.Id, Section.Id, )
+        await _managerService.CreateOrUpdateBookOrder(Section.Teacher.Id, Section.Id,
+            new CreateTeacherBookOrderGroup(BookRequests.Select(req => 
+                new CreateTeacherBookRequest(req.Isbn.Isbn, req.Quantity, req.FallOrFullYear, req.SpringOnly)).ToImmutableArray()), OnError.DefaultBehavior(this));
+        Busy = false;
     }
 
     public static ConcurrentBag<TeacherOrderViewModel> ViewModelCache { get; private set; } = [];
@@ -72,8 +88,53 @@ public partial class TeacherOrderViewModel :
     public TeacherOrderViewModel Clone() => (TeacherOrderViewModel)MemberwiseClone();
 }
 
+public partial class BookRequestOptionGroupViewModel :
+    ObservableObject,
+    ICachedViewModel<BookRequestOptionGroupViewModel, TeacherBookOrderGroup, BookstoreManagerService>
+{
+    [ObservableProperty] string groupId = "";
+    [ObservableProperty] BookOrderOptionViewModel option = BookOrderOptionViewModel.Default;
+    [ObservableProperty] ImmutableArray<BookRequestViewModel> requests = [];
+
+    public static ConcurrentBag<BookRequestOptionGroupViewModel> ViewModelCache { get; private set; } = [];
+
+    public static BookRequestOptionGroupViewModel Get(TeacherBookOrderGroup model)
+    {
+        var vm = ViewModelCache.FirstOrDefault(grp => grp.GroupId == model.id);
+        if (vm is null)
+        {
+
+            vm = new()
+            {
+                GroupId = model.id,
+                Option = BookOrderOptionViewModel.Get(model.option),
+                Requests = model.isbns.Select(req => new BookRequestViewModel(req)).ToImmutableArray()
+            };
+            ViewModelCache.Add(vm);
+        }
+        return vm.Clone();
+    }
+
+    public static List<BookRequestOptionGroupViewModel> GetClonedViewModels(IEnumerable<TeacherBookOrderGroup> models)
+    {
+        List<BookRequestOptionGroupViewModel> result = [];
+        foreach (var model in models)
+            result.Add(Get(model));
+        return result;
+    }
+
+    public static async Task Initialize(BookstoreManagerService service, ErrorAction onError)
+    {
+        // Do Nothing, build this cache on demand.
+        await Task.CompletedTask;
+    }
+
+    public BookRequestOptionGroupViewModel Clone() => (BookRequestOptionGroupViewModel)MemberwiseClone();
+}
+
 public partial class BookRequestViewModel :
-    ObservableObject
+    ObservableObject,
+    ISelectable<BookRequestViewModel>
 {
     [ObservableProperty] IsbnViewModel isbn = IEmptyViewModel<IsbnViewModel>.Empty;
     [ObservableProperty] DateTime submitted;
@@ -82,6 +143,10 @@ public partial class BookRequestViewModel :
     [ObservableProperty] bool springOnly = false;
     [ObservableProperty] string status = "";
     [ObservableProperty] string groupId = "";
+
+    [ObservableProperty] bool isSelected; 
+
+    public event EventHandler<BookRequestViewModel>? Selected;
 
     public BookRequestViewModel(IsbnViewModel selectedIsbn)
     {
@@ -107,4 +172,11 @@ public partial class BookRequestViewModel :
     }
 
     public TeacherBookRequest GetRequest() => new(Isbn.Isbn, Submitted, Quantity, FallOrFullYear, !FallOrFullYear && SpringOnly, Status, GroupId);
+
+    public void Select()
+    {
+        IsSelected = !IsSelected;
+        if (IsSelected)
+            Selected?.Invoke(this, this);
+    }
 }
