@@ -1,4 +1,6 @@
-﻿using WinsorApps.MAUI.Shared;
+﻿using AsyncAwaitBestPractices;
+using WinsorApps.MAUI.CDRE.ViewModels;
+using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.Pages;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Global.Services;
@@ -19,8 +21,23 @@ namespace WinsorApps.MAUI.CDRE
               new(cdres, "Recurring Events")
             ])
             {
-                Completion = [
-                    ]
+
+                #region Service Post Init Tasks
+                // when the event service cache is updated, refresh the ViewModelCache as well.
+                Completion = 
+                [
+                    new(new(() =>
+                    {
+                        RecurringEventViewModel.Initialize(cdres, this.DefaultOnErrorAction()).SafeFireAndForget(e => e.LogException());
+                        cdres.OnCacheRefreshed +=
+                        (_, _) =>
+                        {
+                            RecurringEventViewModel.Initialize(cdres, this.DefaultOnErrorAction()).SafeFireAndForget(e => e.LogException());
+                        };
+                    }), "Loading Recurring Event Cache")
+                ]
+
+                #endregion // Post Init Tasks
             };
 
             BindingContext = vm;
@@ -32,9 +49,10 @@ namespace WinsorApps.MAUI.CDRE
             Navigation.PushAsync(loginPage);
 
             InitializeComponent();
+
         }
 
-        
+
     }
 
 }
