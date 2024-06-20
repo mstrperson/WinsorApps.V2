@@ -15,7 +15,6 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
 {
     public partial class RecurringEventViewModel :
         ObservableObject,
-        IEmptyViewModel<RecurringEventViewModel>,
         ICachedViewModel<RecurringEventViewModel, CycleDayRecurringEvent, CycleDayRecurringEventService>,
         ISelectable<RecurringEventViewModel>
     {
@@ -26,7 +25,7 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         // TODO:  Add More Observable Properties for all the relevant
         //        things for a CycleDayRecurringEvent
 
-        public RecurringEventViewModel()
+        private RecurringEventViewModel()
         {
             
         }
@@ -64,7 +63,7 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
                 Id = model.id,
                 // TODO: Initialize the rest of the ObservableProperties you add.
             };
-
+            ViewModelCache.Add(vm);
             return vm.Clone();
         }
 
