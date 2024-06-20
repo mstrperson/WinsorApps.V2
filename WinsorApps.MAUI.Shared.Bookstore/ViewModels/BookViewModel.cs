@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System.Collections.Concurrent;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Bookstore.Models;
 using WinsorApps.Services.Bookstore.Services;
@@ -8,7 +9,11 @@ using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.Shared.Bookstore.ViewModels;
 
-public partial class BookViewModel : ObservableObject, IErrorHandling, IEmptyViewModel<BookViewModel>
+public partial class BookViewModel :
+    ObservableObject, 
+    IErrorHandling, 
+    IEmptyViewModel<BookViewModel>, 
+    ICachedViewModel<BookViewModel, BookDetail, BookService>
 {
     public event EventHandler<BookViewModel>? Selected;
     public event EventHandler<ErrorRecord>? OnError;
@@ -28,13 +33,15 @@ public partial class BookViewModel : ObservableObject, IErrorHandling, IEmptyVie
 
     private BookDetail _book = new("", "", [], "", default, "", []);
 
+    public static ConcurrentBag<BookViewModel> ViewModelCache { get; private set; } = [];
+
     public BookViewModel()
     {
         // empty view model.
         isNew = true;
     }
 
-    public BookViewModel(BookDetail book)
+    private BookViewModel(BookDetail book)
     {
         isNew = string.IsNullOrEmpty(book.id);
         id = book.id;
@@ -62,14 +69,8 @@ public partial class BookViewModel : ObservableObject, IErrorHandling, IEmptyVie
     [RelayCommand]
     public async Task Save()
     {
-        BookService? bookService = ServiceHelper.GetService<BookService>();
-        LocalLoggingService? logging = ServiceHelper.GetService<LocalLoggingService>();
-        if (bookService is null)
-        {
-            logging?.LogMessage(LocalLoggingService.LogLevel.Warning, $"Failed to retrieve BookService while saving book {_book}");
-            OnError?.Invoke(this, new("Service Missing", "Unable to retrieve the Book Service for some reason..."));
-            return;
-        }
+        BookService bookService = ServiceHelper.GetService<BookService>();
+        LocalLoggingService logging = ServiceHelper.GetService<LocalLoggingService>();
 
         var data = GetUpdateDetails();
 
@@ -82,6 +83,9 @@ public partial class BookViewModel : ObservableObject, IErrorHandling, IEmptyVie
                 return;
             }
             _book = book.Value;
+
+            ViewModelCache.Add(new(_book));
+
             return;
         }
 
@@ -93,6 +97,13 @@ public partial class BookViewModel : ObservableObject, IErrorHandling, IEmptyVie
         }
 
         _book = updatedBook.Value;
+        var old = ViewModelCache.FirstOrDefault(vm => vm.Id == _book.id);
+        if (old is null)
+            ViewModelCache.Add(new(_book));
+        else
+        {
+            ViewModelCache = [ .. ViewModelCache.Except([old]), new(_book)];
+        }
     }
 
     [RelayCommand]
@@ -102,4 +113,33 @@ public partial class BookViewModel : ObservableObject, IErrorHandling, IEmptyVie
     [RelayCommand]
     public void Select() =>
         Selected?.Invoke(this, this);
+
+    public static List<BookViewModel> GetClonedViewModels(IEnumerable<BookDetail> models)
+    {
+        List<BookViewModel> result = [];
+        foreach (var model in models)
+            result.Add(Get(model));
+
+        return result;
+    }
+
+    public static async Task Initialize(BookService service, ErrorAction onError)
+    {
+        await service.WaitForInit(onError);
+
+        _ = GetClonedViewModels(service.BooksCache);
+    }
+
+    public static BookViewModel Get(BookDetail model)
+    {
+        var vm = ViewModelCache.FirstOrDefault(book => book.Id == model.id);
+        if (vm is null)
+        {
+            vm = new(model);
+            ViewModelCache.Add(vm);
+        }
+        return vm.Clone();
+    }
+
+    public BookViewModel Clone() => (BookViewModel)MemberwiseClone();
 }

@@ -23,7 +23,8 @@ public static class Extensions
     /// <param name="OnError"></param>
     /// <param name="sender"></param>
     /// <returns></returns>
-    public static ErrorAction DefaultBehavior(this EventHandler<ErrorRecord>? OnError, object? sender) => err => OnError?.Invoke(sender, err);
+    public static ErrorAction DefaultBehavior(this EventHandler<ErrorRecord>? OnError, object? sender) => 
+        err => OnError?.Invoke(sender, err);
 
     public static void Splash(this ContentPage parent, Func<SplashPageViewModel> pageGenerator)
     {
@@ -36,8 +37,11 @@ public static class Extensions
         if (err.type.Contains("Unauthorized"))
             return;
 
-        ServiceHelper.GetService<LocalLoggingService>().LogMessage(LocalLoggingService.LogLevel.Error,
-            err.type, err.error);
+        ServiceHelper
+            .GetService<LocalLoggingService>()
+            .LogMessage(LocalLoggingService.LogLevel.Error,
+                        err.type, err.error);
+
         SplashPageViewModel spvm = new(err.type, [err.error], TimeSpan.FromSeconds(30)) { IsCaptive = false };
         spvm.OnClose += (_, _) =>
         {
@@ -51,7 +55,8 @@ public static class Extensions
         parent.Navigation.PushAsync(page);
     }
 
-    public static ErrorAction DefaultOnErrorAction(this ContentPage parent, Action? onConfirmAction = null) => err => parent.PushErrorPage(err, onConfirmAction);
+    public static ErrorAction DefaultOnErrorAction(this ContentPage parent, Action? onConfirmAction = null) => 
+        err => parent.PushErrorPage(err, onConfirmAction);
 
     /// <summary>
     /// Pushes a SplashPage with the Error information provided from the Event.

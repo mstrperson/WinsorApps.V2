@@ -3,9 +3,88 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.Bookstore.ViewModels"
-             x:DataType="vm:BookViewModel"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             x:DataType="vm:BookSearchViewModel"
              x:Class="WinsorApps.MAUI.Shared.Bookstore.Pages.BookSearchPage">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
     <ContentPage.Content>
         
+        <ScrollView>
+            <VerticalStackLayout>
+                <Grid
+                    RowDefinitions="auto,auto,auto,auto"
+                    ColumnDefinitions="60,250">
+                    <CheckBox 
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        IsChecked="{Binding SearchByTitle}" />
+                    <Entry 
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        IsVisible="{Binding SearchByTitle}"
+                        Text="{Binding TitleSearch}"
+                        WidthRequest="250"/>
+
+                    <CheckBox 
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        IsChecked="{Binding SearchByAuthor}" />
+                    <Entry 
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        IsVisible="{Binding SearchByAuthor}"
+                        Text="{Binding AuthorSearch}"
+                        WidthRequest="250"/>
+
+                    <CheckBox 
+                        Grid.Row="2"
+                        Grid.Column="0"
+                        IsChecked="{Binding SearchByIsbn}" />
+                    <Entry 
+                        Grid.Row="2"
+                        Grid.Column="1"
+                        IsVisible="{Binding SearchByIsbn}"
+                        Text="{Binding IsbnSearch}"
+                        WidthRequest="250"/>
+
+                    <CheckBox 
+                        Grid.Row="3"
+                        Grid.Column="0"
+                        IsChecked="{Binding SearchByPublisher}" />
+                    <Entry 
+                        Grid.Row="3"
+                        Grid.Column="1"
+                        IsVisible="{Binding SearchByPublisher}"
+                        Text="{Binding PublisherSearch}"
+                        WidthRequest="250"/>
+                </Grid>
+                <Button 
+                    StyleClass="SearchButton"
+                    Text="Search Books"
+                    Command="{Binding SearchCommand}" />
+                <Button
+                    Text="Add a new Book"
+                    Clicked="Button_Clicked" />
+                <CollectionView
+                    ItemsSource="{Binding Options}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:BookViewModel">
+                            <HorizontalStackLayout>
+                                <HorizontalStackLayout.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                </HorizontalStackLayout.GestureRecognizers>
+                                <Label Text="{Binding Title}" />
+                                <Label Text="{Binding AuthorList}" />
+                                <Label Text="{Binding Publisher}" />
+                            </HorizontalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
     </ContentPage.Content>
 </ContentPage>
