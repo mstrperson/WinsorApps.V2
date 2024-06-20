@@ -86,7 +86,7 @@ public readonly record struct TeacherBookOrderDetail(
 
 public readonly record struct CreateOptionGroup(ImmutableArray<string> isbns, string optionId);
 
-public readonly record struct TeacherBookOrderGroup(string option, ImmutableArray<string> isbns);
+public readonly record struct TeacherBookOrderGroup(string id, string option, ImmutableArray<TeacherBookRequest> isbns);
 
 public readonly record struct CreateTeacherBookOrder(
     ImmutableArray<string> isbns,
@@ -94,3 +94,8 @@ public readonly record struct CreateTeacherBookOrder(
     bool fall,
     bool spring,
     string optionId = "");
+
+
+
+public readonly record struct CreateTeacherBookRequest(string isbn, int quantity, bool fall, bool spring);
+public readonly record struct CreateTeacherBookOrderGroup(ImmutableArray<CreateTeacherBookRequest> isbns, string optionId = "");
