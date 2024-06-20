@@ -22,8 +22,8 @@
             Padding="0">
                 <Label Text="Hello, "/>
                 <Label
-                Text="{Binding UserVM.DisplayName}"
-                StyleClass="Header"/>
+                    Text="{Binding UserVM.DisplayName}"
+                    StyleClass="Header"/>
             </VerticalStackLayout>
             <CollectionView ItemsSource="{Binding PostLoginServices}">
                 <CollectionView.ItemTemplate>
