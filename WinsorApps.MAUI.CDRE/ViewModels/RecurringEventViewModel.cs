@@ -90,6 +90,7 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         /// </summary>
         /// <returns></returns>
         public RecurringEventViewModel Clone() => (RecurringEventViewModel)MemberwiseClone();
+        #endregion // ICachedViewModel
 
     }
 }
