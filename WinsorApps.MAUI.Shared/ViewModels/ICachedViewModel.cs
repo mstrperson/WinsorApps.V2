@@ -9,22 +9,20 @@ using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.Shared.ViewModels
 {
-    public interface ICachedViewModel<T, TModel, TService> 
-        where T : ObservableObject 
+    public interface ICachedViewModel<TViewModel, TModel, TService> 
+        where TViewModel : ObservableObject
         where TModel : notnull
         where TService : IAsyncInitService
     {
 
-        public abstract static ConcurrentBag<T> ViewModelCache { get; }
+        public abstract static ConcurrentBag<TViewModel> ViewModelCache { get; }
 
-        public abstract static List<T> GetClonedViewModels(IEnumerable<TModel> models);
+        public abstract static List<TViewModel> GetClonedViewModels(IEnumerable<TModel> models);
 
         public abstract static Task Initialize(TService service, ErrorAction onError);
 
-        public abstract static T Get(TModel model);
+        public abstract static TViewModel Get(TModel model);
 
-        public T Clone();
-
-        
+        public TViewModel Clone();        
     }
 }

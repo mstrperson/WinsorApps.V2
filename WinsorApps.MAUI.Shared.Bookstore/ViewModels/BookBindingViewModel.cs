@@ -1,4 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using System.Collections.Concurrent;
+using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Bookstore.Models;
 using WinsorApps.Services.Bookstore.Services;
 using WinsorApps.Services.Global.Services;
@@ -40,4 +42,56 @@ public partial class BookBindingViewModel :
 
         _binding = temp;
     }
+}
+
+public partial class BookOrderOptionViewModel :
+    ObservableObject,
+    ICachedViewModel<BookOrderOptionViewModel, OrderOption, BookService>,
+    IDefaultValueViewModel<BookOrderOptionViewModel>
+{
+    [ObservableProperty] string id = "";
+    [ObservableProperty] string label = "";
+    [ObservableProperty] string description = "";
+
+    public static ConcurrentBag<BookOrderOptionViewModel> ViewModelCache { get; private set; } = [];
+    private static BookService BookService => ServiceHelper.GetService<BookService>();
+    public static BookOrderOptionViewModel Default => Get(BookService.OrderOptions.First());
+
+    public static BookOrderOptionViewModel Get(string option)
+    {
+        var orderOption = BookService.OrderOptions.FirstOrDefault(opt => opt.label.Equals(option, StringComparison.InvariantCultureIgnoreCase));
+        if (string.IsNullOrEmpty(orderOption.id))
+            return Default;
+        return Get(orderOption);
+    }
+
+    public static BookOrderOptionViewModel Get(OrderOption model)
+    {
+        var vm = ViewModelCache.FirstOrDefault(opt => opt.Id == model.id);
+        if(vm is null)
+        {
+            vm = new() { Id = model.id, Description = model.description, Label = model.label };
+            ViewModelCache.Add(vm);
+        }
+        return vm.Clone();
+    }
+
+    public static List<BookOrderOptionViewModel> GetClonedViewModels(IEnumerable<OrderOption> models)
+    { 
+        List<BookOrderOptionViewModel> result = [];
+
+        foreach(var model in models)
+            result.Add(Get(model));
+
+        return result;
+    }
+
+    public static async Task Initialize(BookService service, ErrorAction onError)
+    {
+        await service.WaitForInit(onError);
+
+        _ = GetClonedViewModels(service.OrderOptions);
+    }
+
+    public BookOrderOptionViewModel Clone() => (BookOrderOptionViewModel)MemberwiseClone();
 }

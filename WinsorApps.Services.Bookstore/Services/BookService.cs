@@ -15,6 +15,8 @@ public class BookService : IAsyncInitService
         _api = api;
     }
 
+
+
     public async Task Initialize(ErrorAction onError)
     {
         if (Ready) { return; }
@@ -23,12 +25,23 @@ public class BookService : IAsyncInitService
         
         Started = true;
 
+        var orderOptionTask = _api.SendAsync<ImmutableArray<OrderOption>>(HttpMethod.Get,
+            "api/book-orders/order-options", onError: onError);
+        orderOptionTask.WhenCompleted(() =>
+        {
+            if (orderOptionTask.IsCompletedSuccessfully)
+            {
+                OrderOptions = orderOptionTask.Result;
+                Progress += 0.33;
+            }
+        });
+
         var bindingTask = _api.SendAsync<ImmutableArray<BookBinding>>(HttpMethod.Get,
             "api/books/list-bindings", onError: onError);
         bindingTask.WhenCompleted(() =>
         {
             _bookBindings = bindingTask.Result;
-            Progress += 0.5;
+            Progress += 0.33;
             _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Loaded {_bookBindings.Value.Length} book Bindings");
         });
 
@@ -38,16 +51,20 @@ public class BookService : IAsyncInitService
         bookCache.WhenCompleted(() =>
         {
             _bookCache = bookCache.Result;
-            Progress += 0.5;
+            Progress += 0.33;
             _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Loaded {_bookCache?.Count ?? 0} Books");
         });
 
-        await Task.WhenAll(bookCache, bindingTask);
 
+        
+        await Task.WhenAll(bookCache, bindingTask);
+        Progress = 1;
         Ready = true;
     }
 
     public bool Ready { get; private set; } = false;
+
+    public ImmutableArray<OrderOption> OrderOptions { get; private set; } = [];
 
     private List<BookDetail>? _bookCache;
 

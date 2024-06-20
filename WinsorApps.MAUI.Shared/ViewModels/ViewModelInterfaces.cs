@@ -17,6 +17,16 @@ public interface IEmptyViewModel<T> where T : ObservableObject, new()
     public static T CreateBlank() => new();
 }
 
+public interface IBusyViewModel
+{
+    public bool Busy { get; }
+    public string BusyMessage { get; }
+}
+
+public interface IDefaultValueViewModel<T> where T: ObservableObject
+{
+    public static abstract T Default { get; }
+}
 public interface ISelectable<T> where T : ObservableObject
 {
     public event EventHandler<T>? Selected;

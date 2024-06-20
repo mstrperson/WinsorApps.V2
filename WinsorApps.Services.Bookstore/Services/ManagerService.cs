@@ -108,6 +108,12 @@ public class BookstoreManagerService :
         return result;
     }
 
+    public async Task<ImmutableArray<TeacherBookOrderGroup>> GetGroupedOrders(string sectionId, ErrorAction onError)
+    {
+        var result = await _api.SendAsync<ImmutableArray<TeacherBookOrderGroup>>(HttpMethod.Get, $"api/book-orders/teachers/{sectionId}/groups", onError: onError);
+        return result;
+    }
+
     public async Task DeleteSection(string sectionId, ErrorAction onError)
     {
         bool error = false;
@@ -176,7 +182,38 @@ public class BookstoreManagerService :
         OrdersByTeacher[teacherId].Add(orderDetail);
         return orderDetail;
     }
+    public async Task<TeacherBookOrderDetail?> CreateOrUpdateBookOrder(
+        string teacherId, string sectionId, CreateTeacherBookOrderGroup order, ErrorAction onError, bool update = false)
+    {
+        var result = await _api.SendAsync<CreateTeacherBookOrderGroup, TeacherBookOrder?>(
+            update ? HttpMethod.Put : HttpMethod.Post,
+            $"api/book-orders/teachers/{sectionId}/group", order, onError: onError);
 
+        if (!result.HasValue)
+            return null;
+
+
+        if (!SectionsByTeacher.ContainsKey(teacherId) || !SectionsByTeacher[teacherId].Any(sec => sec.id == sectionId))
+        {
+            onError(new("Unreachable Error", "Something went wrong... you shouldn't be able to see this message...  Please submit your logs on the Help Page."));
+            _logging.LogMessage(LocalLoggingService.LogLevel.Debug,
+                $"Successfully submitted a new teacher book order, but I couldn't find data coresponding to teacher: {teacherId} and section: {sectionId} in the cache...");
+            return null;
+        }
+
+        var orderDetail = new TeacherBookOrderDetail(SectionsByTeacher[teacherId].First(sec => sec.id == sectionId), result.Value.books);
+        if (!OrdersByTeacher.ContainsKey(teacherId))
+        {
+            OrdersByTeacher[teacherId] = [orderDetail];
+            return orderDetail;
+        }
+
+        if (OrdersByTeacher[teacherId].Any(ord => ord.section.id == sectionId))
+            OrdersByTeacher[teacherId].Remove(OrdersByTeacher[teacherId].First(ord => ord.section.id == sectionId));
+
+        OrdersByTeacher[teacherId].Add(orderDetail);
+        return orderDetail;
+    }
     public async Task<ImmutableArray<TeacherBookOrderCollection>> GetOrdersByDepartment(string department, ErrorAction onError, bool updateCache = false)
     {
         if (updateCache)
