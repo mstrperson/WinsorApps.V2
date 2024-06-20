@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 
@@ -105,36 +106,56 @@ public partial class CourseViewModel :
 
 public partial class CourseListViewModel :
     ObservableObject,
-    ICachedSearchViewModel<CourseListViewModel>,
-    IEmptyViewModel<CourseListViewModel>
+    ICachedSearchViewModel<CourseViewModel>,
+    IEmptyViewModel<CourseListViewModel>,
+    IErrorHandling
 {
-    public ImmutableArray<CourseListViewModel> Available { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-    public ImmutableArray<CourseListViewModel> AllSelected { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-    public ImmutableArray<CourseListViewModel> Options { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-    public CourseListViewModel Selected { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-    public SelectionMode SelectionMode { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-    public string SearchText { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-    public bool IsSelected { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-    public bool ShowOptions { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-    public event EventHandler<ImmutableArray<CourseListViewModel>>? OnMultipleResult;
-    public event EventHandler<CourseListViewModel>? OnSingleResult;
+    private readonly RegistrarService _registrar = ServiceHelper.GetService<RegistrarService>();
+
+    [ObservableProperty]
+    private ImmutableArray<CourseViewModel> available = [];
+
+    [ObservableProperty]
+    private ImmutableArray<CourseViewModel> allSelected = [];
+
+    [ObservableProperty]
+    private ImmutableArray<CourseViewModel> options = [];
+
+    [ObservableProperty]
+    private CourseViewModel selected = IEmptyViewModel<CourseViewModel>.Empty;
+    [ObservableProperty]
+    private SelectionMode selectionMode = SelectionMode.Single;
+    [ObservableProperty]
+    private string searchText = "";
+    [ObservableProperty]
+    private bool isSelected;
+    [ObservableProperty]
+    private bool showOptions;
+
+    public event EventHandler<ImmutableArray<CourseViewModel>>? OnMultipleResult;
+    public event EventHandler<CourseViewModel>? OnSingleResult;
     public event EventHandler? OnZeroResults;
+    public event EventHandler<ErrorRecord>? OnError;
 
+    public CourseListViewModel()
+    {
+        _registrar.WaitForInit(OnError.DefaultBehavior(this)).WhenCompleted(() =>
+        {
+            Available = CourseViewModel.GetClonedViewModels(_registrar.CourseList).ToImmutableArray();
+        });
+    }
+
+    [RelayCommand]
     public void Search()
     {
-        throw new NotImplementedException();
     }
 
-    public void Select(CourseListViewModel item)
+    public void Select(CourseViewModel item)
     {
-        throw new NotImplementedException();
     }
 
-    Task IAsyncSearchViewModel<CourseListViewModel>.Search()
-    {
-        throw new NotImplementedException();
-    }
+    async Task IAsyncSearchViewModel<CourseViewModel>.Search() => await Task.Run(Search);
 }
 
 
