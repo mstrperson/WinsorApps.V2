@@ -9,9 +9,9 @@ public partial class EventsListPage : ContentPage
 	{
         vm.CreateRequested += Vm_CreateRequested;
         vm.OnError += this.DefaultOnErrorHandler();
-        BindingContext = vm;
 		InitializeComponent();
-	}
+        BindingContext = vm;
+    }
 
     private void Vm_CreateRequested(object? sender, RecurringEventViewModel e)
     {

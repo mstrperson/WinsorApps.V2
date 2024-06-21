@@ -12,6 +12,7 @@
                      Glyph={x:Static styles:FontAwesomeSolid.SyncAlt}}"
                      Command="{Binding CreateCommand}"/>
     </ContentPage.ToolbarItems>
+    <ContentPage.Content>
     <ScrollView>
         <VerticalStackLayout
             HorizontalOptions="Center">
@@ -67,5 +68,6 @@
             </HorizontalStackLayout>
             
         </VerticalStackLayout>
-    </ScrollView>
+      </ScrollView>
+    </ContentPage.Content>
 </ContentPage>

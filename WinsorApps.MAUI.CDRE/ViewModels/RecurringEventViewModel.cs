@@ -20,7 +20,7 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
     {
         private readonly CycleDayRecurringEventService _eventService = ServiceHelper.GetService<CycleDayRecurringEventService>();
 
-        [ObservableProperty] ImmutableArray<RecurringEventViewModel> events;
+        [ObservableProperty] ImmutableArray<RecurringEventViewModel> events = [];
         public event EventHandler<RecurringEventViewModel>? CreateRequested;
         public event EventHandler<ErrorRecord>? OnError;
 
