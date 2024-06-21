@@ -27,7 +27,8 @@
                     <DataTemplate x:DataType="svm:SelectableLabelViewModel">
                         <HorizontalStackLayout>
                             <Label Text="{Binding Label}" 
-                               FontSize="Small" />
+                               FontSize="Small" 
+                               TextColor="White"/>
                             <CheckBox IsChecked="{Binding IsSelected}"/>
                         </HorizontalStackLayout>
                         
