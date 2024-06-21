@@ -11,6 +11,7 @@ using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.EventForms.Services;
 using WinsorApps.Services.Global;
+using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.Shared.EventForms.ViewModels;
@@ -73,7 +74,8 @@ public partial class CateringEventViewModel :
 public partial class CateringMenuSelectionViewModel : 
     ObservableObject,
     IEmptyViewModel<CateringMenuSelectionViewModel>,
-    ISelectable<CateringMenuSelectionViewModel>
+    ISelectable<CateringMenuSelectionViewModel>,
+    IErrorHandling
 {
     [ObservableProperty] CateringMenuItemViewModel item = IEmptyViewModel<CateringMenuItemViewModel>.Empty;
     [ObservableProperty] int quantity;
@@ -82,6 +84,7 @@ public partial class CateringMenuSelectionViewModel :
     [ObservableProperty] bool isSelected;
 
     public event EventHandler<CateringMenuSelectionViewModel>? Selected;
+    public event EventHandler<ErrorRecord>? OnError;
 
     public void Select()
     {
@@ -111,24 +114,37 @@ public partial class CateringMenuSelectionViewModel :
 
 public partial class CateringMenuViewModel :
     ObservableObject,
-    ICheckBoxListViewModel<CateringMenuSelectionViewModel>
+    ICheckBoxListViewModel<CateringMenuSelectionViewModel>,
+    IErrorHandling
 {
     [ObservableProperty] string title = "";
     [ObservableProperty] ImmutableArray<CateringMenuSelectionViewModel> items = [];
     [ObservableProperty] bool isFieldTrip;
     [ObservableProperty] bool isDeleted;
 
-    public static CateringMenuViewModel Create(CateringMenuCategory category) => new()
+    public event EventHandler<ErrorRecord>? OnError;
+
+    public static CateringMenuViewModel Create(CateringMenuCategory category)
     {
-        Title = category.name,
-        Items = [..
+        var vm = new CateringMenuViewModel()
+        {
+            Title = category.name,
+            Items = [..
             CateringMenuItemViewModel
-            .GetClonedViewModels(category.items)
-            .Select(CateringMenuSelectionViewModel.Create)
-        ],
-        IsFieldTrip = category.fieldTripCategory,
-        IsDeleted = category.isDeleted
-    };
+                .GetClonedViewModels(category.items)
+                .Select(CateringMenuSelectionViewModel.Create)
+            ],
+            IsFieldTrip = category.fieldTripCategory,
+            IsDeleted = category.isDeleted
+        };
+
+        foreach(var item in vm.Items)
+        {
+            item.OnError += (sender, e) => vm.OnError?.Invoke(sender, e);
+        }
+
+        return vm;
+    }
 
     public void LoadSelections(IEnumerable<CateringMenuSelection> selections)
     {
@@ -150,7 +166,6 @@ public partial class CateringMenuViewModel :
             var vm = Items.FirstOrDefault(it => it.Item.Id == sel.item.id);
             if (vm is null)
                 continue;
-
             vm.Quantity = sel.quantity;
             vm.Cost = sel.quantity * vm.Item.PricePerPerson;
         }
@@ -158,9 +173,25 @@ public partial class CateringMenuViewModel :
 }
 
 public partial class CateringMenuCollectionViewModel :
-    ObservableObject
+    ObservableObject,
+    IErrorHandling
 {
+    private readonly CateringMenuService _service;
     [ObservableProperty] ImmutableArray<CateringMenuViewModel> menus;
+
+    public CateringMenuCollectionViewModel(CateringMenuService service)
+    {
+        _service = service;
+        var task = _service.WaitForInit(OnError.DefaultBehavior(this));
+        task.WhenCompleted(() =>
+        {
+            Menus = _service.MenuCategories.Select(cat => CateringMenuViewModel.Create(cat)).ToImmutableArray();
+            foreach (var menu in Menus)
+                menu.OnError += (sender, e) => OnError?.Invoke(sender, e);
+        });
+    }
+
+    public event EventHandler<ErrorRecord>? OnError;
 }
 
 public partial class CateringMenuItemViewModel : 
