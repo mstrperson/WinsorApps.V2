@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls.PlatformConfiguration.TizenSpecific;
 using System;
 using System.Collections.Concurrent;
@@ -15,12 +16,41 @@ using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.CDRE.ViewModels
 {
+    public partial class EventListViewModel: ObservableObject, IErrorHandling
+    {
+        private readonly CycleDayRecurringEventService _eventService = ServiceHelper.GetService<CycleDayRecurringEventService>();
+
+        [ObservableProperty] ImmutableArray<RecurringEventViewModel> events;
+        public event EventHandler<RecurringEventViewModel>? CreateRequested;
+        public event EventHandler<ErrorRecord>? OnError;
+
+        [ObservableProperty] bool isBusy;
+
+        [RelayCommand]
+        public void LoadEvents()
+        {
+            IsBusy = true;
+            Events = RecurringEventViewModel.GetClonedViewModels(_eventService.RecurringEvents).ToImmutableArray();
+            foreach (var evt in Events)
+            {
+                evt.OnError += (sender, e) => OnError?.Invoke(sender, e);
+            }
+            IsBusy = false;
+        }
+
+        [RelayCommand]
+        public void Create()
+        {
+            CreateRequested?.Invoke(this, RecurringEventViewModel.Default);
+        }
+    }
     public partial class RecurringEventViewModel :
         ObservableObject,
         ICachedViewModel<RecurringEventViewModel, CycleDayRecurringEvent, CycleDayRecurringEventService>,
         ISelectable<RecurringEventViewModel>,
         IDefaultValueViewModel<RecurringEventViewModel>,
-        IErrorHandling
+        IErrorHandling,
+        IEmptyViewModel<RecurringEventViewModel>
     {
         private readonly CycleDayRecurringEventService _eventService = ServiceHelper.GetService<CycleDayRecurringEventService>();
 
@@ -37,15 +67,18 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         [ObservableProperty] ImmutableArray<string> cycleDays;
         [ObservableProperty] int frequency;
         [ObservableProperty] bool isPublic;
+        
         public int Duration => (int)(EndTime - StartTime).TotalMinutes;
 
         // TODO:  Add More Observable Properties for all the relevant
         //        things for a CycleDayRecurringEvent
 
-        private RecurringEventViewModel()
+        public RecurringEventViewModel()
         {
             
         }
+
+        
 
         [RelayCommand]
         public async Task Submit()

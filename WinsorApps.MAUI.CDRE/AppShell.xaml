@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:shared="clr-namespace:WinsorApps.MAUI.Shared.Pages;assembly=WinsorApps.MAUI.Shared"
     xmlns:local="clr-namespace:WinsorApps.MAUI.CDRE"
+    xmlns:pages="clr-namespace:WinsorApps.MAUI.CDRE.Pages"
     Shell.FlyoutBehavior="Flyout"
     Title="WinsorApps.MAUI.CDRE">
 
@@ -12,6 +13,10 @@
         Title="Home"
         ContentTemplate="{DataTemplate local:MainPage}"
         Route="MainPage" />
+    <ShellContent
+     Title="Recurring Events Tool"
+     ContentTemplate="{DataTemplate pages:EventsListPage}"
+     Route="EventListPage"/>
     <ShellContent
         Title="Help"
         ContentTemplate="{DataTemplate shared:HelpPage}"
