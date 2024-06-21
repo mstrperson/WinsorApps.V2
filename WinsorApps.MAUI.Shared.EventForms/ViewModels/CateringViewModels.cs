@@ -72,11 +72,25 @@ public partial class CateringEventViewModel :
 
 public partial class CateringMenuSelectionViewModel : 
     ObservableObject,
-    IEmptyViewModel<CateringMenuSelectionViewModel>
+    IEmptyViewModel<CateringMenuSelectionViewModel>,
+    ISelectable<CateringMenuSelectionViewModel>
 {
     [ObservableProperty] CateringMenuItemViewModel item = IEmptyViewModel<CateringMenuItemViewModel>.Empty;
     [ObservableProperty] int quantity;
     [ObservableProperty] double cost;
+
+    [ObservableProperty] bool isSelected;
+
+    public event EventHandler<CateringMenuSelectionViewModel>? Selected;
+
+    public void Select()
+    {
+        IsSelected = !IsSelected;
+        if (IsSelected)
+            Selected?.Invoke(this, this);
+    }
+
+    public static CateringMenuSelectionViewModel Create(CateringMenuItemViewModel item) => new() { Item = item };  
 
     public static implicit operator CateringMenuSelectionViewModel(DetailedCateringMenuSelection detail) => new() 
     { 
@@ -93,6 +107,60 @@ public partial class CateringMenuSelectionViewModel :
 
         return new() { Item = item, Quantity = selection.quantity, Cost = selection.quantity * item.PricePerPerson };
     }
+}
+
+public partial class CateringMenuViewModel :
+    ObservableObject,
+    ICheckBoxListViewModel<CateringMenuSelectionViewModel>
+{
+    [ObservableProperty] string title = "";
+    [ObservableProperty] ImmutableArray<CateringMenuSelectionViewModel> items = [];
+    [ObservableProperty] bool isFieldTrip;
+    [ObservableProperty] bool isDeleted;
+
+    public static CateringMenuViewModel Create(CateringMenuCategory category) => new()
+    {
+        Title = category.name,
+        Items = [..
+            CateringMenuItemViewModel
+            .GetClonedViewModels(category.items)
+            .Select(CateringMenuSelectionViewModel.Create)
+        ],
+        IsFieldTrip = category.fieldTripCategory,
+        IsDeleted = category.isDeleted
+    };
+
+    public void LoadSelections(IEnumerable<CateringMenuSelection> selections)
+    {
+        foreach(var sel in selections)
+        {
+            var vm = Items.FirstOrDefault(it => it.Item.Id == sel.itemId);
+            if (vm is null)
+                continue;
+
+            vm.Quantity = sel.quantity;
+            vm.Cost = sel.quantity * vm.Item.PricePerPerson;
+        }
+    }
+
+    public void LoadSelections(IEnumerable<DetailedCateringMenuSelection> selections)
+    {
+        foreach (var sel in selections)
+        {
+            var vm = Items.FirstOrDefault(it => it.Item.Id == sel.item.id);
+            if (vm is null)
+                continue;
+
+            vm.Quantity = sel.quantity;
+            vm.Cost = sel.quantity * vm.Item.PricePerPerson;
+        }
+    }
+}
+
+public partial class CateringMenuCollectionViewModel :
+    ObservableObject
+{
+    [ObservableProperty] ImmutableArray<CateringMenuViewModel> menus;
 }
 
 public partial class CateringMenuItemViewModel : 

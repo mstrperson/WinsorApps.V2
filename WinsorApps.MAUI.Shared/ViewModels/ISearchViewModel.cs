@@ -17,7 +17,7 @@ public interface IMultiModalSearch<T> where T : ObservableObject
     Func<T, bool> SearchFilter { get; }
 }
 
-public interface ICachedSearchViewModel<T> : IAsyncSearchViewModel<T> where T : ObservableObject, IEmptyViewModel<T>, new()
+public interface ICachedSearchViewModel<T> : IAsyncSearchViewModel<T> where T : ObservableObject, IDefaultValueViewModel<T>, new()
 {
     public ImmutableArray<T> Available { get; set; }
     
@@ -25,7 +25,7 @@ public interface ICachedSearchViewModel<T> : IAsyncSearchViewModel<T> where T : 
     new public void Search();
 }
 
-public interface IAsyncSearchViewModel<T> where T : ObservableObject, IEmptyViewModel<T>, new()
+public interface IAsyncSearchViewModel<T> where T : ObservableObject, IDefaultValueViewModel<T>, new()
 {
     public ImmutableArray<T> AllSelected { get; set; }
 

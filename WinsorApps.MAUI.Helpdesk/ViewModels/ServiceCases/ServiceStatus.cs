@@ -13,7 +13,11 @@ using WinsorApps.Services.Helpdesk.Services;
 
 namespace WinsorApps.MAUI.Helpdesk.ViewModels.ServiceCases;
 
-public partial class ServiceStatusViewModel : ObservableObject, ISelectable<ServiceStatusViewModel>, IEmptyViewModel<ServiceStatusViewModel>
+public partial class ServiceStatusViewModel : 
+    ObservableObject, 
+    ISelectable<ServiceStatusViewModel>, 
+    IEmptyViewModel<ServiceStatusViewModel>, 
+    IDefaultValueViewModel<ServiceStatusViewModel>
 {
     [ObservableProperty] string id = "";
     [ObservableProperty] string status = "";
@@ -21,6 +25,8 @@ public partial class ServiceStatusViewModel : ObservableObject, ISelectable<Serv
     [ObservableProperty] string nextId = "";
     [ObservableProperty] ServiceStatusViewModel next = IEmptyViewModel<ServiceStatusViewModel>.Empty;
     [ObservableProperty] bool isSelected;
+
+    public static ServiceStatusViewModel Default => new();
 
     public event EventHandler<ServiceStatusViewModel>? Selected;
 
