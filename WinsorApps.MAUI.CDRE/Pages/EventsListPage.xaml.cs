@@ -5,11 +5,11 @@ namespace WinsorApps.MAUI.CDRE.Pages;
 
 public partial class EventsListPage : ContentPage
 {
-	public EventsListPage()
+	public EventsListPage(EventListViewModel vm)
 	{
-		var vm = new EventListViewModel();
         vm.CreateRequested += Vm_CreateRequested;
         vm.OnError += this.DefaultOnErrorHandler();
+        BindingContext = vm;
 		InitializeComponent();
 	}
 

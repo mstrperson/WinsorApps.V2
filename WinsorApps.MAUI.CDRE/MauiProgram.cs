@@ -4,6 +4,8 @@ using WinsorApps.Services.Global;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.Services.Global.Services;
 using AsyncAwaitBestPractices;
+using WinsorApps.MAUI.CDRE.Pages;
+using WinsorApps.MAUI.CDRE.ViewModels;
 
 namespace WinsorApps.MAUI.CDRE
 {
@@ -27,6 +29,8 @@ namespace WinsorApps.MAUI.CDRE
 
             builder.Services.AddSingleton<CycleDayRecurringEventService>();
             builder.Services.AddSingleton<MainPage>();
+            builder.Services.AddSingleton<EventListViewModel>();
+            builder.Services.AddSingleton<EventsListPage>();
 
 #if DEBUG
     		builder.Logging.AddDebug();
