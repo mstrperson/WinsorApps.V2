@@ -20,20 +20,25 @@
                 Margin="0" 
                 Placeholder="Description (Optional)"
                 PlaceholderColor="{DynamicResource DarkBlue}"/>
-            <ListView ItemsSource="{Binding CycleDays}"
+
+            <CollectionView ItemsSource="{Binding CycleDays.Items}"
                            
-                            Header="Cycle Day(s)">
-                <ListView.ItemTemplate>
+                            Header="Cycle Day(s)" FlowDirection="LeftToRight">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Horizontal" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="svm:SelectableLabelViewModel">
-                        <HorizontalStackLayout>
+                        <HorizontalStackLayout
+                            WidthRequest="150"
+                            BackgroundColor="White">
                             <Label Text="{Binding Label}" 
                                FontSize="Small" />
                             <CheckBox IsChecked="{Binding IsSelected}"/>
                         </HorizontalStackLayout>
-                        
                     </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
 
             <StackLayout Orientation="Horizontal">
                 <Button Text="Save" Command="{Binding SubmitCommand}" HorizontalOptions="End" Margin="0"></Button>

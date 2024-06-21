@@ -15,7 +15,7 @@ public partial class EventsListPage : ContentPage
 
     private void Vm_CreateRequested(object? sender, RecurringEventViewModel e)
     {
-        Editor editor = new Editor() { BindingContext = e };
+        Editor editor = new Editor(e);
         Navigation.PushAsync(editor);
     }
 }
