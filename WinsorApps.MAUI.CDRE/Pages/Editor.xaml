@@ -29,9 +29,7 @@
                 </CollectionView.ItemsLayout>
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="svm:SelectableLabelViewModel">
-                        <HorizontalStackLayout
-                            WidthRequest="150"
-                            BackgroundColor="White">
+                        <HorizontalStackLayout>
                             <Label Text="{Binding Label}" 
                                FontSize="Small" />
                             <CheckBox IsChecked="{Binding IsSelected}"/>
