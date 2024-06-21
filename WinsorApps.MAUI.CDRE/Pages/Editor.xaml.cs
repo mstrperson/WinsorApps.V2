@@ -5,5 +5,6 @@ public partial class Editor : ContentPage
 	public Editor()
 	{
 		InitializeComponent();
+
 	}
 }

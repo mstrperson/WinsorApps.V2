@@ -10,7 +10,7 @@
         <ToolbarItem Text="Refresh"
                      IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=White,
                      Glyph={x:Static styles:FontAwesomeSolid.SyncAlt}}"
-                     Command="{Binding CreateCommand}"/>
+                     Command="{Binding LoadEventsCommand}"/>
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
     <ScrollView>

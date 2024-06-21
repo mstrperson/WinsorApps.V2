@@ -2,13 +2,42 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:WinsorApps.MAUI.CDRE.ViewModels"
+             xmlns:svm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels;assembly=WinsorApps.MAUI.Shared"
              x:DataType="vm:RecurringEventViewModel"
              x:Class="WinsorApps.MAUI.CDRE.Pages.Editor"
              Title="Create A New Event">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+    <ContentPage.Content>
+        <StackLayout Spacing="3" Padding="15">
+            <Entry
+                Text="{Binding Summary, Mode=TwoWay}" 
+                FontSize="Micro" 
+                Placeholder="Event Name"/>
+            <Editor 
+                Text="{Binding Description, Mode=TwoWay}" 
+                HeightRequest="90" 
+                AutoSize="TextChanges" 
+                FontSize="Micro" 
+                Margin="0" 
+                Placeholder="Description (Optional)"
+                PlaceholderColor="{DynamicResource DarkBlue}"/>
+            <ListView ItemsSource="{Binding CycleDays}"
+                           
+                            Header="Cycle Day(s)">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="svm:SelectableLabelViewModel">
+                        <HorizontalStackLayout>
+                            <Label Text="{Binding Label}" 
+                               FontSize="Small" />
+                            <CheckBox IsChecked="{Binding IsSelected}"/>
+                        </HorizontalStackLayout>
+                        
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+            <StackLayout Orientation="Horizontal">
+                <Button Text="Save" Command="{Binding SubmitCommand}" HorizontalOptions="End" Margin="0"></Button>
+            </StackLayout>
+        </StackLayout>
+    </ContentPage.Content>
 </ContentPage>

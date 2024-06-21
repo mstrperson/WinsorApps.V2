@@ -16,6 +16,34 @@ using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.CDRE.ViewModels
 {
+    public partial class CycleDaySelectionViewModel : ObservableObject, ICheckBoxListViewModel<SelectableLabelViewModel>
+    {
+        [ObservableProperty]
+        private ImmutableArray<SelectableLabelViewModel> items = [];
+
+        public SelectableLabelViewModel? this[string cycleday]
+        {
+            get
+            {
+                foreach (var item in Items) { 
+                    if(item.Label == cycleday) return item;
+                }
+                return null;
+            }
+        }
+        public CycleDaySelectionViewModel()
+        {
+            items = [
+                new() {Label = "Day 1"},
+                new() {Label = "Day 2"},
+                new() {Label = "Day 3"},
+                new() {Label = "Day 4"},
+                new() {Label = "Day 5"},
+                new() {Label = "Day 6"}
+            ];
+        }
+    }
+
     public partial class EventListViewModel: ObservableObject, IErrorHandling
     {
         private readonly CycleDayRecurringEventService _eventService = ServiceHelper.GetService<CycleDayRecurringEventService>();
@@ -55,17 +83,17 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         private readonly CycleDayRecurringEventService _eventService = ServiceHelper.GetService<CycleDayRecurringEventService>();
 
         [ObservableProperty] string id = "";
-        [ObservableProperty] DateOnly beginning;
-        [ObservableProperty] DateOnly ending;
+        [ObservableProperty] DateOnly beginning = DateOnly.FromDateTime(DateTime.Today);
+        [ObservableProperty] DateOnly ending = DateOnly.FromDateTime(DateTime.Today);
         [ObservableProperty] string creatorId = "";
         [ObservableProperty] string summary = "";
         [ObservableProperty] string description = "";
-        [ObservableProperty] ImmutableArray<string> attendees;
+        [ObservableProperty] ImmutableArray<string> attendees = [];
         [ObservableProperty] bool allDay;
         [ObservableProperty] TimeOnly startTime;
         [ObservableProperty] TimeOnly endTime;
-        [ObservableProperty] ImmutableArray<string> cycleDays;
-        [ObservableProperty] int frequency;
+        [ObservableProperty] CycleDaySelectionViewModel cycleDays = new();
+        [ObservableProperty] int frequency = 1;
         [ObservableProperty] bool isPublic;
         
         public int Duration => (int)(EndTime - StartTime).TotalMinutes;
@@ -84,7 +112,7 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         public async Task Submit()
         {
             CreateRecurringEvent create = new CreateRecurringEvent
-                (Beginning, Ending, Summary, Description, Attendees, CycleDays, Frequency, IsPublic, AllDay, StartTime, Duration);
+                (Beginning, Ending, Summary, Description, Attendees, CycleDays.Items.Where(item => item.IsSelected).Select(item => item.Label).ToImmutableArray(), Frequency, IsPublic, AllDay, StartTime, Duration);
             if (string.IsNullOrEmpty(Id))
             {
                 var result = await _eventService.CreateNewEvent(create, OnError.DefaultBehavior(this));
@@ -140,13 +168,21 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
                 AllDay=model.allDay,
                 StartTime=model.time,
                 EndTime=model.time.AddMinutes(model.duration),
-                CycleDays=model.cycleDays,
+                CycleDays=new (),
                 Frequency=model.frequency,
                 IsPublic=model.isPublic,
 
 
                 // TODO: Initialize the rest of the ObservableProperties you add.
             };
+            foreach (var cycleday in model.cycleDays)
+            {
+                if (vm.CycleDays[cycleday] is not null)
+                {
+                    vm.CycleDays[cycleday]!.IsSelected = true;
+                }
+               
+            }
             ViewModelCache.Add(vm);
             return vm.Clone();
         }
