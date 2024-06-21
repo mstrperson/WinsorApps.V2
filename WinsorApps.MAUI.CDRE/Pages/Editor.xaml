@@ -22,8 +22,18 @@
                 PlaceholderColor="{DynamicResource DarkBlue}"/>
 
             <CollectionView ItemsSource="{Binding CycleDays.Items}"
-                           
-                            Header="Cycle Day(s)" FlowDirection="LeftToRight">
+                            FlowDirection="LeftToRight" 
+                            Margin="0">
+
+                <CollectionView.Header>
+                    <HorizontalStackLayout Spacing="3" Padding="15">
+                        <Label 
+                            Text="Cycle Day(s)"
+                               FontSize="Micro"/>
+                    </HorizontalStackLayout>
+                </CollectionView.Header>
+
+                
                 <CollectionView.ItemsLayout>
                     <LinearItemsLayout Orientation="Horizontal" />
                 </CollectionView.ItemsLayout>
@@ -32,15 +42,20 @@
                         <HorizontalStackLayout>
                             <Label Text="{Binding Label}" 
                                FontSize="Small" 
-                               TextColor="White"/>
-                            <CheckBox IsChecked="{Binding IsSelected}"/>
+                               TextColor="White" />
+                            <CheckBox IsChecked="{Binding IsSelected}" />
                         </HorizontalStackLayout>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
             <StackLayout Orientation="Horizontal">
-                <Button Text="Save" Command="{Binding SubmitCommand}" HorizontalOptions="End" Margin="0"></Button>
+                <Button 
+                    Text="Save" 
+                    Command="{Binding SubmitCommand}"
+                    HorizontalOptions="End"
+                    VerticalOptions="End"
+                    Margin="0"></Button>
             </StackLayout>
         </StackLayout>
     </ContentPage.Content>
