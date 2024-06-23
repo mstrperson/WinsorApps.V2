@@ -21,8 +21,7 @@ namespace WinsorApps.MAUI.Shared.EventForms.ViewModels;
 
 public partial class CateringEventViewModel :
     ObservableObject,
-    IEmptyViewModel<CateringEventViewModel>,
-    ICachedViewModel<CateringEventViewModel, CateringEvent, EventFormsService>,
+    IDefaultValueViewModel<CateringEventViewModel>,
     IEventSubFormViewModel,
     IBusyViewModel,
     IErrorHandling
@@ -39,8 +38,7 @@ public partial class CateringEventViewModel :
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "Working";
 
-    public static ConcurrentBag<CateringEventViewModel> ViewModelCache { get; protected set; } = [];
-
+    public static CateringEventViewModel Default => new();
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler? ReadyToContinue;
@@ -48,9 +46,7 @@ public partial class CateringEventViewModel :
 
     public static CateringEventViewModel Get(CateringEvent model)
     {
-        var vm = ViewModelCache.FirstOrDefault(evt => evt.Id == model.id);
-        if (vm is not null) return vm.Clone();
-        vm = new CateringEventViewModel()
+        var vm = new CateringEventViewModel()
         {
             Id = model.id,
             ServersNeeded = model.servers,
@@ -60,30 +56,9 @@ public partial class CateringEventViewModel :
 
         vm.BudgetCodeSearch.Select(BudgetCodeViewModel.Get(model.budgetCode));
         vm.Menu.LoadMenuSelections(model.menuSelections);
-        ViewModelCache.Add(vm);
 
-        return vm.Clone();
+        return vm;
     }
-
-    public static List<CateringEventViewModel> GetClonedViewModels(IEnumerable<CateringEvent> models)
-    {
-        List<CateringEventViewModel> result = [];
-        foreach (var model in models)
-        {
-            result.Add(Get(model));
-        }
-
-        return result;
-    }
-
-    public static async Task Initialize(EventFormsService service, ErrorAction onError)
-    {
-        await service.WaitForInit(onError);
-        
-        // TODO: Initiailze ViewModelCache once the service is done.
-    }
-
-    public CateringEventViewModel Clone() => (CateringEventViewModel)this.MemberwiseClone();
 
     [RelayCommand]
     public async Task Continue()
@@ -102,6 +77,7 @@ public partial class CateringEventViewModel :
         var updated = await _eventsService.PostCateringDetails(Id, details, OnError.DefaultBehavior(this));
         if(updated.HasValue)
         {
+            Id = updated.Value.id;
             ReadyToContinue?.Invoke(this, EventArgs.Empty);
         }
         Busy = false;
@@ -122,15 +98,17 @@ public partial class CateringEventViewModel :
 
 public partial class CateringMenuSelectionViewModel : 
     ObservableObject,
-    IEmptyViewModel<CateringMenuSelectionViewModel>,
+    IDefaultValueViewModel<CateringMenuSelectionViewModel>,
     ISelectable<CateringMenuSelectionViewModel>,
     IErrorHandling
 {
-    [ObservableProperty] CateringMenuItemViewModel item = IEmptyViewModel<CateringMenuItemViewModel>.Empty;
+    [ObservableProperty] CateringMenuItemViewModel item = CateringMenuItemViewModel.Default;
     [ObservableProperty] int quantity;
     [ObservableProperty] double cost;
 
     [ObservableProperty] bool isSelected;
+
+    public static CateringMenuSelectionViewModel Default => new();
 
     public event EventHandler<CateringMenuSelectionViewModel>? Selected;
     public event EventHandler<ErrorRecord>? OnError;
@@ -164,7 +142,7 @@ public partial class CateringMenuSelectionViewModel :
     {
         var item = CateringMenuItemViewModel.ViewModelCache.FirstOrDefault(item => item.Id == selection.itemId);
         if(item is null)
-            return IEmptyViewModel<CateringMenuSelectionViewModel>.Empty;
+            return CateringMenuSelectionViewModel.Default;
 
         return new() { Item = item, Quantity = selection.quantity, Cost = selection.quantity * item.PricePerPerson };
     }
@@ -260,7 +238,7 @@ public partial class CateringMenuCollectionViewModel :
 {
     private readonly CateringMenuService _service;
     [ObservableProperty] ImmutableArray<CateringMenuViewModel> menus;
-    [ObservableProperty] CateringMenuViewModel selectedMenu = IEmptyViewModel<CateringMenuViewModel>.Empty;
+    [ObservableProperty] CateringMenuViewModel selectedMenu = new();
     
     public CateringMenuViewModel this[string menuId]
     {
@@ -328,8 +306,8 @@ public partial class CateringMenuCollectionViewModel :
 }
 
 public partial class CateringMenuItemViewModel : 
-    ObservableObject, 
-    IEmptyViewModel<CateringMenuItemViewModel>, 
+    ObservableObject,
+    IDefaultValueViewModel<CateringMenuItemViewModel>, 
     ICachedViewModel<CateringMenuItemViewModel, CateringMenuItem, CateringMenuService>
 {
     private readonly CateringMenuService _menuService = ServiceHelper.GetService<CateringMenuService>();
@@ -343,6 +321,8 @@ public partial class CateringMenuItemViewModel :
     [ObservableProperty] int ordinal = -1;
 
     public static ConcurrentBag<CateringMenuItemViewModel> ViewModelCache { get; protected set; } = [];
+
+    public static CateringMenuItemViewModel Default => new();
 
     public static CateringMenuItemViewModel Get(CateringMenuItem model)
     {
@@ -382,8 +362,8 @@ public partial class CateringMenuItemViewModel :
 }
 
 public partial class CateringMenuCategoryViewModel : 
-    ObservableObject, 
-    IEmptyViewModel<CateringMenuCategoryViewModel>, 
+    ObservableObject,
+    IDefaultValueViewModel<CateringMenuCategoryViewModel>,
     ICachedViewModel<CateringMenuCategoryViewModel, CateringMenuCategory, CateringMenuService>
 {
     private readonly CateringMenuService _menuService = ServiceHelper.GetService<CateringMenuService>();
@@ -401,6 +381,8 @@ public partial class CateringMenuCategoryViewModel :
     }
 
     public static ConcurrentBag<CateringMenuCategoryViewModel> ViewModelCache { get; protected set; } = [];
+
+    public static CateringMenuCategoryViewModel Default => new();
 
     public static CateringMenuCategoryViewModel Get(CateringMenuCategory model)
     {

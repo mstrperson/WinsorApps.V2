@@ -19,15 +19,21 @@
             Text="Continue" 
             Command="{Binding ContinueCommand}" 
             IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=White,
-                Glyph={x:Static styles:FontAwesomeSolid.SyncAlt}}"/>
+                Glyph={x:Static styles:FontAwesomeSolid.ArrowAltCircleRight}}"/>
         <ToolbarItem
             Text="Remove Catering Request"
-            Command="{Binding DeleteCommand}" />
+            Command="{Binding DeleteCommand}" 
+            IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=White,
+                Glyph={x:Static styles:FontAwesomeSolid.Eraser}}"/>
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <ScrollView>
             <StackLayout
-                Orientation="Vertical">
+                Orientation="Vertical"
+                IsEnabled="{Binding Busy, Converter={StaticResource Invert}}">
+                <Label
+                    Text="{Binding BusyMessage}"
+                    IsVisible="{Binding Busy}" />
                 <StackLayout 
                     Orientation="Horizontal">
                     <!-- Budget Code Entry-->

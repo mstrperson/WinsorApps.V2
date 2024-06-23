@@ -19,13 +19,13 @@ namespace WinsorApps.MAUI.BookstoreManager.ViewModels;
 public partial class TeacherOrderViewModel :
     ObservableObject,
     ICachedViewModel<TeacherOrderViewModel, TeacherBookOrderDetail, BookstoreManagerService>,
-    IEmptyViewModel<TeacherOrderViewModel>,
+    IDefaultValueViewModel<TeacherOrderViewModel>,
     IErrorHandling,
     IBusyViewModel
 {
     private readonly BookstoreManagerService _managerService = ServiceHelper.GetService<BookstoreManagerService>();
 
-    [ObservableProperty] SectionViewModel section = IEmptyViewModel<SectionViewModel>.Empty;
+    [ObservableProperty] SectionViewModel section = SectionViewModel.Default;
     [ObservableProperty] ImmutableArray<BookRequestViewModel> bookRequests = [];
 
     [ObservableProperty] bool busy;
@@ -52,6 +52,9 @@ public partial class TeacherOrderViewModel :
     }
 
     public static ConcurrentBag<TeacherOrderViewModel> ViewModelCache { get; private set; } = [];
+
+    public static TeacherOrderViewModel Default => new();
+
     public static TeacherOrderViewModel Get(TeacherBookOrderDetail model)
     {
         var vm = ViewModelCache.FirstOrDefault(ord => ord.Section.Id == model.section.id);
@@ -136,7 +139,7 @@ public partial class BookRequestViewModel :
     ObservableObject,
     ISelectable<BookRequestViewModel>
 {
-    [ObservableProperty] IsbnViewModel isbn = IEmptyViewModel<IsbnViewModel>.Empty;
+    [ObservableProperty] IsbnViewModel isbn = IsbnViewModel.Default;
     [ObservableProperty] DateTime submitted;
     [ObservableProperty] int quantity;
     [ObservableProperty] bool fallOrFullYear = true;

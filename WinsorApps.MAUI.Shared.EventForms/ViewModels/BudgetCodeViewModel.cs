@@ -16,8 +16,7 @@ using WinsorApps.Services.Global.Services;
 namespace WinsorApps.MAUI.Shared.EventForms.ViewModels;
 
 public partial class BudgetCodeViewModel : 
-    ObservableObject, 
-    IEmptyViewModel<BudgetCodeViewModel>,
+    ObservableObject,
     IDefaultValueViewModel<BudgetCodeViewModel>,
     ISelectable<BudgetCodeViewModel>,
     IErrorHandling,
@@ -117,7 +116,7 @@ public partial class BudgetCodeSearchViewModel :
     [ObservableProperty]
     private ImmutableArray<BudgetCodeViewModel> options  = [];
     [ObservableProperty]
-    private BudgetCodeViewModel selected = IEmptyViewModel<BudgetCodeViewModel>.Empty;
+    private BudgetCodeViewModel selected = BudgetCodeViewModel.Default;
     [ObservableProperty]
     private SelectionMode selectionMode = SelectionMode.Single;
     [ObservableProperty]
@@ -184,7 +183,7 @@ public partial class BudgetCodeSearchViewModel :
                     return;
                 }
 
-                Selected = IEmptyViewModel<BudgetCodeViewModel>.Empty;
+                Selected = BudgetCodeViewModel.Default;
                 IsSelected = false;
 
                 if (possible.Length == 0)

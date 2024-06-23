@@ -12,8 +12,8 @@ using WinsorApps.Services.Global.Services;
 namespace WinsorApps.MAUI.Shared.ViewModels;
 
 public partial class UserViewModel : 
-    ObservableObject, 
-    IEmptyViewModel<UserViewModel>, 
+    ObservableObject,
+    IDefaultValueViewModel<UserViewModel>, 
     ISelectable<UserViewModel>, 
     IErrorHandling, 
     ICachedViewModel<UserViewModel, UserRecord, RegistrarService>
@@ -59,6 +59,8 @@ public partial class UserViewModel :
     
     [ObservableProperty] private string displayName;
     public string Email => User.email;
+
+    public static UserViewModel Default => new();
 
     [ObservableProperty] private ImmutableArray<SectionViewModel> academicSchedule = [];
     [ObservableProperty] private bool showButton = false;

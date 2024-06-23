@@ -1,5 +1,5 @@
 ﻿namespace WinsorApps.MAUI.Shared.Resources.Styles;
-static class IconFont
+public static class IconFont
 {
     // FontAwesome
     public const string Ad = "\uf641";

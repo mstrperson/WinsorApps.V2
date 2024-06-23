@@ -10,7 +10,7 @@ namespace WinsorApps.MAUI.Shared.ViewModels;
 
 public partial class CourseViewModel :
     ObservableObject,
-    IEmptyViewModel<CourseViewModel>,
+    IDefaultValueViewModel<CourseViewModel>,
     ISelectable<CourseViewModel>,
     ICachedViewModel<CourseViewModel, CourseRecord, RegistrarService>
 {
@@ -28,6 +28,8 @@ public partial class CourseViewModel :
     public CourseRecord Course { get; init; } = default;
 
     public static ConcurrentBag<CourseViewModel> ViewModelCache { get; protected set; } = [];
+
+    public static CourseViewModel Default => new();
 
     [ObservableProperty]
     public bool isSelected;
@@ -107,7 +109,7 @@ public partial class CourseViewModel :
 public partial class CourseListViewModel :
     ObservableObject,
     ICachedSearchViewModel<CourseViewModel>,
-    IEmptyViewModel<CourseListViewModel>,
+    IDefaultValueViewModel<CourseListViewModel>,
     IErrorHandling
 {
 
@@ -123,7 +125,7 @@ public partial class CourseListViewModel :
     private ImmutableArray<CourseViewModel> options = [];
 
     [ObservableProperty]
-    private CourseViewModel selected = IEmptyViewModel<CourseViewModel>.Empty;
+    private CourseViewModel selected = CourseViewModel.Default;
     [ObservableProperty]
     private SelectionMode selectionMode = SelectionMode.Single;
     [ObservableProperty]
@@ -132,6 +134,8 @@ public partial class CourseListViewModel :
     private bool isSelected;
     [ObservableProperty]
     private bool showOptions;
+
+    public static CourseListViewModel Default => CourseListViewModel.Default;
 
     public event EventHandler<ImmutableArray<CourseViewModel>>? OnMultipleResult;
     public event EventHandler<CourseViewModel>? OnSingleResult;
@@ -160,8 +164,8 @@ public partial class CourseListViewModel :
 
 
 public partial class SectionViewModel : 
-    ObservableObject, 
-    IEmptyViewModel<SectionViewModel>, 
+    ObservableObject,
+    IDefaultValueViewModel<SectionViewModel>,
     ISelectable<SectionViewModel>,
     ICachedViewModel<SectionViewModel, SectionRecord, RegistrarService>
 {
@@ -175,7 +179,9 @@ public partial class SectionViewModel :
     public string DisplayName => Section.displayName;
 
     public static ConcurrentBag<SectionViewModel> ViewModelCache { get; private set; } = [];
-    
+
+    public static SectionViewModel Default => new();
+
     [ObservableProperty] private ImmutableArray<UserViewModel> teachers = [];
 
     [ObservableProperty] private ImmutableArray<UserViewModel> students = [];

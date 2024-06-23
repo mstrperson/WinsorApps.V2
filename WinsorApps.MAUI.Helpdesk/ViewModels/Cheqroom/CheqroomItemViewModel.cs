@@ -10,8 +10,8 @@ using WinsorApps.Services.Helpdesk.Services;
 namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom;
 
 public partial class CheqroomItemViewModel : 
-    ObservableObject, 
-    IEmptyViewModel<CheqroomItemViewModel>,
+    ObservableObject,
+    IDefaultValueViewModel<CheqroomItemViewModel>,
     ICachedViewModel<CheqroomItemViewModel, CheqroomItem, CheqroomService>
 {
     private readonly CheqroomService _cheqroom;
@@ -44,6 +44,8 @@ public partial class CheqroomItemViewModel :
     }
 
     public static ConcurrentBag<CheqroomItemViewModel> ViewModelCache { get; private set; } = [];
+
+    public static CheqroomItemViewModel Default => new();
 
     public static CheqroomItemViewModel Get(CheqroomItem model)
     {

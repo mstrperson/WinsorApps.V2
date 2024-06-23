@@ -9,7 +9,7 @@ using WinsorApps.Services.Helpdesk.Models;
 
 namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
 {
-    public class CheckoutResultViewModel : ObservableObject, IEmptyViewModel<CheckoutResultViewModel>
+    public class CheckoutResultViewModel : ObservableObject, IDefaultValueViewModel<CheckoutResultViewModel>
     {
         private readonly CheqroomCheckoutResult _result;
 
@@ -17,6 +17,8 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         public string Status => _result.status;
         public string ItemSummary => _result.itemSummary;
         public DateTime Due => _result.due;
+
+        public static CheckoutResultViewModel Default => new();
 
         public CheckoutResultViewModel() => _result = new();
 

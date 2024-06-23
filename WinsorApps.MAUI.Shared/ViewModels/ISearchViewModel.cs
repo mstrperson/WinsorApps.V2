@@ -25,7 +25,7 @@ public interface ICachedSearchViewModel<T> : IAsyncSearchViewModel<T> where T : 
     new public void Search();
 }
 
-public interface IAsyncSearchViewModel<T> where T : ObservableObject, IDefaultValueViewModel<T>, new()
+public interface IAsyncSearchViewModel<T> where T : ObservableObject, new()
 {
     public ImmutableArray<T> AllSelected { get; set; }
 
@@ -51,7 +51,7 @@ public interface IAsyncSearchViewModel<T> where T : ObservableObject, IDefaultVa
     {
         AllSelected = [];
         Options = [];
-        Selected = IEmptyViewModel<T>.Empty;
+        Selected = new();
         IsSelected = false;
         ShowOptions = false;
         SearchText = "";

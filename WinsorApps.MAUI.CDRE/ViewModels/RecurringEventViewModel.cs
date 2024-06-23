@@ -77,8 +77,7 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         ICachedViewModel<RecurringEventViewModel, CycleDayRecurringEvent, CycleDayRecurringEventService>,
         ISelectable<RecurringEventViewModel>,
         IDefaultValueViewModel<RecurringEventViewModel>,
-        IErrorHandling,
-        IEmptyViewModel<RecurringEventViewModel>
+        IErrorHandling
     {
         private readonly CycleDayRecurringEventService _eventService = ServiceHelper.GetService<CycleDayRecurringEventService>();
 

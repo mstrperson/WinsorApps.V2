@@ -13,7 +13,7 @@ public partial class UserSearchBar : ContentView
 {
     public static BindableProperty SelectedUserProperty = 
         BindableProperty.Create(nameof(SelectedUser), typeof(UserViewModel), typeof(UserSearchBar),
-            IEmptyViewModel<UserViewModel>.Empty, BindingMode.TwoWay);
+            UserViewModel.Default, BindingMode.TwoWay);
     
     public UserViewModel SelectedUser
     {

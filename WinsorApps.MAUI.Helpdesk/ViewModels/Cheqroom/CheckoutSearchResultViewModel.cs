@@ -20,8 +20,8 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
 {
     public partial class CheckoutSearchResultViewModel : 
         ObservableObject, 
-        IErrorHandling, 
-        IEmptyViewModel<CheckoutSearchResultViewModel>,
+        IErrorHandling,
+        IDefaultValueViewModel<CheckoutSearchResultViewModel>,
         ICachedViewModel<CheckoutSearchResultViewModel, CheqroomCheckoutSearchResult, CheqroomService>
     {
         private readonly CheqroomCheckoutSearchResult _searchResult;
@@ -44,6 +44,8 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
 
         public static ConcurrentBag<CheckoutSearchResultViewModel> ViewModelCache { get; private set; } = [];
 
+        public static CheckoutSearchResultViewModel Default => new();
+
         public event EventHandler<ErrorRecord>? OnError;
         public event EventHandler<CheckoutSearchResultViewModel>? OnSelected;
         public event EventHandler<CheckoutSearchResultViewModel>? OnCheckedIn;
@@ -52,7 +54,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         {
             _searchResult = new();
             _cheqroom = ServiceHelper.GetService<CheqroomService>();
-            user = IEmptyViewModel<UserViewModel>.Empty;
+            user = UserViewModel.Default;
             style = [];
             status = "";
         }

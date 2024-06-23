@@ -8,12 +8,14 @@ using WinsorApps.Services.Helpdesk.Services;
 
 namespace WinsorApps.MAUI.Helpdesk.ViewModels;
 
-public partial class DeviceCategoryViewModel : ObservableObject, IEmptyViewModel<DeviceCategoryViewModel>
+public partial class DeviceCategoryViewModel : ObservableObject, IDefaultValueViewModel<DeviceCategoryViewModel>
 {
     private readonly DeviceCategoryRecord _category;
 
     public string Id => _category.id;
-    
+
+    public static DeviceCategoryViewModel Default => new();
+
     [ObservableProperty] private string name = "";
     [ObservableProperty] private string prefix = "";
     [ObservableProperty] private bool assignCustody;
@@ -65,7 +67,7 @@ public partial class CategorySearchViewModel : ObservableObject, ICachedSearchVi
     [ObservableProperty] private bool showOptions;
     [ObservableProperty] private bool isSelected;
     [ObservableProperty] private ImmutableArray<DeviceCategoryViewModel> options = [];
-    [ObservableProperty] private DeviceCategoryViewModel selected = IEmptyViewModel<DeviceCategoryViewModel>.Empty;
+    [ObservableProperty] private DeviceCategoryViewModel selected = DeviceCategoryViewModel.Default;
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<ImmutableArray<DeviceCategoryViewModel>>? OnMultipleResult;
@@ -96,7 +98,7 @@ public partial class CategorySearchViewModel : ObservableObject, ICachedSearchVi
                 if (Options.Length == 0)
                 {
                     ShowOptions = false;
-                    Selected = IEmptyViewModel<DeviceCategoryViewModel>.Empty;
+                    Selected = DeviceCategoryViewModel.Default;
                     IsSelected = false;
                     OnZeroResults?.Invoke(this, EventArgs.Empty);
                     return;
@@ -112,7 +114,7 @@ public partial class CategorySearchViewModel : ObservableObject, ICachedSearchVi
                 }
 
                 ShowOptions = true;
-                Selected = IEmptyViewModel<DeviceCategoryViewModel>.Empty;
+                Selected = DeviceCategoryViewModel.Default;
                 IsSelected = false;
                 return;
             default: return;
@@ -124,7 +126,7 @@ public partial class CategorySearchViewModel : ObservableObject, ICachedSearchVi
         switch (SelectionMode)
         {
             case SelectionMode.Single:
-                Selected = Available.FirstOrDefault(user => user.Id == item.Id) ?? IEmptyViewModel<DeviceCategoryViewModel>.Empty;
+                Selected = Available.FirstOrDefault(user => user.Id == item.Id) ?? DeviceCategoryViewModel.Default;
                 IsSelected = string.IsNullOrEmpty(Selected.Id);
                 Options = [];
                 ShowOptions = false;

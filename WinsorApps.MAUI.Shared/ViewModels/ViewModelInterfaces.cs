@@ -10,13 +10,6 @@ using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.MAUI.Shared.ViewModels;
 
-public interface IEmptyViewModel<T> where T : ObservableObject, new()
-{
-    public static T Empty = new();
-
-    public static T CreateBlank() => new();
-}
-
 public interface IBusyViewModel
 {
     public bool Busy { get; }

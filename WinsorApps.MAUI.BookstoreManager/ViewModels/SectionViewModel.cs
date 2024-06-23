@@ -19,7 +19,7 @@ namespace WinsorApps.MAUI.BookstoreManager.ViewModels;
 public partial class SectionViewModel :
     ObservableObject,
     ICachedViewModel<SectionViewModel, SectionRecord, BookstoreManagerService>,
-    IEmptyViewModel<SectionViewModel>,
+    IDefaultValueViewModel<SectionViewModel>,
     IErrorHandling,
     IBusyViewModel
 {
@@ -28,8 +28,8 @@ public partial class SectionViewModel :
 
     [ObservableProperty] string id = "";
     [ObservableProperty] string schoolYearId = "";
-    [ObservableProperty] CourseViewModel course = IEmptyViewModel<CourseViewModel>.Empty;
-    [ObservableProperty] UserViewModel teacher = IEmptyViewModel<UserViewModel>.Empty;
+    [ObservableProperty] CourseViewModel course = CourseViewModel.Default;
+    [ObservableProperty] UserViewModel teacher = UserViewModel.Default;
     [ObservableProperty] DateTime created;
     [ObservableProperty] ImmutableArray<BookRequestOptionGroupViewModel> requestGroups = [];
 
@@ -73,6 +73,8 @@ public partial class SectionViewModel :
     }
 
     public static ConcurrentBag<SectionViewModel> ViewModelCache { get; private set; } = [];
+
+    public static SectionViewModel Default => new();
 
     public static SectionViewModel Get(SectionRecord model)
     {
@@ -136,7 +138,7 @@ public partial class SectionByTeacherCollectionViewModel :
         };
     }
 
-    [ObservableProperty] UserViewModel teacher = IEmptyViewModel<UserViewModel>.Empty;
+    [ObservableProperty] UserViewModel teacher = UserViewModel.Default;
     [ObservableProperty] ImmutableArray<SectionViewModel> sections = [];
 
     public static ConcurrentBag<SectionByTeacherCollectionViewModel> ViewModelCache { get; private set; } = [];
@@ -259,5 +261,4 @@ public partial class SectionSearchViewModel :
     [ObservableProperty] UserSearchViewModel userSearch = new();
 
 
-    [RelayCommand]
 }

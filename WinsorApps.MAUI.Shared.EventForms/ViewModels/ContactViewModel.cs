@@ -19,7 +19,7 @@ namespace WinsorApps.MAUI.Shared.EventForms.ViewModels;
 
 public partial class ContactViewModel :
     ObservableObject,
-    IEmptyViewModel<ContactViewModel>,
+    IDefaultValueViewModel<ContactViewModel>,
     ICachedViewModel<ContactViewModel, Contact, ContactService>,
     IErrorHandling,
     ISelectable<ContactViewModel>
@@ -33,7 +33,7 @@ public partial class ContactViewModel :
     [ObservableProperty] string lastName = "";
     [ObservableProperty] string email = "";
     [ObservableProperty] string phone = "";
-    [ObservableProperty] UserViewModel associatedUser = IEmptyViewModel<UserViewModel>.Empty;
+    [ObservableProperty] UserViewModel associatedUser = UserViewModel.Default;
     [ObservableProperty] bool isPublic;
     [ObservableProperty] bool isSelected;
 
@@ -48,7 +48,8 @@ public partial class ContactViewModel :
     }
 
     public static ConcurrentBag<ContactViewModel> ViewModelCache { get; private set; } = [];
-    
+
+    public static ContactViewModel Default => new();
 
     public static ContactViewModel Get(Contact model)
     {
@@ -119,7 +120,7 @@ public partial class ContactSearchViewModel :
     [ObservableProperty] ImmutableArray<ContactViewModel> available = [];
     [ObservableProperty] ImmutableArray<ContactViewModel> allSelected = [];
     [ObservableProperty] ImmutableArray<ContactViewModel> options = [];
-    [ObservableProperty] ContactViewModel selected = IEmptyViewModel<ContactViewModel>.Empty;
+    [ObservableProperty] ContactViewModel selected = ContactViewModel.Default;
     [ObservableProperty] SelectionMode selectionMode = SelectionMode.Single;
     [ObservableProperty] string searchText = "";
     [ObservableProperty] bool isSelected;
@@ -170,7 +171,7 @@ public partial class ContactSearchViewModel :
                 if (Options.Length == 0)
                 {
                     ShowOptions = false;
-                    Selected = IEmptyViewModel<ContactViewModel>.Empty;
+                    Selected = ContactViewModel.Default;
                     IsSelected = false;
                     return;
                 }
@@ -186,7 +187,7 @@ public partial class ContactSearchViewModel :
                 }
 
                 ShowOptions = true;
-                Selected = IEmptyViewModel<ContactViewModel>.Empty;
+                Selected = ContactViewModel.Default;
                 IsSelected = false;
                 return;
             default: return;
@@ -198,7 +199,7 @@ public partial class ContactSearchViewModel :
         switch (SelectionMode)
         {
             case SelectionMode.Single:
-                Selected = Available.FirstOrDefault(contact => contact.Id == e.Id) ?? IEmptyViewModel<ContactViewModel>.Empty;
+                Selected = Available.FirstOrDefault(contact => contact.Id == e.Id) ?? ContactViewModel.Default;
                 IsSelected = string.IsNullOrEmpty(Selected.Id);
                 Options = [];
                 ShowOptions = false;

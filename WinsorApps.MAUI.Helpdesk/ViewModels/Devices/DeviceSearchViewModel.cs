@@ -72,7 +72,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices
                     dev.Selected += Dev_Selected;
                 }
 
-                selected = IEmptyViewModel<DeviceViewModel>.Empty;
+                selected = DeviceViewModel.Default;
             }
         }
 
@@ -81,7 +81,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices
         {
             AllSelected = [];
             Options = [];
-            Selected = IEmptyViewModel<DeviceViewModel>.Empty;
+            Selected = DeviceViewModel.Default;
             IsSelected = false;
             ShowOptions = false;
             SearchText = "";
@@ -108,7 +108,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices
                     if (Options.Length == 0)
                     {
                         ShowOptions = false;
-                        Selected = IEmptyViewModel<DeviceViewModel>.Empty;
+                        Selected = DeviceViewModel.Default;
                         IsSelected = false;
                         return;
                     }
@@ -124,7 +124,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices
                     }
 
                     ShowOptions = true;
-                    Selected = IEmptyViewModel<DeviceViewModel>.Empty;
+                    Selected = DeviceViewModel.Default;
                     IsSelected = false;
                     return;
                 default: return;
@@ -136,7 +136,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices
             switch (SelectionMode)
             {
                 case SelectionMode.Single:
-                    Selected = Available.FirstOrDefault(user => user.Id == e.Id) ?? IEmptyViewModel<DeviceViewModel>.Empty;
+                    Selected = Available.FirstOrDefault(user => user.Id == e.Id) ?? DeviceViewModel.Default;
                     IsSelected = string.IsNullOrEmpty(Selected.Id);
                     Options = [];
                     ShowOptions = false;

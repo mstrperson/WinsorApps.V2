@@ -11,8 +11,8 @@ namespace WinsorApps.MAUI.Shared.Bookstore.ViewModels;
 
 public partial class BookViewModel :
     ObservableObject, 
-    IErrorHandling, 
-    IEmptyViewModel<BookViewModel>, 
+    IErrorHandling,
+    IDefaultValueViewModel<BookViewModel>,
     ICachedViewModel<BookViewModel, BookDetail, BookService>
 {
     public event EventHandler<BookViewModel>? Selected;
@@ -34,6 +34,8 @@ public partial class BookViewModel :
     private BookDetail _book = new("", "", [], "", default, "", []);
 
     public static ConcurrentBag<BookViewModel> ViewModelCache { get; private set; } = [];
+
+    public static BookViewModel Default => new();
 
     public BookViewModel()
     {

@@ -26,7 +26,7 @@ public partial class UserSearchViewModel : ObservableObject, ICachedSearchViewMo
     {
         var registrar = ServiceHelper.GetService<RegistrarService>();
         isSelected = false;
-        selected = IEmptyViewModel<UserViewModel>.Empty;
+        selected = UserViewModel.Default;
         available = UserViewModel.GetClonedViewModels(registrar.AllUsers).ToImmutableArray();
         foreach(var user in Available)
             user.Selected += UserOnSelected;
@@ -37,7 +37,7 @@ public partial class UserSearchViewModel : ObservableObject, ICachedSearchViewMo
     {
         AllSelected = [];
         Options = [];
-        Selected = IEmptyViewModel<UserViewModel>.Empty;
+        Selected = UserViewModel.Default;
         IsSelected = false;
         ShowOptions = false;
         SearchText = "";
@@ -53,7 +53,7 @@ public partial class UserSearchViewModel : ObservableObject, ICachedSearchViewMo
         switch (SelectionMode)
         {
             case SelectionMode.Single:
-                Selected = Available.FirstOrDefault(user => user.Id == selectedUser.Id) ?? IEmptyViewModel<UserViewModel>.Empty;
+                Selected = Available.FirstOrDefault(user => user.Id == selectedUser.Id) ?? UserViewModel.Default;
                 IsSelected = string.IsNullOrEmpty(Selected.Id);
                 Options = [];
                 ShowOptions = false;
@@ -98,7 +98,7 @@ public partial class UserSearchViewModel : ObservableObject, ICachedSearchViewMo
                 if (Options.Length == 0)
                 {
                     ShowOptions = false;
-                    Selected = IEmptyViewModel<UserViewModel>.Empty;
+                    Selected = UserViewModel.Default;
                     IsSelected = false;
                     return;
                 }
@@ -114,7 +114,7 @@ public partial class UserSearchViewModel : ObservableObject, ICachedSearchViewMo
                 }
 
                 ShowOptions = true;
-                Selected = IEmptyViewModel<UserViewModel>.Empty;
+                Selected = UserViewModel.Default;
                 IsSelected = false;
                 return;
             default: return;
