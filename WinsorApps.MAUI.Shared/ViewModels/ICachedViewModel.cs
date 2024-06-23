@@ -23,6 +23,6 @@ namespace WinsorApps.MAUI.Shared.ViewModels
 
         public abstract static TViewModel Get(TModel model);
 
-        public TViewModel Clone();        
+        public TViewModel Clone();
     }
 }

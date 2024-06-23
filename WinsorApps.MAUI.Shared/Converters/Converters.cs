@@ -39,6 +39,25 @@ public class BoolInverter : IValueConverter
     }
 }
 
+public class StringToIntegerConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is string str && int.TryParse(str, out int n))
+            return n;
+
+        return 0;
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if(value is int n)
+            return $"{n}";
+
+        return "";
+    }
+}
+
 public class DateTimeConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)

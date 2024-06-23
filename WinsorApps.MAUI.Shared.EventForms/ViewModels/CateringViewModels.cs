@@ -1,10 +1,13 @@
 ﻿using AsyncAwaitBestPractices;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Data;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using WinsorApps.MAUI.Shared.ViewModels;
@@ -19,18 +22,29 @@ namespace WinsorApps.MAUI.Shared.EventForms.ViewModels;
 public partial class CateringEventViewModel :
     ObservableObject,
     IEmptyViewModel<CateringEventViewModel>,
-    ICachedViewModel<CateringEventViewModel, CateringEvent, EventFormsService>
+    ICachedViewModel<CateringEventViewModel, CateringEvent, EventFormsService>,
+    IEventSubFormViewModel,
+    IBusyViewModel,
+    IErrorHandling
 {
     private static readonly EventFormsService _eventsService = ServiceHelper.GetService<EventFormsService>();
+    private static readonly CateringMenuService _cateringService = ServiceHelper.GetService<CateringMenuService>();
 
     [ObservableProperty] string id = "";
     [ObservableProperty] bool serversNeeded;
     [ObservableProperty] bool cleanupRequired;
     [ObservableProperty] double laborCost;
-    [ObservableProperty] ImmutableArray<CateringMenuSelectionViewModel> selectedItems;
-    [ObservableProperty] BudgetCodeViewModel budgetCode = IEmptyViewModel<BudgetCodeViewModel>.Empty;
+    [ObservableProperty] CateringMenuCollectionViewModel menu = new(_cateringService);
+    [ObservableProperty] BudgetCodeSearchViewModel budgetCodeSearch = new();
+    [ObservableProperty] bool busy;
+    [ObservableProperty] string busyMessage = "Working";
 
     public static ConcurrentBag<CateringEventViewModel> ViewModelCache { get; protected set; } = [];
+
+
+    public event EventHandler<ErrorRecord>? OnError;
+    public event EventHandler? ReadyToContinue;
+    public event EventHandler? Deleted;
 
     public static CateringEventViewModel Get(CateringEvent model)
     {
@@ -39,12 +53,13 @@ public partial class CateringEventViewModel :
         vm = new CateringEventViewModel()
         {
             Id = model.id,
-            BudgetCode = BudgetCodeViewModel.Get(model.budgetCode),
             ServersNeeded = model.servers,
             CleanupRequired = model.cleanup,
-            LaborCost = model.laborCost,
-            SelectedItems = model.menuSelections.Select(detail => (CateringMenuSelectionViewModel)detail).ToImmutableArray()
+            LaborCost = model.laborCost
         };
+
+        vm.BudgetCodeSearch.Select(BudgetCodeViewModel.Get(model.budgetCode));
+        vm.Menu.LoadMenuSelections(model.menuSelections);
         ViewModelCache.Add(vm);
 
         return vm.Clone();
@@ -69,6 +84,40 @@ public partial class CateringEventViewModel :
     }
 
     public CateringEventViewModel Clone() => (CateringEventViewModel)this.MemberwiseClone();
+
+    [RelayCommand]
+    public async Task Continue()
+    {
+        Busy = true;
+        var details = new NewCateringEvent(
+            ServersNeeded, 
+            CleanupRequired,
+            Menu.Menus.SelectMany(menu =>
+                menu.Items
+                    .Where(sel => sel.IsSelected)
+                    .Select(selection =>
+                        new CateringMenuSelection(selection.Item.Id, selection.Quantity)))
+            .ToImmutableArray(),
+            BudgetCodeSearch.Selected.CodeId);
+        var updated = await _eventsService.PostCateringDetails(Id, details, OnError.DefaultBehavior(this));
+        if(updated.HasValue)
+        {
+            ReadyToContinue?.Invoke(this, EventArgs.Empty);
+        }
+        Busy = false;
+    }
+
+    [RelayCommand]
+    public async Task Delete()
+    {
+        Busy = true;
+
+        await _eventsService.DeleteCateringDetails(Id, OnError.DefaultBehavior(this));
+
+        Busy = false;
+
+        Deleted?.Invoke(this, EventArgs.Empty);
+    }
 }
 
 public partial class CateringMenuSelectionViewModel : 
@@ -86,11 +135,20 @@ public partial class CateringMenuSelectionViewModel :
     public event EventHandler<CateringMenuSelectionViewModel>? Selected;
     public event EventHandler<ErrorRecord>? OnError;
 
+    [RelayCommand]
     public void Select()
     {
         IsSelected = !IsSelected;
         if (IsSelected)
             Selected?.Invoke(this, this);
+    }
+
+    [RelayCommand]
+    public void Clear()
+    {
+        Quantity = 0;
+        Cost = 0;
+        IsSelected = false;
     }
 
     public static CateringMenuSelectionViewModel Create(CateringMenuItemViewModel item) => new() { Item = item };  
@@ -115,19 +173,24 @@ public partial class CateringMenuSelectionViewModel :
 public partial class CateringMenuViewModel :
     ObservableObject,
     ICheckBoxListViewModel<CateringMenuSelectionViewModel>,
+    ISelectable<CateringMenuViewModel>,
     IErrorHandling
 {
+    [ObservableProperty] string id = "";
     [ObservableProperty] string title = "";
     [ObservableProperty] ImmutableArray<CateringMenuSelectionViewModel> items = [];
     [ObservableProperty] bool isFieldTrip;
     [ObservableProperty] bool isDeleted;
+    [ObservableProperty] bool isSelected;
 
     public event EventHandler<ErrorRecord>? OnError;
+    public event EventHandler<CateringMenuViewModel>? Selected;
 
     public static CateringMenuViewModel Create(CateringMenuCategory category)
     {
         var vm = new CateringMenuViewModel()
         {
+            Id = category.id,
             Title = category.name,
             Items = [..
             CateringMenuItemViewModel
@@ -146,9 +209,19 @@ public partial class CateringMenuViewModel :
         return vm;
     }
 
+    [RelayCommand]
+    public void ClearSelections()
+    {
+        foreach(var selection in Items)
+        {
+            selection.Clear();
+        }
+    }
+
     public void LoadSelections(IEnumerable<CateringMenuSelection> selections)
     {
-        foreach(var sel in selections)
+        ClearSelections();
+        foreach (var sel in selections)
         {
             var vm = Items.FirstOrDefault(it => it.Item.Id == sel.itemId);
             if (vm is null)
@@ -161,6 +234,7 @@ public partial class CateringMenuViewModel :
 
     public void LoadSelections(IEnumerable<DetailedCateringMenuSelection> selections)
     {
+        ClearSelections();
         foreach (var sel in selections)
         {
             var vm = Items.FirstOrDefault(it => it.Item.Id == sel.item.id);
@@ -170,6 +244,14 @@ public partial class CateringMenuViewModel :
             vm.Cost = sel.quantity * vm.Item.PricePerPerson;
         }
     }
+
+    [RelayCommand]
+    public void Select()
+    {
+        IsSelected = !IsSelected;
+        if (IsSelected)
+            Selected?.Invoke(this, this);
+    }
 }
 
 public partial class CateringMenuCollectionViewModel :
@@ -178,6 +260,33 @@ public partial class CateringMenuCollectionViewModel :
 {
     private readonly CateringMenuService _service;
     [ObservableProperty] ImmutableArray<CateringMenuViewModel> menus;
+    [ObservableProperty] CateringMenuViewModel selectedMenu = IEmptyViewModel<CateringMenuViewModel>.Empty;
+    
+    public CateringMenuViewModel this[string menuId]
+    {
+        get
+        {
+            var menu = Menus.FirstOrDefault(m => m.Id == menuId);
+            if (menu is null)
+                throw new ArgumentException(nameof(menuId), $"{menuId} is not valid.");
+
+            return menu;
+        }
+    }
+
+    public CateringMenuSelectionViewModel this[CateringMenuItem item]
+    {
+        get
+        {
+            foreach(var menu in Menus)
+            {
+                if (menu.Items.Any(sel => sel.Item.Id == item.id))
+                    return menu.Items.First(sel => sel.Item.Id == item.id);
+            }
+
+            throw new ArgumentException(nameof(item), $"Item {item.id} not found");
+        }
+    }
 
     public CateringMenuCollectionViewModel(CateringMenuService service)
     {
@@ -187,8 +296,32 @@ public partial class CateringMenuCollectionViewModel :
         {
             Menus = _service.MenuCategories.Select(cat => CateringMenuViewModel.Create(cat)).ToImmutableArray();
             foreach (var menu in Menus)
+            {
                 menu.OnError += (sender, e) => OnError?.Invoke(sender, e);
+                menu.Selected += (sender, e) => SelectedMenu = e;
+            }
         });
+    }
+
+    [RelayCommand]
+    public void ClearSelections()
+    {
+        foreach(var menu in Menus)
+        {
+            menu.ClearSelections();
+        }
+    }
+
+    public void LoadMenuSelections(ImmutableArray<DetailedCateringMenuSelection> selections)
+    {
+        ClearSelections();
+        foreach (var sel in selections)
+        {
+            var vm = this[sel.item];
+            vm.Quantity = sel.quantity;
+            vm.Cost = sel.cost;
+            vm.IsSelected = true;
+        }
     }
 
     public event EventHandler<ErrorRecord>? OnError;
