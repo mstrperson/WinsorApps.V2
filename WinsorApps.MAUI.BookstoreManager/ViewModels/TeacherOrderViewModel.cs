@@ -38,7 +38,6 @@ public partial class TeacherOrderViewModel :
     {
         Busy = true;
         BusyMessage = "Submitting Book Order";
-
         if (string.IsNullOrEmpty(Section.Id))
         {
             await Section.CreateSection();

@@ -7,9 +7,4 @@ using System.Threading.Tasks;
 
 namespace WinsorApps.MAUI.Shared.ViewModels
 {
-    public partial class DepartmentSearchViewModel :
-        ObservableObject,
-        ICachedSearchViewModel<>
-    {
-    }
 }

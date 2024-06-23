@@ -40,7 +40,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinsorApps.Services.EventFo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinsorApps.MAUI.Shared.EventForms", "WinsorApps.MAUI.Shared.EventForms\WinsorApps.MAUI.Shared.EventForms.csproj", "{667D1E6F-4B01-45A6-BCF6-D1AD12EAB7B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinsorApps.MAUI.BookstoreManager", "WinsorApps.MAUI.BookstoreManager\WinsorApps.MAUI.BookstoreManager.csproj", "{F2DBA524-B2DE-4961-9992-55F41E61AE3F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinsorApps.MAUI.BookstoreManager", "WinsorApps.MAUI.BookstoreManager\WinsorApps.MAUI.BookstoreManager.csproj", "{F2DBA524-B2DE-4961-9992-55F41E61AE3F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinsorApps.MAUI.CDRE", "WinsorApps.MAUI.CDRE\WinsorApps.MAUI.CDRE.csproj", "{B8622A63-7B2A-4945-8CA7-3C50C5129F18}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,6 +67,7 @@ Global
 		{29866B2A-810A-4841-829C-61BF41DCC5C0}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{29866B2A-810A-4841-829C-61BF41DCC5C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{29866B2A-810A-4841-829C-61BF41DCC5C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29866B2A-810A-4841-829C-61BF41DCC5C0}.Release|Any CPU.Deploy.0 = Release|Any CPU
 		{5C0F76CA-8B2A-41A7-986D-7EAF4F5EC588}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5C0F76CA-8B2A-41A7-986D-7EAF4F5EC588}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5C0F76CA-8B2A-41A7-986D-7EAF4F5EC588}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -86,6 +89,7 @@ Global
 		{6F194F95-C90A-47BE-BC23-52018FD7A796}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{6F194F95-C90A-47BE-BC23-52018FD7A796}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F194F95-C90A-47BE-BC23-52018FD7A796}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F194F95-C90A-47BE-BC23-52018FD7A796}.Release|Any CPU.Deploy.0 = Release|Any CPU
 		{6F200F76-7DDB-4F46-9EB2-2E41610D3AF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6F200F76-7DDB-4F46-9EB2-2E41610D3AF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F200F76-7DDB-4F46-9EB2-2E41610D3AF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -100,6 +104,12 @@ Global
 		{F2DBA524-B2DE-4961-9992-55F41E61AE3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F2DBA524-B2DE-4961-9992-55F41E61AE3F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F2DBA524-B2DE-4961-9992-55F41E61AE3F}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{B8622A63-7B2A-4945-8CA7-3C50C5129F18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8622A63-7B2A-4945-8CA7-3C50C5129F18}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8622A63-7B2A-4945-8CA7-3C50C5129F18}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{B8622A63-7B2A-4945-8CA7-3C50C5129F18}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8622A63-7B2A-4945-8CA7-3C50C5129F18}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8622A63-7B2A-4945-8CA7-3C50C5129F18}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -119,6 +129,7 @@ Global
 		{6F200F76-7DDB-4F46-9EB2-2E41610D3AF8} = {0199C9DF-CE60-4C52-B67D-8B9DA716AB1B}
 		{667D1E6F-4B01-45A6-BCF6-D1AD12EAB7B0} = {F1AE28A1-24F3-435A-80FB-66D3688D054B}
 		{F2DBA524-B2DE-4961-9992-55F41E61AE3F} = {FC3004BF-B329-4BCE-BDE9-ED055008E277}
+		{B8622A63-7B2A-4945-8CA7-3C50C5129F18} = {FC3004BF-B329-4BCE-BDE9-ED055008E277}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {93BB8C21-5802-4E69-B338-B7EA30A80BFD}

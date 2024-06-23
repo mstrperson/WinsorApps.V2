@@ -86,10 +86,6 @@ public static class Extensions
         }
     }
 
-    public static T GetResource<T>(this object _, string dictionary, string key) => (T)Resources[dictionary][key];
-
-    public static Color GetColorResource(this object _, string colorKey) => (Color)Resources["Colors"][colorKey];
-
     public static MauiAppBuilder AddGlobalServices(this MauiAppBuilder builder)
     {
         builder.Services.AddSingleton<ApiService>();
