@@ -122,6 +122,9 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         }
 
         public event EventHandler<RecurringEventViewModel>? OnCreated;
+        public event EventHandler<RecurringEventViewModel>? OnUpdated;
+        public event EventHandler<RecurringEventViewModel>? OnDelete;
+        public event EventHandler<RecurringEventViewModel>? EditRequested;
 
         [RelayCommand]
         public async Task Submit()
@@ -140,6 +143,17 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
             }
 
             var result2 = await _eventService.UpdateEvent(Id, create, OnError.DefaultBehavior(this));
+            if (result2.HasValue) { 
+                OnUpdated?.Invoke(this, this);
+            }
+        }
+
+        [RelayCommand]
+        public async Task Delete()
+        {
+            var success = true;
+           // todo: Cox write this! await _eventService.//
+               
         }
 
         #region ISelectable stuff

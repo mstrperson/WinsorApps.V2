@@ -40,12 +40,25 @@
                                                FontAttributes="Bold" 
                                                FontSize="Medium"
                                                HorizontalOptions="Start"/>
-                                       
+                                        <HorizontalStackLayout
+                                         HorizontalOptions="End">
+                                        <HorizontalStackLayout.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding SelectCommand}"/>
+                                        </HorizontalStackLayout.GestureRecognizers>
+                                        <Image Source="{FontImage FontFamily=FontAwesomeSolid, Color=White,
+                                                        Glyph={x:Static styles:FontAwesomeSolid.PencilAlt}}"/>
+                                        <Label Text="Edit"
+                                               LineBreakMode="NoWrap" 
+                                               MaxLines="1"
+                                               FontSize="Micro"/>
+                                        </HorizontalStackLayout>
                                     </HorizontalStackLayout>
 
                                     <Label Text="{Binding Description}"
                                                FontSize="Micro"
                                                HorizontalOptions="Start"/>
+
+                                   
 
                                 </StackLayout>
                             

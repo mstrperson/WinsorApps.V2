@@ -8,9 +8,10 @@ public partial class EventsListPage : ContentPage
     private EventListViewModel ViewModel => (EventListViewModel)BindingContext;
 	public EventsListPage(EventListViewModel vm)
 	{
-        vm.CreateRequested += Vm_CreateRequested;
+        vm.CreateRequested += PushEditor;
         vm.OnError += this.DefaultOnErrorHandler();
         vm.CreateCompleted += Vm_CreateCompleted;
+        vm.EditRequested += PushEditor;
 		InitializeComponent();
         BindingContext = vm;
     }
@@ -20,7 +21,7 @@ public partial class EventsListPage : ContentPage
         Navigation.PopAsync();
     }
 
-    private void Vm_CreateRequested(object? sender, RecurringEventViewModel e)
+    private void PushEditor(object? sender, RecurringEventViewModel e)
     {
         Editor editor = new Editor(e);
         Navigation.PushAsync(editor);
