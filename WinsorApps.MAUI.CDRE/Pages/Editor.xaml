@@ -119,11 +119,17 @@
                         FontSize="Micro"
                         WidthRequest="800"
                         HorizontalOptions="Start"
-                        Margin="0"/>  
-                    <ImageButton 
-                            Command="{Binding Attendees.AddEmailCommand}"
+                        Margin="0"/>
+                    <Image
                             Source="{FontImage FontFamily=FontAwesomeSolid, Color=White,
-                                     Glyph={x:Static styles:FontAwesomeSolid.PlusCircle}}"/>
+                                     Glyph={x:Static styles:FontAwesomeSolid.PlusCircle}}"
+                            TranslationX="10"
+                            HeightRequest="25">
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding Attendees.AddEmailCommand}"/>
+                        </Image.GestureRecognizers>
+                    </Image>
                 </HorizontalStackLayout>
                 
                 <HorizontalStackLayout>
@@ -144,10 +150,9 @@
                                                 Source="{FontImage FontFamily=FontAwesomeSolid, Color=White,
                                                          Glyph={x:Static styles:FontAwesomeSolid.TrashAlt}}"
                                                 Scale="0.4"
-                                                VerticalOptions="Center"
-                                                BackgroundColor="Transparent">
-                                        <Image.GestureRecognizers>
-                                            <TapGestureRecognizer
+                                                VerticalOptions="Center">
+                                            <Image.GestureRecognizers>
+                                                <TapGestureRecognizer
                                                     Command="{Binding SelectCommand}"/>
                                             </Image.GestureRecognizers>
                                         </Image>

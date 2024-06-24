@@ -119,15 +119,15 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         private readonly CycleDayRecurringEventService _eventService = ServiceHelper.GetService<CycleDayRecurringEventService>();
 
         [ObservableProperty] string id = "";
-        [ObservableProperty] DateOnly beginning = DateOnly.FromDateTime(DateTime.Today);
-        [ObservableProperty] DateOnly ending = DateOnly.FromDateTime(DateTime.Today);
+        [ObservableProperty] DateTime beginning = DateTime.Today;
+        [ObservableProperty] DateTime ending = DateTime.Today;
         [ObservableProperty] string creatorId = "";
         [ObservableProperty] string summary = "";
         [ObservableProperty] string description = "";
         [ObservableProperty] EmailListViewModel attendees = new();
         [ObservableProperty] bool allDay;
-        [ObservableProperty] TimeOnly startTime;
-        [ObservableProperty] TimeOnly endTime;
+        [ObservableProperty] TimeSpan startTime;
+        [ObservableProperty] TimeSpan endTime;
         [ObservableProperty] CycleDaySelectionViewModel cycleDays = new();
         [ObservableProperty] int frequency = 1;
         [ObservableProperty] bool isPublic;
@@ -153,7 +153,7 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         public async Task Submit()
         {
             CreateRecurringEvent create = new CreateRecurringEvent
-                (Beginning, Ending, Summary, Description, Attendees.Emails.Select(x => x.Label).ToImmutableArray(), CycleDays.Items.Where(item => item.IsSelected).Select(item => item.Label).ToImmutableArray(), Frequency, IsPublic, AllDay, StartTime, Duration);
+                (DateOnly.FromDateTime(Beginning), DateOnly.FromDateTime(Ending), Summary, Description, Attendees.Emails.Select(x => x.Label).ToImmutableArray(), CycleDays.Items.Where(item => item.IsSelected).Select(item => item.Label).ToImmutableArray(), Frequency, IsPublic, AllDay, TimeOnly.FromTimeSpan(StartTime), Duration);
             if (string.IsNullOrEmpty(Id))
             {
                 var result = await _eventService.CreateNewEvent(create, OnError.DefaultBehavior(this));
@@ -212,14 +212,14 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
             vm = new()
             {
                 Id = model.id,
-                Beginning = model.beginning,
-                Ending = model.ending,
+                Beginning = model.beginning.ToDateTime(default),
+                Ending = model.ending.ToDateTime(default),
                 CreatorId = model.creatorId,
                 Summary = model.summary,
                 Description = model.description,
                 AllDay = model.allDay,
-                StartTime = model.time,
-                EndTime = model.time.AddMinutes(model.duration),
+                StartTime = model.time.ToTimeSpan(),
+                EndTime = model.time.AddMinutes(model.duration).ToTimeSpan(),
                 CycleDays = new(),
                 Frequency = model.frequency,
                 IsPublic = model.isPublic,
