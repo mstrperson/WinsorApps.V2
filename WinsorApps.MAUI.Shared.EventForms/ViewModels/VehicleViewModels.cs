@@ -166,4 +166,7 @@ public partial class HiredBusViewModel :
         ShowHiredBusses = false;
         Count = 0;
     }
+
+    [RelayCommand]
+    public void Show() => ShowHiredBusses = true;
 }

@@ -76,6 +76,15 @@ public partial class LocationViewModel :
 
     public static ConcurrentBag<LocationViewModel> ViewModelCache { get; private set; } = [];
 
+    public static LocationViewModel? Get(string locationId, bool custom = false)
+    {
+        var service = ServiceHelper.GetService<LocationService>();
+        var location = (custom ? service.MyCustomLocations : service.OnCampusLocations).FirstOrDefault(loc => loc.id == locationId);
+        if (location.id == locationId)
+            return Get(location);
+        return null;
+    }
+
     public static LocationViewModel Get(Location model)
     {
         var vm = ViewModelCache.FirstOrDefault(loc => loc.Id == model.id);
@@ -121,7 +130,7 @@ public partial class LocationSearchViewModel :
 {
     private readonly LocationService _service = ServiceHelper.GetService<LocationService>();
 
-    public bool CustomLocations { get; set; }
+    [ObservableProperty] bool customLocations;
 
     public LocationSearchViewModel()
     {

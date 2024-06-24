@@ -38,12 +38,9 @@ public readonly record struct FieldTrip(Contact primaryContact, StudentsByClassC
     ImmutableArray<Contact> chaperones,
     ImmutableArray<string> chaparoneIds, bool hasLunch);
 
-public readonly record struct FieldTripTransportationRequest(bool usePublicTransit = false, bool noOrganizedTransit = false,
-    bool hasVehicleRequest = false, bool hasBusRequest = false);
-
 public readonly record struct FieldTripDetails(string eventId, Contact primaryContact,
-    TransportationRequest? transportationDetails = null,
-    StudentsByClassCount? studentCount = null,
-    ImmutableArray<Contact>? chaperones = null,
-    ImmutableArray<string>? chaparoneIds = null,
+    TransportationRequest transportationDetails,
+    StudentsByClassCount studentCount,
+    ImmutableArray<Contact> chaperones,
+    ImmutableArray<string> chaparoneIds,
     FieldTripCateringRequest? lunch = null);
