@@ -39,12 +39,18 @@ public partial class ContactViewModel :
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<ContactViewModel>? Selected;
+    public event EventHandler<ContactViewModel>? Created;
 
     [RelayCommand]
     public async Task Create()
     {
         var newContact = new NewContact(FirstName, LastName, Email, Phone, IsPublic);
-        await contactService.CreateNewContact(newContact, OnError.DefaultBehavior(this));
+        var result = await contactService.CreateNewContact(newContact, OnError.DefaultBehavior(this));
+        if (!string.IsNullOrEmpty(result.id))
+        {
+            this.Id = result.id;
+            Created?.Invoke(this, Get(result));
+        }
     }
 
     public static ConcurrentBag<ContactViewModel> ViewModelCache { get; private set; } = [];
@@ -101,11 +107,11 @@ public partial class ContactViewModel :
 
     public ContactViewModel Clone() => (ContactViewModel)MemberwiseClone();
 
+    [RelayCommand]
     public void Select()
     {
         IsSelected = !IsSelected;
-        if (IsSelected)
-            Selected?.Invoke(this, this);
+        Selected?.Invoke(this, this);
     }
 }
 
@@ -125,6 +131,8 @@ public partial class ContactSearchViewModel :
     [ObservableProperty] string searchText = "";
     [ObservableProperty] bool isSelected;
     [ObservableProperty] bool showOptions;
+    [ObservableProperty] bool showCreate;
+    [ObservableProperty] ContactViewModel newItem = ContactViewModel.Default;
 
     public event EventHandler<ImmutableArray<ContactViewModel>>? OnMultipleResult;
     public event EventHandler<ContactViewModel>? OnSingleResult;
@@ -151,10 +159,35 @@ public partial class ContactSearchViewModel :
         }
     }
 
+    [RelayCommand]
+    public void Create()
+    {
+        SearchText = SearchText.Trim();
+        NewItem = new();
+        if (SearchText.Contains("@"))
+            NewItem.Email = SearchText;
+        else if(SearchText.Contains(" "))
+        {
+            NewItem.FirstName = SearchText[..SearchText.IndexOf(' ')];
+            NewItem.LastName = SearchText[(SearchText.IndexOf(' ') + 1)..];
+        }
+        ShowCreate = true;
+
+        NewItem.Created += (_, vm) =>
+        {
+            Available = Available.Add(vm);
+            Select(vm);
+            ShowCreate = false;
+        };
+    }
+
+
+    [RelayCommand]
     public void Search()
     {
         var possible = Available.Where(contact =>
-            contact.FullName.Contains(SearchText, StringComparison.InvariantCultureIgnoreCase)); 
+            contact.FullName.Contains(SearchText, StringComparison.InvariantCultureIgnoreCase) ||
+            contact.Email.Contains(SearchText, StringComparison.InvariantCultureIgnoreCase)); 
         
         if (!possible.Any())
             OnZeroResults?.Invoke(this, EventArgs.Empty);

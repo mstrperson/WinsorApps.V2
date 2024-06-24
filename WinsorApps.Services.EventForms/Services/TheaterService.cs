@@ -11,25 +11,18 @@ using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.Services.EventForms.Services
 {
-    public class CateringMenuService : IAsyncInitService, ICacheService
+    public class TheaterService : IAsyncInitService
     {
         private readonly ApiService _api;
         private readonly LocalLoggingService _logging;
 
-        public event EventHandler? OnCacheRefreshed;
+        public ImmutableArray<TheaterMenuCategory> AvailableMenus { get; private set; } = [];
 
-        public ImmutableArray<CateringMenuCategory> MenuCategories { get; private set; } = [];
-
-        public ImmutableArray<CateringMenuCategory> AvailableCategories => [.. MenuCategories.Where(cat => !cat.isDeleted)];
-
-
-        public CateringMenuService(LocalLoggingService logging, ApiService api)
+        public TheaterService(ApiService api, LocalLoggingService logging)
         {
-            _logging = logging;
             _api = api;
-
+            _logging = logging;
             _api.OnLoginSuccess += (_, _) => Initialize(_logging.LogError).SafeFireAndForget(e => e.LogException(_logging));
-
         }
 
         public bool Started { get; private set; }
@@ -40,24 +33,27 @@ namespace WinsorApps.Services.EventForms.Services
 
         public async Task Initialize(ErrorAction onError)
         {
-            while (!_api.Ready)
-                await Task.Delay(250);
+            if (Ready)
+                return;
 
+            await _api.WaitForInit(onError);
             if (Started)
                 return;
 
             Started = true;
 
-            MenuCategories = await _api.SendAsync<ImmutableArray<CateringMenuCategory>>(HttpMethod.Get, "api/events/catering/menu");
+            AvailableMenus = await _api.SendAsync<ImmutableArray<TheaterMenuCategory>>(HttpMethod.Get,
+                "api/events/theater/menu", onError: onError);
+
             Progress = 1;
             Ready = true;
-            OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
 
         public async Task Refresh(ErrorAction onError)
         {
-            MenuCategories = await _api.SendAsync<ImmutableArray<CateringMenuCategory>>(HttpMethod.Get, "api/events/catering/menu");
-            OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
+
+            AvailableMenus = await _api.SendAsync<ImmutableArray<TheaterMenuCategory>>(HttpMethod.Get,
+                "api/events/theater/menu", onError: onError);
         }
 
         public async Task WaitForInit(ErrorAction onError)

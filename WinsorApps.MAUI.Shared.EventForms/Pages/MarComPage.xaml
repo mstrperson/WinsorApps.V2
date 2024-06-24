@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.EventForms.ViewModels"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             xmlns:views="clr-namespace:WinsorApps.MAUI.Shared.EventForms.Views"
+             xmlns:styles="clr-namespace:WinsorApps.MAUI.Shared.Resources.Styles;assembly=WinsorApps.MAUI.Shared"
+             x:DataType="vm:MarCommEventViewModel"
+             x:Class="WinsorApps.MAUI.Shared.EventForms.Pages.MarComPage"
+             Title="Communications Request">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert"/>
+            <conv:StringToIntegerConverter x:Key="StringToInt" />
+            <conv:CurrencyToStringConverter x:Key="Currency" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem 
+        Text="Continue" 
+        Command="{Binding ContinueCommand}" 
+        IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=White,
+            Glyph={x:Static styles:FontAwesomeSolid.ArrowAltCircleRight}}"/>
+        <ToolbarItem
+        Text="Remove Catering Request"
+        Command="{Binding DeleteCommand}" 
+        IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=White,
+            Glyph={x:Static styles:FontAwesomeSolid.Eraser}}"/>
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout>
+                <Grid
+                    ColumnDefinitions="50,250,50,250"
+                    RowDefinitions="auto,auto,auto,auto,auto">
+                    <CheckBox
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        IsChecked="{Binding PrintInvite}" />
+                    <Label
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Text="Printed Invitation" />
+                    <CheckBox
+                        Grid.Row="0"
+                        Grid.Column="2"
+                        IsChecked="{Binding DigitalInvite}" />
+                    <Label
+                        Grid.Row="0"
+                        Grid.Column="3"
+                        Text="Digital Invitation" />
+                    <CheckBox
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        IsChecked="{Binding NewsletterReminder}" />
+                    <Label
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Text="Reminder in Newsletter" />
+                    <CheckBox
+                        Grid.Row="1"
+                        Grid.Column="2"
+                        IsChecked="{Binding EmailReminder}" />
+                    <Label
+                        Grid.Row="1"
+                        Grid.Column="3"
+                        Text="Email Reminder" />
+                    <CheckBox
+                        Grid.Row="2"
+                        Grid.Column="0"
+                        IsChecked="{Binding ScriptHelp}" />
+                    <Label
+                        Grid.Row="2"
+                        Grid.Column="1"
+                        Text="Help with Script" />
+                    <CheckBox
+                        Grid.Row="2"
+                        Grid.Column="2"
+                        IsChecked="{Binding NeedsMedia}" />
+                    <Label
+                        Grid.Row="2"
+                        Grid.Column="3"
+                        Text="Created Media" />
+                    <CheckBox
+                        Grid.Row="3"
+                        Grid.Column="0"
+                        IsChecked="{Binding PrintedProgram}" />
+                    <Label
+                        Grid.Row="3"
+                        Grid.Column="1"
+                        Text="Printed Program" />
+                    <CheckBox
+                        Grid.Row="3"
+                        Grid.Column="2"
+                        IsChecked="{Binding DigitalProgram}" />
+                    <Label
+                        Grid.Row="3"
+                        Grid.Column="3"
+                        Text="Digital Program" />
+                    <CheckBox
+                        Grid.Row="4"
+                        Grid.Column="0"
+                        IsChecked="{Binding NeedPhotographer}" />
+                    <Label
+                        Grid.Row="4"
+                        Grid.Column="1"
+                        Text="Photographer" />
+                </Grid>
+                <Label
+                    StyleClass="SubHeader"
+                    Text="Guest List for Specific Invitations" />
+                <views:ContactMultiSelector BindingContext="{Binding InviteList}" />
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

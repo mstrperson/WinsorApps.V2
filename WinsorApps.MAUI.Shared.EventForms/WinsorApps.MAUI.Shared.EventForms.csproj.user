@@ -5,5 +5,20 @@
     <MauiXaml Update="Pages\CateringPage.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
+    <MauiXaml Update="Pages\MarComPage.xaml">
+      <SubType>Designer</SubType>
+    </MauiXaml>
+    <MauiXaml Update="Pages\TechPage.xaml">
+      <SubType>Designer</SubType>
+    </MauiXaml>
+    <MauiXaml Update="Pages\TheaterPage.xaml">
+      <SubType>Designer</SubType>
+    </MauiXaml>
+    <MauiXaml Update="Views\ContactMultiSelector.xaml">
+      <SubType>Designer</SubType>
+    </MauiXaml>
+    <MauiXaml Update="Views\VehicleRequestCollectionEditor.xaml">
+      <SubType>Designer</SubType>
+    </MauiXaml>
   </ItemGroup>
 </Project>

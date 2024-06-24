@@ -7,7 +7,11 @@ using System.Threading.Tasks;
 
 namespace WinsorApps.Services.EventForms.Models;
 public readonly record struct CateringMenuItem(string id, string name, double pricePerPerson, string category, bool isDeleted, bool fieldTripItem, int ordinal);
-public readonly record struct CateringMenuCategory(string id, string name, bool isDeleted, bool fieldTripCategory, ImmutableArray<CateringMenuItem> items);
+public readonly record struct CateringMenuCategory(string id, string name, bool isDeleted, bool fieldTripCategory, ImmutableArray<CateringMenuItem> items)
+{
+    public ImmutableArray<CateringMenuItem> AvailableItems => [.. items.Where(it => !it.isDeleted)];
+    public ImmutableArray<CateringMenuItem> FieldTripAvailableItems => [.. AvailableItems.Where(it => it.fieldTripItem)];
+}
 
 public readonly record struct CateringMenuSelection(string itemId, int quantity);
 

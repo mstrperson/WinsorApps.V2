@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.EventForms.ViewModels"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             xmlns:styles="clr-namespace:WinsorApps.MAUI.Shared.Resources.Styles;assembly=WinsorApps.MAUI.Shared"
+             x:DataType="vm:TheaterEventViewModel"
+             x:Class="WinsorApps.MAUI.Shared.EventForms.Pages.TheaterPage"
+             Title="Theater Details">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert"/>
+            <conv:StringToIntegerConverter x:Key="StringToInt" />
+            <conv:CurrencyToStringConverter x:Key="Currency" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem 
+            Text="Continue" 
+            Command="{Binding ContinueCommand}" 
+            IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=White,
+                Glyph={x:Static styles:FontAwesomeSolid.ArrowAltCircleRight}}"/>
+        <ToolbarItem
+            Text="Remove Catering Request"
+            Command="{Binding DeleteCommand}" 
+            IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=White,
+                Glyph={x:Static styles:FontAwesomeSolid.Eraser}}"/>
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout>
+                <Label 
+                    StyleClass="H3"
+                    Text="Theater Needs (Select all Required)" />
+                <CollectionView
+                    ItemsSource="{Binding TheaterMenu.Menus}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:TheaterMenuViewModel">
+                            <CollectionView
+                                ItemsSource="{Binding Items}">
+                                <CollectionView.ItemsLayout>
+                                    <LinearItemsLayout Orientation="Horizontal" ItemSpacing="50" />
+                                </CollectionView.ItemsLayout>
+                                <CollectionView.Header>
+                                    <Label
+                                        Text="{Binding Name}"
+                                        FontAttributes="Bold" />
+                                </CollectionView.Header>
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:TheaterMenuItemViewModel">
+                                        <StackLayout
+                                            Orientation="Horizontal">
+                                            <CheckBox IsChecked="{Binding IsSelected}" />
+                                            <Label Text="{Binding Name}" />
+                                        </StackLayout>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                <Editor
+                    Placeholder="Please provide details for what the theater needs to provide."
+                    Text="{Binding Notes}"
+                    HeightRequest="150" />
+                <!-- TODO:  Add Attachments section... -->
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

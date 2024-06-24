@@ -272,7 +272,7 @@ public partial class CateringMenuCollectionViewModel :
         var task = _service.WaitForInit(OnError.DefaultBehavior(this));
         task.WhenCompleted(() =>
         {
-            Menus = _service.MenuCategories.Select(cat => CateringMenuViewModel.Create(cat)).ToImmutableArray();
+            Menus = _service.AvailableCategories.Select(cat => CateringMenuViewModel.Create(cat)).ToImmutableArray();
             foreach (var menu in Menus)
             {
                 menu.OnError += (sender, e) => OnError?.Invoke(sender, e);
@@ -394,7 +394,7 @@ public partial class CateringMenuCategoryViewModel :
             FieldTripCategory = model.fieldTripCategory, 
             IsDeleted = model.isDeleted, 
             Name = model.name, 
-            Items = model.items.Select(CateringMenuItemViewModel.Get).ToImmutableArray() 
+            Items = model.AvailableItems.Select(CateringMenuItemViewModel.Get).ToImmutableArray() 
         };
 
         ViewModelCache.Add(vm);
@@ -416,7 +416,7 @@ public partial class CateringMenuCategoryViewModel :
     {
         await service.WaitForInit(onError);
 
-        _ = GetClonedViewModels(service.MenuCategories);
+        _ = GetClonedViewModels(service.AvailableCategories);
     }
 
     public CateringMenuCategoryViewModel Clone() => (CateringMenuCategoryViewModel)this.MemberwiseClone();

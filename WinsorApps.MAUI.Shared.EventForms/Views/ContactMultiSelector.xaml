@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.EventForms.ViewModels"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             xmlns:styles="clr-namespace:WinsorApps.MAUI.Shared.Resources.Styles;assembly=WinsorApps.MAUI.Shared"
+             x:DataType="vm:ContactSearchViewModel"
+             x:Class="WinsorApps.MAUI.Shared.EventForms.Views.ContactMultiSelector">
+    <StackLayout>
+    <StackLayout
+    Margin="0"
+    Orientation="Horizontal"
+    IsVisible="{Binding ShowCreate, Converter={StaticResource Invert}}">
+        <SearchBar 
+        Placeholder="Panelist Name"
+        Text="{Binding SearchText}"
+        SearchCommand="{Binding SearchCommand}"/>
+        <Button
+        StyleClass="AddButton"
+        Command="{Binding CreateCommand}" />
+    </StackLayout>
+    <!-- Create new Contact -->
+    <StackLayout
+    Margin="0"
+    Orientation="Vertical"
+    IsVisible="{Binding ShowCreate}">
+        <StackLayout
+        Margin="0"
+        Padding="0"
+        Orientation="Horizontal">
+            <Entry
+            Placeholder="First Name"
+            Text="{Binding NewItem.FirstName}" />
+            <Entry
+            Placeholder="Last Name"
+            Text="{Binding NewItem.LastName}" />
+        </StackLayout>
+        <Entry
+        Placeholder="Email Address"
+        Text="{Binding NewItem.Email}" 
+        Keyboard="Email" />
+        <Entry
+        Placeholder="Phone Number"
+        Text="{Binding NewItem.Phone}"
+        Keyboard="Telephone" />
+        <StackLayout
+        Margin="0"
+        Padding="0"
+        Orientation="Horizontal">
+            <CheckBox IsChecked="{Binding NewItem.IsPublic}" />
+            <Label Text="Public" />
+            <Button
+            StyleClass="SaveButton"
+            Command="{Binding NewItem.CreateCommand}" />
+        </StackLayout>
+    </StackLayout>
+    <!-- End Create New Contact -->
+    <CollectionView
+    ItemsSource="{Binding AllSelected}">
+        <CollectionView.ItemsLayout>
+            <LinearItemsLayout Orientation="Vertical"/>
+        </CollectionView.ItemsLayout>
+        <CollectionView.Header>
+            <Label 
+            FontAttributes="Bold"
+            Text="Selected Contacts (Tap to Remove)" />
+        </CollectionView.Header>
+        <CollectionView.ItemTemplate>
+            <DataTemplate x:DataType="vm:ContactViewModel">
+                <StackLayout
+                Orientation="Horizontal">
+                    <StackLayout.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                    </StackLayout.GestureRecognizers>
+                    <Label Text="{Binding FullName}" />
+                    <Label Text="{Binding Email}" />
+                </StackLayout>
+            </DataTemplate>
+        </CollectionView.ItemTemplate>
+        </CollectionView>
+    </StackLayout>
+</ContentView>

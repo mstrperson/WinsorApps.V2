@@ -33,6 +33,7 @@
                 IsEnabled="{Binding Busy, Converter={StaticResource Invert}}">
                 <Label
                     Text="{Binding BusyMessage}"
+                    StyleClass="Header"
                     IsVisible="{Binding Busy}" />
                 <StackLayout 
                     Orientation="Horizontal">
