@@ -18,54 +18,41 @@
     <ScrollView>
         <VerticalStackLayout
             HorizontalOptions="Center">
-            <ListView x:Name="EventsListView"
+            <CollectionView x:Name="EventsListView"
                       ItemsSource="{Binding Events}"
                       VerticalOptions="FillAndExpand"
-                      HasUnevenRows="False"
-                      RowHeight="80"
-                      IsRefreshing="{Binding IsBusy, Mode=OneWay}"
-                      CachingStrategy="RetainElement">
-                <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="vm:RecurringEventViewModel">
-                        <ViewCell>
-                             <StackLayout> 
-                                 
+                            BackgroundColor="Transparent">
+                <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:RecurringEventViewModel">
+                            <StackLayout>
+                                <VerticalStackLayout>
                                     <HorizontalStackLayout>
+                                        <HorizontalStackLayout.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding SelectCommand}"/>
+                                        </HorizontalStackLayout.GestureRecognizers>
                                         <Image Source="{FontImage FontFamily=FontAwesomeSolid, Color=White,
                                                                    Glyph={x:Static styles:FontAwesomeSolid.CalendarAlt}}"
-                                                                    WidthRequest="20"
                                                                     HorizontalOptions="Start"/>
 
                                         <Label Text="{Binding Summary}"
                                                FontAttributes="Bold" 
                                                FontSize="Medium"
                                                HorizontalOptions="Start"/>
-                                        <HorizontalStackLayout
-                                         HorizontalOptions="End">
-                                        <HorizontalStackLayout.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding SelectCommand}"/>
-                                        </HorizontalStackLayout.GestureRecognizers>
-                                        <Image Source="{FontImage FontFamily=FontAwesomeSolid, Color=White,
-                                                        Glyph={x:Static styles:FontAwesomeSolid.PencilAlt}}"/>
-                                        <Label Text="Edit"
-                                               LineBreakMode="NoWrap" 
-                                               MaxLines="1"
-                                               FontSize="Micro"/>
-                                        </HorizontalStackLayout>
-                                    </HorizontalStackLayout>
 
+
+                                        <Image Source="{FontImage FontFamily=FontAwesomeSolid, Color=White,
+                                                            Glyph={x:Static styles:FontAwesomeSolid.PencilAlt}}"
+                                                            WidthRequest="15"/>
+
+                                    </HorizontalStackLayout>
                                     <Label Text="{Binding Description}"
                                                FontSize="Micro"
                                                HorizontalOptions="Start"/>
-
-                                   
-
-                                </StackLayout>
-                            
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+                                </VerticalStackLayout>
+                            </StackLayout>
+                        </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
             <HorizontalStackLayout
                 HorizontalOptions="Center">
                 <HorizontalStackLayout.GestureRecognizers>
@@ -74,8 +61,11 @@
                 <Image Source="{FontImage FontFamily=FontAwesomeSolid, Color=White,
                 Glyph={x:Static styles:FontAwesomeSolid.PlusCircle}}"/>
                 <Label Text="Create New Event"
-                 LineBreakMode="NoWrap" MaxLines="1"
-                 FontAttributes="Bold" FontSize="Small"/>
+                       LineBreakMode="NoWrap" 
+                       MaxLines="1"
+                       FontAttributes="Bold" 
+                       FontSize="Small"
+                       TextDecorations="Underline"/>
             </HorizontalStackLayout>
             
         </VerticalStackLayout>

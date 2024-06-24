@@ -50,13 +50,11 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
 
         [ObservableProperty] ImmutableArray<RecurringEventViewModel> events = [];
         public event EventHandler<RecurringEventViewModel>? CreateRequested;
-        public event EventHandler<RecurringEventViewModel>? CreateCompleted;
+        public event EventHandler<RecurringEventViewModel>? Reload;
         public event EventHandler<RecurringEventViewModel>? EditRequested;
         public event EventHandler<ErrorRecord>? OnError;
 
         [ObservableProperty] bool isBusy;
-
-
 
         [RelayCommand]
         public void LoadEvents()
@@ -67,7 +65,21 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
             {
                 evt.OnError += (sender, e) => OnError?.Invoke(sender, e);
                 evt.Selected += (sender, e) => EditRequested?.Invoke(sender, e);
-                evt.OnCreated += (sender, e) => Events = Events.Add(e);
+                evt.OnCreated += (sender, e) =>
+                {
+                    Events = Events.Add(e);
+                    Reload?.Invoke(sender, e);
+                };
+                evt.OnUpdated += (sender, e) =>
+                {
+                    Events = Events.Replace(evt, e);
+                    Reload?.Invoke(sender, e);
+                };
+                evt.OnDelete += (sender, e) =>
+                {
+                    Events = Events.Remove(evt);
+                    Reload?.Invoke(sender, e);
+                };
             }
             IsBusy = false;
         }
@@ -78,10 +90,20 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
             var evt = new RecurringEventViewModel();
             evt.OnError += (sender, e) => OnError?.Invoke(sender, e);
             evt.Selected += (sender, e) => EditRequested?.Invoke(sender, e);
-            evt.OnCreated += (sender, e) =>
+            evt.OnCreated += (sender, e) => 
             {
                 Events = Events.Add(e);
-                CreateCompleted?.Invoke(sender, e);
+                Reload?.Invoke(sender, e);
+            };
+            evt.OnUpdated += (sender, e) =>
+            {
+                Events = Events.Replace(evt, e);
+                Reload?.Invoke(sender, e);
+            };
+            evt.OnDelete += (sender, e) =>
+            {
+                Events = Events.Remove(evt);
+                Reload?.Invoke(sender, e);
             };
             CreateRequested?.Invoke(this, evt);
         }
@@ -109,6 +131,7 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         [ObservableProperty] CycleDaySelectionViewModel cycleDays = new();
         [ObservableProperty] int frequency = 1;
         [ObservableProperty] bool isPublic;
+        [ObservableProperty] bool showDelete = false;
 
        
         public int Duration => (int)(EndTime - StartTime).TotalMinutes;
@@ -151,8 +174,8 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         [RelayCommand]
         public async Task Delete()
         {
-            var success = true;
-           // todo: Cox write this! await _eventService.//
+            await _eventService.DeleteEvent(Id, OnError.DefaultBehavior(this));
+            OnDelete?.Invoke(this, this);
                
         }
 
@@ -189,17 +212,18 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
             vm = new()
             {
                 Id = model.id,
-                Beginning=model.beginning,
-                Ending=model.ending,
-                CreatorId=model.creatorId,
-                Summary=model.summary,
-                Description=model.description,
-                AllDay=model.allDay,
-                StartTime=model.time,
-                EndTime=model.time.AddMinutes(model.duration),
-                CycleDays=new (),
-                Frequency=model.frequency,
-                IsPublic=model.isPublic,
+                Beginning = model.beginning,
+                Ending = model.ending,
+                CreatorId = model.creatorId,
+                Summary = model.summary,
+                Description = model.description,
+                AllDay = model.allDay,
+                StartTime = model.time,
+                EndTime = model.time.AddMinutes(model.duration),
+                CycleDays = new(),
+                Frequency = model.frequency,
+                IsPublic = model.isPublic,
+                ShowDelete = true
 
 
                 // TODO: Initialize the rest of the ObservableProperties you add.
@@ -230,7 +254,7 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         public static async Task Initialize(CycleDayRecurringEventService service, Action<ErrorRecord> onError)
         {
             await service.WaitForInit(onError);
-
+            ViewModelCache = [];
             _ = GetClonedViewModels(service.RecurringEvents);
         }
 

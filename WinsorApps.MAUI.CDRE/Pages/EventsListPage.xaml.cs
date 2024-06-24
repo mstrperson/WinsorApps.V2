@@ -10,7 +10,7 @@ public partial class EventsListPage : ContentPage
 	{
         vm.CreateRequested += PushEditor;
         vm.OnError += this.DefaultOnErrorHandler();
-        vm.CreateCompleted += Vm_CreateCompleted;
+        vm.Reload += Vm_CreateCompleted;
         vm.EditRequested += PushEditor;
 		InitializeComponent();
         BindingContext = vm;
