@@ -3,9 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:WinsorApps.MAUI.CDRE.ViewModels"
              xmlns:styles="clr-namespace:WinsorApps.MAUI.CDRE.Resources.Styles"
+             xmlns:svm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels;assembly=WinsorApps.MAUI.Shared"
              x:DataType="vm:EventListViewModel"
              x:Class="WinsorApps.MAUI.CDRE.Pages.EventsListPage"
-             Title="My Recurring Events">
+             Title="My Recurring Events"
+             NavigatedTo="ContentPage_NavigatedTo">
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="Refresh"
                      IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=White,
@@ -24,34 +26,30 @@
                       IsRefreshing="{Binding IsBusy, Mode=OneWay}"
                       CachingStrategy="RetainElement">
                 <ListView.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate x:DataType="vm:RecurringEventViewModel">
                         <ViewCell>
-                            <Grid Padding="10" x:DataType="vm:RecurringEventViewModel"
-                                   RowDefinitions="32,32"
-                                   ColumnDefinitions="auto,auto">
-                                <Grid Grid.RowSpan="2" Padding="10">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="32"/>
-                            </Grid.ColumnDefinitions>
-                            <Image Grid.Column="0" Source="{FontImage FontFamily=FontAwesomeSolid, Color=White,
-                                                                Glyph={x:Static styles:FontAwesomeSolid.CalendarAlt}}"
-                                                                HorizontalOptions="Fill" VerticalOptions="Fill"/>
-                        </Grid>
-                        <Label Text="{Binding Summary}" Grid.Column="1"
-                                          LineBreakMode="NoWrap" MaxLines="1"
-                                          FontAttributes="Bold" FontSize="Medium"/>
-                        <Label Text="{Binding Description}" Grid.Column="1"
-                                          LineBreakMode="NoWrap" MaxLines="1"
-                                          FontSize="Micro"/>
-                        <Label Text="{Binding Attendees}" Grid.Column="1"
-                                          LineBreakMode="NoWrap" MaxLines="1"
-                                          FontSize="Micro"/>
-                        <Label Text="{Binding CycleDays}" Grid.Column="1"
-                                          LineBreakMode="NoWrap" MaxLines="1"
-                                          FontSize="Micro"/>
-                        </Grid>
+                             <StackLayout> 
+                                 
+                                    <HorizontalStackLayout>
+                                        <Image Source="{FontImage FontFamily=FontAwesomeSolid, Color=White,
+                                                                   Glyph={x:Static styles:FontAwesomeSolid.CalendarAlt}}"
+                                                                    WidthRequest="20"
+                                                                    HorizontalOptions="Start"/>
 
-                    </ViewCell>
+                                        <Label Text="{Binding Summary}"
+                                               FontAttributes="Bold" 
+                                               FontSize="Medium"
+                                               HorizontalOptions="Start"/>
+                                       
+                                    </HorizontalStackLayout>
+
+                                    <Label Text="{Binding Description}"
+                                               FontSize="Micro"
+                                               HorizontalOptions="Start"/>
+
+                                </StackLayout>
+                            
+                        </ViewCell>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>

@@ -77,7 +77,7 @@ namespace WinsorApps.Services.Global.Services
             return result;
         }
 
-        public async Task<CycleDayRecurringEvent> UpdateEvent(string eventId, CreateRecurringEvent newEvent, ErrorAction onError)
+        public async Task<CycleDayRecurringEvent?> UpdateEvent(string eventId, CreateRecurringEvent newEvent, ErrorAction onError)
         {
             var result = await _api.SendAsync<CreateRecurringEvent, CycleDayRecurringEvent?>(HttpMethod.Put, $"api/users/self/cycle-day-recurring-events/{eventId}", newEvent, onError: onError);
 
@@ -91,7 +91,7 @@ namespace WinsorApps.Services.Global.Services
                 OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
             }
 
-            return result ?? oldEvent;
+            return result;
         }
     }
 }

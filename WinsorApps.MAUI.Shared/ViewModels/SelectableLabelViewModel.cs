@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,7 @@ namespace WinsorApps.MAUI.Shared.ViewModels
 
         public event EventHandler<SelectableLabelViewModel>? Selected;
 
+        [RelayCommand]
         public void Select()
         {
             IsSelected = !IsSelected;
