@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.EventForms.ViewModels"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             xmlns:views="clr-namespace:WinsorApps.MAUI.Shared.EventForms.Views"
+             xmlns:styles="clr-namespace:WinsorApps.MAUI.Shared.Resources.Styles;assembly=WinsorApps.MAUI.Shared"
+             x:DataType="vm:LocationSearchViewModel"
+             x:Class="WinsorApps.MAUI.Shared.EventForms.Views.LocationSingleSelector">
+
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert"/>
+            <conv:StringToIntegerConverter x:Key="StringToInt" />
+            <conv:CurrencyToStringConverter x:Key="Currency" />
+        </ResourceDictionary>
+    </ContentView.Resources>
+    <VerticalStackLayout>
+        <StackLayout
+            Orientation="Horizontal"
+            Spacing="30"
+            IsVisible="{Binding IsSelected, Converter={StaticResource Invert}}">
+            <SearchBar
+                Placeholder="Primary Contact"
+                Text="{Binding SearchText}"
+                SearchCommand="{Binding SearchCommand}" />
+            <Button
+                StyleClass="AddButton"
+                Command="{Binding CreateCommand}" 
+                IsVisible="{Binding CustomLocations}" />
+        </StackLayout>
+        <CollectionView
+            IsVisible="{Binding ShowOptions}"
+            ItemsSource="{Binding Options}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:LocationViewModel">
+                    <StackLayout
+                        Orientation="Horizontal"
+                        Spacing="30">
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                        </StackLayout.GestureRecognizers>
+                        <Label Text="{Binding Label}" />
+                    </StackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+        <StackLayout
+            Orientation="Horizontal"
+            Spacing="30"
+            IsVisible="{Binding IsSelected}">
+            <StackLayout.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding ClearSelectionCommand}" />
+            </StackLayout.GestureRecognizers>
+            <Label Text="{Binding Selected.Label}" />
+        </StackLayout>
+        <StackLayout
+            Orientation="Horizontal"
+            Spacing="30"
+            IsVisible="{Binding ShowCreate}">
+            <Entry
+                Text="{Binding NewItem.Label}"
+                Placeholder="Location Name"/>
+            <Switch IsToggled="{Binding NewItem.IsPublic}" />
+            <Label Text="Public" />
+            <Button
+                StyleClass="SaveButton"
+                ToolTipProperties.Text="Save Contact" 
+                Command="{Binding NewItem.CreateCommand}"/>
+            <Button
+                StyleClass="CancelButton"
+                Command="{Binding CancelCreateCommand}" />
+        </StackLayout>
+
+    </VerticalStackLayout>
+</ContentView>

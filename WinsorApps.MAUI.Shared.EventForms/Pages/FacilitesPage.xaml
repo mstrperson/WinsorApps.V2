@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.EventForms.ViewModels"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             xmlns:styles="clr-namespace:WinsorApps.MAUI.Shared.Resources.Styles;assembly=WinsorApps.MAUI.Shared"
+             xmlns:views="clr-namespace:WinsorApps.MAUI.Shared.EventForms.Views"
+             x:DataType="vm:FacilitesEventViewModel"
+             x:Class="WinsorApps.MAUI.Shared.EventForms.Pages.FacilitesPage"
+             Title="Facilites Information">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert"/>
+            <conv:StringToIntegerConverter x:Key="StringToInt" />
+            <conv:CurrencyToStringConverter x:Key="Currency" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem 
+            Text="Continue" 
+            Command="{Binding ContinueCommand}" 
+            IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=White,
+                Glyph={x:Static styles:FontAwesomeSolid.ArrowAltCircleRight}}"/>
+        <ToolbarItem
+            Text="Remove Catering Request"
+            Command="{Binding DeleteCommand}" 
+            IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=White,
+                Glyph={x:Static styles:FontAwesomeSolid.Eraser}}"/>
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout>
+                <StackLayout
+                    Orientation="Horizontal"
+                    Spacing="30">
+                    <Switch IsToggled="{Binding Setup}" />
+                    <Label Text="We need help setting up the event." />
+                </StackLayout>
+                <StackLayout
+                    Orientation="Horizontal"
+                    Spacing="30">
+                    <Switch IsToggled="{Binding Breakdown}" />
+                    <Label Text="We need help breaking down after the event." />
+                </StackLayout>
+                <StackLayout
+                    Orientation="Horizontal"
+                    Spacing="30">
+                    <Switch IsToggled="{Binding Parking}" />
+                    <Label Text="We need a parking attendant during the event." />
+                </StackLayout>
+                <StackLayout
+                    Orientation="Horizontal"
+                    Spacing="30">
+                    <Switch IsToggled="{Binding Presence}" />
+                    <Label Text="We need folks on site during the event." />
+                </StackLayout>
+                <StackLayout
+                    Orientation="Horizontal"
+                    Spacing="30">
+                    <Switch IsToggled="{Binding Overnight}" />
+                    <Label Text="This event will happen overnight." />
+                </StackLayout>
+
+                <StackLayout
+                    Orientation="Horizontal"
+                    Spacing="30">
+                    <Label 
+                        Text="Specific Location Setup Needed" />
+                    <Button 
+                        StyleClass="AddButton"
+                        Command="{Binding Locations.AddSetupCommand}" />
+                </StackLayout>
+                <CollectionView
+                    ItemsSource="{Binding Locations.Setups}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:LocationSetupViewModel">
+                            <StackLayout>
+                                <views:LocationSingleSelector BindingContext="{Binding LocationSearch}" />
+                                <StackLayout
+                                    Orientation="Horizontal"
+                                    Spacing="30">
+                                    <Switch IsToggled="{Binding SandwichSign}" />
+                                    <Label Text="Need a Sandwich Sign at this Location.  Text will be provided in instructions." />
+                                    <Button 
+                                        StyleClass="DeleteButton"
+                                        Command="{Binding DeleteCommand}" />
+                                </StackLayout>
+                                <Editor
+                                    HeightRequest="250"
+                                    Placeholder="(Mandatory) Please provide instructions for the facilities crew to set up at this location." />
+                            </StackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

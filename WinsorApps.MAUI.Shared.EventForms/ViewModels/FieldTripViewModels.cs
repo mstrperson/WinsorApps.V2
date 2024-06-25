@@ -39,6 +39,14 @@ public partial class FieldTripViewModel :
               vm.ShowFood ? (NewFieldTripCateringRequest)vm.FieldTripCateringRequest : null
         );
 
+    public FieldTripViewModel()
+    {
+        FieldTripCateringRequest.Deleted += (_, _) =>
+        {
+            ShowFood = false;
+        };
+    }
+
     public static FieldTripViewModel Get(FieldTripDetails model)
     {
         var vm = new FieldTripViewModel()
@@ -90,6 +98,8 @@ public partial class TransportationViewModel :
     [ObservableProperty] bool noOrganizedTransit;
     [ObservableProperty] VehicleRequestCollectionViewModel vehicleRequestCollection = new();
     [ObservableProperty] HiredBusViewModel hiredBusses = new();
+    [ObservableProperty] bool showHiredBusses;
+    [ObservableProperty] bool showVehicleRequest;
 
     public static implicit operator NewTransportationRequest(TransportationViewModel vm) =>
         new(vm.PublicTransit, vm.NoOrganizedTransit,
@@ -97,6 +107,11 @@ public partial class TransportationViewModel :
                 vm.VehicleRequestCollection.Requests.Select(req => (NewVehicleRequest)req).ToImmutableArray() : null,
             vm.HiredBusses.Count > 0 ?
                 (FieldTripHiredBusRequest)vm.HiredBusses : null);
+
+    public TransportationViewModel()
+    {
+        VehicleRequestCollection.Cleared += (_, _) => ShowVehicleRequest = false;
+    }
 
     public static TransportationViewModel Get(TransportationRequest model)
     {
@@ -152,8 +167,21 @@ public partial class FieldTripCateringRequestViewModel :
     [ObservableProperty] int numberOfLunches;
     [ObservableProperty] int diningInCount;
     [ObservableProperty] bool eatingAway;
-    [ObservableProperty] TimeOnly pickupTime;
-    
+    [ObservableProperty] TimeSpan pickupTime;
+
+    public event EventHandler? Deleted;
+
+    [RelayCommand]
+    public void Delete()
+    {
+        MenuCollection.ClearSelections();
+        NumberOfLunches = 0;
+        DiningInCount = 0;
+        EatingAway = false;
+        PickupTime = default;
+        Deleted?.Invoke(this, EventArgs.Empty);
+    }
+
     public FieldTripCateringRequestViewModel()
     {
         MenuCollection = new(_service);
@@ -170,7 +198,7 @@ public partial class FieldTripCateringRequestViewModel :
             .ToImmutableArray(),
             vm.DiningInCount,
             vm.EatingAway,
-            vm.PickupTime);
+            TimeOnly.FromTimeSpan(vm.PickupTime));
 
     public static FieldTripCateringRequestViewModel Get(FieldTripCateringRequest model)
     {
@@ -179,7 +207,7 @@ public partial class FieldTripCateringRequestViewModel :
             NumberOfLunches = model.numberOfLunches,
             DiningInCount = model.diningInCount,
             EatingAway = model.eatingAway,
-            PickupTime = model.pickupTime
+            PickupTime = model.pickupTime.ToTimeSpan()
         };
 
         vm.MenuCollection.LoadMenuSelections(model.menuItems);

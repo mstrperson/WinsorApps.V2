@@ -29,10 +29,21 @@ public partial class VehicleRequestCollectionViewModel :
     public static implicit operator ImmutableArray<NewVehicleRequest>(VehicleRequestCollectionViewModel vm) =>
         vm.Requests.Select(req => (NewVehicleRequest)req).ToImmutableArray();
 
+    public event EventHandler? Cleared;
+
     public VehicleRequestCollectionViewModel()
     {
         this.categoryCollection = new(_service);
         CategoryCollection.CreateRequested += AddRequest;
+    }
+
+    [RelayCommand]
+    public void ClearRequests()
+    {
+        Requests = [];
+        foreach (var cat in CategoryCollection.Categories)
+            cat.IsSelected = false;
+        Cleared?.Invoke(this, EventArgs.Empty);
     }
 
     public void LoadRequests(IEnumerable<VehicleRequestViewModel> requests)
@@ -46,6 +57,7 @@ public partial class VehicleRequestCollectionViewModel :
     public void AddRequest(object? _, VehicleRequestViewModel request)
     {
         var existingRequest = Requests.FirstOrDefault(req => req.Category.Id == request.Category.Id);
+        var category = CategoryCollection.Categories.First(cat => cat.Id == request.Category.Id);
         if(existingRequest is not null)
         {
             existingRequest.CountRequested += request.CountRequested;
@@ -53,7 +65,11 @@ public partial class VehicleRequestCollectionViewModel :
         }
 
         Requests.Add(request);
-        request.Deleted += (_, _) => Requests = Requests.Remove(request);
+        request.Deleted += (_, _) =>
+        {
+            category.IsSelected = false;
+            Requests = Requests.Remove(request);
+        };
     }
 }
 
@@ -141,21 +157,21 @@ public partial class HiredBusViewModel :
     ObservableObject
 {
     [ObservableProperty] int count;
-    [ObservableProperty] TimeOnly departureTime;
-    [ObservableProperty] TimeOnly pickupTime;
-    [ObservableProperty] TimeOnly returnArrivalTime;
+    [ObservableProperty] TimeSpan departureTime;
+    [ObservableProperty] TimeSpan pickupTime;
+    [ObservableProperty] TimeSpan returnArrivalTime;
     [ObservableProperty] string instructions = "";
     [ObservableProperty] bool showHiredBusses;
 
     public static implicit operator FieldTripHiredBusRequest(HiredBusViewModel vm) =>
-        new(vm.Count, vm.DepartureTime, vm.PickupTime, vm.ReturnArrivalTime, vm.Instructions);
+        new(vm.Count, TimeOnly.FromTimeSpan(vm.DepartureTime), TimeOnly.FromTimeSpan(vm.PickupTime), TimeOnly.FromTimeSpan(vm.ReturnArrivalTime), vm.Instructions);
 
     public static HiredBusViewModel Get(FieldTripHiredBusRequest model) => new()
     {
         Count = model.busCount,
-        DepartureTime = model.departureTime,
-        PickupTime = model.busPickupTime,
-        ReturnArrivalTime = model.returnTime,
+        DepartureTime = model.departureTime.ToTimeSpan(),
+        PickupTime = model.busPickupTime.ToTimeSpan(),
+        ReturnArrivalTime = model.returnTime.ToTimeSpan(),
         Instructions = model.instructions,
         ShowHiredBusses = model.busCount > 0
     };

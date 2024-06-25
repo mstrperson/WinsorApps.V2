@@ -51,14 +51,20 @@ public partial class FacilitesEventViewModel :
         return vm;
     }
 
-    public Task Continue()
+    [RelayCommand]
+    public async Task Continue()
     {
-        throw new NotImplementedException();
+        var result = await _service.PostFacilitiesEvent(Id, this, OnError.DefaultBehavior(this));
+        if (result.HasValue)
+            ReadyToContinue?.Invoke(this, EventArgs.Empty);
     }
 
-    public Task Delete()
+    [RelayCommand]
+    public async Task Delete()
     {
-        throw new NotImplementedException();
+        var result = await _service.DeleteFacilitiesEvent(Id, OnError.DefaultBehavior(this));
+        if (result)
+            Deleted?.Invoke(this, EventArgs.Empty);
     }
 }
 
@@ -77,7 +83,9 @@ public partial class LocationSetupCollectionViewModel :
         Setups = [];
         foreach(var setup in setups)
         {
-            Setups = Setups.Add(LocationSetupViewModel.Get(setup));
+            var vm = LocationSetupViewModel.Get(setup);
+            vm.Deleted += (_, _) => Setups = Setups.Remove(vm);
+            Setups = Setups.Add(vm);
         }
     }
 
@@ -132,6 +140,7 @@ public partial class LocationSetupViewModel :
     [ObservableProperty] bool isSelected;
 
     public event EventHandler<LocationSetupViewModel>? Selected;
+    public event EventHandler? Deleted;
 
     public static implicit operator NewLocationSetup(LocationSetupViewModel vm) =>
         new(vm.LocationSearch.Selected.Id, vm.Instructions, vm.SandwichSign, vm.SetupDate.ToDateTime(vm.SetupTime));
@@ -151,7 +160,12 @@ public partial class LocationSetupViewModel :
 
         return vm;
     }
-        
+
+    [RelayCommand]
+    public void Delete()
+    {
+        Deleted?.Invoke(this, EventArgs.Empty);
+    }
 
     [RelayCommand]
     public void Select()

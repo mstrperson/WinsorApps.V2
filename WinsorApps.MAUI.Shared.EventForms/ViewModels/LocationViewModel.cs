@@ -21,6 +21,7 @@ public partial class LocationViewModel :
     ObservableObject,
     IDefaultValueViewModel<LocationViewModel>,
     ICachedViewModel<LocationViewModel, Location, LocationService>,
+    ISelectable<LocationViewModel>,
     IErrorHandling
 {
     [ObservableProperty] string id = "";
@@ -44,9 +45,13 @@ public partial class LocationViewModel :
     /// </summary>
     [ObservableProperty] bool isCustomLocation = true;
 
+    [ObservableProperty] bool isSelected;
+
     private readonly LocationService _service = ServiceHelper.GetService<LocationService>();
 
     public event EventHandler<ErrorRecord>? OnError;
+    public event EventHandler<LocationViewModel>? Created;
+    public event EventHandler<LocationViewModel>? Selected;
 
     public LocationViewModel()
     {
@@ -64,6 +69,8 @@ public partial class LocationViewModel :
             this.Id = result.Value.id;
             this.Type = result.Value.type;
         }
+
+        Created?.Invoke(this, this);
     }
 
     [RelayCommand]
@@ -121,6 +128,13 @@ public partial class LocationViewModel :
     }
 
     public LocationViewModel Clone() => (LocationViewModel)MemberwiseClone();
+
+    [RelayCommand]
+    public void Select()
+    {
+        IsSelected = !IsSelected;
+        Selected?.Invoke(this, this);
+    }
 }
 
 public partial class LocationSearchViewModel :
@@ -148,6 +162,11 @@ public partial class LocationSearchViewModel :
                 .GetClonedViewModels(
                     CustomLocations ? _service.MyCustomLocations : _service.OnCampusLocations)
                 .ToImmutableArray();
+
+            foreach(var loc in Available)
+            {
+                loc.Selected += (_, _) => Select(loc);
+            }
         });
     }
 
@@ -175,10 +194,47 @@ public partial class LocationSearchViewModel :
     [ObservableProperty]
     private bool showOptions;
 
+    [ObservableProperty]
+    bool showCreate;
+
+    [ObservableProperty]
+    LocationViewModel newItem = new();
+
     public event EventHandler<ImmutableArray<LocationViewModel>>? OnMultipleResult;
     public event EventHandler<LocationViewModel>? OnSingleResult;
     public event EventHandler? OnZeroResults;
     public event EventHandler<ErrorRecord>? OnError;
+
+    [RelayCommand]
+    public void ClearSelection()
+    {
+        Selected = new();
+        IsSelected = false;
+        AllSelected = [];
+        Options = [];
+        ShowOptions = false;
+        ShowCreate = false;
+    }
+
+    [RelayCommand]
+    public void Create()
+    {
+        if (!CustomLocations) return;
+
+        ShowCreate = true;
+        NewItem = new() { Label = SearchText, IsCustomLocation = true, IsNew = true };
+        NewItem.Selected += (_, e) => Select(e);
+        NewItem.Created += (_, e) =>
+        {
+            ShowCreate = false;
+            Available = Available.Add(e);
+            Select(e);
+        };
+
+    }
+
+    [RelayCommand]
+    public void CancelCreate() => ShowCreate = false;
 
     [RelayCommand]
     public void Search()

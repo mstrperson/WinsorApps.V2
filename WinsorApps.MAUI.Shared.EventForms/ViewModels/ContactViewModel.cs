@@ -227,6 +227,18 @@ public partial class ContactSearchViewModel :
         }
     }
 
+    [RelayCommand]
+    public void ClearSelection()
+    {
+        IsSelected = false;
+        Selected = ContactViewModel.Default;
+        AllSelected = [];
+        Options = [];
+        ShowOptions = false;
+        ShowCreate = false;
+        NewItem = new();
+    }
+
     public void Select(ContactViewModel e)
     {
         switch (SelectionMode)

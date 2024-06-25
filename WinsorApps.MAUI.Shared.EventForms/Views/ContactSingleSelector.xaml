@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.EventForms.ViewModels"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             xmlns:views="clr-namespace:WinsorApps.MAUI.Shared.EventForms.Views"
+             xmlns:styles="clr-namespace:WinsorApps.MAUI.Shared.Resources.Styles;assembly=WinsorApps.MAUI.Shared"
+             x:DataType="vm:ContactSearchViewModel"
+             x:Class="WinsorApps.MAUI.Shared.EventForms.Views.ContactSingleSelector">
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert"/>
+            <conv:StringToIntegerConverter x:Key="StringToInt" />
+            <conv:CurrencyToStringConverter x:Key="Currency" />
+        </ResourceDictionary>
+    </ContentView.Resources>
+    <VerticalStackLayout>
+        <StackLayout
+            Orientation="Horizontal"
+            Spacing="30"
+            IsVisible="{Binding IsSelected, Converter={StaticResource Invert}}">
+            <SearchBar
+                Placeholder="Primary Contact"
+                Text="{Binding SearchText}"
+                SearchCommand="{Binding SearchCommand}" />
+            <Button
+                StyleClass="AddButton"
+                Command="{Binding CreateCommand}" />
+        </StackLayout>
+        <CollectionView
+            IsVisible="{Binding ShowOptions}"
+            ItemsSource="{Binding Options}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:ContactViewModel">
+                    <StackLayout
+                        Orientation="Horizontal"
+                        Spacing="30">
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                        </StackLayout.GestureRecognizers>
+                        <Label Text="{Binding FullName}" />
+                        <Label Text="{Binding Email}" />
+                    </StackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+        <StackLayout
+            Orientation="Horizontal"
+            Spacing="30"
+            IsVisible="{Binding IsSelected}">
+            <StackLayout.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding ClearSelectionCommand}" />
+            </StackLayout.GestureRecognizers>
+            <Label Text="{Binding Selected.FullName}" />
+            <Label Text="{Binding Selected.Email}" />
+            <Label Text="{Binding Selected.Phone}" />
+        </StackLayout>
+        <StackLayout
+            Orientation="Horizontal"
+            Spacing="30"
+            IsVisible="{Binding ShowCreate}">
+            <Entry
+                Text="{Binding NewItem.FirstName}"
+                Placeholder="First Name"/>
+            <Entry
+                Text="{Binding NewItem.LastName}"
+                Placeholder="Last Name"/>
+            <Entry
+                Text="{Binding NewItem.Email}"
+                Placeholder="Email Address"
+                Keyboard="Email" />
+            <Entry
+                Text="{Binding NewItem.Phone}"
+                Placeholder="Cellphone Number"
+                Keyboard="Telephone" />
+            <Button
+                StyleClass="SaveButton"
+                ToolTipProperties.Text="Save Contact" 
+                Command="{Binding NewItem.CreateCommand}"/>
+        </StackLayout>
+
+    </VerticalStackLayout>
+</ContentView>
