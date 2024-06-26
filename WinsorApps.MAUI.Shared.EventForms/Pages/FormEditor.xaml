@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.EventForms.ViewModels"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             xmlns:styles="clr-namespace:WinsorApps.MAUI.Shared.Resources.Styles;assembly=WinsorApps.MAUI.Shared"
+             xmlns:views="clr-namespace:WinsorApps.MAUI.Shared.EventForms.Views"
+             xmlns:sviews="clr-namespace:WinsorApps.MAUI.Shared.Views;assembly=WinsorApps.MAUI.Shared"
+             x:DataType="vm:EventFormViewModel"
+             x:Class="WinsorApps.MAUI.Shared.EventForms.Pages.FormEditor"
+             Title="Event Form Editor">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert"/>
+            <conv:StringToIntegerConverter x:Key="StringToInt" />
+            <conv:CurrencyToStringConverter x:Key="Currency" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem
+            Text="Delete Event"
+            Command="{Binding DeleteCommand}" 
+            IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=White,
+                Glyph={x:Static styles:FontAwesomeSolid.Eraser}}"/>
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout>
+                <StackLayout Orientation="Horizontal">
+                    <Label
+                        StyleClass="SubHeader"
+                        Text="{Binding StatusSelection.Selected.Label}" />
+                    <Button
+                        StyleClass="SaveButton"
+                        IsVisible="{Binding IsNew}"
+                        Command="{Binding StartNewFormCommand}" />
+                    <Button
+                        StyleClass="SaveButton"
+                        IsVisible="{Binding IsCreating}"
+                        Command="{Binding CompleteSubmissionCommand}" />
+                    <Button
+                        StyleClass="SaveButton"
+                        IsVisible="{Binding IsUpdating}"
+                        Command="{Binding CompleteUpdateCommand}" />
+                </StackLayout>
+                <StackLayout
+                    IsEnabled="{Binding CanEditBase}">
+                    <Entry
+                        Placeholder="Event Name"
+                        Text="{Binding Summary}" />
+                    <Editor
+                        HeightRequest="250"
+                        Placeholder="Please enter details that are relevant to everyone to see here.  Sub forms will have specific information for other folks."
+                        Text="{Binding Description}" />
+                    <StackLayout
+                        Orientation="Horizontal"
+                        Spacing="30">
+                        <Label Text="Start" />
+                        <DatePicker
+                            Date="{Binding StartDate}" />
+                        <TimePicker
+                            Time="{Binding StartTime}" />
+                        <Label Text="End" />
+                        <DatePicker
+                            Date="{Binding EndDate}" />
+                        <TimePicker
+                            Time="{Binding EndTime}" />
+                    </StackLayout>
+                    <StackLayout
+                        Orientation="Horizontal"
+                        Spacing="30">
+                        <Label
+                            StyleClass="H3"
+                            Text="Leader" />
+                        <sviews:UserSearchBar BindingContext="{Binding LeaderSearch}" />
+                    </StackLayout>
+                    <Label
+                        StyleClass="H3"
+                        Text="On Campus Locations" />
+                    <views:LocationMultiSelector BindingContext="{Binding SelectedLocations}" />
+                    <Label
+                        StyleClass="H3"
+                        Text="Off Campus Locations" />
+                    <views:LocationMultiSelector BindingContext="{Binding SelectedCustomLocations}" />
+                    <Label
+                        Text="Please note that Submitted Event Forms will not be sent for approval until any On Campus Rooms have been cleared by the Registrar."/>
+                    <Label
+                        Text="Also, note that you must have approval from Division Head as well as Clearing the Date with Operations before Submitting an Event Form." />
+                    <StackLayout
+                        Orientation="Horizontal"
+                        Spacing="30">
+                        <Label
+                            Text="Date Cleared with Operations" />
+                        <DatePicker
+                            Date="{Binding PreapprovalDate}" />
+                        <Label
+                            Text="Expected Attendees" />
+                        <Entry
+                            Text="{Binding AttendeeCount}"
+                            Keyboard="Numeric" />
+                    </StackLayout>
+                </StackLayout>
+                <StackLayout
+                    IsVisible="{Binding CanEditSubForms}"
+                    Orientation="Vertical">
+                    <Button
+                        Text="Edit Field Trip Details"
+                        IsVisible="{Binding IsFieldTrip}"
+                        Command="{Binding LoadFieldTripCommand}" />
+                    <StackLayout
+                        IsVisible="{Binding IsFieldTrip, Converter={StaticResource Invert}}">
+                        <Button
+                            Text="This is a Field Trip"
+                            Command="{Binding EditFieldTripCommand}" />
+                        <Button 
+                            Text="My Event Needs to use the Theater"
+                            IsVisible="{Binding HasTheater, Converter={StaticResource Invert}}"
+                            Command="{Binding EditTheaterCommand}" />
+                        <Button
+                            Text="Edit Theater Details"
+                            IsVisible="{Binding HasTheater}"
+                            Command="{Binding LoadTheaterCommand}" />
+                        <Button 
+                            Text="My Event Needs Support from Technology"
+                            IsVisible="{Binding HasTech, Converter={StaticResource Invert}}"
+                            Command="{Binding EditTechCommand}" />
+                        <Button
+                            Text="Edit Tech Request"
+                            IsVisible="{Binding HasTech}"
+                            Command="{Binding LoadTechCommand}" />
+                        <Button 
+                            Text="My Event Needs Catering Service"
+                            IsVisible="{Binding HasCatering, Converter={StaticResource Invert}}"
+                            IsEnabled="{Binding CanEditCatering}"
+                            Command="{Binding EditCateringCommand}" />
+                        <Button
+                            Text="Edit Catering Request"
+                            IsVisible="{Binding HasCatering}"
+                            IsEnabled="{Binding CanEditCatering}"
+                            Command="{Binding LoadCateringCommand}" />
+                        <Button 
+                            Text="My Event Needs Support from Facilities"
+                            IsVisible="{Binding HasFacilities, Converter={StaticResource Invert}}"
+                            Command="{Binding EditFacilitiesCommand}" />
+                        <Button
+                            Text="Edit Facilities Request"
+                            IsVisible="{Binding HasFacilities}"
+                            Command="{Binding LoadFacilitiesCommand}" />
+
+                        <Button 
+                            Text="My Event Needs Communications"
+                            IsVisible="{Binding HasMarComm, Converter={StaticResource Invert}}"
+                            Command="{Binding EditMarCommCommand}" />
+                        <Button
+                            Text="Edit Communications Request"
+                            IsVisible="{Binding HasMarComm}"
+                            Command="{Binding LoadMarCommCommand}" />
+                    </StackLayout>
+                </StackLayout>
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

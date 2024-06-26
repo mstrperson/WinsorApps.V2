@@ -22,7 +22,7 @@
             IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=White,
                 Glyph={x:Static styles:FontAwesomeSolid.ArrowAltCircleRight}}"/>
         <ToolbarItem
-            Text="Remove Catering Request"
+            Text="Remove Facilities Request"
             Command="{Binding DeleteCommand}" 
             IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=White,
                 Glyph={x:Static styles:FontAwesomeSolid.Eraser}}"/>

@@ -2,6 +2,7 @@
 using AsyncAwaitBestPractices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Java.Nio.Channels;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -59,12 +60,182 @@ public partial class EventFormViewModel :
     [ObservableProperty] MarCommEventViewModel marComm = new();
     [ObservableProperty] bool hasMarComm;
 
+    [ObservableProperty] bool isNew;
+    [ObservableProperty] bool isCreating;
+    [ObservableProperty] bool isUpdating;
+    [ObservableProperty] bool canEditBase;
+    [ObservableProperty] bool canEditSubForms;
+
+    [ObservableProperty] bool canEditCatering;
+
     [ObservableProperty] bool isSelected;
     public event EventHandler<EventFormViewModel>? Selected;
     public event EventHandler<ErrorRecord>? OnError;
+    public event EventHandler<EventFormViewModel>? TemplateRequested;
+
+    public event EventHandler<FacilitesEventViewModel>? FacilitesRequested;
+    public event EventHandler<TechEventViewModel>? TechRequested;
+    public event EventHandler<CateringEventViewModel>? CateringRequested;
+    public event EventHandler<TheaterEventViewModel>? TheaterRequested;
+    public event EventHandler<MarCommEventViewModel>? MarCommRequested;
+    public event EventHandler<FieldTripViewModel>? FieldTripRequested;
+    public event EventHandler? Deleted;
+    public event EventHandler? Submitted;
 
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "Working";
+
+    public static implicit operator NewEvent(EventFormViewModel vm) =>
+        new(
+            vm.Summary,
+            vm.Description,
+            vm.Type,
+            vm.StartDate.Add(vm.StartTime),
+            vm.EndDate.Add(vm.EndTime),
+            vm.Creator.Id,
+            vm.LeaderSearch.Selected.Id,
+            DateOnly.FromDateTime(vm.PreapprovalDate),
+            vm.AttendeeCount,
+            null,
+            vm.SelectedLocations.AllSelected.Select(loc => loc.Id).ToImmutableArray(),
+            vm.SelectedCustomLocations.AllSelected.Select(loc => loc.Id).ToImmutableArray()
+        );
+
+    [RelayCommand]
+    public async Task StartNewForm()
+    {
+        if (!string.IsNullOrEmpty(Id)) 
+            return;
+        Busy = true;
+
+        var result = await _service.StartNewForm(this, OnError.DefaultBehavior(this));
+        if(result.HasValue)
+        {
+            CanEditBase = true;
+            CanEditSubForms = true;
+            IsCreating = true;
+            IsNew = false;
+        }
+
+        Busy = false;
+    }
+
+    [RelayCommand]
+    public void Template()
+    {
+        var clone = this.Clone();
+        clone.IsSelected = false;
+        clone.Id = "";
+        clone.IsNew = true;
+        clone.IsCreating = false;
+        clone.IsUpdating = false;
+        clone.CanEditBase = true;
+        clone.CanEditSubForms = false;
+        clone.Catering.Id = "";
+        clone.Theater.Id = "";
+        clone.Tech.Id = "";
+        clone.Facilites.Id = "";
+        clone.MarComm.Id = "";
+        clone.FieldTrip.Id = "";
+        
+        TemplateRequested?.Invoke(this, clone);
+    }
+
+    [RelayCommand]
+    public async Task StartUpdating()
+    {
+        if (string.IsNullOrEmpty(Id))
+            return;
+        Busy = true;
+        var result = await _service.BeginUpdating(Id, this, OnError.DefaultBehavior(this));
+        if(result.HasValue)
+        {
+            StatusSelection.Select(result.Value.status);
+            CanEditBase = true;
+            CanEditSubForms = true;
+            IsUpdating = true;
+        }
+
+        Busy = false;
+    }
+
+    [RelayCommand]
+    public async Task CompleteSubmission()
+    {
+        if (!IsCreating)
+            return;
+        Busy = true;
+
+        Busy = false;
+        Submitted?.Invoke(this, EventArgs.Empty);
+    }
+
+    [RelayCommand]
+    public async Task CompleteUpdate()
+    {
+        if (!IsUpdating)
+            return;
+
+        Busy = true;
+
+        Busy = false;
+        Submitted?.Invoke(this, EventArgs.Empty);
+    }
+
+    [RelayCommand]
+    public async Task Delete()
+    {
+        if (string.IsNullOrEmpty(Id))
+            return;
+        Busy = true;
+
+        Busy = false;
+
+        Deleted?.Invoke(this, EventArgs.Empty);
+    }
+
+    [RelayCommand]
+    public void EditFacilities()
+    {
+        Facilites.Id = Id;
+        FacilitesRequested?.Invoke(this, Facilites);
+    }
+
+    [RelayCommand]
+    public void EditTech()
+    {
+        Tech.Id = Id;
+        TechRequested?.Invoke(this, Tech);
+    }
+
+
+    [RelayCommand]
+    public void EditCatering()
+    {
+        Catering.Id = Id;
+        CateringRequested?.Invoke(this, Catering);
+    }
+
+    [RelayCommand]
+    public void EditTheater()
+    {
+        Theater.Id = Id;
+        TheaterRequested?.Invoke(this, Theater);
+    }
+
+    [RelayCommand]
+    public void EditMarComm()
+    {
+        MarComm.Id = Id;
+        MarCommRequested?.Invoke(this, MarComm);
+    }
+
+    [RelayCommand]
+    public void EditFieldTrip()
+    {
+        Facilites.Id = Id;
+        FacilitesRequested?.Invoke(this, Facilites);
+    }
 
     [RelayCommand]
     public async Task LoadFacilities()
@@ -89,6 +260,7 @@ public partial class EventFormViewModel :
         };
 
         Busy = false;
+        FacilitesRequested?.Invoke(this, Facilites);
     }
 
     [RelayCommand]
@@ -114,6 +286,8 @@ public partial class EventFormViewModel :
         };
 
         Busy = false;
+
+        TechRequested?.Invoke(this, Tech);
     }
 
     [RelayCommand]
@@ -139,6 +313,8 @@ public partial class EventFormViewModel :
         };
 
         Busy = false;
+
+        CateringRequested?.Invoke(this, Catering);
     }
 
     [RelayCommand]
@@ -164,6 +340,7 @@ public partial class EventFormViewModel :
         };
 
         Busy = false;
+        TheaterRequested?.Invoke(this, Theater);
     }
 
     [RelayCommand]
@@ -189,6 +366,7 @@ public partial class EventFormViewModel :
         };
 
         Busy = false;
+        FieldTripRequested?.Invoke(this, FieldTrip);
     }
 
     [RelayCommand]
@@ -214,6 +392,7 @@ public partial class EventFormViewModel :
         };
 
         Busy = false;
+        MarCommRequested?.Invoke(this, MarComm);
     }
     public static ConcurrentBag<EventFormViewModel> ViewModelCache { get; private set; } = [];
 
@@ -243,7 +422,13 @@ public partial class EventFormViewModel :
             HasCatering = model.hasCatering,
             IsFieldTrip = model.hasFieldTripInfo,
             HasMarComm = model.hasMarCom,
-            HasTheater = model.hasTheaterRequest
+            HasTheater = model.hasTheaterRequest,
+            IsNew = false,
+            IsCreating = model.status.Equals("creating", StringComparison.InvariantCultureIgnoreCase),
+            IsUpdating = model.status.Equals("updating", StringComparison.InvariantCultureIgnoreCase),
+            CanEditBase = true,
+            CanEditSubForms = true,
+            CanEditCatering = model.start > DateTime.Today.AddDays(14)
         };
 
         vm.StatusSelection.Select(eventForms.StatusLabels.First(status => status.label.Equals(model.status, StringComparison.InvariantCultureIgnoreCase));
@@ -405,6 +590,23 @@ public partial class ApprovalStatusSelectionViewModel :
 
     [RelayCommand]
     public void OpenList() => ShowList = true;
+
+    public void Select(string status)
+    {
+        var vm = StatusList.FirstOrDefault(st => st.Label.Equals(status, StringComparison.InvariantCultureIgnoreCase));
+        if (vm is null)
+        {
+            var service = ServiceHelper.GetService<EventFormsService>();
+            var model = service.StatusLabels.FirstOrDefault(st => st.label.Equals(status, StringComparison.InvariantCultureIgnoreCase));
+            if(model != default)
+                Select(model);
+            return;
+        }
+
+        Selected = vm;
+        IsSelected = true;
+        ShowList = false;
+    }
 
     public void Select(ApprovalStatus status)
     {

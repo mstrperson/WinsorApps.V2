@@ -11,6 +11,9 @@
     <MauiXaml Update="Pages\FieldTripPage.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
+    <MauiXaml Update="Pages\FormEditor.xaml">
+      <SubType>Designer</SubType>
+    </MauiXaml>
     <MauiXaml Update="Pages\MarComPage.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
@@ -24,6 +27,9 @@
       <SubType>Designer</SubType>
     </MauiXaml>
     <MauiXaml Update="Views\ContactSingleSelector.xaml">
+      <SubType>Designer</SubType>
+    </MauiXaml>
+    <MauiXaml Update="Views\LocationMultiSelector.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
     <MauiXaml Update="Views\LocationSingleSelector.xaml">
