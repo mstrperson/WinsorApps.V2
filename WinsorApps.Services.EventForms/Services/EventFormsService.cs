@@ -94,15 +94,18 @@ namespace WinsorApps.Services.EventForms.Services
                 Progress += 1 / taskCount;
             });
 
-            CacheStartDate = EventsCache.Select(evt => evt.start).Min();
-            CacheEndDate = EventsCache.Select(evt => evt.start).Max();
-
+           
             await Task.WhenAll(statusTask, typeTask, vehicleTask, createdTask, leadTask);
 
+            if (EventsCache.Any())
+            {
+                CacheStartDate = EventsCache.Select(evt => evt.start).Min();
+                CacheEndDate = EventsCache.Select(evt => evt.start).Max();
+            }
             Ready = true;
             Progress = 1;
 
-            RefreshInBackground(CancellationToken.None, onError).SafeFireAndForget(e => e.LogException(_logging));
+            //RefreshInBackground(CancellationToken.None, onError).SafeFireAndForget(e => e.LogException(_logging));
         }
 
         public async Task Refresh(ErrorAction onError)

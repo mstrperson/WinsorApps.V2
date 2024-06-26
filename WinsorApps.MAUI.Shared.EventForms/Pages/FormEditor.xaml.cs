@@ -6,8 +6,9 @@ public partial class FormEditor : ContentPage
 {
 	public EventFormViewModel ViewModel => (EventFormViewModel)BindingContext;
 
-	public FormEditor()
+	public FormEditor(EventFormViewModel vm)
 	{
+		BindingContext = vm;
 		ViewModel.OnError += (sender, err) => this.DefaultOnErrorHandler();
 		ViewModel.MarCommRequested += (sender, vm) => Navigation.PushAsync(new MarComPage() { BindingContext = vm });
 		ViewModel.TheaterRequested += (sender, vm) => Navigation.PushAsync(new TheaterPage() { BindingContext = vm });
@@ -19,7 +20,7 @@ public partial class FormEditor : ContentPage
 		ViewModel.TemplateRequested += async (sender, vm) =>
 		{
 			await Navigation.PopToRootAsync();
-			await Navigation.PushAsync(new FormEditor() { BindingContext = vm });
+			await Navigation.PushAsync(new FormEditor(vm));
 		};
 
         InitializeComponent();

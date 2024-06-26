@@ -231,7 +231,7 @@ public partial class CateringMenuCollectionViewModel :
     IErrorHandling
 {
     private readonly CateringMenuService _service;
-    [ObservableProperty] ImmutableArray<CateringMenuViewModel> menus;
+    [ObservableProperty] ImmutableArray<CateringMenuViewModel> menus = [];
     [ObservableProperty] CateringMenuViewModel selectedMenu = new();
     
     public CateringMenuViewModel this[string menuId]

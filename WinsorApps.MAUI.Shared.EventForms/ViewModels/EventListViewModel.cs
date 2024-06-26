@@ -44,6 +44,8 @@ public partial class EventListViewModel :
     [ObservableProperty] DateTime start;
     [ObservableProperty] DateTime end;
 
+    [ObservableProperty] string pageLabel = "My Events List";
+
     Func<EventFormBase, bool> EventFilter { get; set; } = evt => true;
 
     public event EventHandler<ErrorRecord>? OnError;
@@ -62,6 +64,9 @@ public partial class EventListViewModel :
     public async Task IncrementMonth()
     {
         (Start, End) = (Start.AddMonths(1), End.AddMonths(1));
+
+        PageLabel = $"{Start:MMMM yyyy}";
+
         await Reload();
     }
 
@@ -69,6 +74,7 @@ public partial class EventListViewModel :
     public async Task DecrementMonth()
     {
         (Start, End) = (Start.AddMonths(-1), End.AddMonths(-1));
+        PageLabel = $"{Start:MMMM yyyy}";
         await Reload();
     }
 
@@ -76,6 +82,7 @@ public partial class EventListViewModel :
     public async Task IncrementWeek()
     {
         (Start, End) = (Start.AddDays(7), End.AddDays(7));
+        PageLabel = $"{Start:dd MMMM yyyy}";
         await Reload();
     }
 
@@ -83,6 +90,7 @@ public partial class EventListViewModel :
     public async Task DecrementWeek()
     {
         (Start, End) = (Start.AddDays(-7), End.AddDays(-7));
+        PageLabel = $"{Start:dd MMMM yyyy}";
         await Reload();
     }
 

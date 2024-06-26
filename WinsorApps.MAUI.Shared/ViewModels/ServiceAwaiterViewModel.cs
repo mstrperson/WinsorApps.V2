@@ -50,7 +50,7 @@ public partial class ServiceAwaiterViewModel : ObservableObject
         _service = service;
         serviceName = name;
         ready = false;
-        BackgroundAwaiter().SafeFireAndForget();
+        BackgroundAwaiter().SafeFireAndForget(e => e.LogException());
     }
 
     [RelayCommand]
