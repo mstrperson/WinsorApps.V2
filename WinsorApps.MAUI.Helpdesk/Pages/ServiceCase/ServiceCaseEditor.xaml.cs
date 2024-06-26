@@ -2,7 +2,6 @@ using System.Diagnostics;
 using WinsorApps.MAUI.Helpdesk.ViewModels.Devices;
 using WinsorApps.MAUI.Helpdesk.ViewModels.ServiceCases;
 using WinsorApps.MAUI.Shared;
-using WinsorApps.MAUI.Shared.ViewModels;
 
 namespace WinsorApps.MAUI.Helpdesk.Pages.ServiceCase;
 

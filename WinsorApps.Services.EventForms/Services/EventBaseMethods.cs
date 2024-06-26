@@ -1,37 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Immutable;
 using WinsorApps.Services.EventForms.Models;
 
 namespace WinsorApps.Services.EventForms.Services;
 
 public partial class EventFormsService
 {
-    public async Task<ImmutableArray<EventFormBase>> GetMyCreatedEvents(DateTime startDate, DateTime endDate, ErrorAction onError)
+    public async Task<ImmutableArray<EventFormBase>> GetMyCreatedEvents(DateTime startDate, DateTime endDate, ErrorAction onError, bool updateCache = false)
     {
+        CheckDefaults(ref startDate, ref endDate);
 
-        if (startDate == default)
-            startDate = new(DateTime.Today.Year, DateTime.Today.Month, 1);
+        updateCache = updateCache || startDate < CacheStartDate || endDate > CacheEndDate;
 
-        if (endDate == default)
-            endDate = startDate.AddMonths(1);
+        if (updateCache)
+        {
+            await UpdateCache(startDate, endDate, onError);
+        }
 
-        if (startDate > endDate)
-            (startDate, endDate) = (endDate, startDate);
-
-
-        var result = await _api.SendAsync<ImmutableArray<EventFormBase>>(HttpMethod.Get,
-            $"api/events/created?start={startDate:yyyy-MM-dd}&end={endDate:yyyy-MM-dd}", onError: onError);
-
-        return result;
+        return EventsCache.Where(evt => evt.start >= startDate && evt.end <= endDate && evt.creatorId == _api.AuthUserId).ToImmutableArray();
     }
 
-    public async Task<ImmutableArray<EventFormBase>> GetMyLeadEvents(DateTime startDate, DateTime endDate, ErrorAction onError)
+    private static void CheckDefaults(ref DateTime startDate, ref DateTime endDate)
     {
-
         if (startDate == default)
             startDate = new(DateTime.Today.Year, DateTime.Today.Month, 1);
 
@@ -40,12 +29,45 @@ public partial class EventFormsService
 
         if (startDate > endDate)
             (startDate, endDate) = (endDate, startDate);
+    }
 
+    public async Task<ImmutableArray<EventFormBase>> GetMyLeadEvents(DateTime startDate, DateTime endDate, ErrorAction onError, bool updateCache = false)
+    {
+        CheckDefaults(ref startDate, ref endDate);
 
+        updateCache = updateCache || startDate < CacheStartDate || endDate > CacheEndDate;
+
+        if (updateCache)
+        {
+            await UpdateCache(startDate, endDate, onError);
+        }
+
+        return EventsCache.Where(evt => evt.start >= startDate && evt.end <= endDate && evt.leaderId == _api.AuthUserId).ToImmutableArray();
+    }
+
+    public async Task UpdateCache(DateTime startDate, DateTime endDate, ErrorAction onError)
+    {
         var result = await _api.SendAsync<ImmutableArray<EventFormBase>>(HttpMethod.Get,
-            $"api/events/lead?start={startDate:yyyy-MM-dd}&end={endDate:yyyy-MM-dd}", onError: onError);
+                $"api/events/created?start={startDate:yyyy-MM-dd}&end={endDate:yyyy-MM-dd}", onError: onError);
 
-        return result;
+        result = result
+            .Union(await _api.SendAsync<ImmutableArray<EventFormBase>>(HttpMethod.Get,
+                $"api/events/lead?start={startDate:yyyy-MM-dd}&end={endDate:yyyy-MM-dd}", onError: onError))
+            .Distinct()
+            .ToImmutableArray();
+
+        foreach (var evt in result)
+        {
+            if (EventsCache.Any(e => e.id == evt.id))
+            {
+                var old = EventsCache.First(e => e.id == evt.id);
+                EventsCache = EventsCache.Replace(old, evt);
+            }
+            else
+            {
+                EventsCache = EventsCache.Add(evt);
+            }
+        }
     }
 
     public async Task<EventFormBase?> StartNewForm(NewEvent newEvent, ErrorAction onError)

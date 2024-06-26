@@ -1,16 +1,7 @@
-﻿using Android.App.AppSearch;
-using AsyncAwaitBestPractices;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Java.Nio.Channels;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.EventForms.Services;
@@ -431,7 +422,7 @@ public partial class EventFormViewModel :
             CanEditCatering = model.start > DateTime.Today.AddDays(14)
         };
 
-        vm.StatusSelection.Select(eventForms.StatusLabels.First(status => status.label.Equals(model.status, StringComparison.InvariantCultureIgnoreCase));
+        vm.StatusSelection.Select(eventForms.StatusLabels.First(status => status.label.Equals(model.status, StringComparison.InvariantCultureIgnoreCase)));
         vm.LeaderSearch.Select(UserViewModel.Get(registrar.AllUsers.First(u => u.id == model.leaderId)));
 
         var locationService = ServiceHelper.GetService<LocationService>();
@@ -456,9 +447,12 @@ public partial class EventFormViewModel :
 
     public static List<EventFormViewModel> GetClonedViewModels(IEnumerable<EventFormBase> models) => models.Select(Get).ToList();
 
-    public static Task Initialize(EventFormsService service, ErrorAction onError)
+    public static async Task Initialize(EventFormsService service, ErrorAction onError)
     {
-        throw new NotImplementedException();
+        await service.WaitForInit(onError);
+
+        _ = GetClonedViewModels(await service.GetMyCreatedEvents(default, default, onError));
+        _ = GetClonedViewModels(await service.GetMyLeadEvents(default, default, onError));
     }
 
     public EventFormViewModel Clone() => (EventFormViewModel)MemberwiseClone();

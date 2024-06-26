@@ -1,6 +1,5 @@
 using WinsorApps.MAUI.Helpdesk.ViewModels.Devices;
 using WinsorApps.MAUI.Shared;
-using WinsorApps.MAUI.Shared.ViewModels;
 
 namespace WinsorApps.MAUI.Helpdesk.Pages.Devices;
 

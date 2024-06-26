@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using AsyncAwaitBestPractices;
 using CommunityToolkit.Mvvm.ComponentModel;
-using WinsorApps.MAUI.Shared.Pages;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 

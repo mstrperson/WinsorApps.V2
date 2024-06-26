@@ -1,10 +1,5 @@
 ﻿using AsyncAwaitBestPractices;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.Services.Global.Services

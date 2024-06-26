@@ -3,12 +3,9 @@
 
 using AsyncAwaitBestPractices;
 using System.Net;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using WinsorApps.Services.Global.Models;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 namespace WinsorApps.Services.Global.Services;

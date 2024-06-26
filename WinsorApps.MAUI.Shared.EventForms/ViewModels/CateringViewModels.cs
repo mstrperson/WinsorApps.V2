@@ -1,15 +1,9 @@
 ﻿using AsyncAwaitBestPractices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Data;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.EventForms.Services;
@@ -356,6 +350,12 @@ public partial class CateringMenuItemViewModel :
         return result;
     }
 
+    /// <summary>
+    /// This initialization is handled by the Menus.
+    /// </summary>
+    /// <param name="service"></param>
+    /// <param name="onError"></param>
+    /// <returns></returns>
     public static async Task Initialize(CateringMenuService service, ErrorAction onError) => await Task.CompletedTask;
 
     public CateringMenuItemViewModel Clone() => (CateringMenuItemViewModel)this.MemberwiseClone();

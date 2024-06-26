@@ -1,10 +1,4 @@
 ﻿global using ErrorAction = System.Action<WinsorApps.Services.Global.Models.ErrorRecord>;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WinsorApps.Services.EventForms.Services;
 
 namespace WinsorApps.MAUI.Shared.EventForms;
@@ -15,6 +9,11 @@ public static partial class Extensions
     {
         builder.Services.AddSingleton<BudgetCodeService>();
         builder.Services.AddSingleton<ReadonlyCalendarService>();
+        builder.Services.AddSingleton<EventFormsService>();
+        builder.Services.AddSingleton<ContactService>();
+        builder.Services.AddSingleton<LocationService>();
+        builder.Services.AddSingleton<CateringMenuService>();
+        builder.Services.AddSingleton<TheaterService>();
 
         return builder;
     }

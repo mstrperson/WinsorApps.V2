@@ -2,7 +2,6 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using WinsorApps.MAUI.Helpdesk.ViewModels.Devices;
 using WinsorApps.MAUI.Shared;
-using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Helpdesk.Services;
 
 namespace WinsorApps.MAUI.Helpdesk.Views;
