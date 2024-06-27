@@ -61,8 +61,8 @@
         How should Buttons look and feel
     -->
     <Style TargetType="Button">
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource CoolGrey}}" />
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource WarmGrey}, Dark={StaticResource SlateDark}}" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource CoolGrey}}" />
+        <Setter Property="BackgroundColor" Value="{StaticResource SlateDark}" />
         <Setter Property="FontFamily" Value="SansSerif"/>
         <Setter Property="FontSize" Value="14"/>
         <Setter Property="CornerRadius" Value="0"/>
@@ -90,7 +90,29 @@
             </VisualStateGroupList>
         </Setter>
     </Style>
-    
+
+    <Style
+        TargetType="ToolbarItem"
+        Class="AddButton">
+        <Setter 
+            Property="IconImageSource"
+            Value="{FontImage 
+                FontFamily=Serif, 
+                Color=Black,
+                Glyph=➕}" />
+    </Style>
+
+    <Style
+        TargetType="ToolbarItem"
+        Class="DeleteButton">
+        <Setter 
+            Property="IconImageSource"
+            Value="{FontImage 
+                FontFamily=Serif, 
+                Color=Black,
+                Glyph=🗑}" />
+    </Style>
+
     <Style TargetType="Label" Class="ErrorSignifier">
         <Setter Property="Text" Value="⛔" />
         <Setter Property="FontSize" Value="Medium" />
@@ -168,6 +190,18 @@
         <Setter Property="HeightRequest" Value="50"/>
         <Setter Property="Padding" Value="5" />
     </Style>
+
+    <Style
+    TargetType="ToolbarItem"
+        Class="PrintButton">
+        <Setter 
+        Property="IconImageSource"
+        Value="{FontImage 
+            FontFamily=Serif,
+            Color=Black,
+            Glyph=🖶}" />
+    </Style>
+
     <Style TargetType="Button" Class="PrintButton">
         <Setter Property="Text" Value="🖶" />
         <Setter Property="FontSize" Value="50" />
@@ -178,6 +212,16 @@
         <Setter Property="Padding" Value="5" />
     </Style>
 
+
+    <Style
+        TargetType="Image"
+        Class="AddButton">
+        <Setter 
+            Property="Source"
+            Value="{FontImage 
+                FontFamily=Serif,
+                Glyph=➕}" />
+    </Style>
     <Style TargetType="Button" Class="UpArrow">
         <Setter Property="Text" Value="↑"/>
         <Setter Property="MinimumWidthRequest" Value="50" />
@@ -497,7 +541,7 @@
         <Setter Property="TextColor" Value="White"/>
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource SlateDark}}"/>
         <Setter Property="FontFamily" Value="Serif"/>
-        <Setter Property="FontSize" Value="32"/>
+        <Setter Property="FontSize" Value="24"/>
         <Setter Property="HorizontalTextAlignment" Value="Start"/>
         <Setter Property="HorizontalOptions" Value="Start" />
     </Style>
@@ -506,7 +550,7 @@
         <Setter Property="TextColor" Value="White"/>
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource SlateDark}}"/>
         <Setter Property="FontFamily" Value="Serif"/>
-        <Setter Property="FontSize" Value="32"/>
+        <Setter Property="FontSize" Value="20"/>
         <Setter Property="HorizontalTextAlignment" Value="Start"/>
         <Setter Property="HorizontalOptions" Value="Start" />
     </Style>
@@ -514,14 +558,14 @@
     <Style TargetType="Label" Class="Header">
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource WarmGrey}}"/>
         <Setter Property="FontFamily" Value="Serif"/>
-        <Setter Property="FontSize" Value="48"/>
+        <Setter Property="FontSize" Value="32"/>
         <Setter Property="HorizontalTextAlignment" Value="Start"/>
     </Style>
 
     <Style TargetType="Label" Class="SubHeader">
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource WarmGrey}}"/>
         <Setter Property="FontFamily" Value="Serif"/>
-        <Setter Property="FontSize" Value="36"/>
+        <Setter Property="FontSize" Value="24"/>
         <Setter Property="HorizontalTextAlignment" Value="Start"/>
     </Style>
 
@@ -529,13 +573,13 @@
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource WarmGrey}}"/>
         <Setter Property="FontFamily" Value="Serif"/>
         <Setter Property="FontAttributes" Value="Bold"/>
-        <Setter Property="FontSize" Value="32" />
+        <Setter Property="FontSize" Value="20" />
     </Style>
     <Style TargetType="Label" Class="wordmark">
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource WarmGrey}}"/>
         <Setter Property="FontFamily" Value="Serif"/>
         <Setter Property="Text" Value="THE WINSOR SCHOOL"/>
-        <Setter Property="FontSize" Value="48"/>
+        <Setter Property="FontSize" Value="32"/>
         <Setter Property="HorizontalTextAlignment" Value="Start"/>
     </Style>
 

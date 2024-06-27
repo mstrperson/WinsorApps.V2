@@ -32,6 +32,14 @@ public partial class UserSearchViewModel : ObservableObject, ICachedSearchViewMo
             user.Selected += UserOnSelected;
     }
 
+    public void SetAvailableUsers(IEnumerable<UserRecord> users)
+    {
+        ClearSelection();
+        Available = UserViewModel.GetClonedViewModels(users).ToImmutableArray();
+        foreach (var user in Available)
+            user.Selected += UserOnSelected;
+    }
+
     [RelayCommand]
     public void ClearSelection()
     {

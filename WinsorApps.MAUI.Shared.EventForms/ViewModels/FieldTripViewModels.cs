@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.ApplicationModel.Communication;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.EventForms.Services;
@@ -16,6 +18,7 @@ public partial class FieldTripViewModel :
     [ObservableProperty] string id = "";
     [ObservableProperty] ContactSearchViewModel primaryContactSearch = new() { SelectionMode = SelectionMode.Single };
     [ObservableProperty] ContactSearchViewModel chaperoneSearch = new() { SelectionMode = SelectionMode.Multiple };
+    [ObservableProperty] ObservableCollection<ContactViewModel> chaperones = [];
     [ObservableProperty] TransportationViewModel transportation = new();
     [ObservableProperty] StudentsByClassViewModel studentsByClass = new();
     [ObservableProperty] FieldTripCateringRequestViewModel fieldTripCateringRequest = new();
@@ -24,6 +27,8 @@ public partial class FieldTripViewModel :
     public event EventHandler? ReadyToContinue;
     public event EventHandler? Deleted;
     public event EventHandler<ErrorRecord>? OnError;
+
+    public FieldTripDetails FieldTripDetails { get; private set; }
 
     public static implicit operator NewFieldTrip(FieldTripViewModel vm) =>
         new(
@@ -40,15 +45,29 @@ public partial class FieldTripViewModel :
         {
             ShowFood = false;
         };
+
+        ChaperoneSearch.OnSingleResult += (_, e) =>
+        {
+            var contact = e.Clone();
+            Chaperones.Add(contact);
+            contact.Selected += (_, _) =>
+            {
+                Chaperones.Remove(contact);
+            };
+        };
     }
 
     public static FieldTripViewModel Get(FieldTripDetails model)
     {
+        if (model == default)
+            return new();
+
         var vm = new FieldTripViewModel()
         {
             Id = model.eventId,
             StudentsByClass = StudentsByClassViewModel.Get(model.studentCount),
-            Transportation = TransportationViewModel.Get(model.transportationDetails)
+            Transportation = TransportationViewModel.Get(model.transportationDetails),
+            FieldTripDetails = model
         };
 
         if (model.lunch.HasValue)
@@ -59,9 +78,13 @@ public partial class FieldTripViewModel :
 
         vm.PrimaryContactSearch.Select(ContactViewModel.Get(model.primaryContact));
 
-        foreach(var contact in model.chaperones)
+        vm.Chaperones = [.. model.chaperones.Select(ContactViewModel.Get)];
+        foreach(var chap in vm.Chaperones)
         {
-            vm.ChaperoneSearch.Select(ContactViewModel.Get(contact));
+            chap.Selected += (_, _) =>
+            {
+                vm.Chaperones.Remove(chap);
+            };
         }
 
         return vm;
@@ -74,7 +97,10 @@ public partial class FieldTripViewModel :
     {
         var result = await _service.PostFieldTripDetails(Id, this, OnError.DefaultBehavior(this));
         if (result.HasValue)
+        {
+            FieldTripDetails = result.Value;
             ReadyToContinue?.Invoke(this, EventArgs.Empty);
+        }
     }
 
     [RelayCommand]

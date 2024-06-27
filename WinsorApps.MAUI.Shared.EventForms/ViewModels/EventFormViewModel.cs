@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.EventForms.Services;
@@ -35,8 +36,11 @@ public partial class EventFormViewModel :
     [ObservableProperty] UserSearchViewModel leaderSearch = new();
     [ObservableProperty] DateTime preapprovalDate = DateTime.Today;
     [ObservableProperty] int attendeeCount;
-    [ObservableProperty] LocationSearchViewModel selectedLocations = new() { SelectionMode = SelectionMode.Multiple };
-    [ObservableProperty] LocationSearchViewModel selectedCustomLocations = new() { SelectionMode = SelectionMode.Multiple, CustomLocations = true };
+    [ObservableProperty] ObservableCollection<LocationViewModel> selectedLocations = [];
+    [ObservableProperty] LocationSearchViewModel locationSearch = new() { SelectionMode = SelectionMode.Single };
+    [ObservableProperty] ObservableCollection<LocationViewModel> selectedCustomLocations = [];
+    [ObservableProperty] LocationSearchViewModel customLocationSearch = new() { SelectionMode = SelectionMode.Single, CustomLocations=true };
+
     [ObservableProperty] ImmutableArray<DocumentViewModel> attachments = [];
     [ObservableProperty] FacilitesEventViewModel facilites = new();
     [ObservableProperty] bool hasFacilities;
@@ -76,6 +80,31 @@ public partial class EventFormViewModel :
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "Working";
 
+    public EventFormViewModel()
+    {
+        var registrar = ServiceHelper.GetService<RegistrarService>();
+        LeaderSearch.SetAvailableUsers(registrar.EmployeeList);
+        CustomLocationSearch.SetCustomLocations(true);
+
+        LocationSearch.OnSingleResult += (_, e) =>
+        {
+            var location = e.Clone();
+            LocationSearch.ClearSelection();
+            location.Selected += (_, _) => SelectedLocations.Remove(location);
+            SelectedLocations.Add(location);
+        };
+
+        CustomLocationSearch.OnSingleResult += (_, e) =>
+        {
+
+            var location = e.Clone();
+            CustomLocationSearch.ClearSelection();
+            location.Selected += (_, _) => 
+                SelectedCustomLocations.Remove(location);
+            SelectedCustomLocations.Add(location);
+        };
+    }
+
     public static implicit operator NewEvent(EventFormViewModel vm) =>
         new(
             vm.Summary,
@@ -88,8 +117,8 @@ public partial class EventFormViewModel :
             DateOnly.FromDateTime(vm.PreapprovalDate),
             vm.AttendeeCount,
             null,
-            vm.SelectedLocations.AllSelected.Select(loc => loc.Id).ToImmutableArray(),
-            vm.SelectedCustomLocations.AllSelected.Select(loc => loc.Id).ToImmutableArray()
+            vm.SelectedLocations.Select(loc => loc.Id).ToImmutableArray(),
+            vm.SelectedCustomLocations.Select(loc => loc.Id).ToImmutableArray()
         );
 
     [RelayCommand]
@@ -427,17 +456,21 @@ public partial class EventFormViewModel :
 
         var locationService = ServiceHelper.GetService<LocationService>();
 
-        foreach (var locId in model.selectedLocations ?? [])
+        vm.SelectedLocations = [..LocationViewModel.GetClonedViewModels(locationService.OnCampusLocations.Where(loc => model.selectedLocations?.Contains(loc.id) ?? false))];
+        foreach (var location in vm.SelectedLocations)
         {
-            vm.SelectedLocations.Select(LocationViewModel.Get(locationService.OnCampusLocations.First(loc => loc.id == locId)));
+            location.Selected += (_, _) =>
+                vm.SelectedLocations.Remove(location);
         }
 
-        foreach (var locId in model.selectedCustomLocations ?? [])
+        vm.SelectedCustomLocations = [..LocationViewModel.GetClonedViewModels(locationService.MyCustomLocations.Where(loc => model.selectedCustomLocations?.Contains(loc.id) ?? false))];
+        foreach (var location in vm.SelectedLocations)
         {
-            vm.SelectedCustomLocations.Select(LocationViewModel.Get(locationService.MyCustomLocations.First(loc => loc.id == locId)));
+            location.Selected += (_, _) => 
+                vm.SelectedCustomLocations.Remove(location);
         }
 
-        if(model.attachments.HasValue)
+        if (model.attachments.HasValue)
         {
             vm.Attachments = model.attachments.Value.Select(header => new DocumentViewModel(header)).ToImmutableArray();
         }
@@ -455,7 +488,44 @@ public partial class EventFormViewModel :
         _ = GetClonedViewModels(await service.GetMyLeadEvents(default, default, onError));
     }
 
-    public EventFormViewModel Clone() => (EventFormViewModel)MemberwiseClone();
+    public EventFormViewModel Clone() => new()
+    {
+        Id = Id,
+        Attachments = Attachments,
+        Busy = false,
+        AttendeeCount = AttendeeCount,
+        BusyMessage = BusyMessage,
+        CanEditBase = CanEditBase,
+        CanEditCatering = CanEditCatering,
+        CanEditSubForms = CanEditSubForms,
+        IsFieldTrip = IsFieldTrip,
+        HasCatering = HasCatering,
+        HasFacilities = HasFacilities,
+        HasTech = HasTech,
+        HasMarComm = HasMarComm,
+        HasTheater = HasTheater,
+        FieldTrip = FieldTripViewModel.Get(FieldTrip.FieldTripDetails),
+        Catering = CateringEventViewModel.Get(Catering.CateringDetails),
+        IsSelected = IsSelected,
+        Creator = Creator.Clone(),
+        LeaderSearch = new() { Selected = LeaderSearch.Selected.Clone(), IsSelected = LeaderSearch.IsSelected },
+        LocationSearch = new(),
+        CustomLocationSearch = new(),
+        SelectedLocations = [.. SelectedLocations.Select(loc => loc.Clone())],
+        SelectedCustomLocations = [.. SelectedCustomLocations.Select(loc => loc.Clone())],
+        Description = Description,
+        EndDate = EndDate,
+        EndTime = EndTime,
+        StartDate = StartDate,
+        StartTime = StartTime,
+        Facilites = FacilitesEventViewModel.Get(Facilites.Details),
+        Tech = TechEventViewModel.Get(Tech.TechDetails),
+        Theater = TheaterEventViewModel.Get(Theater.Details),
+        MarComm = MarCommEventViewModel.Get(MarComm.Request),
+        Summary = Summary,
+        StatusSelection = new() { Selected = StatusSelection.Selected.Clone(), IsSelected = StatusSelection.IsSelected },
+        Type = Type.Clone()
+    };
 
     [RelayCommand]
     public void Select()

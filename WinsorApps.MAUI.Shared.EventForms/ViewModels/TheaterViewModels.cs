@@ -12,7 +12,7 @@ namespace WinsorApps.MAUI.Shared.EventForms.ViewModels;
 
 public partial class TheaterEventViewModel :
     ObservableObject,
-    IDefaultValueViewModel<CateringEventViewModel>,
+    IDefaultValueViewModel<TheaterEventViewModel>,
     IEventSubFormViewModel,
     IBusyViewModel,
     IErrorHandling
@@ -25,12 +25,18 @@ public partial class TheaterEventViewModel :
     [ObservableProperty] ImmutableArray<DocumentViewModel> documents = [];
     [ObservableProperty] TheaterMenuCollectionViewModel theaterMenu = new();
 
+    public TheaterEvent Details { get; private set; }
+
     public static TheaterEventViewModel Get(TheaterEvent model)
     {
+        if (model == default)
+            return new();
+
         var vm = new TheaterEventViewModel()
         {
             Id = model.eventId,
             Notes = model.notes,
+            Details = model,
             Documents = model.attachments.Select(doc => new DocumentViewModel(doc)).ToImmutableArray()
         };
         vm.LoadSelections(model.items);
@@ -63,7 +69,7 @@ public partial class TheaterEventViewModel :
 
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "Working";
-    public static CateringEventViewModel Default => new();
+    public static TheaterEventViewModel Default => new();
 
 
     public event EventHandler? ReadyToContinue;
@@ -88,7 +94,7 @@ public partial class TheaterEventViewModel :
         var result = await _eventService.PostTheaterDetails(Id, this, OnError.DefaultBehavior(this));
         if(result.HasValue)
         {
-            Id = result.Value.eventId;
+            Details = result.Value;
             ReadyToContinue?.Invoke(this, EventArgs.Empty);
         }
     }

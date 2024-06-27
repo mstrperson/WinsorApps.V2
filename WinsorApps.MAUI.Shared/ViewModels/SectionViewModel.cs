@@ -95,7 +95,17 @@ public partial class CourseViewModel :
         _ = GetClonedViewModels(service.CourseList);
     }
 
-    public CourseViewModel Clone() => (CourseViewModel)MemberwiseClone();
+    public CourseViewModel Clone() => new()
+    {
+        Id = Id,
+        CourseCode = CourseCode,
+        Department = Department,
+        DisplayName = DisplayName,
+        IsSelected = false,
+        Course = Course,
+        LengthInTerms = LengthInTerms,
+        Sections = []
+    };
 
     [RelayCommand]
     public void Select()

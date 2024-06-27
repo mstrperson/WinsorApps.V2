@@ -13,6 +13,7 @@ public partial class MainPage : ContentPage
     public MainPageViewModel ViewModel => (MainPageViewModel)BindingContext;
 
     public MainPage(
+        ApiService api,
         RegistrarService registrar,
         AppService app,
         LocalLoggingService logging,
@@ -53,8 +54,10 @@ public partial class MainPage : ContentPage
         vm.OnCompleted += Vm_OnCompleted;
         LoginPage loginPage = new LoginPage(logging, vm.LoginVM);
         loginPage.OnLoginComplete += (_, _) =>
+        {
             Navigation.PopAsync();
-
+            vm.UserVM = UserViewModel.Get(api.UserInfo!.Value);
+        };
         Navigation.PushAsync(loginPage);
 
 

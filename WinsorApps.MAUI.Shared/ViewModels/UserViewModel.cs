@@ -26,7 +26,6 @@ public partial class UserViewModel :
             vm.GetUniqueDisplayName();
     }
     public static ConcurrentBag<UserViewModel> ViewModelCache { get; private set; } = [];
-    //public static ConcurrentBag<UserViewModel> ViewModelCache => _viewModelCache.ToList();
 
     public static List<UserViewModel> GetClonedViewModels(IEnumerable<UserRecord> models)
     {
@@ -46,7 +45,15 @@ public partial class UserViewModel :
         }
         return vm.Clone();
     }
-    public UserViewModel Clone() => (UserViewModel)this.MemberwiseClone();
+    public UserViewModel Clone() => new()
+    {
+        ImageSource = ImageSource,
+        IsSelected = false,
+        DisplayName = DisplayName,
+        User = User with { },
+        AcademicSchedule = [.. AcademicSchedule.Select(sec => sec.Clone())],
+        ShowButton = ShowButton
+    };
 
     private readonly RegistrarService _registrar;
     public UserRecord User;

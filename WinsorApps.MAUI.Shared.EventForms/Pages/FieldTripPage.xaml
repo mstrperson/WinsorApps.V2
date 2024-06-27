@@ -37,7 +37,22 @@
                 <Label
                     StyleClass="SubHeader"
                     Text="Additional Chaperones" />
-                <views:ContactMultiSelector BindingContext="{Binding ChaperoneSearch}" />
+                <views:ContactSingleSelector BindingContext="{Binding ChaperoneSearch}" />
+                <CollectionView
+                    ItemsSource="{Binding Chaperones}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ContactViewModel">
+                            <StackLayout
+                                Orientation="Horizontal">
+                                <StackLayout.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                </StackLayout.GestureRecognizers>
+                                <Label Text="{Binding FullName}" />
+                                <Label Text="❌" />
+                            </StackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
                 <Grid
                     RowDefinitions="*,*,*,*,*,*"
                     ColumnDefinitions="auto,auto,auto,auto">

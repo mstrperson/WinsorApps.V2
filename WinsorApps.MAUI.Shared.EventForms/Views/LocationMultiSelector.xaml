@@ -6,14 +6,21 @@
              xmlns:styles="clr-namespace:WinsorApps.MAUI.Shared.Resources.Styles;assembly=WinsorApps.MAUI.Shared"
              x:DataType="vm:LocationSearchViewModel"
              x:Class="WinsorApps.MAUI.Shared.EventForms.Views.LocationMultiSelector">
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert"/>
+            <conv:StringToIntegerConverter x:Key="StringToInt" />
+            <conv:CurrencyToStringConverter x:Key="Currency" />
+        </ResourceDictionary>
+    </ContentView.Resources>
     <StackLayout>
         <StackLayout
-            Margin="0"
             Orientation="Horizontal"
             IsVisible="{Binding ShowCreate, Converter={StaticResource Invert}}">
             <SearchBar 
-                Placeholder="Panelist Name"
+                Placeholder="Location Name"
                 Text="{Binding SearchText}"
+                HeightRequest="50"
                 SearchCommand="{Binding SearchCommand}"/>
             <Button
                 StyleClass="AddButton"
@@ -28,12 +35,21 @@
             <StackLayout
                 Margin="0"
                 Padding="0"
+                Spacing="30"
                 Orientation="Horizontal">
                 <Entry
                     Placeholder="Location Name"
+                    WidthRequest="400"
                     Text="{Binding NewItem.Label}" />
-                <CheckBox IsChecked="{Binding NewItem.IsPublic}" />
-                <Label Text="Public" />
+                <Switch 
+                    IsToggled="{Binding NewItem.IsPublic}"
+                    Margin="0"/>
+                <Label 
+                    Text="Public" 
+                    IsVisible="{Binding NewItem.IsPublic}"/>
+                <Label
+                    Text="Private"
+                    IsVisible="{Binding NewItem.IsPublic, Converter={StaticResource Invert}}" />
                 <Button
                     StyleClass="SaveButton"
                     Command="{Binding NewItem.CreateCommand}" />
@@ -48,7 +64,7 @@
             <CollectionView.Header>
                 <Label 
                     FontAttributes="Bold"
-                    Text="Selected Contacts (Tap to Remove)" />
+                    Text="Selected Locations (Tap to Remove)" />
             </CollectionView.Header>
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="vm:LocationViewModel">

@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.EventForms.ViewModels"
+             xmlns:svm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels;assembly=WinsorApps.MAUI.Shared"
              xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
              xmlns:styles="clr-namespace:WinsorApps.MAUI.Shared.Resources.Styles;assembly=WinsorApps.MAUI.Shared"
              xmlns:views="clr-namespace:WinsorApps.MAUI.Shared.EventForms.Views"
@@ -20,12 +21,11 @@
         <ToolbarItem
             Text="Delete Event"
             Command="{Binding DeleteCommand}" 
-            IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=White,
-                Glyph={x:Static styles:FontAwesomeSolid.Eraser}}"/>
+            StyleClass="DeleteButton"/>
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <ScrollView>
-            <StackLayout>
+            <VerticalStackLayout>
                 <StackLayout Orientation="Horizontal">
                     <Label
                         StyleClass="SubHeader"
@@ -72,16 +72,77 @@
                         <Label
                             StyleClass="H3"
                             Text="Leader" />
-                        <sviews:UserSearchBar BindingContext="{Binding LeaderSearch}" />
+                        <StackLayout>
+                            <SearchBar 
+                                WidthRequest="250"
+                                Placeholder="Leader"
+                                Text="{Binding LeaderSearch.SearchText}"
+                                SearchCommand="{Binding LeaderSearch.SearchCommand}" />
+                            <CollectionView
+                                ItemsSource="{Binding LeaderSearch.Options}"
+                                IsVisible="{Binding LeaderSearch.ShowOptions}">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="svm:UserViewModel">
+                                        <Label Text="{Binding DisplayName}">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </StackLayout>
                     </StackLayout>
                     <Label
                         StyleClass="H3"
                         Text="On Campus Locations" />
-                    <views:LocationMultiSelector BindingContext="{Binding SelectedLocations}" />
+                    <views:LocationSingleSelector BindingContext="{Binding LocationSearch}" />
+                    <CollectionView
+                        ItemsSource="{Binding SelectedLocations}">
+                        <CollectionView.Header>
+                            <Label 
+                                Text="Selected On-Campus Locations"
+                                StyleClass="H3" />
+                        </CollectionView.Header>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:LocationViewModel">
+                                <StackLayout
+                                    Orientation="Horizontal"
+                                    Spacing="30">
+                                    <StackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                    </StackLayout.GestureRecognizers>
+                                    <Label Text="{Binding Label}" />
+                                    <Label Text="❌" />
+                                </StackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
                     <Label
                         StyleClass="H3"
                         Text="Off Campus Locations" />
-                    <views:LocationMultiSelector BindingContext="{Binding SelectedCustomLocations}" />
+                    <views:LocationSingleSelector BindingContext="{Binding CustomLocationSearch}" />
+                    <CollectionView
+                        ItemsSource="{Binding SelectedCustomLocations}">
+                      <!--  <CollectionView.Header>
+                            <Label 
+                                Text="Selected Custom Locations"
+                                StyleClass="H3" />
+                        </CollectionView.Header> -->
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:LocationViewModel">
+                                <StackLayout
+                                    Orientation="Horizontal"
+                                    Spacing="30">
+                                    <StackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                    </StackLayout.GestureRecognizers>
+                                    <Label Text="{Binding Label}" />
+                                    <Label Text="❌" />
+                                </StackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
                     <Label
                         Text="Please note that Submitted Event Forms will not be sent for approval until any On Campus Rooms have been cleared by the Registrar."/>
                     <Label
@@ -157,7 +218,7 @@
                             Command="{Binding LoadMarCommCommand}" />
                     </StackLayout>
                 </StackLayout>
-            </StackLayout>
+            </VerticalStackLayout>
         </ScrollView>
     </ContentPage.Content>
 </ContentPage>

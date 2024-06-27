@@ -28,18 +28,24 @@ public partial class FacilitesEventViewModel :
     public event EventHandler? Deleted;
     public event EventHandler<ErrorRecord>? OnError;
 
+    public FacilitiesEvent Details { get; private set; }
+
     public static implicit operator NewFacilitiesEvent(FacilitesEventViewModel vm) =>
         new(vm.Setup, vm.Presence, vm.Breakdown, vm.Overnight, vm.Parking, vm.Locations);
 
     public static FacilitesEventViewModel Get(FacilitiesEvent model)
     {
+        if (model == default)
+            return new();
+
         var vm = new FacilitesEventViewModel()
         {
             Setup = model.setup,
             Presence = model.presence,
             Breakdown = model.breakdown,
             Overnight = model.overnight,
-            Parking = model.parking
+            Parking = model.parking,
+            Details = model
         };
         vm.Locations.LoadSetupInformation(model.locations);
         return vm;
@@ -50,7 +56,10 @@ public partial class FacilitesEventViewModel :
     {
         var result = await _service.PostFacilitiesEvent(Id, this, OnError.DefaultBehavior(this));
         if (result.HasValue)
+        {
+            Details = result.Value;
             ReadyToContinue?.Invoke(this, EventArgs.Empty);
+        }
     }
 
     [RelayCommand]
@@ -129,15 +138,29 @@ public partial class LocationSetupViewModel :
     [ObservableProperty] LocationSearchViewModel locationSearch = new() { CustomLocations = false, SelectionMode = SelectionMode.Single };
     [ObservableProperty] string instructions = "";
     [ObservableProperty] bool sandwichSign;
-    [ObservableProperty] DateOnly setupDate;
-    [ObservableProperty] TimeOnly setupTime;
+    [ObservableProperty] DateTime setupDate;
+    [ObservableProperty] TimeSpan setupTime;
     [ObservableProperty] bool isSelected;
 
     public event EventHandler<LocationSetupViewModel>? Selected;
     public event EventHandler? Deleted;
 
     public static implicit operator NewLocationSetup(LocationSetupViewModel vm) =>
-        new(vm.LocationSearch.Selected.Id, vm.Instructions, vm.SandwichSign, vm.SetupDate.ToDateTime(vm.SetupTime));
+        new(vm.LocationSearch.Selected.Id, vm.Instructions, vm.SandwichSign, vm.SetupDate.Add(vm.SetupTime));
+
+    public LocationSetupViewModel Clone()
+    {
+        var vm = new LocationSetupViewModel()
+        {
+            Instructions = Instructions,
+            SandwichSign = SandwichSign,
+            SetupDate = SetupDate,
+            SetupTime = SetupTime,
+        };
+        vm.LocationSearch.Select(LocationSearch.Selected.Clone());
+
+        return vm;
+    }
 
     public static LocationSetupViewModel Get(LocationSetupInstructions model)
     {
@@ -145,8 +168,8 @@ public partial class LocationSetupViewModel :
         {
             Instructions = model.instructions,
             SandwichSign = model.includeSandwichSign,
-            SetupDate = DateOnly.FromDateTime(model.setupTime),
-            SetupTime = TimeOnly.FromDateTime(model.setupTime),
+            SetupDate = model.setupTime.Date,
+            SetupTime = TimeOnly.FromDateTime(model.setupTime).ToTimeSpan(),
         };
         var lvm = LocationViewModel.Get(model.locationId);
         if (lvm is not null)

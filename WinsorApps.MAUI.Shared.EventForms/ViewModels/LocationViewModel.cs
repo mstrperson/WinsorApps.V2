@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using AsyncAwaitBestPractices;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
@@ -87,7 +88,7 @@ public partial class LocationViewModel :
 
     public static LocationViewModel Get(Location model)
     {
-        var vm = ViewModelCache.FirstOrDefault(loc => loc.Id == model.id);
+        var vm = ViewModelCache.FirstOrDefault(loc => loc.Id == model.id && loc.Type == model.type);
         if (vm is not null)
             return vm.Clone();
 
@@ -120,7 +121,16 @@ public partial class LocationViewModel :
         _ = GetClonedViewModels(service.MyCustomLocations);
     }
 
-    public LocationViewModel Clone() => (LocationViewModel)MemberwiseClone();
+    public LocationViewModel Clone() => new()
+    {
+        Id = Id,
+        IsNew = IsNew,
+        IsCustomLocation = IsCustomLocation,
+        Label = Label,
+        IsPublic = IsPublic,
+        IsSelected = false,
+        Type = Type
+    };
 
     [RelayCommand]
     public void Select()
@@ -141,26 +151,46 @@ public partial class LocationSearchViewModel :
 
     public LocationSearchViewModel()
     {
-        _service.OnCacheRefreshed += 
-            (_, _) => Available = LocationViewModel
-                .GetClonedViewModels(
-                    CustomLocations ? _service.MyCustomLocations : _service.OnCampusLocations)
-                .ToImmutableArray();
-        
-        var initTask =_service.WaitForInit(OnError.DefaultBehavior(this));
-
-        initTask.WhenCompleted(() =>
-        {
-            Available = LocationViewModel
-                .GetClonedViewModels(
-                    CustomLocations ? _service.MyCustomLocations : _service.OnCampusLocations)
-                .ToImmutableArray();
-
-            foreach(var loc in Available)
+        _service.OnCacheRefreshed +=
+            (_, _) =>
             {
-                loc.Selected += (_, _) => Select(loc);
-            }
-        });
+                Available = LocationViewModel
+                .GetClonedViewModels(
+                    CustomLocations ? _service.MyCustomLocations : _service.OnCampusLocations)
+                .ToImmutableArray();
+                foreach (var loc in Available)
+                {
+                    loc.Selected += (_, _) => 
+                        Select(loc);
+                }
+            };
+        
+        Available = LocationViewModel
+            .GetClonedViewModels(
+                CustomLocations ? _service.MyCustomLocations : _service.OnCampusLocations)
+            .ToImmutableArray();
+
+        foreach(var loc in Available)
+        {
+            loc.Selected += (_, _) => 
+                Select(loc);
+        }
+    }
+
+    public void SetCustomLocations(bool custom)
+    {
+        CustomLocations = custom;
+
+        Available = LocationViewModel
+            .GetClonedViewModels(
+                CustomLocations ? _service.MyCustomLocations : _service.OnCampusLocations)
+            .ToImmutableArray(); 
+        
+        foreach (var loc in Available)
+        {
+            loc.Selected += (_, _) => 
+                Select(loc);
+        }
     }
 
     [ObservableProperty]
@@ -203,6 +233,7 @@ public partial class LocationSearchViewModel :
     {
         Selected = new();
         IsSelected = false;
+        SearchText = "";
         AllSelected = [];
         Options = [];
         ShowOptions = false;
@@ -276,7 +307,7 @@ public partial class LocationSearchViewModel :
         switch (SelectionMode)
         {
             case SelectionMode.Single:
-                Selected = Available.FirstOrDefault(st => st.Id == item.Id) ?? LocationViewModel.Default;
+                Selected = Available.FirstOrDefault(st => st.Id == item.Id && st.Type == item.Type) ?? LocationViewModel.Default;
                 IsSelected = string.IsNullOrEmpty(Selected.Id);
                 Options = [];
                 ShowOptions = false;
@@ -284,12 +315,13 @@ public partial class LocationSearchViewModel :
                 OnSingleResult?.Invoke(this, Selected);
                 return;
             case SelectionMode.Multiple:
-                var sta = Available.FirstOrDefault(st => st.Id == item.Id);
-                if (sta is null) return;
+                var sta = Available.FirstOrDefault(st => st.Id == item.Id && st.Type == item.Type);
+                if (sta is null) 
+                    return;
                 if (AllSelected.Contains(sta))
-                    AllSelected = [.. AllSelected.Except([sta])];
+                    AllSelected = AllSelected.Remove(sta);
                 else
-                    AllSelected = [.. AllSelected, sta];
+                    AllSelected = AllSelected.Add(sta);
 
                 IsSelected = AllSelected.Length > 0;
                 if (IsSelected)

@@ -20,12 +20,18 @@
             Spacing="30"
             IsVisible="{Binding IsSelected, Converter={StaticResource Invert}}">
             <SearchBar
-                Placeholder="Primary Contact"
+                Placeholder="Contact Name"
+                WidthRequest="250"
+                HeightRequest="50"
                 Text="{Binding SearchText}"
                 SearchCommand="{Binding SearchCommand}" />
-            <Button
-                StyleClass="AddButton"
-                Command="{Binding CreateCommand}" />
+            <Label
+                Text="➕"
+                FontSize="20">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CreateCommand}" />
+                </Label.GestureRecognizers>
+            </Label>
         </StackLayout>
         <CollectionView
             IsVisible="{Binding ShowOptions}"

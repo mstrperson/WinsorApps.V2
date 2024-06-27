@@ -21,13 +21,19 @@
             Spacing="30"
             IsVisible="{Binding IsSelected, Converter={StaticResource Invert}}">
             <SearchBar
-                Placeholder="Primary Contact"
+                Placeholder="Location Name"
+                HeightRequest="50"
+                WidthRequest="250"
                 Text="{Binding SearchText}"
                 SearchCommand="{Binding SearchCommand}" />
-            <Button
-                StyleClass="AddButton"
-                Command="{Binding CreateCommand}" 
-                IsVisible="{Binding CustomLocations}" />
+            <Label
+                Text="➕"
+                FontSize="20"
+                IsVisible="{Binding CustomLocations}">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CreateCommand}" />
+                </Label.GestureRecognizers>
+            </Label>
         </StackLayout>
         <CollectionView
             IsVisible="{Binding ShowOptions}"
@@ -60,13 +66,27 @@
             IsVisible="{Binding ShowCreate}">
             <Entry
                 Text="{Binding NewItem.Label}"
+                HeightRequest="30"
+                WidthRequest="250"
+                BackgroundColor="White"
+                TextColor="Black"
                 Placeholder="Location Name"/>
-            <Switch IsToggled="{Binding NewItem.IsPublic}" />
-            <Label Text="Public" />
-            <Button
-                StyleClass="SaveButton"
-                ToolTipProperties.Text="Save Contact" 
-                Command="{Binding NewItem.CreateCommand}"/>
+            <Switch IsToggled="{Binding NewItem.IsPublic}"/>
+            <Label 
+                Text="Public"
+                TranslationX="-100"
+                IsVisible="{Binding NewItem.IsPublic}"/>
+            <Label
+                Text="Private"
+                TranslationX="-100"
+                IsVisible="{Binding NewItem.IsPublic, Converter={StaticResource Invert}}" />
+            <Label
+                Text="💾"
+                FontSize="20">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding NewItem.CreateCommand}" />
+                </Label.GestureRecognizers>
+            </Label>
             <Button
                 StyleClass="CancelButton"
                 Command="{Binding CancelCreateCommand}" />

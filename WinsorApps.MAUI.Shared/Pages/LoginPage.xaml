@@ -6,33 +6,37 @@
              x:DataType="vm:LoginViewModel"
              x:Class="WinsorApps.MAUI.Shared.Pages.LoginPage">
     <ContentPage.Content>
-        <VerticalStackLayout>
+        <StackLayout>
             <Image StyleClass="wordmark_oneline"/>
-            <HorizontalStackLayout
+            <StackLayout
+                Orientation="Horizontal"
+                Spacing="20"
                 Margin="0"
                 Padding="0">
                 <Label 
                     Text="Email"
-                    FontSize="Large"
-                    WidthRequest="150"/>
+                    FontSize="Medium"
+                    WidthRequest="120"/>
                 <Entry 
                     Text="{Binding Email}" 
                     IsReadOnly="{Binding IsLoggedIn}" 
                     WidthRequest="400"/>
-            </HorizontalStackLayout>
-            <HorizontalStackLayout
+            </StackLayout>
+            <StackLayout
+                Orientation="Horizontal"
+                Spacing="20"
                 Margin="0"
                 Padding="0"
                 IsVisible="{Binding ShowPasswordField}">
                 <Label 
                     Text="Password" 
-                    FontSize="Large"
-                    WidthRequest="150"/>
+                    FontSize="Medium"
+                    WidthRequest="120"/>
                 <Entry 
                     Text="{Binding Password}" 
                     IsPassword="True" 
                     WidthRequest="400"/>
-            </HorizontalStackLayout>
+            </StackLayout>
             <Button 
                 Text="Login" 
                 Command="{Binding LoginCommand}" 
@@ -53,6 +57,6 @@
                 Text="Forgot Password"
                 Command="{Binding ForgotPasswordCommand}"
                 IsVisible="{Binding ShowPasswordField}" />
-        </VerticalStackLayout>
+        </StackLayout>
     </ContentPage.Content>
 </ContentPage>

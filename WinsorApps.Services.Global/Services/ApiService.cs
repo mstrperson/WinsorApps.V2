@@ -88,7 +88,14 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
                 AuthorizedUser = new AuthResponse("", savedCredential.JWT, default, savedCredential.RefreshToken);
                 try
                 {
-                    await RenewTokenAsync(onError: onError);
+                    var success = true;
+                    await RenewTokenAsync(onError: err => 
+                    {
+                        onError(err);
+                        success = false;
+                    }); 
+                    if(success)
+                        UserInfo = await SendAsync<UserRecord>(HttpMethod.Get, "api/users/self", onError: onError);
                 }
                 catch (Exception ex)
                 {

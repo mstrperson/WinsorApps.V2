@@ -12,31 +12,30 @@
     </ContentPage.Resources>
     <ScrollView>
         <VerticalStackLayout
-        Padding="30,0"
-        Spacing="25">
+            Spacing="25">
             <Image
-            StyleClass="wordmark_oneline" />
+                StyleClass="wordmark_oneline" />
             <VerticalStackLayout
-            Margin="0"
-            Padding="0">
+                Margin="0"
+                Padding="0">
                 <Label Text="Hello, "/>
                 <Label
-                Text="{Binding UserVM.DisplayName}"
-                StyleClass="Header"/>
+                    Text="{Binding UserVM.DisplayName}"
+                    StyleClass="Header"/>
             </VerticalStackLayout>
             <CollectionView ItemsSource="{Binding PostLoginServices}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="vm:ServiceAwaiterViewModel">
                         <VerticalStackLayout IsVisible="{Binding Ready, Converter={StaticResource Invert}}">
                             <Label 
-                            StyleClass="SubHeader"
-                            Text="{Binding ServiceName}" />
+                                StyleClass="SubHeader"
+                                Text="{Binding ServiceName}" />
                             <Label
-                            Text="Waiting to Start..."
-                            IsVisible="{Binding Started, Converter={StaticResource Invert}}" />
+                                Text="Waiting to Start..."
+                                IsVisible="{Binding Started, Converter={StaticResource Invert}}" />
                             <ProgressBar 
-                            Progress="{Binding Progress}"
-                            IsVisible="{Binding Started}" />
+                                Progress="{Binding Progress}"
+                                IsVisible="{Binding Started}" />
                         </VerticalStackLayout>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
@@ -46,11 +45,11 @@
                     <DataTemplate x:DataType="vm:TaskAwaiterViewModel">
                         <HorizontalStackLayout>
                             <Label
-                            StyleClass="H3"
-                            Text="{Binding TaskName}" />
+                                StyleClass="H3"
+                                Text="{Binding TaskName}" />
                             <Switch
-                            IsToggled="{Binding Ready}"
-                            IsEnabled="False" />
+                                IsToggled="{Binding Ready}"
+                                IsEnabled="False" />
                         </HorizontalStackLayout>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>

@@ -29,6 +29,8 @@ public partial class MarCommEventViewModel :
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "Working";
 
+    public MarCommRequest Request { get; private set; }
+
     public static implicit operator NewMarCommRequest(MarCommEventViewModel vm) =>
         new(
             vm.PrintInvite,
@@ -44,6 +46,9 @@ public partial class MarCommEventViewModel :
         );
     public static MarCommEventViewModel Get(MarCommRequest model)
     {
+        if (model == default)
+            return new();
+
         var vm = new MarCommEventViewModel()
         {
             Id = model.eventId,
@@ -55,7 +60,8 @@ public partial class MarCommEventViewModel :
             PrintedProgram = model.printedProgram,
             DigitalProgram = model.digitalProgram,
             NeedsMedia = model.needCreatedMedia,
-            NeedPhotographer = model.needPhotographer
+            NeedPhotographer = model.needPhotographer,
+            Request = model
         };
 
         foreach(var contact in vm.InviteList.Available)
@@ -81,7 +87,10 @@ public partial class MarCommEventViewModel :
     {
         var result = await _service.PostMarComRequest(Id, this, OnError.DefaultBehavior(this));
         if (result.HasValue)
+        {
+            Request = result.Value;
             ReadyToContinue?.Invoke(this, EventArgs.Empty);
+        }
     }
 
     [RelayCommand]

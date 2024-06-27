@@ -30,6 +30,7 @@ public partial class TechEventViewModel :
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "Working";
 
+    public TechEvent TechDetails { get; private set; }
     public static TechEventViewModel Create(string eventId) =>  new TechEventViewModel() { Id = eventId };
 
     [RelayCommand]
@@ -47,6 +48,9 @@ public partial class TechEventViewModel :
 
     public static TechEventViewModel Get(TechEvent model)
     {
+        if (model == default)
+            return new();
+
         var vm = new TechEventViewModel()
         {
             Id = model.id,
@@ -54,7 +58,8 @@ public partial class TechEventViewModel :
             EquipmentNeeded = model.equipment,
             HelpRequested = model.help,
             Details = model.details,
-            IsVirtual = model.virtualEvent.HasValue
+            IsVirtual = model.virtualEvent.HasValue,
+            TechDetails = model
         };
         if (model.virtualEvent.HasValue)
         {
@@ -90,6 +95,7 @@ public partial class TechEventViewModel :
         var result = await _eventsService.PostTechEvent(Id, this, OnError.DefaultBehavior(this));
         if(result.HasValue)
         {
+            TechDetails = result.Value;
             ReadyToContinue?.Invoke(this, EventArgs.Empty);
         }
     }

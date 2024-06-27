@@ -100,7 +100,18 @@ public partial class ContactViewModel :
         _ = GetClonedViewModels(service.MyContacts);
     }
 
-    public ContactViewModel Clone() => (ContactViewModel)MemberwiseClone();
+    public ContactViewModel Clone() => new()
+    {
+        Id = Id,
+        AssociatedUser = AssociatedUser.Clone(),
+        Email = Email,
+        FirstName = FirstName,
+        LastName = LastName,
+        FullName = FullName,
+        IsPublic = IsPublic,
+        IsSelected = IsSelected,
+        Phone = Phone
+    };
 
     [RelayCommand]
     public void Select()

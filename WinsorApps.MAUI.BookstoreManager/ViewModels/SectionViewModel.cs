@@ -113,7 +113,17 @@ public partial class SectionViewModel :
         _ = GetClonedViewModels(service.ProtoSections);
     }
 
-    public SectionViewModel Clone() => (SectionViewModel)MemberwiseClone();
+    public SectionViewModel Clone() => new()
+    {
+        Id = Id,
+        Busy = false,
+        BusyMessage = BusyMessage,
+        Course = Course.Clone(),
+        Created = Created,
+        RequestGroups = [.. RequestGroups.Select(ord => ord.Clone())],
+        SchoolYearId = SchoolYearId,
+        Teacher = Teacher.Clone()
+    };
 }
 
 public partial class SectionByTeacherCollectionViewModel :

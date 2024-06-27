@@ -101,13 +101,9 @@ public partial class VehicleCategoryCollectionViewModel :
 
     public VehicleCategoryCollectionViewModel(EventFormsService service)
     {
-        var task = service.WaitForInit(OnError.DefaultBehavior(this));
-        task.WhenCompleted(() =>
-        {
-            Categories = service.VehicleCategories.Select(VehicleCategoryViewModel.Get).ToImmutableArray();
-            foreach (var cat in Categories)
-                cat.CreateVehicleRequest += (sender, e) => CreateRequested?.Invoke(sender, e);
-        });
+        Categories = service.VehicleCategories.Select(VehicleCategoryViewModel.Get).ToImmutableArray();
+        foreach (var cat in Categories)
+            cat.CreateVehicleRequest += (sender, e) => CreateRequested?.Invoke(sender, e);
     }
 } 
 

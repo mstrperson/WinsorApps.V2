@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Data;
+using System.Runtime.CompilerServices;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.EventForms.Services;
@@ -38,14 +39,20 @@ public partial class CateringEventViewModel :
     public event EventHandler? ReadyToContinue;
     public event EventHandler? Deleted;
 
+    public CateringEvent CateringDetails { get; private set; }
+
     public static CateringEventViewModel Get(CateringEvent model)
     {
+        if (model == default)
+            return new();
+
         var vm = new CateringEventViewModel()
         {
             Id = model.id,
             ServersNeeded = model.servers,
             CleanupRequired = model.cleanup,
-            LaborCost = model.laborCost
+            LaborCost = model.laborCost,
+            CateringDetails = model
         };
 
         vm.BudgetCodeSearch.Select(BudgetCodeViewModel.Get(model.budgetCode));
@@ -71,7 +78,7 @@ public partial class CateringEventViewModel :
         var updated = await _eventsService.PostCateringDetails(Id, details, OnError.DefaultBehavior(this));
         if(updated.HasValue)
         {
-            Id = updated.Value.id;
+            CateringDetails = updated.Value;
             ReadyToContinue?.Invoke(this, EventArgs.Empty);
         }
         Busy = false;
@@ -260,6 +267,21 @@ public partial class CateringMenuCollectionViewModel :
         }
     }
 
+
+    public CateringMenuSelectionViewModel this[CateringMenuItemViewModel item]
+    {
+        get
+        {
+            foreach (var menu in Menus)
+            {
+                if (menu.Items.Any(sel => sel.Item.Id == item.Id))
+                    return menu.Items.First(sel => sel.Item.Id == item.Id);
+            }
+
+            throw new ArgumentException(nameof(item), $"Item {item.Id} not found");
+        }
+    }
+
     public CateringMenuCollectionViewModel(CateringMenuService service)
     {
         _service = service;
@@ -283,7 +305,17 @@ public partial class CateringMenuCollectionViewModel :
             menu.ClearSelections();
         }
     }
-
+    public void LoadMenuSelections(CateringMenuCollectionViewModel menu)
+    {
+        ClearSelections();
+        foreach (var sel in menu.Menus.SelectMany(m => m.Items.Where(item => item.IsSelected)))
+        {
+            var vm = this[sel.Item];
+            vm.Quantity = sel.Quantity;
+            vm.Cost = sel.Cost;
+            vm.IsSelected = true;
+        }
+    }
     public void LoadMenuSelections(ImmutableArray<DetailedCateringMenuSelection> selections)
     {
         ClearSelections();
