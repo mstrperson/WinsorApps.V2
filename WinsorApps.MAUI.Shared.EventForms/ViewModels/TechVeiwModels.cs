@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.EventForms.Services;
@@ -12,7 +13,7 @@ namespace WinsorApps.MAUI.Shared.EventForms.ViewModels;
 
 public partial class TechEventViewModel :
     ObservableObject,
-    IEventSubFormViewModel,
+    IEventSubFormViewModel<TechEventViewModel, TechEvent>,
     IDefaultValueViewModel<TechEventViewModel>,
     IBusyViewModel,
     IErrorHandling
@@ -30,7 +31,17 @@ public partial class TechEventViewModel :
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "Working";
 
-    public TechEvent TechDetails { get; private set; }
+    public TechEvent Model { get; private set; }
+
+    public TechEventViewModel()
+    {
+        VirtualEvent.OnError += (sender, err) => OnError?.Invoke(sender, err);
+        VirtualEvent.Deleted += (_, _) =>
+        {
+            IsVirtual = false;
+            VirtualEvent.Clear();
+        };
+    }
     public static TechEventViewModel Create(string eventId) =>  new TechEventViewModel() { Id = eventId };
 
     [RelayCommand]
@@ -45,33 +56,36 @@ public partial class TechEventViewModel :
             VirtualEvent = VirtualEventViewModel.Default;
         };
     }
-
-    public static TechEventViewModel Get(TechEvent model)
+    public void Clear()
+    {
+        Id = "";
+        Model = default;
+        VirtualEvent.Clear();
+        PresenceRequested = false;
+        EquipmentNeeded = false;
+        HelpRequested = false;
+        Details = "";
+        IsVirtual = false;
+    }
+    public void Load(TechEvent model)
     {
         if (model == default)
-            return new();
-
-        var vm = new TechEventViewModel()
         {
-            Id = model.id,
-            PresenceRequested = model.presence,
-            EquipmentNeeded = model.equipment,
-            HelpRequested = model.help,
-            Details = model.details,
-            IsVirtual = model.virtualEvent.HasValue,
-            TechDetails = model
-        };
+            Clear();
+            return;
+        }
+
+        Id = model.id;
+        PresenceRequested = model.presence;
+        EquipmentNeeded = model.equipment;
+        HelpRequested = model.help;
+        Details = model.details;
+        IsVirtual = model.virtualEvent.HasValue;
+        Model = model;
         if (model.virtualEvent.HasValue)
         {
-            vm.VirtualEvent = VirtualEventViewModel.Get(model.virtualEvent.Value);
-            vm.VirtualEvent.OnError += (sender, err) => vm.OnError?.Invoke(sender, err);
-            vm.VirtualEvent.Deleted += (_, _) =>
-            {
-                vm.IsVirtual = false;
-                vm.VirtualEvent = VirtualEventViewModel.Default;
-            };
+            VirtualEvent.Load(model.virtualEvent.Value);
         }
-        return vm;
     }
 
     public static implicit operator NewTechEvent(TechEventViewModel vm) =>
@@ -95,7 +109,7 @@ public partial class TechEventViewModel :
         var result = await _eventsService.PostTechEvent(Id, this, OnError.DefaultBehavior(this));
         if(result.HasValue)
         {
-            TechDetails = result.Value;
+            Model = result.Value;
             ReadyToContinue?.Invoke(this, EventArgs.Empty);
         }
     }
@@ -114,7 +128,7 @@ public partial class TechEventViewModel :
 public partial class VirtualEventViewModel :
     ObservableObject,
     IDefaultValueViewModel<VirtualEventViewModel>,
-    IEventSubFormViewModel,
+    IEventSubFormViewModel<VirtualEventViewModel, VirtualEvent>,
     IErrorHandling
 {
     private readonly EventFormsService _eventService = ServiceHelper.GetService<EventFormsService>();
@@ -134,41 +148,84 @@ public partial class VirtualEventViewModel :
     [ObservableProperty] string qASupportPerson = "";
     [ObservableProperty] ContactViewModel hostContact = ContactViewModel.Default;
     [ObservableProperty] bool showPanelits;
-    [ObservableProperty] ContactSearchViewModel panelists = new() { SelectionMode = SelectionMode.Multiple };
+    [ObservableProperty] ContactSearchViewModel panelistSearch = new() { SelectionMode = SelectionMode.Single };
+    [ObservableProperty] ObservableCollection<ContactViewModel> panelists = [];
 
     public event EventHandler? ReadyToContinue;
     public event EventHandler? Deleted;
     public event EventHandler<ErrorRecord>? OnError;
 
-    public static VirtualEventViewModel Get(VirtualEvent model)
+    public VirtualEventViewModel()
     {
-        var vm = new VirtualEventViewModel()
+        PanelistSearch.OnSingleResult += (_, e) =>
         {
-            IsWebinar = model.webinar,
-            RegistrationRequired = model.registration,
-            ChatEnabled = model.chatEnabled,
-            QaEnabled = model.qaEnabled,
-            QaSupport = !string.IsNullOrEmpty(model.qaSupportPerson),
-            QASupportPerson = model.qaSupportPerson,
-            RecordingEnabled = model.recording,
-            SendReminder = model.reminder,
-            RecordTranscript = model.transcript,
-            GetRegistrantList = model.registrantList,
-            GetZoomLink = model.zoomLink,
-            ShowPanelits = model.panelists.Any()
+            if (Panelists.Any(con => con.Id == e.Id))
+                return;
+
+            var contact = ContactViewModel.Get(e.Model);
+            contact.OnError += (sender, err) => OnError?.Invoke(sender, err);
+            contact.Selected += (_, _) =>
+            {
+                Panelists.Remove(contact);
+            };
+
+            Panelists.Add(contact);
         };
+    }
+
+    public void Clear()
+    {
+        IsWebinar = false;
+        RegistrationRequired = false;
+        ChatEnabled = false;
+        QaEnabled = false;
+        QaSupport = false;
+        QASupportPerson = "";
+        RecordingEnabled = false;
+        SendReminder = false;
+        RecordTranscript = false;
+        GetRegistrantList = false;
+        GetZoomLink = false;
+        ShowPanelits = false;
+        HostContact = new();
+        PanelistSearch.ClearSelection();
+    }
+
+    public void Load(VirtualEvent model)
+    {
+        if(model == default)
+        {
+            Clear();
+            return;
+        }
+
+        IsWebinar = model.webinar;
+        RegistrationRequired = model.registration;
+        ChatEnabled = model.chatEnabled;
+        QaEnabled = model.qaEnabled;
+        QaSupport = !string.IsNullOrEmpty(model.qaSupportPerson);
+        QASupportPerson = model.qaSupportPerson;
+        RecordingEnabled = model.recording;
+        SendReminder = model.reminder;
+        RecordTranscript = model.transcript;
+        GetRegistrantList = model.registrantList;
+        GetZoomLink = model.zoomLink;
+        ShowPanelits = model.panelists.Any();
 
         if(model.hostContact.HasValue)
         {
-            vm.HostContact = ContactViewModel.Get(model.hostContact.Value);
-        }
-        foreach (var panelist in vm.Panelists.Available)
-        {
-            panelist.IsSelected = model.panelists.Any(contact => contact.id == panelist.Id);
-            vm.Panelists.AllSelected = vm.Panelists.Available.Where(con => con.IsSelected).ToImmutableArray();
+            HostContact = ContactViewModel.Get(model.hostContact.Value);
         }
 
-        return vm;
+        Panelists = [.. model.panelists.Select(ContactViewModel.Get)];
+        foreach(var contact in  Panelists)
+        {
+            contact.OnError += (sender, err) => OnError?.Invoke(sender, err);
+            contact.Selected += (_, _) =>
+            {
+                Panelists.Remove(contact);
+            };
+        }
     }
 
     [RelayCommand]
@@ -209,7 +266,7 @@ public partial class VirtualEventViewModel :
             vm.GetRegistrantList,
             vm.GetZoomLink,
             vm.HostContact.Id,
-            vm.Panelists.AllSelected.Select(pan => pan.Id).ToImmutableArray()
+            vm.Panelists.Select(pan => pan.Id).ToImmutableArray()
         );
     public static VirtualEventViewModel Default => new();
 }

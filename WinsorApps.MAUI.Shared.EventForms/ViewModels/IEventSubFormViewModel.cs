@@ -1,18 +1,25 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-namespace WinsorApps.MAUI.Shared.EventForms.ViewModels
+namespace WinsorApps.MAUI.Shared.EventForms.ViewModels;
+
+public interface IEventSubFormViewModel<T, TModel>
+    where T : ObservableObject
+    where TModel : notnull
 {
-    public interface IEventSubFormViewModel
-    {
-        public event EventHandler? ReadyToContinue;
-        public event EventHandler? Deleted;
+    public event EventHandler? ReadyToContinue;
+    public event EventHandler? Deleted;
 
+    public string Id { get; set; }
 
-        [RelayCommand]
-        public abstract Task Continue();
+    public void Load(TModel model);
 
-        [RelayCommand]
-        public abstract Task Delete();
-    }
+    public void Clear();
+
+    [RelayCommand]
+    public abstract Task Continue();
+
+    [RelayCommand]
+    public abstract Task Delete();
 }
+

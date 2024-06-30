@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Services;
 using WinsorApps.Services.Global;
@@ -154,23 +155,21 @@ public partial class LocationSearchViewModel :
         _service.OnCacheRefreshed +=
             (_, _) =>
             {
-                Available = LocationViewModel
-                .GetClonedViewModels(
-                    CustomLocations ? _service.MyCustomLocations : _service.OnCampusLocations)
-                .ToImmutableArray();
+                Available = [..LocationViewModel
+                    .GetClonedViewModels(
+                        CustomLocations ? _service.MyCustomLocations : _service.OnCampusLocations)];
                 foreach (var loc in Available)
                 {
                     loc.Selected += (_, _) => 
                         Select(loc);
                 }
             };
-        
-        Available = LocationViewModel
-            .GetClonedViewModels(
-                CustomLocations ? _service.MyCustomLocations : _service.OnCampusLocations)
-            .ToImmutableArray();
 
-        foreach(var loc in Available)
+        Available = [..LocationViewModel
+            .GetClonedViewModels(
+                CustomLocations ? _service.MyCustomLocations : _service.OnCampusLocations)];
+
+        foreach (var loc in Available)
         {
             loc.Selected += (_, _) => 
                 Select(loc);
@@ -181,10 +180,9 @@ public partial class LocationSearchViewModel :
     {
         CustomLocations = custom;
 
-        Available = LocationViewModel
+        Available = [..LocationViewModel
             .GetClonedViewModels(
-                CustomLocations ? _service.MyCustomLocations : _service.OnCampusLocations)
-            .ToImmutableArray(); 
+                CustomLocations ? _service.MyCustomLocations : _service.OnCampusLocations)]; 
         
         foreach (var loc in Available)
         {
@@ -194,13 +192,13 @@ public partial class LocationSearchViewModel :
     }
 
     [ObservableProperty]
-    private ImmutableArray<LocationViewModel> available = [];
+    private ObservableCollection<LocationViewModel> available = [];
 
     [ObservableProperty]
-    private ImmutableArray<LocationViewModel> allSelected = [];
+    private ObservableCollection<LocationViewModel> allSelected = [];
 
     [ObservableProperty]
-    private ImmutableArray<LocationViewModel> options = [];
+    private ObservableCollection<LocationViewModel> options = [];
 
     [ObservableProperty]
     public LocationViewModel selected = LocationViewModel.Default;
@@ -223,7 +221,7 @@ public partial class LocationSearchViewModel :
     [ObservableProperty]
     LocationViewModel newItem = new();
 
-    public event EventHandler<ImmutableArray<LocationViewModel>>? OnMultipleResult;
+    public event EventHandler<ObservableCollection<LocationViewModel>>? OnMultipleResult;
     public event EventHandler<LocationViewModel>? OnSingleResult;
     public event EventHandler? OnZeroResults;
     public event EventHandler<ErrorRecord>? OnError;
@@ -251,7 +249,7 @@ public partial class LocationSearchViewModel :
         NewItem.Created += (_, e) =>
         {
             ShowCreate = false;
-            Available = Available.Add(e);
+            Available.Add(e);
             Select(e);
         };
 
@@ -271,12 +269,12 @@ public partial class LocationSearchViewModel :
         {
             case SelectionMode.Multiple:
                 AllSelected = [.. possible];
-                IsSelected = AllSelected.Length > 0;
+                IsSelected = AllSelected.Count > 0;
                 OnMultipleResult?.Invoke(this, AllSelected);
                 return;
             case SelectionMode.Single:
                 Options = [.. possible];
-                if (Options.Length == 0)
+                if (Options.Count == 0)
                 {
                     ShowOptions = false;
                     Selected = LocationViewModel.Default;
@@ -284,7 +282,7 @@ public partial class LocationSearchViewModel :
                     return;
                 }
 
-                if (Options.Length == 1)
+                if (Options.Count == 1)
                 {
                     ShowOptions = false;
                     Selected = Options.First();
@@ -319,11 +317,11 @@ public partial class LocationSearchViewModel :
                 if (sta is null) 
                     return;
                 if (AllSelected.Contains(sta))
-                    AllSelected = AllSelected.Remove(sta);
+                    AllSelected.Remove(sta);
                 else
-                    AllSelected = AllSelected.Add(sta);
+                    AllSelected.Add(sta);
 
-                IsSelected = AllSelected.Length > 0;
+                IsSelected = AllSelected.Count > 0;
                 if (IsSelected)
                     OnMultipleResult?.Invoke(this, AllSelected);
                 return;

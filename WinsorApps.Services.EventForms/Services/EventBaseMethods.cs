@@ -119,7 +119,7 @@ public partial class EventFormsService
     }
 
 
-    public async Task<EventFormBase> CompleteSubmission(string id, ErrorAction onError)
+    public async Task<EventFormBase?> CompleteSubmission(string id, ErrorAction onError)
     {
         var existing = EventsCache.FirstOrDefault(evt => evt.id == id);
         bool success = true;
@@ -130,7 +130,7 @@ public partial class EventFormsService
         });
 
         if (!result.HasValue)
-            return EventFormBase.Empty;
+            return null;
 
         if (success)
         {
@@ -141,7 +141,7 @@ public partial class EventFormsService
         return result.Value;
     }
 
-    public async Task<EventFormBase> CompleteUpdate(string id, ErrorAction onError)
+    public async Task<EventFormBase?> CompleteUpdate(string id, ErrorAction onError)
     {
         var existing = EventsCache.FirstOrDefault(evt => evt.id == id);
         bool success = true;
@@ -152,7 +152,7 @@ public partial class EventFormsService
         });
 
         if (!result.HasValue)
-            return EventFormBase.Empty;
+            return null;
 
         if (success)
         {

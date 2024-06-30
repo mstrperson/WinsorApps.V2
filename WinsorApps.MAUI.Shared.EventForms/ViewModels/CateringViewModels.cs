@@ -17,7 +17,7 @@ namespace WinsorApps.MAUI.Shared.EventForms.ViewModels;
 public partial class CateringEventViewModel :
     ObservableObject,
     IDefaultValueViewModel<CateringEventViewModel>,
-    IEventSubFormViewModel,
+    IEventSubFormViewModel<CateringEventViewModel, CateringEvent>,
     IBusyViewModel,
     IErrorHandling
 {
@@ -39,26 +39,36 @@ public partial class CateringEventViewModel :
     public event EventHandler? ReadyToContinue;
     public event EventHandler? Deleted;
 
-    public CateringEvent CateringDetails { get; private set; }
+    public CateringEvent Model { get; private set; }
 
-    public static CateringEventViewModel Get(CateringEvent model)
+    public void Clear()
+    {
+        Id = "";
+        Model = default;
+        ServersNeeded = false;
+        CleanupRequired = false;
+        LaborCost = 0;
+        BudgetCodeSearch.Selected = new();
+        BudgetCodeSearch.IsSelected = false;
+        Menu.ClearSelections();
+    }
+    public void Load(CateringEvent model)
     {
         if (model == default)
-            return new();
-
-        var vm = new CateringEventViewModel()
         {
-            Id = model.id,
-            ServersNeeded = model.servers,
-            CleanupRequired = model.cleanup,
-            LaborCost = model.laborCost,
-            CateringDetails = model
-        };
+            Clear();
+            return;
+        }
 
-        vm.BudgetCodeSearch.Select(BudgetCodeViewModel.Get(model.budgetCode));
-        vm.Menu.LoadMenuSelections(model.menuSelections);
+        Id = model.id;
+        ServersNeeded = model.servers;
+        CleanupRequired = model.cleanup;
+        LaborCost = model.laborCost;
+        Model = model;
 
-        return vm;
+        BudgetCodeSearch.Select(BudgetCodeViewModel.Get(model.budgetCode));
+        Menu.ClearSelections();
+        Menu.LoadMenuSelections(model.menuSelections);
     }
 
     [RelayCommand]
@@ -78,7 +88,7 @@ public partial class CateringEventViewModel :
         var updated = await _eventsService.PostCateringDetails(Id, details, OnError.DefaultBehavior(this));
         if(updated.HasValue)
         {
-            CateringDetails = updated.Value;
+            Model = updated.Value;
             ReadyToContinue?.Invoke(this, EventArgs.Empty);
         }
         Busy = false;

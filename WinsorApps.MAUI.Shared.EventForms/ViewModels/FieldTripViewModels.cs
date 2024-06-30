@@ -12,7 +12,7 @@ namespace WinsorApps.MAUI.Shared.EventForms.ViewModels;
 
 public partial class FieldTripViewModel :
     ObservableObject,
-    IEventSubFormViewModel,
+    IEventSubFormViewModel<FieldTripViewModel, FieldTripDetails>,
     IErrorHandling
 {
     [ObservableProperty] string id = "";
@@ -28,7 +28,7 @@ public partial class FieldTripViewModel :
     public event EventHandler? Deleted;
     public event EventHandler<ErrorRecord>? OnError;
 
-    public FieldTripDetails FieldTripDetails { get; private set; }
+    public FieldTripDetails Model { get; private set; }
 
     public static implicit operator NewFieldTrip(FieldTripViewModel vm) =>
         new(
@@ -57,37 +57,47 @@ public partial class FieldTripViewModel :
         };
     }
 
-    public static FieldTripViewModel Get(FieldTripDetails model)
+    public void Clear()
+    {
+        Id = "";
+        Model = default;
+        StudentsByClass = new();
+        Transportation = new();
+        FieldTripCateringRequest = new();
+        ShowFood = false;
+        PrimaryContactSearch.ClearSelection();
+        Chaperones = [];
+        ChaperoneSearch.ClearSelection();
+    }
+
+    public void Load(FieldTripDetails model)
     {
         if (model == default)
-            return new();
-
-        var vm = new FieldTripViewModel()
         {
-            Id = model.eventId,
-            StudentsByClass = StudentsByClassViewModel.Get(model.studentCount),
-            Transportation = TransportationViewModel.Get(model.transportationDetails),
-            FieldTripDetails = model
-        };
+            Clear();
+            return;
+        }
+        Id = model.eventId;
+        StudentsByClass = StudentsByClassViewModel.Get(model.studentCount);
+        Transportation = TransportationViewModel.Get(model.transportationDetails);
+        Model = model;
 
         if (model.lunch.HasValue)
         {
-            vm.FieldTripCateringRequest = FieldTripCateringRequestViewModel.Get(model.lunch.Value);
-            vm.ShowFood = true;
+            FieldTripCateringRequest = FieldTripCateringRequestViewModel.Get(model.lunch.Value);
+            ShowFood = true;
         }
 
-        vm.PrimaryContactSearch.Select(ContactViewModel.Get(model.primaryContact));
+        PrimaryContactSearch.Select(ContactViewModel.Get(model.primaryContact));
 
-        vm.Chaperones = [.. model.chaperones.Select(ContactViewModel.Get)];
-        foreach(var chap in vm.Chaperones)
+        Chaperones = [.. model.chaperones.Select(ContactViewModel.Get)];
+        foreach(var chap in Chaperones)
         {
             chap.Selected += (_, _) =>
             {
-                vm.Chaperones.Remove(chap);
+                Chaperones.Remove(chap);
             };
         }
-
-        return vm;
     }
         
     private readonly EventFormsService _service = ServiceHelper.GetService<EventFormsService>();
@@ -98,7 +108,7 @@ public partial class FieldTripViewModel :
         var result = await _service.PostFieldTripDetails(Id, this, OnError.DefaultBehavior(this));
         if (result.HasValue)
         {
-            FieldTripDetails = result.Value;
+            Model = result.Value;
             ReadyToContinue?.Invoke(this, EventArgs.Empty);
         }
     }

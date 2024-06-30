@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.EventForms.Services;
@@ -17,7 +18,8 @@ public partial class ContactViewModel :
     IDefaultValueViewModel<ContactViewModel>,
     ICachedViewModel<ContactViewModel, Contact, ContactService>,
     IErrorHandling,
-    ISelectable<ContactViewModel>
+    ISelectable<ContactViewModel>,
+    IModelCarrier<ContactViewModel, Contact>
     
 {
     private readonly ContactService contactService = ServiceHelper.GetService<ContactService>();
@@ -47,16 +49,18 @@ public partial class ContactViewModel :
             Created?.Invoke(this, Get(result));
         }
     }
-
+    
     public static ConcurrentBag<ContactViewModel> ViewModelCache { get; private set; } = [];
 
     public static ContactViewModel Default => new();
+
+    public Contact Model { get; private set; }
 
     public static ContactViewModel Get(Contact model)
     {
         var vm = ViewModelCache.FirstOrDefault(con => con.Id == model.id);
         if (vm is not null) return vm.Clone();
-        
+
         vm = new ContactViewModel
         {
             Id = model.id,
@@ -68,16 +72,18 @@ public partial class ContactViewModel :
             IsPublic = model.isPublic
         };
 
-        if(!string.IsNullOrEmpty(model.associatedUserId))
+        if (!string.IsNullOrEmpty(model.associatedUserId))
         {
             var user = UserViewModel.ViewModelCache.FirstOrDefault(u => u.Id == model.associatedUserId);
-            if(user is not null) 
+            if (user is not null)
                 vm.AssociatedUser = user.Clone();
         }
 
         ViewModelCache.Add(vm);
         return vm.Clone();
     }
+    
+    
 
     public static List<ContactViewModel> GetClonedViewModels(IEnumerable<Contact> models)
     {
@@ -100,19 +106,8 @@ public partial class ContactViewModel :
         _ = GetClonedViewModels(service.MyContacts);
     }
 
-    public ContactViewModel Clone() => new()
-    {
-        Id = Id,
-        AssociatedUser = AssociatedUser.Clone(),
-        Email = Email,
-        FirstName = FirstName,
-        LastName = LastName,
-        FullName = FullName,
-        IsPublic = IsPublic,
-        IsSelected = IsSelected,
-        Phone = Phone
-    };
-
+    public ContactViewModel Clone() => (ContactViewModel)MemberwiseClone();
+    
     [RelayCommand]
     public void Select()
     {
@@ -129,9 +124,9 @@ public partial class ContactSearchViewModel :
     private readonly ContactService _contactService = ServiceHelper.GetService<ContactService>();
     private readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
 
-    [ObservableProperty] ImmutableArray<ContactViewModel> available = [];
-    [ObservableProperty] ImmutableArray<ContactViewModel> allSelected = [];
-    [ObservableProperty] ImmutableArray<ContactViewModel> options = [];
+    [ObservableProperty] ObservableCollection<ContactViewModel> available = [];
+    [ObservableProperty] ObservableCollection<ContactViewModel> allSelected = [];
+    [ObservableProperty] ObservableCollection<ContactViewModel> options = [];
     [ObservableProperty] ContactViewModel selected = ContactViewModel.Default;
     [ObservableProperty] SelectionMode selectionMode = SelectionMode.Single;
     [ObservableProperty] string searchText = "";
@@ -140,7 +135,7 @@ public partial class ContactSearchViewModel :
     [ObservableProperty] bool showCreate;
     [ObservableProperty] ContactViewModel newItem = ContactViewModel.Default;
 
-    public event EventHandler<ImmutableArray<ContactViewModel>>? OnMultipleResult;
+    public event EventHandler<ObservableCollection<ContactViewModel>>? OnMultipleResult;
     public event EventHandler<ContactViewModel>? OnSingleResult;
     public event EventHandler? OnZeroResults;
     public event EventHandler<ErrorRecord>? OnError;
@@ -157,7 +152,7 @@ public partial class ContactSearchViewModel :
 
     private void UpdateAvailable(object? sender, EventArgs e)
     {
-        Available = ContactViewModel.GetClonedViewModels(_contactService.MyContacts).ToImmutableArray();
+        Available = [.._contactService.MyContacts.Select(ContactViewModel.Get)];
         foreach (var contactViewModel in Available)
         {
             contactViewModel.OnError += (sender, err) => OnError?.Invoke(sender, err);
@@ -181,7 +176,7 @@ public partial class ContactSearchViewModel :
 
         NewItem.Created += (_, vm) =>
         {
-            Available = Available.Add(vm);
+            Available.Add(vm);
             Select(vm);
             ShowCreate = false;
         };
@@ -202,12 +197,12 @@ public partial class ContactSearchViewModel :
         {
             case SelectionMode.Multiple:
                 AllSelected = [.. possible];
-                IsSelected = AllSelected.Length > 0;
+                IsSelected = AllSelected.Count > 0;
                 OnMultipleResult?.Invoke(this, AllSelected);
                 return;
             case SelectionMode.Single:
                 Options = [.. possible];
-                if (Options.Length == 0)
+                if (Options.Count == 0)
                 {
                     ShowOptions = false;
                     Selected = ContactViewModel.Default;
@@ -215,7 +210,7 @@ public partial class ContactSearchViewModel :
                     return;
                 }
 
-                if (Options.Length == 1)
+                if (Options.Count == 1)
                 {
                     ShowOptions = false;
                     Selected = Options.First();
@@ -261,11 +256,11 @@ public partial class ContactSearchViewModel :
                 var contact = Available.FirstOrDefault(cont => cont.Id == e.Id);
                 if (contact is null) return;
                 if (AllSelected.Contains(contact))
-                    AllSelected = AllSelected.Remove(contact);
+                    AllSelected.Remove(contact);
                 else
-                    AllSelected = AllSelected.Add(contact);
+                    AllSelected.Add(contact);
 
-                IsSelected = AllSelected.Length > 0;
+                IsSelected = AllSelected.Count > 0;
                 if (IsSelected)
                     OnMultipleResult?.Invoke(this, AllSelected);
                 return;

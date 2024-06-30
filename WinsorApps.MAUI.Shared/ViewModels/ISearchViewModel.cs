@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 
 namespace WinsorApps.MAUI.Shared.ViewModels;
 
@@ -13,7 +14,7 @@ public interface IMultiModalSearch<T> where T : ObservableObject
 
 public interface ICachedSearchViewModel<T> : IAsyncSearchViewModel<T> where T : ObservableObject, IDefaultValueViewModel<T>, new()
 {
-    public ImmutableArray<T> Available { get; set; }
+    public ObservableCollection<T> Available { get; set; }
     
     [RelayCommand]
     new public void Search();
@@ -21,9 +22,9 @@ public interface ICachedSearchViewModel<T> : IAsyncSearchViewModel<T> where T : 
 
 public interface IAsyncSearchViewModel<T> where T : ObservableObject, new()
 {
-    public ImmutableArray<T> AllSelected { get; set; }
+    public ObservableCollection<T> AllSelected { get; set; }
 
-    public ImmutableArray<T> Options { get; set; }
+    public ObservableCollection<T> Options { get; set; }
 
     public T Selected { get; set; }
 
@@ -35,7 +36,7 @@ public interface IAsyncSearchViewModel<T> where T : ObservableObject, new()
 
     public bool ShowOptions { get; set; }
 
-    public event EventHandler<ImmutableArray<T>>? OnMultipleResult;
+    public event EventHandler<ObservableCollection<T>>? OnMultipleResult;
     public event EventHandler<T>? OnSingleResult;
     public event EventHandler? OnZeroResults;
     public void Select(T item);

@@ -22,62 +22,87 @@
             Text="Delete Event"
             Command="{Binding DeleteCommand}" 
             StyleClass="DeleteButton"/>
+        <ToolbarItem
+            Text="Print"
+            Command="{Binding PrintCommand}"
+            StyleClass="PrintButton" />
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <ScrollView>
-            <VerticalStackLayout>
-                <StackLayout Orientation="Horizontal">
-                    <Label
-                        StyleClass="SubHeader"
-                        Text="{Binding StatusSelection.Selected.Label}" />
-                    <Button
-                        StyleClass="SaveButton"
-                        IsVisible="{Binding IsNew}"
-                        Command="{Binding StartNewFormCommand}" />
-                    <Button
-                        StyleClass="SaveButton"
-                        IsVisible="{Binding IsCreating}"
-                        Command="{Binding CompleteSubmissionCommand}" />
-                    <Button
-                        StyleClass="SaveButton"
-                        IsVisible="{Binding IsUpdating}"
-                        Command="{Binding CompleteUpdateCommand}" />
-                </StackLayout>
+            <StackLayout
+                IsEnabled="{Binding Busy, Converter={StaticResource Invert}}"
+                Margin="5,0">
                 <StackLayout
                     IsEnabled="{Binding CanEditBase}">
+                    <Label
+                        StyleClass="Header"
+                        HorizontalTextAlignment="Center"
+                        Text="{Binding BusyMessage}"
+                        IsVisible="{Binding Busy}" />
+
                     <Entry
                         Placeholder="Event Name"
-                        Text="{Binding Summary}" />
+                        TextColor="{DynamicResource DarkBlue}"
+                        BackgroundColor="{DynamicResource WarmGrey}"
+                        Text="{Binding Summary}" 
+                        Margin="0,5"/>
                     <Editor
-                        HeightRequest="250"
+                        HeightRequest="100"
                         Placeholder="Please enter details that are relevant to everyone to see here.  Sub forms will have specific information for other folks."
                         Text="{Binding Description}" />
+                    <BoxView StyleClass="Bar"/>
                     <StackLayout
                         Orientation="Horizontal"
-                        Spacing="30">
-                        <Label Text="Start" />
+                        Spacing="5">
+                        <Label 
+                            Text="Start"
+                            StyleClass="H3"
+                            VerticalTextAlignment="Center"/>
                         <DatePicker
                             Date="{Binding StartDate}" />
                         <TimePicker
-                            Time="{Binding StartTime}" />
-                        <Label Text="End" />
+                            Time="{Binding StartTime}"
+                            BackgroundColor="{DynamicResource WarmGrey}"
+                            TextColor="{AppThemeBinding Light={DynamicResource WinsorRed}, Dark={DynamicResource DarkBlue}}"/>
+                        <Label 
+                            Text="End"
+                            StyleClass="H3"
+                            Margin="25, 0, 0, 0"/>
                         <DatePicker
-                            Date="{Binding EndDate}" />
+                            Date="{Binding EndDate}"/>
                         <TimePicker
-                            Time="{Binding EndTime}" />
+                            Time="{Binding EndTime}" 
+                            BackgroundColor="{DynamicResource WarmGrey}"
+                            TextColor="{AppThemeBinding Light={DynamicResource WinsorRed}, Dark={DynamicResource DarkBlue}}"/>
                     </StackLayout>
+                    <BoxView StyleClass="Bar"/>
                     <StackLayout
                         Orientation="Horizontal"
-                        Spacing="30">
+                        Spacing="30"
+                        Margin="0,10">
                         <Label
                             StyleClass="H3"
                             Text="Leader" />
-                        <StackLayout>
+                        <StackLayout
+                            Orientation="Horizontal"
+                            IsVisible="{Binding LeaderSearch.IsSelected}">
+                            <StackLayout.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding LeaderSearch.ClearSelectionCommand}" />
+                            </StackLayout.GestureRecognizers>
+                            <Label
+                                Text="{Binding LeaderSearch.Selected.DisplayName}"/>
+                            <Label
+                                StyleClass="PositiveSignifier"
+                                FontSize="18"/>
+                        </StackLayout>
+
+                        <StackLayout
+                                IsVisible="{Binding LeaderSearch.IsSelected, Converter={StaticResource Invert}}">
                             <SearchBar 
                                 WidthRequest="250"
                                 Placeholder="Leader"
                                 Text="{Binding LeaderSearch.SearchText}"
-                                SearchCommand="{Binding LeaderSearch.SearchCommand}" />
+                                SearchCommand="{Binding LeaderSearch.SearchCommand}"/>
                             <CollectionView
                                 ItemsSource="{Binding LeaderSearch.Options}"
                                 IsVisible="{Binding LeaderSearch.ShowOptions}">
@@ -92,7 +117,12 @@
                                 </CollectionView.ItemTemplate>
                             </CollectionView>
                         </StackLayout>
+                        <Label
+                            StyleClass="ErrorSignifier"
+                            FontSize="18"
+                            IsVisible="{Binding LeaderSearch.IsSelected, Converter={StaticResource Invert}}"/>
                     </StackLayout>
+                    <BoxView StyleClass="Bar"/>
                     <Label
                         StyleClass="H3"
                         Text="On Campus Locations" />
@@ -118,17 +148,18 @@
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
+                    <BoxView StyleClass="Bar"/>
                     <Label
                         StyleClass="H3"
                         Text="Off Campus Locations" />
                     <views:LocationSingleSelector BindingContext="{Binding CustomLocationSearch}" />
                     <CollectionView
                         ItemsSource="{Binding SelectedCustomLocations}">
-                      <!--  <CollectionView.Header>
+                      <CollectionView.Header>
                             <Label 
                                 Text="Selected Custom Locations"
                                 StyleClass="H3" />
-                        </CollectionView.Header> -->
+                        </CollectionView.Header>
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="vm:LocationViewModel">
                                 <StackLayout
@@ -143,10 +174,12 @@
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
+                    <BoxView StyleClass="Bar"/>
                     <Label
                         Text="Please note that Submitted Event Forms will not be sent for approval until any On Campus Rooms have been cleared by the Registrar."/>
                     <Label
                         Text="Also, note that you must have approval from Division Head as well as Clearing the Date with Operations before Submitting an Event Form." />
+                    <BoxView StyleClass="Bar"/>
                     <StackLayout
                         Orientation="Horizontal"
                         Spacing="30">
@@ -158,12 +191,46 @@
                             Text="Expected Attendees" />
                         <Entry
                             Text="{Binding AttendeeCount}"
-                            Keyboard="Numeric" />
+                            Keyboard="Numeric"
+                            WidthRequest="100"
+                            BackgroundColor="{DynamicResource WarmGrey}"
+                            TextColor="{AppThemeBinding Light=Black, Dark={DynamicResource DarkBlue}}"/>
                     </StackLayout>
+                </StackLayout>
+                <StackLayout Orientation="Horizontal">
+                    <Label
+                        StyleClass="SubHeader"
+                        Text="{Binding StatusSelection.Selected.Label}" 
+                        IsVisible="{Binding IsNew, Converter={StaticResource Invert}}"/>
+                    <Label
+                        StyleClass="SubHeader"
+                        Text="New Event Form"
+                        IsVisible="{Binding IsNew}" />
+                    <Picker 
+                        ItemsSource="{Binding TypeSelection.Types}"
+                        IsVisible="{Binding IsNew}"
+                        SelectedItem="{Binding Type}"/>
+                    <Button
+                        Text="Start New Event Form"
+                        IsVisible="{Binding IsNew}"
+                        Command="{Binding StartNewFormCommand}" />
+                    <Button
+                        Text="Start Editing This Form"
+                        IsVisible="{Binding CanEditBase, Converter={StaticResource Invert}}"
+                        Command="{Binding StartUpdatingCommand}" />
+                    <Button
+                        Text="Ready to Send for Approval"
+                        IsVisible="{Binding IsCreating}"
+                        Command="{Binding CompleteSubmissionCommand}" />
+                    <Button
+                        Text="Submit Edits to this Form"
+                        IsVisible="{Binding IsUpdating}"
+                        Command="{Binding CompleteUpdateCommand}" />
                 </StackLayout>
                 <StackLayout
                     IsVisible="{Binding CanEditSubForms}"
                     Orientation="Vertical">
+                    <BoxView StyleClass="Bar" />
                     <Button
                         Text="Edit Field Trip Details"
                         IsVisible="{Binding IsFieldTrip}"
@@ -172,11 +239,11 @@
                         IsVisible="{Binding IsFieldTrip, Converter={StaticResource Invert}}">
                         <Button
                             Text="This is a Field Trip"
-                            Command="{Binding EditFieldTripCommand}" />
+                            Command="{Binding AddFieldTripCommand}" />
                         <Button 
                             Text="My Event Needs to use the Theater"
                             IsVisible="{Binding HasTheater, Converter={StaticResource Invert}}"
-                            Command="{Binding EditTheaterCommand}" />
+                            Command="{Binding AddTheaterCommand}" />
                         <Button
                             Text="Edit Theater Details"
                             IsVisible="{Binding HasTheater}"
@@ -184,7 +251,7 @@
                         <Button 
                             Text="My Event Needs Support from Technology"
                             IsVisible="{Binding HasTech, Converter={StaticResource Invert}}"
-                            Command="{Binding EditTechCommand}" />
+                            Command="{Binding AddTechCommand}" />
                         <Button
                             Text="Edit Tech Request"
                             IsVisible="{Binding HasTech}"
@@ -193,7 +260,7 @@
                             Text="My Event Needs Catering Service"
                             IsVisible="{Binding HasCatering, Converter={StaticResource Invert}}"
                             IsEnabled="{Binding CanEditCatering}"
-                            Command="{Binding EditCateringCommand}" />
+                            Command="{Binding AddCateringCommand}" />
                         <Button
                             Text="Edit Catering Request"
                             IsVisible="{Binding HasCatering}"
@@ -202,7 +269,7 @@
                         <Button 
                             Text="My Event Needs Support from Facilities"
                             IsVisible="{Binding HasFacilities, Converter={StaticResource Invert}}"
-                            Command="{Binding EditFacilitiesCommand}" />
+                            Command="{Binding AddFacilitiesCommand}" />
                         <Button
                             Text="Edit Facilities Request"
                             IsVisible="{Binding HasFacilities}"
@@ -211,14 +278,14 @@
                         <Button 
                             Text="My Event Needs Communications"
                             IsVisible="{Binding HasMarComm, Converter={StaticResource Invert}}"
-                            Command="{Binding EditMarCommCommand}" />
+                            Command="{Binding AddMarCommCommand}" />
                         <Button
                             Text="Edit Communications Request"
                             IsVisible="{Binding HasMarComm}"
                             Command="{Binding LoadMarCommCommand}" />
                     </StackLayout>
                 </StackLayout>
-            </VerticalStackLayout>
+            </StackLayout>
         </ScrollView>
     </ContentPage.Content>
 </ContentPage>

@@ -19,13 +19,15 @@ public partial class EventFormViewModel :
     ICachedViewModel<EventFormViewModel, EventFormBase, EventFormsService>,
     ISelectable<EventFormViewModel>,
     IBusyViewModel,
-    IErrorHandling
+    IErrorHandling,
+    IModelCarrier<EventFormViewModel, EventFormBase>
 {
     private readonly EventFormsService _service = ServiceHelper.GetService<EventFormsService>();
 
     [ObservableProperty] string id = "";
     [ObservableProperty] string summary = "";
     [ObservableProperty] string description = "";
+    [ObservableProperty] EventTypeSelectionViewModel typeSelection = new();
     [ObservableProperty] EventTypeViewModel type = EventTypeViewModel.Get("default");
     [ObservableProperty] ApprovalStatusSelectionViewModel statusSelection = new();
     [ObservableProperty] DateTime startDate = DateTime.Today;
@@ -55,10 +57,10 @@ public partial class EventFormViewModel :
     [ObservableProperty] MarCommEventViewModel marComm = new();
     [ObservableProperty] bool hasMarComm;
 
-    [ObservableProperty] bool isNew;
+    [ObservableProperty] bool isNew = true;
     [ObservableProperty] bool isCreating;
     [ObservableProperty] bool isUpdating;
-    [ObservableProperty] bool canEditBase;
+    [ObservableProperty] bool canEditBase = true;
     [ObservableProperty] bool canEditSubForms;
 
     [ObservableProperty] bool canEditCatering;
@@ -67,6 +69,7 @@ public partial class EventFormViewModel :
     public event EventHandler<EventFormViewModel>? Selected;
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<EventFormViewModel>? TemplateRequested;
+    public event EventHandler? SubFormContinuing;
 
     public event EventHandler<FacilitesEventViewModel>? FacilitesRequested;
     public event EventHandler<TechEventViewModel>? TechRequested;
@@ -79,6 +82,8 @@ public partial class EventFormViewModel :
 
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "Working";
+
+    public EventFormBase Model { get; private set; }
 
     public EventFormViewModel()
     {
@@ -103,7 +108,90 @@ public partial class EventFormViewModel :
                 SelectedCustomLocations.Remove(location);
             SelectedCustomLocations.Add(location);
         };
+
+        Tech.Deleted += (_, _) =>
+        {
+            Tech.Clear();
+            HasTech = false;
+            SubFormContinuing?.Invoke(this, EventArgs.Empty);
+        };
+
+        Tech.ReadyToContinue += (_, _) =>
+        {
+            HasTech = true;
+            SubFormContinuing?.Invoke(this, EventArgs.Empty);
+        };
+
+
+
+        Facilites.Deleted += (_, _) =>
+        {
+            Facilites.Clear();
+            HasFacilities = false;
+            SubFormContinuing?.Invoke(this, EventArgs.Empty);
+        };
+
+        Facilites.ReadyToContinue += (_, _) =>
+        {
+            HasFacilities = true;
+            SubFormContinuing?.Invoke(this, EventArgs.Empty);
+        };
+
+        Facilites.OnError += (sender, err) => OnError?.Invoke(sender, err);
+
+
+        Catering.Deleted += (_, _) =>
+        {
+            Catering.Clear(); 
+            HasCatering = false;
+            SubFormContinuing?.Invoke(this, EventArgs.Empty);
+        };
+
+        Catering.ReadyToContinue += (_, _) =>
+        {
+            HasCatering = true;
+            SubFormContinuing?.Invoke(this, EventArgs.Empty);
+        };
+
+        Catering.OnError += (sender, err) => OnError?.Invoke(sender, err);
+
+        Theater.Deleted += (_, _) =>
+        {
+            Theater.Clear();
+            HasTheater = false;
+            SubFormContinuing?.Invoke(this, EventArgs.Empty);
+        };
+
+        Theater.ReadyToContinue += (_, _) =>
+        {
+            HasTheater = true;
+            SubFormContinuing?.Invoke(this, EventArgs.Empty);
+        };
+
+        Theater.OnError += (sender, err) => OnError?.Invoke(sender, err);
+
+        FieldTrip.Deleted += (_, _) =>
+        {
+            FieldTrip.Clear();
+            SubFormContinuing?.Invoke(this, EventArgs.Empty);
+        };
+
+        FieldTrip.ReadyToContinue += (_, _) =>
+        {
+            Type = EventTypeViewModel.Get("Field Trip");
+            SubFormContinuing?.Invoke(this, EventArgs.Empty);
+        };
+
+        FieldTrip.OnError += (sender, err) => OnError?.Invoke(sender, err);
     }
+
+    [RelayCommand]
+    public async Task Print()
+    {
+        //var download = await _service.
+    }
+
+    private static readonly ApiService _api = ServiceHelper.GetService<ApiService>();
 
     public static implicit operator NewEvent(EventFormViewModel vm) =>
         new(
@@ -112,7 +200,7 @@ public partial class EventFormViewModel :
             vm.Type,
             vm.StartDate.Add(vm.StartTime),
             vm.EndDate.Add(vm.EndTime),
-            vm.Creator.Id,
+            _api.AuthUserId ?? "",
             vm.LeaderSearch.Selected.Id,
             DateOnly.FromDateTime(vm.PreapprovalDate),
             vm.AttendeeCount,
@@ -131,10 +219,12 @@ public partial class EventFormViewModel :
         var result = await _service.StartNewForm(this, OnError.DefaultBehavior(this));
         if(result.HasValue)
         {
+            Model = result.Value;
             CanEditBase = true;
             CanEditSubForms = true;
             IsCreating = true;
             IsNew = false;
+            Id = result.Value.id;
         }
 
         Busy = false;
@@ -157,6 +247,7 @@ public partial class EventFormViewModel :
         clone.Facilites.Id = "";
         clone.MarComm.Id = "";
         clone.FieldTrip.Id = "";
+        clone.Model = new();
         
         TemplateRequested?.Invoke(this, clone);
     }
@@ -170,6 +261,7 @@ public partial class EventFormViewModel :
         var result = await _service.BeginUpdating(Id, this, OnError.DefaultBehavior(this));
         if(result.HasValue)
         {
+            Model = result.Value;
             StatusSelection.Select(result.Value.status);
             CanEditBase = true;
             CanEditSubForms = true;
@@ -185,7 +277,16 @@ public partial class EventFormViewModel :
         if (!IsCreating)
             return;
         Busy = true;
-
+        var result = await _service.CompleteSubmission(Id, OnError.DefaultBehavior(this));
+        if(result.HasValue)
+        {
+            Model = result.Value;
+            CanEditBase = false;
+            CanEditSubForms = false;
+            CanEditCatering = false;
+            IsNew = false;
+            StatusSelection.Select(result.Value.status);
+        }
         Busy = false;
         Submitted?.Invoke(this, EventArgs.Empty);
     }
@@ -197,7 +298,16 @@ public partial class EventFormViewModel :
             return;
 
         Busy = true;
-
+        var result = await _service.CompleteUpdate(Id, OnError.DefaultBehavior(this));
+        if (result.HasValue)
+        {
+            Model = result.Value;
+            CanEditBase = false;
+            CanEditSubForms = false;
+            CanEditCatering = false;
+            IsNew = false;
+            StatusSelection.Select(result.Value.status);
+        }
         Busy = false;
         Submitted?.Invoke(this, EventArgs.Empty);
     }
@@ -209,20 +319,22 @@ public partial class EventFormViewModel :
             return;
         Busy = true;
 
-        Busy = false;
+        var result = await _service.DeleteEventForm(Id, OnError.DefaultBehavior(this));
 
-        Deleted?.Invoke(this, EventArgs.Empty);
+        Busy = false;
+        if(result)
+            Deleted?.Invoke(this, EventArgs.Empty);
     }
 
     [RelayCommand]
-    public void EditFacilities()
+    public void AddFacilities()
     {
         Facilites.Id = Id;
         FacilitesRequested?.Invoke(this, Facilites);
     }
 
     [RelayCommand]
-    public void EditTech()
+    public void AddTech()
     {
         Tech.Id = Id;
         TechRequested?.Invoke(this, Tech);
@@ -230,28 +342,28 @@ public partial class EventFormViewModel :
 
 
     [RelayCommand]
-    public void EditCatering()
+    public void AddCatering()
     {
         Catering.Id = Id;
         CateringRequested?.Invoke(this, Catering);
     }
 
     [RelayCommand]
-    public void EditTheater()
+    public void AddTheater()
     {
         Theater.Id = Id;
         TheaterRequested?.Invoke(this, Theater);
     }
 
     [RelayCommand]
-    public void EditMarComm()
+    public void AddMarComm()
     {
         MarComm.Id = Id;
         MarCommRequested?.Invoke(this, MarComm);
     }
 
     [RelayCommand]
-    public void EditFieldTrip()
+    public void AddFieldTrip()
     {
         Facilites.Id = Id;
         FacilitesRequested?.Invoke(this, Facilites);
@@ -264,21 +376,14 @@ public partial class EventFormViewModel :
         var facilities = await _service.GetFacilitiesEvent(Id, OnError.DefaultBehavior(this));
         if(!facilities.HasValue)
         {
-            Facilites = new();
+            Facilites.Clear();
             HasFacilities = false;
             Busy = false;
             return;
         }
         
-        Facilites = FacilitesEventViewModel.Get(facilities.Value);
+        Facilites.Load(facilities.Value);
         HasFacilities = true;
-
-        Facilites.Deleted += (_, _) =>
-        {
-            Facilites = new();
-            HasFacilities = false;
-        };
-
         Busy = false;
         FacilitesRequested?.Invoke(this, Facilites);
     }
@@ -290,20 +395,14 @@ public partial class EventFormViewModel :
         var tech = await _service.GetTechDetails(Id, OnError.DefaultBehavior(this));
         if (!tech.HasValue)
         {
-            Tech = new();
+            Tech.Clear();
             HasTech = false;
             Busy = false;
             return;
         }
 
-        Tech = TechEventViewModel.Get(tech.Value);
+        Tech.Load(tech.Value);
         HasTech = true;
-
-        Tech.Deleted += (_, _) =>
-        {
-            Tech = new();
-            HasTech = false;
-        };
 
         Busy = false;
 
@@ -317,20 +416,15 @@ public partial class EventFormViewModel :
         var sub = await _service.GetCateringEvent(Id, OnError.DefaultBehavior(this));
         if (!sub.HasValue)
         {
-            Catering = new();
+            Catering.Clear();
             HasCatering = false;
             Busy = false;
             return;
         }
 
-        Catering = CateringEventViewModel.Get(sub.Value);
+        Catering.Load(sub.Value);
         HasCatering = true;
 
-        Catering.Deleted += (_, _) =>
-        {
-            Catering = new();
-            HasCatering = false;
-        };
 
         Busy = false;
 
@@ -344,20 +438,14 @@ public partial class EventFormViewModel :
         var sub = await _service.GetTheaterDetails(Id, OnError.DefaultBehavior(this));
         if (!sub.HasValue)
         {
-            Theater = new();
+            Theater.Clear();
             HasTheater = false;
             Busy = false;
             return;
         }
 
-        Theater = TheaterEventViewModel.Get(sub.Value);
+        Theater.Load(sub.Value);
         HasTheater = true;
-
-        Theater.Deleted += (_, _) =>
-        {
-            Theater = new();
-            HasTheater = false;
-        };
 
         Busy = false;
         TheaterRequested?.Invoke(this, Theater);
@@ -370,20 +458,14 @@ public partial class EventFormViewModel :
         var sub = await _service.GetFieldTripDetails(Id, OnError.DefaultBehavior(this));
         if (!sub.HasValue)
         {
-            FieldTrip = new();
+            FieldTrip.Clear();
             IsFieldTrip = false;
             Busy = false;
             return;
         }
 
-        FieldTrip = FieldTripViewModel.Get(sub.Value);
+        FieldTrip.Load(sub.Value);
         IsFieldTrip = true;
-
-        FieldTrip.Deleted += (_, _) =>
-        {
-            FieldTrip = new();
-            IsFieldTrip = false;
-        };
 
         Busy = false;
         FieldTripRequested?.Invoke(this, FieldTrip);
@@ -396,20 +478,14 @@ public partial class EventFormViewModel :
         var sub = await _service.GetMarCommRequest(Id, OnError.DefaultBehavior(this));
         if (!sub.HasValue)
         {
-            MarComm = new();
+            MarComm.Clear();
             HasMarComm = false;
             Busy = false;
             return;
         }
 
-        MarComm = MarCommEventViewModel.Get(sub.Value);
+        MarComm.Load(sub.Value);
         HasMarComm = true;
-
-        MarComm.Deleted += (_, _) =>
-        {
-            MarComm = new();
-            HasMarComm = false;
-        };
 
         Busy = false;
         MarCommRequested?.Invoke(this, MarComm);
@@ -464,7 +540,7 @@ public partial class EventFormViewModel :
         }
 
         vm.SelectedCustomLocations = [..LocationViewModel.GetClonedViewModels(locationService.MyCustomLocations.Where(loc => model.selectedCustomLocations?.Contains(loc.id) ?? false))];
-        foreach (var location in vm.SelectedLocations)
+        foreach (var location in vm.SelectedCustomLocations)
         {
             location.Selected += (_, _) => 
                 vm.SelectedCustomLocations.Remove(location);
@@ -488,44 +564,7 @@ public partial class EventFormViewModel :
         _ = GetClonedViewModels(await service.GetMyLeadEvents(default, default, onError));
     }
 
-    public EventFormViewModel Clone() => new()
-    {
-        Id = Id,
-        Attachments = Attachments,
-        Busy = false,
-        AttendeeCount = AttendeeCount,
-        BusyMessage = BusyMessage,
-        CanEditBase = CanEditBase,
-        CanEditCatering = CanEditCatering,
-        CanEditSubForms = CanEditSubForms,
-        IsFieldTrip = IsFieldTrip,
-        HasCatering = HasCatering,
-        HasFacilities = HasFacilities,
-        HasTech = HasTech,
-        HasMarComm = HasMarComm,
-        HasTheater = HasTheater,
-        FieldTrip = FieldTripViewModel.Get(FieldTrip.FieldTripDetails),
-        Catering = CateringEventViewModel.Get(Catering.CateringDetails),
-        IsSelected = IsSelected,
-        Creator = Creator.Clone(),
-        LeaderSearch = new() { Selected = LeaderSearch.Selected.Clone(), IsSelected = LeaderSearch.IsSelected },
-        LocationSearch = new(),
-        CustomLocationSearch = new(),
-        SelectedLocations = [.. SelectedLocations.Select(loc => loc.Clone())],
-        SelectedCustomLocations = [.. SelectedCustomLocations.Select(loc => loc.Clone())],
-        Description = Description,
-        EndDate = EndDate,
-        EndTime = EndTime,
-        StartDate = StartDate,
-        StartTime = StartTime,
-        Facilites = FacilitesEventViewModel.Get(Facilites.Details),
-        Tech = TechEventViewModel.Get(Tech.TechDetails),
-        Theater = TheaterEventViewModel.Get(Theater.Details),
-        MarComm = MarCommEventViewModel.Get(MarComm.Request),
-        Summary = Summary,
-        StatusSelection = new() { Selected = StatusSelection.Selected.Clone(), IsSelected = StatusSelection.IsSelected },
-        Type = Type.Clone()
-    };
+    public EventFormViewModel Clone() => (EventFormViewModel)MemberwiseClone();
 
     [RelayCommand]
     public void Select()

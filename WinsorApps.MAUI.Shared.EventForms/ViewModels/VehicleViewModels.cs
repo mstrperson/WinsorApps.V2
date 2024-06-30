@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.EventForms.Services;
@@ -15,7 +16,7 @@ public partial class VehicleRequestCollectionViewModel :
 {
     private readonly EventFormsService _service = ServiceHelper.GetService<EventFormsService>();
     [ObservableProperty] VehicleCategoryCollectionViewModel categoryCollection;
-    [ObservableProperty] ImmutableArray<VehicleRequestViewModel> requests = [];
+    [ObservableProperty] ObservableCollection<VehicleRequestViewModel> requests = [];
 
     public static implicit operator ImmutableArray<NewVehicleRequest>(VehicleRequestCollectionViewModel vm) =>
         vm.Requests.Select(req => (NewVehicleRequest)req).ToImmutableArray();
@@ -59,7 +60,7 @@ public partial class VehicleRequestCollectionViewModel :
         request.Deleted += (_, _) =>
         {
             category.IsSelected = false;
-            Requests = Requests.Remove(request);
+            Requests.Remove(request);
         };
     }
 }

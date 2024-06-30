@@ -16,7 +16,8 @@ public partial class SectionViewModel :
     ICachedViewModel<SectionViewModel, SectionRecord, BookstoreManagerService>,
     IDefaultValueViewModel<SectionViewModel>,
     IErrorHandling,
-    IBusyViewModel
+    IBusyViewModel,
+    IModelCarrier<SectionViewModel, SectionRecord>
 {
     private static readonly RegistrarService _registrar = ServiceHelper.GetService<RegistrarService>();
     private static readonly BookstoreManagerService _managerService = ServiceHelper.GetService<BookstoreManagerService>();
@@ -32,6 +33,8 @@ public partial class SectionViewModel :
     [ObservableProperty] string busyMessage = "";
 
     public event EventHandler<ErrorRecord>? OnError;
+
+    public SectionRecord Model { get; private set; }
 
     public SectionViewModel()
     {
@@ -52,6 +55,7 @@ public partial class SectionViewModel :
             return;
         }
 
+        Model = result.Value;
         this.Id = result.Value.id;
         this.SchoolYearId = result.Value.schoolYearId;
         Busy = false;
@@ -82,7 +86,8 @@ public partial class SectionViewModel :
                 SchoolYearId = model.schoolYearId,
                 Course = CourseViewModel.Get(model.course),
                 Teacher = UserViewModel.Get(_registrar.AllUsers.First(u => u.id == model.teacherId)),
-                Created = model.createdTimeStamp
+                Created = model.createdTimeStamp,
+                Model = model
             };
             ViewModelCache.Add(vm);
         }

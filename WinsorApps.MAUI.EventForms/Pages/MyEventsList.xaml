@@ -49,8 +49,9 @@
                                 <StackLayout.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding SelectCommand}" />
                                 </StackLayout.GestureRecognizers>
+                                <Label Text="{Binding StatusSelection.Selected.Label}"/>
+                                <Label Text="-" />
                                 <Label Text="{Binding Summary}" />
-                                <Label Text="{Binding StatusSelection.Selected.Label}" />
                                 <Label Text="{Binding StartDate,StringFormat='{0:dd MMMM yyyy}'}"/>
                             </StackLayout>
                         </DataTemplate>

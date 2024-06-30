@@ -13,7 +13,8 @@ public partial class UserViewModel :
     IDefaultValueViewModel<UserViewModel>, 
     ISelectable<UserViewModel>, 
     IErrorHandling, 
-    ICachedViewModel<UserViewModel, UserRecord, RegistrarService>
+    ICachedViewModel<UserViewModel, UserRecord, RegistrarService>,
+    IModelCarrier<UserViewModel, UserRecord>
 {
 
     public static async Task Initialize(RegistrarService registrar, ErrorAction onError)
@@ -37,7 +38,7 @@ public partial class UserViewModel :
     }
     public static UserViewModel Get(UserRecord user)
     {
-        var vm = ViewModelCache.FirstOrDefault(cvm => cvm.User.id == user.id);
+        var vm = ViewModelCache.FirstOrDefault(cvm => cvm.Model.id == user.id);
         if (vm is null)
         {
             vm = new(user);
@@ -50,19 +51,19 @@ public partial class UserViewModel :
         ImageSource = ImageSource,
         IsSelected = false,
         DisplayName = DisplayName,
-        User = User with { },
+        Model = Model with { },
         AcademicSchedule = [.. AcademicSchedule.Select(sec => sec.Clone())],
         ShowButton = ShowButton
     };
 
     private readonly RegistrarService _registrar;
-    public UserRecord User;
+    public UserRecord Model { get; private set; }
 
-    public string BlackbaudId => $"{User.blackbaudId}";
-    public string Id => User.id;
+    public string BlackbaudId => $"{Model.blackbaudId}";
+    public string Id => Model.id;
     
     [ObservableProperty] private string displayName;
-    public string Email => User.email;
+    public string Email => Model.email;
 
     public static UserViewModel Default => new();
 
@@ -79,13 +80,13 @@ public partial class UserViewModel :
     public UserViewModel()
     {
         _registrar = ServiceHelper.GetService<RegistrarService>()!;
-        User = new();
+        Model = new();
         displayName = "";
         ImageSource = ImageSource.FromUri(new("https://bbk12e1-cdn.myschoolcdn.com/ftpimages/1082/logo/2019-masterlogo-white.png"));
     }
     private UserViewModel(UserRecord user)
     {
-        User = user;
+        Model = user;
         displayName = $"{user.firstName} {user.lastName}";
         _registrar = ServiceHelper.GetService<RegistrarService>()!;
         ImageSource = ImageSource.FromUri(new("https://bbk12e1-cdn.myschoolcdn.com/ftpimages/1082/logo/2019-masterlogo-white.png"));
@@ -109,7 +110,7 @@ public partial class UserViewModel :
     {
         try
         {
-            DisplayName = _registrar.GetUniqueDisplayNameFor(User);
+            DisplayName = _registrar.GetUniqueDisplayNameFor(Model);
         }
         catch (ServiceNotReadyException)
         {

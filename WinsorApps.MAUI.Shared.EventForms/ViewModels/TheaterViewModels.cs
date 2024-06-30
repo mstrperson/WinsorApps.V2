@@ -13,7 +13,7 @@ namespace WinsorApps.MAUI.Shared.EventForms.ViewModels;
 public partial class TheaterEventViewModel :
     ObservableObject,
     IDefaultValueViewModel<TheaterEventViewModel>,
-    IEventSubFormViewModel,
+    IEventSubFormViewModel<TheaterEventViewModel, TheaterEvent>,
     IBusyViewModel,
     IErrorHandling
 {
@@ -25,22 +25,30 @@ public partial class TheaterEventViewModel :
     [ObservableProperty] ImmutableArray<DocumentViewModel> documents = [];
     [ObservableProperty] TheaterMenuCollectionViewModel theaterMenu = new();
 
-    public TheaterEvent Details { get; private set; }
+    public TheaterEvent Model { get; private set; }
 
-    public static TheaterEventViewModel Get(TheaterEvent model)
+    public void Clear()
+    {
+        Id = "";
+        Model = default;
+        Notes = "";
+        Documents = [];
+    }
+
+    public void Load(TheaterEvent model)
     {
         if (model == default)
-            return new();
-
-        var vm = new TheaterEventViewModel()
         {
-            Id = model.eventId,
-            Notes = model.notes,
-            Details = model,
-            Documents = model.attachments.Select(doc => new DocumentViewModel(doc)).ToImmutableArray()
-        };
-        vm.LoadSelections(model.items);
-        return vm;
+            Clear();
+            return;
+        }
+
+        Id = model.eventId;
+        Notes = model.notes;
+        Model = model;
+        Documents = model.attachments.Select(doc => new DocumentViewModel(doc)).ToImmutableArray();
+        
+        LoadSelections(model.items);
     }
 
     public TheaterEventViewModel()
@@ -94,7 +102,7 @@ public partial class TheaterEventViewModel :
         var result = await _eventService.PostTheaterDetails(Id, this, OnError.DefaultBehavior(this));
         if(result.HasValue)
         {
-            Details = result.Value;
+            Model = result.Value;
             ReadyToContinue?.Invoke(this, EventArgs.Empty);
         }
     }
@@ -108,6 +116,7 @@ public partial class TheaterEventViewModel :
             Deleted?.Invoke(this, EventArgs.Empty);
         }
     }
+
 }
 
 public partial class TheaterMenuCollectionViewModel :

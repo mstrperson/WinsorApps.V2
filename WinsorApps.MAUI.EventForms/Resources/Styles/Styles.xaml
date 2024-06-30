@@ -101,6 +101,17 @@
                 Color=Black,
                 Glyph=➕}" />
     </Style>
+    
+    <Style
+        TargetType="ToolbarItem"
+        Class="SubmitButton">
+        <Setter 
+            Property="IconImageSource"
+            Value="{FontImage 
+                FontFamily=Serif, 
+                Color=Black,
+                Glyph=➥}" />
+    </Style>
 
     <Style
         TargetType="ToolbarItem"
@@ -143,24 +154,6 @@
         <Setter Property="Padding" Value="5" />
     </Style>
     <Style TargetType="Label" Class="DragUpDownSignifier">
-        <Setter Property="Text" Value="↕" />
-        <Setter Property="FontSize" Value="Medium" />
-        <Setter Property="MinimumWidthRequest" Value="50" />
-        <Setter Property="WidthRequest" Value="50" />
-        <Setter Property="MinimumHeightRequest" Value="30" />
-        <Setter Property="HeightRequest" Value="30"/>
-        <Setter Property="Padding" Value="5" />
-    </Style>
-    <Style TargetType="Label" Class="OpenCheckout">
-        <Setter Property="Text" Value="O" />
-        <Setter Property="FontSize" Value="Medium" />
-        <Setter Property="MinimumWidthRequest" Value="50" />
-        <Setter Property="WidthRequest" Value="50" />
-        <Setter Property="MinimumHeightRequest" Value="30" />
-        <Setter Property="HeightRequest" Value="30"/>
-        <Setter Property="Padding" Value="5" />
-    </Style>
-    <Style TargetType="Label" Class="OverdueCheckout">
         <Setter Property="Text" Value="↕" />
         <Setter Property="FontSize" Value="Medium" />
         <Setter Property="MinimumWidthRequest" Value="50" />
@@ -398,19 +391,17 @@
     </Style>
 
     <Style TargetType="DatePicker">
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
-        <Setter Property="BackgroundColor" Value="Transparent" />
-        <Setter Property="FontFamily" Value="OpenSansRegular"/>
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource DarkBlue}}" />
+        <Setter Property="BackgroundColor" Value="{StaticResource WarmGrey}" />
+        <Setter Property="FontFamily" Value="SansSerif"/>
         <Setter Property="FontSize" Value="14"/>
-        <Setter Property="MinimumHeightRequest" Value="44"/>
-        <Setter Property="MinimumWidthRequest" Value="44"/>
         <Setter Property="VisualStateManager.VisualStateGroups">
             <VisualStateGroupList>
                 <VisualStateGroup x:Name="CommonStates">
                     <VisualState x:Name="Normal" />
                     <VisualState x:Name="Disabled">
                         <VisualState.Setters>
-                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource CoolGrey}, Dark={StaticResource WarmGrey}}" />
+                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource CoolGrey}, Dark={StaticResource SlateLight}}" />
                         </VisualState.Setters>
                     </VisualState>
                 </VisualStateGroup>
@@ -430,7 +421,7 @@
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource WarmGrey}}" />
         <Setter Property="FontFamily" Value="OpenSansRegular"/>
         <Setter Property="FontSize" Value="14" />
-        <Setter Property="PlaceholderColor" Value="{AppThemeBinding Light={StaticResource CoolGrey}, Dark={StaticResource WarmGrey}}" />
+        <Setter Property="PlaceholderColor" Value="{AppThemeBinding Light={StaticResource CoolGrey}, Dark={StaticResource Blue}}" />
         <Setter Property="MinimumHeightRequest" Value="44"/>
         <Setter Property="MinimumWidthRequest" Value="44"/>
         <Setter Property="VisualStateManager.VisualStateGroups">
@@ -740,19 +731,17 @@
     </Style>
 
     <Style TargetType="TimePicker">
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
-        <Setter Property="BackgroundColor" Value="Transparent"/>
-        <Setter Property="FontFamily" Value="OpenSansRegular"/>
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource DarkBlue}}" />
+        <Setter Property="BackgroundColor" Value="{StaticResource WarmGrey}"/>
+        <Setter Property="FontFamily" Value="SansSerif"/>
         <Setter Property="FontSize" Value="14"/>
-        <Setter Property="MinimumHeightRequest" Value="44"/>
-        <Setter Property="MinimumWidthRequest" Value="44"/>
         <Setter Property="VisualStateManager.VisualStateGroups">
             <VisualStateGroupList>
                 <VisualStateGroup x:Name="CommonStates">
                     <VisualState x:Name="Normal" />
                     <VisualState x:Name="Disabled">
                         <VisualState.Setters>
-                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource CoolGrey}, Dark={StaticResource WarmGrey}}" />
+                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource CoolGrey}, Dark={StaticResource SlateLight}}" />
                         </VisualState.Setters>
                     </VisualState>
                 </VisualStateGroup>
@@ -760,6 +749,12 @@
         </Setter>
     </Style>
 
+    <Style TargetType="BoxView" Class="Bar">
+        <Setter Property="HeightRequest" Value="2" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource WinsorRed}, Dark=White}" />
+        <Setter Property="Margin" Value="0,15" />
+    </Style>
+    
     <Style TargetType="Page" ApplyToDerivedTypes="True">
         <Setter Property="Padding" Value="0"/>
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkBlue}}" />

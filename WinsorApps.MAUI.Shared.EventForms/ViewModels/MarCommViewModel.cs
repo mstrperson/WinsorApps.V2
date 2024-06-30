@@ -10,7 +10,7 @@ namespace WinsorApps.MAUI.Shared.EventForms.ViewModels;
 public partial class MarCommEventViewModel :
     ObservableObject,
     IDefaultValueViewModel<MarCommEventViewModel>,
-    IEventSubFormViewModel,
+    IEventSubFormViewModel<MarCommEventViewModel, MarCommRequest>,
     IBusyViewModel,
     IErrorHandling
 {
@@ -29,7 +29,7 @@ public partial class MarCommEventViewModel :
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "Working";
 
-    public MarCommRequest Request { get; private set; }
+    public MarCommRequest Model { get; private set; }
 
     public static implicit operator NewMarCommRequest(MarCommEventViewModel vm) =>
         new(
@@ -44,34 +44,49 @@ public partial class MarCommEventViewModel :
             vm.NeedPhotographer,
             vm.InviteList.AllSelected.Select(con => con.Id).ToImmutableArray()
         );
-    public static MarCommEventViewModel Get(MarCommRequest model)
+
+    public void Clear()
+    {
+        Id = "";
+        Model = default;
+        PrintInvite = false;
+        DigitalInvite = false;
+        NewsletterReminder = false;
+        EmailReminder = false;
+        ScriptHelp = false;
+        PrintedProgram = false;
+        DigitalProgram = false;
+        NeedsMedia = false;
+        NeedPhotographer = false;
+    }
+    public void Load(MarCommRequest model)
     {
         if (model == default)
-            return new();
-
-        var vm = new MarCommEventViewModel()
         {
-            Id = model.eventId,
-            PrintInvite = model.printInvite,
-            DigitalInvite = model.digitalInvite,
-            NewsletterReminder = model.newsletterReminder,
-            EmailReminder = model.emailReminder,
-            ScriptHelp = model.scriptHelp,
-            PrintedProgram = model.printedProgram,
-            DigitalProgram = model.digitalProgram,
-            NeedsMedia = model.needCreatedMedia,
-            NeedPhotographer = model.needPhotographer,
-            Request = model
-        };
+            Clear();
+            return;
+        }
 
-        foreach(var contact in vm.InviteList.Available)
+        Id = model.eventId;
+        PrintInvite = model.printInvite;
+        DigitalInvite = model.digitalInvite;
+        NewsletterReminder = model.newsletterReminder;
+        EmailReminder = model.emailReminder;
+        ScriptHelp = model.scriptHelp;
+        PrintedProgram = model.printedProgram;
+        DigitalProgram = model.digitalProgram;
+        NeedsMedia = model.needCreatedMedia;
+        NeedPhotographer = model.needPhotographer;
+        Model = model;
+        
+
+        foreach(var contact in InviteList.Available)
         {
             contact.IsSelected = model.inviteList.Any(con => con.id == contact.Id);
         }
 
-        vm.InviteList.AllSelected = vm.InviteList.Available.Where(con => con.IsSelected).ToImmutableArray();
+        InviteList.AllSelected = [..InviteList.Available.Where(con => con.IsSelected)];
 
-        return vm;
     }
 
     public static MarCommEventViewModel Default => new();
@@ -88,7 +103,7 @@ public partial class MarCommEventViewModel :
         var result = await _service.PostMarComRequest(Id, this, OnError.DefaultBehavior(this));
         if (result.HasValue)
         {
-            Request = result.Value;
+            Model = result.Value;
             ReadyToContinue?.Invoke(this, EventArgs.Empty);
         }
     }

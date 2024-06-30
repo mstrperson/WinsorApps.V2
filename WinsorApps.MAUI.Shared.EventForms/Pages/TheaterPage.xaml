@@ -18,13 +18,11 @@
         <ToolbarItem 
             Text="Continue" 
             Command="{Binding ContinueCommand}" 
-            IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=White,
-                Glyph={x:Static styles:FontAwesomeSolid.ArrowAltCircleRight}}"/>
+            StyleClass="SubmitButton"/>
         <ToolbarItem
-            Text="Remove Catering Request"
+            Text="Remove Theater Request"
             Command="{Binding DeleteCommand}" 
-            IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=White,
-                Glyph={x:Static styles:FontAwesomeSolid.Eraser}}"/>
+            StyleClass="DeleteButton"/>
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <ScrollView>
@@ -39,19 +37,24 @@
                             <CollectionView
                                 ItemsSource="{Binding Items}">
                                 <CollectionView.ItemsLayout>
-                                    <LinearItemsLayout Orientation="Horizontal" ItemSpacing="50" />
+                                    <LinearItemsLayout Orientation="Horizontal" ItemSpacing="5" />
                                 </CollectionView.ItemsLayout>
                                 <CollectionView.Header>
                                     <Label
                                         Text="{Binding Name}"
-                                        FontAttributes="Bold" />
+                                        FontAttributes="Bold"
+                                        WidthRequest="150"/>
                                 </CollectionView.Header>
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate x:DataType="vm:TheaterMenuItemViewModel">
                                         <StackLayout
                                             Orientation="Horizontal">
-                                            <CheckBox IsChecked="{Binding IsSelected}" />
-                                            <Label Text="{Binding Name}" />
+                                            <CheckBox 
+                                                IsChecked="{Binding IsSelected}" />
+                                            <Label 
+                                                Text="{Binding Name}" 
+                                                WidthRequest="150"
+                                                TranslationX="-15"/>
                                         </StackLayout>
                                     </DataTemplate>
                                 </CollectionView.ItemTemplate>

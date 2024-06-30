@@ -19,13 +19,11 @@
         <ToolbarItem 
             Text="Continue" 
             Command="{Binding ContinueCommand}" 
-            IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=White,
-                Glyph={x:Static styles:FontAwesomeSolid.ArrowAltCircleRight}}"/>
+            StyleClass="SubmitButton"/>
         <ToolbarItem
-            Text="Remove Catering Request"
+            Text="Remove Technology Request"
             Command="{Binding DeleteCommand}" 
-            IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=White,
-                Glyph={x:Static styles:FontAwesomeSolid.Eraser}}"/>
+            StyleClass="DeleteButton"/>
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <ScrollView>
@@ -41,24 +39,25 @@
                         IsChecked="{Binding HelpRequested}" />
                     <Label 
                         Text="Need Setup Help"
-                        Margin="5, 0, 15, 0"/>
+                        Margin="0, 0, 55, 0"/>
                     <CheckBox
                         IsChecked="{Binding PresenceRequested}" />
                     <Label
                         Text="Tech Present During Event"
                         ToolTipProperties.Text="This requires explicit approval."
-                        Margin="5, 0, 15, 0" />
+                        Margin="0, 0, 55, 0" />
                     <CheckBox
                         IsChecked="{Binding EquipmentNeeded}" />
                     <Label
                         Text="Specific Equipment"
                         ToolTipProperties.Text="Please provide details."
-                        Margin="5, 0, 15, 0" />
+                        Margin="0, 0, 55, 0" />
                 </StackLayout>
                 <Editor
                     Text="{Binding Details}"
                     Placeholder="What do you need from the Tech Team to support this event?"
                     HeightRequest="150" />
+                <BoxView StyleClass="Bar" />
                 <!-- Virtual Event Details -->
                 <Button 
                     Text="Add Virtual Event Details"
@@ -166,7 +165,31 @@
                         <Label
                             StyleClass="H3"
                             Text="Select Panelists" />
-                        <views:ContactMultiSelector BindingContext="{Binding VirtualEvent.Panelists}" />
+                        <views:ContactSingleSelector BindingContext="{Binding VirtualEvent.PanelistSearch}" />
+                        <CollectionView
+                            ItemsSource="{Binding VirtualEvent.Panelists}">
+                            <CollectionView.Header>
+                                <Label
+                                    Text="Panelists" 
+                                    StyleClass="H3" />
+                            </CollectionView.Header>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="vm:ContactViewModel">
+                                    <StackLayout
+                                        Orientation="Horizontal"
+                                        Spacing="15">
+                                        <StackLayout.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                        </StackLayout.GestureRecognizers>
+                                        <Label
+                                            Text="{Binding FullName}" />
+                                        <Label
+                                            Text="{Binding Email}" />
+                                        <Label Text="❌" />
+                                    </StackLayout>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
                     </StackLayout>
                 </StackLayout>
             </StackLayout>

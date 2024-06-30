@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.EventForms.Services;
@@ -10,9 +11,8 @@ namespace WinsorApps.MAUI.Shared.EventForms.ViewModels;
 
 public partial class FacilitesEventViewModel :
     ObservableObject,
-    IEventSubFormViewModel,
+    IEventSubFormViewModel<FacilitesEventViewModel, FacilitiesEvent>,
     IErrorHandling
-
 {
     private readonly EventFormsService _service = ServiceHelper.GetService<EventFormsService>();
 
@@ -28,27 +28,40 @@ public partial class FacilitesEventViewModel :
     public event EventHandler? Deleted;
     public event EventHandler<ErrorRecord>? OnError;
 
-    public FacilitiesEvent Details { get; private set; }
+    public FacilitiesEvent Model { get; private set; }
 
     public static implicit operator NewFacilitiesEvent(FacilitesEventViewModel vm) =>
         new(vm.Setup, vm.Presence, vm.Breakdown, vm.Overnight, vm.Parking, vm.Locations);
 
-    public static FacilitesEventViewModel Get(FacilitiesEvent model)
+    public void Clear()
+    {
+        Id = "";
+        Setup = false;
+        Presence = false;
+        Breakdown = false;
+        Overnight = false;
+        Parking = false;
+        Model = default;
+        Locations.Clear();
+    }
+
+    public void Load(FacilitiesEvent model)
     {
         if (model == default)
-            return new();
-
-        var vm = new FacilitesEventViewModel()
         {
-            Setup = model.setup,
-            Presence = model.presence,
-            Breakdown = model.breakdown,
-            Overnight = model.overnight,
-            Parking = model.parking,
-            Details = model
-        };
-        vm.Locations.LoadSetupInformation(model.locations);
-        return vm;
+            Clear();
+            return;
+        }
+
+        Id = model.id;
+        Setup = model.setup;
+        Presence = model.presence;
+        Breakdown = model.breakdown;
+        Overnight = model.overnight;
+        Parking = model.parking;
+        Model = model;
+        
+        Locations.LoadSetupInformation(model.locations);
     }
 
     [RelayCommand]
@@ -57,7 +70,7 @@ public partial class FacilitesEventViewModel :
         var result = await _service.PostFacilitiesEvent(Id, this, OnError.DefaultBehavior(this));
         if (result.HasValue)
         {
-            Details = result.Value;
+            Model = result.Value;
             ReadyToContinue?.Invoke(this, EventArgs.Empty);
         }
     }
@@ -74,7 +87,7 @@ public partial class FacilitesEventViewModel :
 public partial class LocationSetupCollectionViewModel :
     ObservableObject
 {
-    [ObservableProperty] ImmutableArray<LocationSetupViewModel> setups = [];
+    [ObservableProperty] ObservableCollection<LocationSetupViewModel> setups = [];
     [ObservableProperty] LocationSetupViewModel selected = new();
     [ObservableProperty] bool showSelected;
 
@@ -87,10 +100,19 @@ public partial class LocationSetupCollectionViewModel :
         foreach(var setup in setups)
         {
             var vm = LocationSetupViewModel.Get(setup);
-            vm.Deleted += (_, _) => Setups = Setups.Remove(vm);
-            Setups = Setups.Add(vm);
+            vm.Deleted += (_, _) => Setups.Remove(vm);
+            Setups.Add(vm);
         }
     }
+
+    [RelayCommand]
+    public void Clear()
+    {
+        Setups = [];
+        Selected = new();
+        ShowSelected = false;
+    }
+
 
     [RelayCommand]
     public void AddSetup()
@@ -109,11 +131,12 @@ public partial class LocationSetupCollectionViewModel :
         var existing = Setups.FirstOrDefault(lsv => lsv.LocationSearch.Selected.Id == Selected.LocationSearch.Selected.Id);
         if(existing is null)
         {
-            Setups = Setups.Add(Selected);
+            Setups.Add(Selected);
         }
         else
         {
-            Setups = Setups.Replace(existing, Selected);
+            Setups.Remove(existing);
+            Setups.Add(Selected);
         }
 
         ShowSelected = false;
@@ -124,7 +147,7 @@ public partial class LocationSetupCollectionViewModel :
     {
         var existing = Setups.FirstOrDefault(lsv => lsv.LocationSearch.Selected.Id == Selected.LocationSearch.Selected.Id);
         if (existing is not null)
-            Setups = Setups.Remove(existing);
+            Setups.Remove(existing);
 
         Selected = new();
         ShowSelected = false;
@@ -142,25 +165,13 @@ public partial class LocationSetupViewModel :
     [ObservableProperty] TimeSpan setupTime;
     [ObservableProperty] bool isSelected;
 
+    public LocationSetupInstructions Model { get; private set; }
+
     public event EventHandler<LocationSetupViewModel>? Selected;
     public event EventHandler? Deleted;
 
     public static implicit operator NewLocationSetup(LocationSetupViewModel vm) =>
         new(vm.LocationSearch.Selected.Id, vm.Instructions, vm.SandwichSign, vm.SetupDate.Add(vm.SetupTime));
-
-    public LocationSetupViewModel Clone()
-    {
-        var vm = new LocationSetupViewModel()
-        {
-            Instructions = Instructions,
-            SandwichSign = SandwichSign,
-            SetupDate = SetupDate,
-            SetupTime = SetupTime,
-        };
-        vm.LocationSearch.Select(LocationSearch.Selected.Clone());
-
-        return vm;
-    }
 
     public static LocationSetupViewModel Get(LocationSetupInstructions model)
     {
@@ -170,6 +181,7 @@ public partial class LocationSetupViewModel :
             SandwichSign = model.includeSandwichSign,
             SetupDate = model.setupTime.Date,
             SetupTime = TimeOnly.FromDateTime(model.setupTime).ToTimeSpan(),
+            Model = model
         };
         var lvm = LocationViewModel.Get(model.locationId);
         if (lvm is not null)
