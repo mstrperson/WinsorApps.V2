@@ -10,23 +10,31 @@
              NavigatedTo="ContentPage_NavigatedTo">
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="Refresh"
-                     IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=White,
+                     IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=DarkGray,
                      Glyph={x:Static styles:FontAwesomeSolid.SyncAlt}}"
                      Command="{Binding LoadEventsCommand}"/>
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
-    <ScrollView>
-        <VerticalStackLayout
+        <ScrollView>
+            <VerticalStackLayout
             HorizontalOptions="Center">
-            <CollectionView x:Name="EventsListView"
+            
+                <CollectionView x:Name="EventsListView"
                       ItemsSource="{Binding Events}"
                       VerticalOptions="FillAndExpand"
-                            BackgroundColor="Transparent">
-                <CollectionView.ItemTemplate>
+                      BackgroundColor="Transparent">
+                    <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="vm:RecurringEventViewModel">
-                            <StackLayout>
-                                <VerticalStackLayout>
-                                    <HorizontalStackLayout>
+                            <StackLayout> 
+                                <Border
+                                    StrokeThickness="3"
+                                    Margin="5,10,10,0"
+                                    Padding="0,0,0,0">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="25,25,25,25"/>
+                                    </Border.StrokeShape>
+                                    <VerticalStackLayout>
+                                        <HorizontalStackLayout>
                                         <HorizontalStackLayout.GestureRecognizers>
                                             <TapGestureRecognizer Command="{Binding SelectCommand}"/>
                                         </HorizontalStackLayout.GestureRecognizers>
@@ -47,12 +55,16 @@
                                     </HorizontalStackLayout>
                                     <Label Text="{Binding Description}"
                                                FontSize="Micro"
-                                               HorizontalOptions="Start"/>
-                                </VerticalStackLayout>
+                                               HorizontalOptions="Start"/>  
+                                   
+            
+                                    </VerticalStackLayout> 
+                                </Border>
                             </StackLayout>
                         </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+          
             <HorizontalStackLayout
                 HorizontalOptions="Center">
                 <HorizontalStackLayout.GestureRecognizers>
@@ -68,7 +80,7 @@
                        TextDecorations="Underline"/>
             </HorizontalStackLayout>
             
-        </VerticalStackLayout>
-      </ScrollView>
+            </VerticalStackLayout>
+        </ScrollView>
     </ContentPage.Content>
 </ContentPage>

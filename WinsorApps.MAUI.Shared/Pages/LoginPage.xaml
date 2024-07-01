@@ -4,7 +4,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels"
              x:DataType="vm:LoginViewModel"
-             x:Class="WinsorApps.MAUI.Shared.Pages.LoginPage">
+             x:Class="WinsorApps.MAUI.Shared.Pages.LoginPage"
+             Shell.NavBarIsVisible="False"
+             Shell.FlyoutBehavior="Disabled">
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsEnabled="False" IconOverride="invisible.png"/>
+    </Shell.BackButtonBehavior>
     <ContentPage.Content>
         <VerticalStackLayout>
             <Image StyleClass="wordmark_oneline"/>

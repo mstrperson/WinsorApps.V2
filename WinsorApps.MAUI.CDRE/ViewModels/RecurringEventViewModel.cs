@@ -47,6 +47,7 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
     public partial class EventListViewModel: ObservableObject, IErrorHandling
     {
         private readonly CycleDayRecurringEventService _eventService = ServiceHelper.GetService<CycleDayRecurringEventService>();
+        private readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
 
         [ObservableProperty] ImmutableArray<RecurringEventViewModel> events = [];
         public event EventHandler<RecurringEventViewModel>? CreateRequested;
@@ -87,21 +88,25 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         [RelayCommand]
         public void Create()
         {
+            _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"{nameof(CreateCommand)} create started");
             var evt = new RecurringEventViewModel();
             evt.OnError += (sender, e) => OnError?.Invoke(sender, e);
             evt.Selected += (sender, e) => EditRequested?.Invoke(sender, e);
             evt.OnCreated += (sender, e) => 
             {
+                _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"{e.Summary} {e.Id} created");
                 Events = Events.Add(e);
                 Reload?.Invoke(sender, e);
             };
             evt.OnUpdated += (sender, e) =>
             {
+                _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"{e.Summary} {e.Id} updated");
                 Events = Events.Replace(evt, e);
                 Reload?.Invoke(sender, e);
             };
             evt.OnDelete += (sender, e) =>
             {
+                _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"{e.Summary} {e.Id} deleted");
                 Events = Events.Remove(evt);
                 Reload?.Invoke(sender, e);
             };
@@ -114,7 +119,8 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         ISelectable<RecurringEventViewModel>,
         IDefaultValueViewModel<RecurringEventViewModel>,
         IErrorHandling,
-        IEmptyViewModel<RecurringEventViewModel>
+        IEmptyViewModel<RecurringEventViewModel>,
+        IBusyViewModel
     {
         private readonly CycleDayRecurringEventService _eventService = ServiceHelper.GetService<CycleDayRecurringEventService>();
 
@@ -132,7 +138,9 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         [ObservableProperty] int frequency = 1;
         [ObservableProperty] bool isPublic;
         [ObservableProperty] bool showDelete = false;
-
+        [ObservableProperty] int[] frequencyOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+        [ObservableProperty] bool busy;
+        [ObservableProperty] string busyMessage = "Loading";
        
         public int Duration => (int)(EndTime - StartTime).TotalMinutes;
 
@@ -152,6 +160,13 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         [RelayCommand]
         public async Task Submit()
         {
+            Busy = true;
+            if(!CycleDays.Items.Any(item => item.IsSelected))
+            {
+                OnError?.Invoke(this, new("", "Required Fields for Cycle Days"));
+                Busy = false;
+                return;
+            }
             CreateRecurringEvent create = new CreateRecurringEvent
                 (DateOnly.FromDateTime(Beginning), DateOnly.FromDateTime(Ending), Summary, Description, Attendees.Emails.Select(x => x.Label).ToImmutableArray(), CycleDays.Items.Where(item => item.IsSelected).Select(item => item.Label).ToImmutableArray(), Frequency, IsPublic, AllDay, TimeOnly.FromTimeSpan(StartTime), Duration);
             if (string.IsNullOrEmpty(Id))
@@ -162,6 +177,7 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
                     Id = result.Value.id;
                     OnCreated?.Invoke(this, this);
                 }
+                Busy = false;
                 return;
             }
 
@@ -169,14 +185,16 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
             if (result2.HasValue) { 
                 OnUpdated?.Invoke(this, this);
             }
+            Busy = false;
         }
 
         [RelayCommand]
         public async Task Delete()
         {
+            Busy = true;
             await _eventService.DeleteEvent(Id, OnError.DefaultBehavior(this));
             OnDelete?.Invoke(this, this);
-               
+            Busy = false;
         }
 
         #region ISelectable stuff

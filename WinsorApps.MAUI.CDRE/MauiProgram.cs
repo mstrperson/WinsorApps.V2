@@ -6,6 +6,7 @@ using WinsorApps.Services.Global.Services;
 using AsyncAwaitBestPractices;
 using WinsorApps.MAUI.CDRE.Pages;
 using WinsorApps.MAUI.CDRE.ViewModels;
+using Xe.AcrylicView;
 
 namespace WinsorApps.MAUI.CDRE
 {
@@ -25,7 +26,8 @@ namespace WinsorApps.MAUI.CDRE
                     fonts.AddFont("fa-brands-400.ttf", "FontAwesomeBrands");
                 })
                 .UseMauiCommunityToolkitCore()
-                .AddGlobalServices();
+                .AddGlobalServices()
+                .UseAcrylicView();
 
             builder.Services.AddSingleton<CycleDayRecurringEventService>();
             builder.Services.AddSingleton<MainPage>();

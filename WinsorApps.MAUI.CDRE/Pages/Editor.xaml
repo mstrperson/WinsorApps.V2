@@ -5,6 +5,7 @@
              xmlns:svm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels;assembly=WinsorApps.MAUI.Shared"
              xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
              xmlns:styles="clr-namespace:WinsorApps.MAUI.CDRE.Resources.Styles"
+             xmlns:acrylic="clr-namespace:Xe.AcrylicView;assembly=Xe.AcrylicView"
              x:DataType="vm:RecurringEventViewModel"
              x:Class="WinsorApps.MAUI.CDRE.Pages.Editor"
              Title="New Event">
@@ -15,11 +16,17 @@
     </ContentPage.Resources>
     <ContentPage.Content>
         <ScrollView>
-            <StackLayout Spacing="3" Padding="15">
+            <StackLayout Spacing="3" Padding="15" IsEnabled="{Binding Busy,Converter={StaticResource Invert}}">
+                <Label StyleClass="Header" 
+                            Text="{Binding BusyMessage}"
+                            IsVisible="{Binding Busy}"/>
                 <Entry
                     Text="{Binding Summary, Mode=TwoWay}" 
                     FontSize="Micro" 
-                    Placeholder="Event Name"/>
+                    TextColor="{DynamicResource SlateDark}"
+                    BackgroundColor="{DynamicResource WarmGrey}"
+                    Placeholder="Event Name"
+                    PlaceholderColor="{DynamicResource DarkBlue}"/>
                 <Editor 
                     Text="{Binding Description, Mode=TwoWay}" 
                     HeightRequest="90" 
@@ -58,8 +65,18 @@
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
+                <HorizontalStackLayout HorizontalOptions="End">
+                    <Label Text="Every"/>
+                    <Picker
+                        SelectedItem="{Binding Frequency, Mode=TwoWay}"
+                        ItemsSource="{Binding FrequencyOptions}"
+                        TranslationY="-3"/>
+                    <Label Text="Cycle(s)"/>
 
-                <HorizontalStackLayout>
+                </HorizontalStackLayout>
+                
+
+                <HorizontalStackLayout Margin="0,-25,0,0">
                     <Label 
                         Text="Date:"
                         FontSize="Micro"
@@ -138,31 +155,39 @@
                             VerticalOptions="Start"
                             TranslationY="-3.5"
                             FontSize="Micro"/>
-                        <CollectionView ItemsSource="{Binding Attendees.Emails}">
-                            <CollectionView.ItemTemplate>
-                                <DataTemplate x:DataType="svm:SelectableLabelViewModel">
-                                    <HorizontalStackLayout>
-                                        <Label
+                    <CollectionView ItemsSource="{Binding Attendees.Emails}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="svm:SelectableLabelViewModel">
+                                <HorizontalStackLayout>
+                                    <Label
                                                 Text="{Binding Label}"
                                                 FontSize="Micro"
                                                 VerticalOptions="Center"/>
-                                        <Image
+                                    <Image
                                                 Source="{FontImage FontFamily=FontAwesomeSolid, Color=White,
                                                          Glyph={x:Static styles:FontAwesomeSolid.TrashAlt}}"
                                                 Scale="0.4"
                                                 VerticalOptions="Center">
-                                            <Image.GestureRecognizers>
-                                                <TapGestureRecognizer
+                                        <Image.GestureRecognizers>
+                                            <TapGestureRecognizer
                                                     Command="{Binding SelectCommand}"/>
-                                            </Image.GestureRecognizers>
-                                        </Image>
-                                    </HorizontalStackLayout>
-                                </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                        </CollectionView>
+                                        </Image.GestureRecognizers>
+                                    </Image>
+                                </HorizontalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
                 </HorizontalStackLayout>
                 
-            
+                <HorizontalStackLayout HorizontalOptions="Start" Margin="0">
+                    <Label 
+                        Text="Public Event?"
+                        ToolTipProperties.Text="Public to people who can view your calendar"/>
+                    <Switch
+                        IsToggled="{Binding IsPublic}"
+                        IsEnabled="True"/>
+                </HorizontalStackLayout>
+
                 <StackLayout Orientation="Horizontal">
                        <Button 
                             Text="Save" 
