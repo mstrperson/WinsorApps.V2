@@ -40,9 +40,12 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
     public partial class EventListViewModel: ObservableObject, IErrorHandling
     {
         private readonly CycleDayRecurringEventService _eventService = ServiceHelper.GetService<CycleDayRecurringEventService>();
+        private readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
 
         [ObservableProperty] ImmutableArray<RecurringEventViewModel> events = [];
         public event EventHandler<RecurringEventViewModel>? CreateRequested;
+        public event EventHandler<RecurringEventViewModel>? Reload;
+        public event EventHandler<RecurringEventViewModel>? EditRequested;
         public event EventHandler<ErrorRecord>? OnError;
 
         [ObservableProperty] bool isBusy;
@@ -55,6 +58,22 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
             foreach (var evt in Events)
             {
                 evt.OnError += (sender, e) => OnError?.Invoke(sender, e);
+                evt.Selected += (sender, e) => EditRequested?.Invoke(sender, e);
+                evt.OnCreated += (sender, e) =>
+                {
+                    Events = Events.Add(e);
+                    Reload?.Invoke(sender, e);
+                };
+                evt.OnUpdated += (sender, e) =>
+                {
+                    Events = Events.Replace(evt, e);
+                    Reload?.Invoke(sender, e);
+                };
+                evt.OnDelete += (sender, e) =>
+                {
+                    Events = Events.Remove(evt);
+                    Reload?.Invoke(sender, e);
+                };
             }
             IsBusy = false;
         }
@@ -62,7 +81,29 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         [RelayCommand]
         public void Create()
         {
-            CreateRequested?.Invoke(this, RecurringEventViewModel.Default);
+            _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"{nameof(CreateCommand)} create started");
+            var evt = new RecurringEventViewModel();
+            evt.OnError += (sender, e) => OnError?.Invoke(sender, e);
+            evt.Selected += (sender, e) => EditRequested?.Invoke(sender, e);
+            evt.OnCreated += (sender, e) => 
+            {
+                _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"{e.Summary} {e.Id} created");
+                Events = Events.Add(e);
+                Reload?.Invoke(sender, e);
+            };
+            evt.OnUpdated += (sender, e) =>
+            {
+                _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"{e.Summary} {e.Id} updated");
+                Events = Events.Replace(evt, e);
+                Reload?.Invoke(sender, e);
+            };
+            evt.OnDelete += (sender, e) =>
+            {
+                _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"{e.Summary} {e.Id} deleted");
+                Events = Events.Remove(evt);
+                Reload?.Invoke(sender, e);
+            };
+            CreateRequested?.Invoke(this, evt);
         }
     }
     public partial class RecurringEventViewModel :
@@ -70,24 +111,29 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         ICachedViewModel<RecurringEventViewModel, CycleDayRecurringEvent, CycleDayRecurringEventService>,
         ISelectable<RecurringEventViewModel>,
         IDefaultValueViewModel<RecurringEventViewModel>,
-        IErrorHandling
+        IErrorHandling,
+        IBusyViewModel
     {
         private readonly CycleDayRecurringEventService _eventService = ServiceHelper.GetService<CycleDayRecurringEventService>();
 
         [ObservableProperty] string id = "";
-        [ObservableProperty] DateOnly beginning = DateOnly.FromDateTime(DateTime.Today);
-        [ObservableProperty] DateOnly ending = DateOnly.FromDateTime(DateTime.Today);
+        [ObservableProperty] DateTime beginning = DateTime.Today;
+        [ObservableProperty] DateTime ending = DateTime.Today;
         [ObservableProperty] string creatorId = "";
         [ObservableProperty] string summary = "";
         [ObservableProperty] string description = "";
-        [ObservableProperty] ImmutableArray<string> attendees = [];
+        [ObservableProperty] EmailListViewModel attendees = new();
         [ObservableProperty] bool allDay;
-        [ObservableProperty] TimeOnly startTime;
-        [ObservableProperty] TimeOnly endTime;
+        [ObservableProperty] TimeSpan startTime;
+        [ObservableProperty] TimeSpan endTime;
         [ObservableProperty] CycleDaySelectionViewModel cycleDays = new();
         [ObservableProperty] int frequency = 1;
         [ObservableProperty] bool isPublic;
-        
+        [ObservableProperty] bool showDelete = false;
+        [ObservableProperty] int[] frequencyOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+        [ObservableProperty] bool busy;
+        [ObservableProperty] string busyMessage = "Loading";
+       
         public int Duration => (int)(EndTime - StartTime).TotalMinutes;
 
         // TODO:  Add More Observable Properties for all the relevant
@@ -98,24 +144,49 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
             
         }
 
-        
+        public event EventHandler<RecurringEventViewModel>? OnCreated;
+        public event EventHandler<RecurringEventViewModel>? OnUpdated;
+        public event EventHandler<RecurringEventViewModel>? OnDelete;
+        public event EventHandler<RecurringEventViewModel>? EditRequested;
 
         [RelayCommand]
         public async Task Submit()
         {
+            Busy = true;
+            if(!CycleDays.Items.Any(item => item.IsSelected))
+            {
+                OnError?.Invoke(this, new("", "Required Fields for Cycle Days"));
+                Busy = false;
+                return;
+            }
             CreateRecurringEvent create = new CreateRecurringEvent
-                (Beginning, Ending, Summary, Description, Attendees, CycleDays.Items.Where(item => item.IsSelected).Select(item => item.Label).ToImmutableArray(), Frequency, IsPublic, AllDay, StartTime, Duration);
+                (DateOnly.FromDateTime(Beginning), DateOnly.FromDateTime(Ending), Summary, Description, Attendees.Emails.Select(x => x.Label).ToImmutableArray(), CycleDays.Items.Where(item => item.IsSelected).Select(item => item.Label).ToImmutableArray(), Frequency, IsPublic, AllDay, TimeOnly.FromTimeSpan(StartTime), Duration);
             if (string.IsNullOrEmpty(Id))
             {
                 var result = await _eventService.CreateNewEvent(create, OnError.DefaultBehavior(this));
                 if (result.HasValue)
                 {
                     Id = result.Value.id;
+                    OnCreated?.Invoke(this, this);
                 }
+                Busy = false;
                 return;
             }
 
-            await _eventService.UpdateEvent(Id, create, OnError.DefaultBehavior(this));
+            var result2 = await _eventService.UpdateEvent(Id, create, OnError.DefaultBehavior(this));
+            if (result2.HasValue) { 
+                OnUpdated?.Invoke(this, this);
+            }
+            Busy = false;
+        }
+
+        [RelayCommand]
+        public async Task Delete()
+        {
+            Busy = true;
+            await _eventService.DeleteEvent(Id, OnError.DefaultBehavior(this));
+            OnDelete?.Invoke(this, this);
+            Busy = false;
         }
 
         #region ISelectable stuff
@@ -144,29 +215,31 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
 
         public static RecurringEventViewModel Get(CycleDayRecurringEvent model)
         {
-            var vm = ViewModelCache.First(re => re.Id == model.id);
+            var vm = ViewModelCache.FirstOrDefault(re => re.Id == model.id);
             if (vm is not null)
                 return vm.Clone();
 
             vm = new()
             {
                 Id = model.id,
-                Beginning=model.beginning,
-                Ending=model.ending,
-                CreatorId=model.creatorId,
-                Summary=model.summary,
-                Description=model.description,
-                Attendees=model.attendees,
-                AllDay=model.allDay,
-                StartTime=model.time,
-                EndTime=model.time.AddMinutes(model.duration),
-                CycleDays=new (),
-                Frequency=model.frequency,
-                IsPublic=model.isPublic,
+                Beginning = model.beginning.ToDateTime(default),
+                Ending = model.ending.ToDateTime(default),
+                CreatorId = model.creatorId,
+                Summary = model.summary,
+                Description = model.description,
+                AllDay = model.allDay,
+                StartTime = model.time.ToTimeSpan(),
+                EndTime = model.time.AddMinutes(model.duration).ToTimeSpan(),
+                CycleDays = new(),
+                Frequency = model.frequency,
+                IsPublic = model.isPublic,
+                ShowDelete = true
 
 
                 // TODO: Initialize the rest of the ObservableProperties you add.
             };
+            vm.Attendees.AddEmails(model.attendees);
+
             foreach (var cycleday in model.cycleDays)
             {
                 if (vm.CycleDays[cycleday] is not null)
@@ -191,7 +264,7 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         public static async Task Initialize(CycleDayRecurringEventService service, Action<ErrorRecord> onError)
         {
             await service.WaitForInit(onError);
-
+            ViewModelCache = [];
             _ = GetClonedViewModels(service.RecurringEvents);
         }
 

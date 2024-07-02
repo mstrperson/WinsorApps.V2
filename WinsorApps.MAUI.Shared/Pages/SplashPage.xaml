@@ -5,7 +5,9 @@
              xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels"
              x:DataType="vm:SplashPageViewModel"
              x:Class="WinsorApps.MAUI.Shared.Pages.SplashPage"
-             Title="{Binding Title}">
+             Title="{Binding Title}"
+             Shell.NavBarIsVisible="False"
+             Shell.FlyoutBehavior="Disabled">
     <ContentPage.Content>
         <VerticalStackLayout>
             <Image StyleClass="wordmark_oneline"/>

@@ -61,18 +61,23 @@ namespace WinsorApps.Services.Global.Services
 
         public async Task<CycleDayRecurringEvent?> CreateNewEvent(CreateRecurringEvent newEvent, ErrorAction onError)
         {
+            _logging.LogMessage(LocalLoggingService.LogLevel.Debug, "called to create new event");
             var result = await _api.SendAsync<CreateRecurringEvent, CycleDayRecurringEvent?>(HttpMethod.Post, "api/users/self/cycle-day-recurring-events", newEvent, onError: onError);
-
-            if(result.HasValue)
+            _logging.LogMessage(LocalLoggingService.LogLevel.Debug, "new event create attempted");
+            if (result.HasValue)
             {
                 RecurringEvents = RecurringEvents.Add(result.Value);
                 OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
+                _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"{newEvent.summary} created");
             }
-
+            else
+            {
+                _logging.LogMessage(LocalLoggingService.LogLevel.Error, $"user entered {newEvent}");
+            }
             return result;
         }
 
-        public async Task<CycleDayRecurringEvent> UpdateEvent(string eventId, CreateRecurringEvent newEvent, ErrorAction onError)
+        public async Task<CycleDayRecurringEvent?> UpdateEvent(string eventId, CreateRecurringEvent newEvent, ErrorAction onError)
         {
             var result = await _api.SendAsync<CreateRecurringEvent, CycleDayRecurringEvent?>(HttpMethod.Put, $"api/users/self/cycle-day-recurring-events/{eventId}", newEvent, onError: onError);
 
@@ -86,7 +91,14 @@ namespace WinsorApps.Services.Global.Services
                 OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
             }
 
-            return result ?? oldEvent;
+            return result;
+        }
+
+        public async Task DeleteEvent(string eventId, ErrorAction onError)
+        {
+            await _api.SendAsync(HttpMethod.Delete, $"api/users/self/cycle-day-recurring-events/{eventId}", onError: onError);
+            RecurringEvents = RecurringEvents.Remove(RecurringEvents.First(evt => evt.id == eventId));
+            OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
     }
 }

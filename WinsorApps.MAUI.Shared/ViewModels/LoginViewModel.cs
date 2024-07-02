@@ -104,7 +104,7 @@ public partial class LoginViewModel : ObservableObject
     public async Task ForgotPassword()
     {
         await _api.ForgotPassword(Email, "", 
-            str => OnForgotPassword?.Invoke(this, str),
+            str => OnForgotPassword?.Invoke(this, "Email Sent"),
             err => OnError?.Invoke(this, err));
     }
 }

@@ -3,60 +3,209 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:WinsorApps.MAUI.CDRE.ViewModels"
              xmlns:svm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels;assembly=WinsorApps.MAUI.Shared"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             xmlns:styles="clr-namespace:WinsorApps.MAUI.CDRE.Resources.Styles"
+             xmlns:acrylic="clr-namespace:Xe.AcrylicView;assembly=Xe.AcrylicView"
              x:DataType="vm:RecurringEventViewModel"
              x:Class="WinsorApps.MAUI.CDRE.Pages.Editor"
-             Title="Create A New Event">
+             Title="New Event">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
     <ContentPage.Content>
-        <StackLayout Spacing="3" Padding="15">
-            <Entry
-                Text="{Binding Summary, Mode=TwoWay}" 
-                FontSize="Micro" 
-                Placeholder="Event Name"/>
-            <Editor 
-                Text="{Binding Description, Mode=TwoWay}" 
-                HeightRequest="90" 
-                AutoSize="TextChanges" 
-                FontSize="Micro" 
-                Margin="0" 
-                Placeholder="Description (Optional)"
-                PlaceholderColor="{DynamicResource DarkBlue}"/>
+        <ScrollView>
+            <StackLayout Spacing="3" Padding="15" IsEnabled="{Binding Busy,Converter={StaticResource Invert}}">
+                <Label StyleClass="Header" 
+                            Text="{Binding BusyMessage}"
+                            IsVisible="{Binding Busy}"/>
+                <Entry
+                    Text="{Binding Summary, Mode=TwoWay}" 
+                    FontSize="Micro" 
+                    TextColor="{DynamicResource SlateDark}"
+                    BackgroundColor="{DynamicResource WarmGrey}"
+                    Placeholder="Event Name"
+                    PlaceholderColor="{DynamicResource DarkBlue}"/>
+                <Editor 
+                    Text="{Binding Description, Mode=TwoWay}" 
+                    HeightRequest="90" 
+                    AutoSize="TextChanges" 
+                    FontSize="Micro" 
+                    Margin="0" 
+                    Placeholder="Description (Optional)"
+                    PlaceholderColor="{DynamicResource DarkBlue}"/>
 
-            <CollectionView ItemsSource="{Binding CycleDays.Items}"
-                            FlowDirection="LeftToRight" 
-                            Margin="0">
+                <CollectionView ItemsSource="{Binding CycleDays.Items}"
+                                FlowDirection="LeftToRight" 
+                                Margin="0">
 
-                <CollectionView.Header>
-                    <HorizontalStackLayout Spacing="3" Padding="15">
-                        <Label 
-                            Text="Cycle Day(s)"
-                               FontSize="Micro"/>
-                    </HorizontalStackLayout>
-                </CollectionView.Header>
-
-                
-                <CollectionView.ItemsLayout>
-                    <LinearItemsLayout Orientation="Horizontal" />
-                </CollectionView.ItemsLayout>
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="svm:SelectableLabelViewModel">
+                    <CollectionView.Header>
                         <HorizontalStackLayout>
-                            <Label Text="{Binding Label}" 
-                               FontSize="Small" 
-                               TextColor="White" />
-                            <CheckBox IsChecked="{Binding IsSelected}" />
+                            <Label 
+                                Text="Cycle Day(s)"
+                                FontSize="Micro"
+                                Margin="0"
+                                TranslationY="-12"
+                                FontAttributes="Bold"/>
                         </HorizontalStackLayout>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+                    </CollectionView.Header>
 
-            <StackLayout Orientation="Horizontal">
-                <Button 
-                    Text="Save" 
-                    Command="{Binding SubmitCommand}"
-                    HorizontalOptions="End"
-                    VerticalOptions="End"
-                    Margin="0"></Button>
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Horizontal" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="svm:SelectableLabelViewModel">
+                            <HorizontalStackLayout>
+                                <Label Text="{Binding Label}" 
+                                   FontSize="Micro" 
+                                   TextColor="White" />
+                                <CheckBox IsChecked="{Binding IsSelected}" />
+                            </HorizontalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                <HorizontalStackLayout HorizontalOptions="End">
+                    <Label Text="Every"/>
+                    <Picker
+                        SelectedItem="{Binding Frequency, Mode=TwoWay}"
+                        ItemsSource="{Binding FrequencyOptions}"
+                        TranslationY="-3"/>
+                    <Label Text="Cycle(s)"/>
+
+                </HorizontalStackLayout>
+                
+
+                <HorizontalStackLayout Margin="0,-25,0,0">
+                    <Label 
+                        Text="Date:"
+                        FontSize="Micro"
+                        Margin="0"
+                        FontAttributes="Bold"/>
+                    <DatePicker     
+                        Date="{Binding Beginning}"/>
+                    <Label
+                        Text="--"
+                           TranslationX="15"/>
+                    <DatePicker     
+                         Date="{Binding Ending}"
+                        TranslationX="30"/>
+                </HorizontalStackLayout>
+
+                <HorizontalStackLayout>
+                    <Label
+                        Text="All Day"
+                        FontSize="Micro"
+                        HorizontalOptions="Start"/>
+                    <Switch
+                        IsToggled="{Binding AllDay}"
+                        IsEnabled="True"/>
+                    <HorizontalStackLayout IsVisible="{Binding AllDay,Converter={StaticResource Invert}}">
+                        <Label
+                            Text="Time:"
+                            FontSize="Micro"
+                            Margin="0"
+                            TranslationY="-5"
+                            FontAttributes="Bold"/>
+                        <TimePicker
+                            Time="{Binding StartTime}"/>
+                        <Label
+                            Text="--"
+                            TranslationX="15"
+                            TranslationY="-5"/>
+                        <TimePicker
+                            Time="{Binding EndTime}"
+                            TranslationX="30"/>
+                </HorizontalStackLayout>
+                
+                
+                
+                </HorizontalStackLayout>
+
+                <Label
+                    Text="Add Invitees"
+                    FontSize="Micro"
+                    Margin="0"
+                    FontAttributes="Bold"
+                    TranslationY="13"/>
+                <HorizontalStackLayout>
+                    <Entry
+                        Text="{Binding Attendees.EmailEntry}"
+                        Keyboard="Email"
+                        Placeholder="Type an Email Here"
+                        FontSize="Micro"
+                        WidthRequest="800"
+                        HorizontalOptions="Start"
+                        Margin="0"/>
+                    <Image
+                            Source="{FontImage FontFamily=FontAwesomeSolid, Color=White,
+                                     Glyph={x:Static styles:FontAwesomeSolid.PlusCircle}}"
+                            TranslationX="10"
+                            HeightRequest="25">
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding Attendees.AddEmailCommand}"/>
+                        </Image.GestureRecognizers>
+                    </Image>
+                </HorizontalStackLayout>
+                
+                <HorizontalStackLayout>
+                        <Label
+                            Text="Added:"
+                            VerticalOptions="Start"
+                            TranslationY="-3.5"
+                            FontSize="Micro"/>
+                    <CollectionView ItemsSource="{Binding Attendees.Emails}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="svm:SelectableLabelViewModel">
+                                <HorizontalStackLayout>
+                                    <Label
+                                                Text="{Binding Label}"
+                                                FontSize="Micro"
+                                                VerticalOptions="Center"/>
+                                    <Image
+                                                Source="{FontImage FontFamily=FontAwesomeSolid, Color=White,
+                                                         Glyph={x:Static styles:FontAwesomeSolid.TrashAlt}}"
+                                                Scale="0.4"
+                                                VerticalOptions="Center">
+                                        <Image.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                    Command="{Binding SelectCommand}"/>
+                                        </Image.GestureRecognizers>
+                                    </Image>
+                                </HorizontalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </HorizontalStackLayout>
+                
+                <HorizontalStackLayout HorizontalOptions="Start" Margin="0">
+                    <Label 
+                        Text="Public Event?"
+                        ToolTipProperties.Text="Public to people who can view your calendar"/>
+                    <Switch
+                        IsToggled="{Binding IsPublic}"
+                        IsEnabled="True"/>
+                </HorizontalStackLayout>
+
+                <StackLayout Orientation="Horizontal">
+                       <Button 
+                            Text="Save" 
+                            Command="{Binding SubmitCommand}"
+                            Margin="0"
+                            TranslationY="10">
+                       </Button>
+                       <Button
+                            Text="Delete"
+                            Command="{Binding DeleteCommand}"
+                            IsVisible="{Binding ShowDelete}"
+                            Margin="0"
+                            TranslationY="10"
+                           BackgroundColor="IndianRed">
+                       </Button>
+                </StackLayout>
+                
             </StackLayout>
-        </StackLayout>
+        </ScrollView>
     </ContentPage.Content>
 </ContentPage>
