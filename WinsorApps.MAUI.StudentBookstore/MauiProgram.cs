@@ -1,14 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using CommunityToolkit.Maui.Core;
-using WinsorApps.Services.Global;
 using WinsorApps.MAUI.Shared;
+using WinsorApps.MAUI.Shared.Bookstore;
 using WinsorApps.Services.Global.Services;
 using AsyncAwaitBestPractices;
-using WinsorApps.MAUI.CDRE.Pages;
-using WinsorApps.MAUI.CDRE.ViewModels;
-using Xe.AcrylicView;
 
-namespace WinsorApps.MAUI.CDRE
+namespace WinsorApps.MAUI.StudentBookstore
 {
     public static class MauiProgram
     {
@@ -29,15 +26,12 @@ namespace WinsorApps.MAUI.CDRE
                 })
                 .UseMauiCommunityToolkitCore()
                 .AddGlobalServices()
-                .UseAcrylicView();
+                .AddBookstoreServices();
 
-            builder.Services.AddSingleton<CycleDayRecurringEventService>();
             builder.Services.AddSingleton<MainPage>();
-            builder.Services.AddSingleton<EventListViewModel>();
-            builder.Services.AddSingleton<EventsListPage>();
 
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
 
             var app = builder.Build();
