@@ -68,6 +68,7 @@
 	  <None Remove="Resources\Fonts\OpenSans-Semibold.ttf" />
 	  <None Remove="Resources\Images\dotnet_bot.png" />
 	  <None Remove="Resources\Images\invisible.png" />
+	  <None Remove="Resources\Images\loading.gif" />
 	  <None Remove="Resources\Images\logo_withwordmark_black.png" />
 	  <None Remove="Resources\Images\logo_withwordmark_red.png" />
 	  <None Remove="Resources\Images\logo_withwordmark_white.png" />

@@ -34,7 +34,7 @@
                                         <RoundRectangle CornerRadius="25,25,25,25"/>
                                     </Border.StrokeShape>
                                     <VerticalStackLayout>
-                                        <HorizontalStackLayout>
+                                        <HorizontalStackLayout >
                                         <HorizontalStackLayout.GestureRecognizers>
                                             <TapGestureRecognizer Command="{Binding SelectCommand}"/>
                                         </HorizontalStackLayout.GestureRecognizers>
@@ -45,12 +45,14 @@
                                         <Label Text="{Binding Summary}"
                                                FontAttributes="Bold" 
                                                FontSize="Medium"
-                                               HorizontalOptions="Start"/>
+                                               HorizontalOptions="Start"
+                                               ToolTipProperties.Text="Edit"/>
 
 
                                         <Image Source="{FontImage FontFamily=FontAwesomeSolid, Color=White,
                                                             Glyph={x:Static styles:FontAwesomeSolid.PencilAlt}}"
-                                                            WidthRequest="15"/>
+                                                            WidthRequest="15"
+                                                            ToolTipProperties.Text="Edit"/>
 
                                     </HorizontalStackLayout>
                                     <Label Text="{Binding Description}"
