@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using WinsorApps.MAUI.EventForms.Pages;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.EventForms;
+using WinsorApps.MAUI.Shared.EventForms.ViewModels;
 using WinsorApps.MAUI.Shared.Pages;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Services;
@@ -33,6 +34,7 @@ namespace WinsorApps.MAUI.EventForms
             builder.Services.AddSingleton<MainPage>();
             builder.Services.AddSingleton<LoginPage>();
             builder.Services.AddSingleton<MyEventsList>();
+            builder.Services.AddTransient<EventListViewModel>();
 
 #if DEBUG
             builder.Logging.AddDebug();

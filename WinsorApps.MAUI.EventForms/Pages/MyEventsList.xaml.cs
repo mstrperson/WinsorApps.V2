@@ -7,9 +7,11 @@ namespace WinsorApps.MAUI.EventForms.Pages;
 
 public partial class MyEventsList : ContentPage
 {
-	public MyEventsList()
+	public MyEventsList(EventListViewModel vm)
 	{
-		var vm = new EventListViewModel() { Start = new(DateTime.Today.Year, DateTime.Today.Month, 1), End = (new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1)).AddMonths(1), PageLabel=$"{DateTime.Today:MMMM yyyy}" };
+        vm.Start = new(DateTime.Today.Year, DateTime.Today.Month, 1);
+        vm.End = vm.Start.AddMonths(1);
+        vm.PageLabel=$"{DateTime.Today:MMMM yyyy}";
 		vm.OnError += this.DefaultOnErrorHandler();
         vm.OnEventSelected += EventSelected;
         vm.PageRequested += Vm_PageRequested;
