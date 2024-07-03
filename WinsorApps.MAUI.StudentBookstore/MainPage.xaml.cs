@@ -1,25 +1,57 @@
-﻿namespace WinsorApps.MAUI.StudentBookstore
+﻿using AsyncAwaitBestPractices;
+using WinsorApps.MAUI.StudentBookstore.ViewModels;
+using WinsorApps.MAUI.Shared;
+using WinsorApps.MAUI.Shared.Pages;
+using WinsorApps.MAUI.Shared.ViewModels;
+using WinsorApps.Services.Global.Services;
+using WinsorApps.Services.Bookstore.Services;
+using WinsorApps.MAUI.Shared.Bookstore.ViewModels;
+using System.Runtime.CompilerServices;
+
+namespace WinsorApps.MAUI.StudentBookstore
 {
     public partial class MainPage : ContentPage
     {
-        int count = 0;
 
-        public MainPage()
+        public MainPage(
+            RegistrarService registrar,
+            LocalLoggingService logging,
+            StudentBookstoreService sbs,
+            BookService book)
         {
+            MainPageViewModel vm = new(
+            [
+              new(registrar, "Registrar Data"),
+              new(book, "Book Service"),
+              new(sbs, "Student Books")
+            ])
+            {
+
+                #region Service Post Init Tasks
+                // when the event service cache is updated, refresh the ViewModelCache as well.
+                Completion =
+                [
+                    new(new(() =>
+                    {
+                        BookViewModel.Initialize(book, this.DefaultOnErrorAction()).SafeFireAndForget(e => e.LogException());
+                    }), "Loading Recurring Event Cache")
+                ]
+
+                #endregion // Post Init Tasks
+            };
+
+            BindingContext = vm;
+            vm.OnError += this.DefaultOnErrorHandler();
+            LoginPage loginPage = new LoginPage(logging, vm.LoginVM);
+            loginPage.OnLoginComplete += (_, _) =>
+                Navigation.PopAsync();
+
+            Navigation.PushAsync(loginPage);
+
             InitializeComponent();
+
         }
-
-        private void OnCounterClicked(object sender, EventArgs e)
-        {
-            count++;
-
-            if (count == 1)
-                CounterBtn.Text = $"Clicked {count} time";
-            else
-                CounterBtn.Text = $"Clicked {count} times";
-
-            SemanticScreenReader.Announce(CounterBtn.Text);
-        }
+        
     }
 
 }

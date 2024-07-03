@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 using AsyncAwaitBestPractices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using WinsorApps.Services.Global.Models;
@@ -6,14 +7,17 @@ using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.Shared.ViewModels;
 
-public partial class MainPageViewModel : ObservableObject
+public partial class MainPageViewModel : ObservableObject, IBusyViewModel, IErrorHandling
 {
-    [ObservableProperty] private List<ServiceAwaiterViewModel> postLoginServices;
-    [ObservableProperty] private List<TaskAwaiterViewModel> completion;
+    [ObservableProperty] private List<ServiceAwaiterViewModel> postLoginServices = [];
+    [ObservableProperty] private List<TaskAwaiterViewModel> completion = [];
     [ObservableProperty] private SplashPageViewModel splashPageVM;
     [ObservableProperty] private LoginViewModel loginVM;
     [ObservableProperty] private UserViewModel userVM;
     [ObservableProperty] private bool ready;
+
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "Loading Data... Please Wait";
 
 
     public event EventHandler<SplashPageViewModel>? OnSplashPageReady;
@@ -52,6 +56,7 @@ public partial class MainPageViewModel : ObservableObject
 
     private void LoginVMOnOnLogin(object? sender, EventArgs e)
     {
+        Busy = true;
         OnSplashPageReady?.Invoke(this, SplashPageVM);
         var api = ServiceHelper.GetService<ApiService>()!;
         UserVM = UserViewModel.Get(api.UserInfo!.Value);
@@ -77,5 +82,7 @@ public partial class MainPageViewModel : ObservableObject
 
         OnCompleted?.Invoke(this, EventArgs.Empty);
         Ready = true;
+        Busy = false;
     }
+
 }

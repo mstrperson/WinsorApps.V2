@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using WinsorApps.MAUI.Shared.ViewModels;
@@ -12,7 +13,7 @@ public partial class BookSearchViewModel :
     ICachedSearchViewModel<BookViewModel>
 {
     public event EventHandler<BookViewModel>? BookSelected;
-    public event EventHandler<ImmutableArray<BookViewModel>>? OnMultipleResult;
+    public event EventHandler<ObservableCollection<BookViewModel>>? OnMultipleResult;
     public event EventHandler<BookViewModel>? OnSingleResult;
     public event EventHandler? OnZeroResults;
 
@@ -25,15 +26,15 @@ public partial class BookSearchViewModel :
     [ObservableProperty] private bool searchByIsbn;
     [ObservableProperty] private string isbnSearch = "";
 
-    [ObservableProperty] private ImmutableArray<BookViewModel> options = [];
+    [ObservableProperty] private ObservableCollection<BookViewModel> options = [];
 
     private readonly BookService _bookService;
     private readonly LocalLoggingService _logging;
 
     [ObservableProperty]
-    private ImmutableArray<BookViewModel> available = [];
+    private ObservableCollection<BookViewModel> available = [];
     [ObservableProperty]
-    private ImmutableArray<BookViewModel> allSelected = [];
+    private ObservableCollection<BookViewModel> allSelected = [];
     [ObservableProperty]
     private BookViewModel selected = BookViewModel.Default;
     [ObservableProperty]
@@ -79,7 +80,7 @@ public partial class BookSearchViewModel :
                     book.title.Contains(TitleSearch, StringComparison.InvariantCultureIgnoreCase))
                 .ToImmutableArray();
 
-        Options = BookViewModel.GetClonedViewModels(books).ToImmutableArray();
+        Options = [..BookViewModel.GetClonedViewModels(books)];
         foreach (var vm in Options)
             vm.Selected += (_, book) => BookSelected?.Invoke(this, book);
     }

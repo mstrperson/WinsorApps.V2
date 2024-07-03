@@ -1,4 +1,4 @@
-﻿namespace WinsorApps.MAUI.CDRE.Resources.Styles;
+﻿namespace WinsorApps.MAUI.StudentBookstore.Resources.Styles;
 static class IconFont
 {
     // FontAwesome
