@@ -42,6 +42,8 @@ public partial class IsbnViewModel :
 
     [ObservableProperty] string bookId = "";
 
+    [ObservableProperty] BookInfo book;
+
     public IsbnViewModel(ISBNInfo info)
     {
         isbn = info.isbn;
@@ -183,6 +185,19 @@ public partial class IsbnViewModel :
         }
 
         return vm;
+    }
+
+    public static IsbnViewModel Get(ISBNDetail model)
+    {
+        var vm = ViewModelCache.FirstOrDefault(isbn => isbn.Isbn == model.isbn);
+        if (vm is null)
+        {
+            vm = new(new ISBNInfo(model.isbn, model.binding, true, model.odinData.HasValue));
+            ViewModelCache.Add(vm);
+        }
+        var output = vm.Clone();
+        output.Book = model.bookInfo;
+        return output;
     }
 
     public static IsbnViewModel Get(ISBNInfo model)
