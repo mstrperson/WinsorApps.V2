@@ -7,6 +7,7 @@ using WinsorApps.Services.Global.Services;
 using WinsorApps.Services.Bookstore.Services;
 using WinsorApps.MAUI.Shared.Bookstore.ViewModels;
 using System.Runtime.CompilerServices;
+using WinsorApps.MAUI.StudentBookstore.Pages;
 
 namespace WinsorApps.MAUI.StudentBookstore
 {
@@ -51,7 +52,12 @@ namespace WinsorApps.MAUI.StudentBookstore
             InitializeComponent();
 
         }
-        
+
+        private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
+        {
+            var page = ServiceHelper.GetService<RequestedBooksPage>();
+            Navigation.PushAsync(page);
+        }
     }
 
 }

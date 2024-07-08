@@ -108,4 +108,10 @@
 	  </MauiImage>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <MauiXaml Update="Pages\RequestedBooksPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	</ItemGroup>
+
 </Project>

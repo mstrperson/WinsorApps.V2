@@ -4,6 +4,8 @@ using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.Bookstore;
 using WinsorApps.Services.Global.Services;
 using AsyncAwaitBestPractices;
+using WinsorApps.MAUI.StudentBookstore.Pages;
+using WinsorApps.MAUI.StudentBookstore.ViewModels;
 
 namespace WinsorApps.MAUI.StudentBookstore
 {
@@ -29,6 +31,10 @@ namespace WinsorApps.MAUI.StudentBookstore
                 .AddBookstoreServices();
 
             builder.Services.AddSingleton<MainPage>();
+            builder.Services.AddSingleton<StudentBookstoreViewModel>();
+            builder.Services.AddSingleton<SectionRequiredBooksViewModel>();
+            builder.Services.AddSingleton<OptionGroupViewModel>();
+            builder.Services.AddSingleton<RequestedBooksPage>();
 
 #if DEBUG
             builder.Logging.AddDebug();

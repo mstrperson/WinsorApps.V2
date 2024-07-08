@@ -14,10 +14,10 @@
     </ContentPage.Resources>
     <ContentPage.ToolbarItems>
         <ToolbarItem
-            IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=DarkGray,
+            IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=Gray,
             Glyph={x:Static styles:FontAwesomeSolid.ShoppingCart}}"/>
         <ToolbarItem
-            IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=DarkGray,
+            IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=Gray,
             Glyph={x:Static styles:FontAwesomeSolid.Receipt}}"/>
     </ContentPage.ToolbarItems>
     <ScrollView>
@@ -27,21 +27,19 @@
             <Image
             StyleClass="wordmark_oneline" />
             <VerticalStackLayout
-            Margin="0"
-            Padding="0">
-                <HorizontalStackLayout>
+                Margin="0"
+                Padding="0">
+                <HorizontalStackLayout 
+                        VerticalOptions="Center"
+                        HorizontalOptions="Center"
+                        IsVisible="{Binding Busy}">
                     <Label 
                         Text="{Binding BusyMessage}"
                         FontSize="Large"
-                        VerticalOptions="Center"
-                        HorizontalOptions="Center"
-                        IsVisible="{Binding Busy}"
                         x:Name="Loading"/>
                     <Image
-                        IsVisible="{Binding Busy}"
                         StyleClass="loading_symbol"
-                        VerticalOptions="Center"
-                        HorizontalOptions="Center"/>
+                        VerticalOptions="Center"/>
                 </HorizontalStackLayout>
 
                 <Label Text="Hello, " IsVisible="{Binding Ready}"/>
@@ -50,6 +48,30 @@
                     StyleClass="Header" 
                     IsVisible="{Binding Ready}"/>
             </VerticalStackLayout>
+            
+            <Border
+                StrokeThickness="3"
+                Margin="5,10,10,0"
+                Padding="0"
+                WidthRequest="300"
+                HeightRequest="60"
+                BackgroundColor="Gray"
+                IsVisible="{Binding Ready}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="25,25,25,25"/>
+                </Border.StrokeShape>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
+                </Border.GestureRecognizers>
+                <Label
+                    Text="View Requested Books"
+                    FontSize="Small"
+                    IsVisible="{Binding Ready}"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    />
+            </Border>
+            
             <CollectionView ItemsSource="{Binding PostLoginServices}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="vm:ServiceAwaiterViewModel">
@@ -70,7 +92,7 @@
             <CollectionView ItemsSource="{Binding Completion}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="vm:TaskAwaiterViewModel">
-                        <HorizontalStackLayout>
+                        <HorizontalStackLayout IsVisible="{Binding Ready, Converter={StaticResource Invert}}">
                             <Label
                             StyleClass="H3"
                             Text="{Binding TaskName}" />

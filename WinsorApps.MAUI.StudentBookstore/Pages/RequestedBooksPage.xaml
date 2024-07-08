@@ -1,12 +1,61 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="WinsorApps.MAUI.StudentBookstore.NewFolder.RequestedBooksPage"
-             Title="RequestedBooksPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.StudentBookstore.ViewModels"
+             xmlns:styles="clr-namespace:WinsorApps.MAUI.StudentBookstore.Resources.Styles"
+             x:Class="WinsorApps.MAUI.StudentBookstore.Pages.RequestedBooksPage"
+             x:DataType="vm:StudentBookstoreViewModel"
+             Title="Requested Books">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem
+        IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=Gray,
+        Glyph={x:Static styles:FontAwesomeSolid.ShoppingCart}}"/>
+        <ToolbarItem
+        IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=Gray,
+        Glyph={x:Static styles:FontAwesomeSolid.Receipt}}"/>
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <ScrollView>
+            <VerticalStackLayout>
+                <Label Text="classes"/>
+                <CollectionView x:Name="ClassesListView"
+                                ItemsSource="{Binding SectionRequiredBooks}"
+                                VerticalOptions="FillAndExpand"
+                                BackgroundColor="Transparent">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:SectionRequiredBooksViewModel">
+                            <StackLayout>
+                                <Border
+                                    StrokeThickness="3"
+                                    Margin="5,10,10,0"
+                                    Padding="0">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="25"/>
+                                    </Border.StrokeShape>
+                                    <VerticalStackLayout>
+                                        <HorizontalStackLayout>
+                                            <Image Source="{FontImage FontFamily=FontAwesomeSolid, Color=White,
+                                                                   Glyph={x:Static styles:FontAwesomeSolid.Book}}"
+                                                   HorizontalOptions="Start"/>
+                                            <Label Text="{Binding Section}"
+                                                   FontAttributes="Bold"
+                                                   FontSize="Medium"
+                                                   HorizontalOptions="Start"
+                                                   VerticalOptions="Center"/>
+                                            <Image Source="{FontImage FontFamily=FontAwesomeSolid, Color=White,
+                                                           Glyph={x:Static styles:FontAwesomeSolid.Eye}}"
+                                                   HorizontalOptions="End"
+                                                   VerticalOptions="Center"
+                                                   ToolTipProperties.Text="Click to View Books For This Class"/>
+                                        </HorizontalStackLayout>
+                                    </VerticalStackLayout>
+                                </Border>
+                            </StackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+
+        </ScrollView>
+    </ContentPage.Content>
 </ContentPage>

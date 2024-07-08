@@ -34,7 +34,7 @@
                                         <RoundRectangle CornerRadius="25,25,25,25"/>
                                     </Border.StrokeShape>
                                     <VerticalStackLayout>
-                                        <HorizontalStackLayout >
+                                        <HorizontalStackLayout>
                                         <HorizontalStackLayout.GestureRecognizers>
                                             <TapGestureRecognizer Command="{Binding SelectCommand}"/>
                                         </HorizontalStackLayout.GestureRecognizers>
