@@ -281,8 +281,13 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
                 {
                     AuthorizedUser = new(jwt: savedCred.JWT, refreshToken: savedCred.RefreshToken);
                 }
-
-                await Login(savedCred.SavedEmail, savedCred.SavedPassword, onError);
+                if (!string.IsNullOrWhiteSpace(savedCred.SavedPassword))
+                    await Login(savedCred.SavedEmail, savedCred.SavedPassword, onError);
+                else
+                {
+                    Refreshing = false;
+                    return;
+                }
             }
         }
         catch (Exception ex)
@@ -481,7 +486,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
         onError ??= err => _logging.LogMessage(LocalLoggingService.LogLevel.Error, err.error);
         var request = await BuildRequest(method, endpoint, jsonContent, authorize);
         var response = await client.SendAsync(request);
-        if (await CheckReAuth(response, () => BuildRequest(method, endpoint, jsonContent, authorize).Result))
+        if (endpoint!="api/auth" && await CheckReAuth(response, () => BuildRequest(method, endpoint, jsonContent, authorize).Result))
         {
             onError(new("Unauthorized Access", "Current user is not authorized to access this endpoint."));
             var result = await response.Content.ReadAsStringAsync();

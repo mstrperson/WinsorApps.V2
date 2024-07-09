@@ -205,6 +205,24 @@
         <Setter Property="Padding" Value="5" />
     </Style>
 
+    <Style
+        TargetType="Image"
+        Class="DeleteButton">
+        <Setter 
+            Property="Source"
+            Value="{FontImage 
+                FontFamily=Serif,
+                Glyph=🗑}" />
+    </Style>
+    <Style
+        TargetType="Image"
+        Class="PrintButton">
+        <Setter 
+            Property="Source"
+            Value="{FontImage 
+                FontFamily=Serif,
+                Glyph=🖶}" />
+    </Style>
 
     <Style
         TargetType="Image"
@@ -215,6 +233,26 @@
                 FontFamily=Serif,
                 Glyph=➕}" />
     </Style>
+    <Style
+    TargetType="Image"
+    Class="CancelButton">
+        <Setter 
+        Property="Source"
+        Value="{FontImage 
+            FontFamily=Serif,
+            Glyph=✘}" />
+    </Style>
+
+    <Style
+        TargetType="Image"
+        Class="SaveButton">
+        <Setter 
+            Property="Source"
+            Value="{FontImage 
+                FontFamily=Serif,
+                Glyph=💾}" />
+    </Style>
+    
     <Style TargetType="Button" Class="UpArrow">
         <Setter Property="Text" Value="↑"/>
         <Setter Property="MinimumWidthRequest" Value="50" />

@@ -75,20 +75,23 @@ public partial class EventListViewModel :
     {
         var vm = new EventFormViewModel(); 
         
-        vm.OnError += (sender, err) =>
-            OnError?.Invoke(sender, err);
-        vm.MarCommRequested += (sender, mvm) => PageRequested?.Invoke(this, new MarComPage() { BindingContext = mvm });
-        vm.TheaterRequested += (sender, thvm) => PageRequested?.Invoke(this, new TheaterPage() { BindingContext = thvm });
+        vm.MarCommRequested += (sender, mvm) => PageRequested?.Invoke(this, new MarComPage(mvm));
+        vm.TheaterRequested += (sender, thvm) => PageRequested?.Invoke(this, new TheaterPage(thvm));
         vm.TechRequested += (sender, tvm) => PageRequested?.Invoke(this, new TechPage(tvm));
         vm.CateringRequested += (sender, cvm) => PageRequested?.Invoke(this, new CateringPage(cvm));
-        vm.FieldTripRequested += (sender, ftvm) => PageRequested?.Invoke(this, new FieldTripPage() { BindingContext = ftvm });
-        vm.FacilitesRequested += (sender, fvm) => PageRequested?.Invoke(this, new FacilitesPage() { BindingContext = fvm });
+        vm.FieldTripRequested += (sender, ftvm) => PageRequested?.Invoke(this, new FieldTripPage(ftvm));
+        vm.FacilitesRequested += (sender, fvm) => PageRequested?.Invoke(this, new FacilitesPage(fvm));
 
-        vm.TemplateRequested += (sender, vm) =>
-        {
-            PopThenPushRequested?.Invoke(this, new FormEditor(vm));
-        };
-        vm.OnError += (sender, err) => OnError?.Invoke(sender, err);
+        vm.StatusSelection.Select("Draft");
+        vm.IsNew = true;
+        vm.IsUpdating = false;
+        vm.IsSelected = false;
+        vm.IsCreating = false;
+        vm.CanEditBase = true;
+        vm.CanEditSubForms = false;
+
+        vm.Selected += (_, e) => OnEventSelected?.Invoke(this, e);
+        
         Events.Add(vm);
         OnEventSelected?.Invoke(this, vm);
     }
@@ -145,17 +148,12 @@ public partial class EventListViewModel :
 
             vm.OnError += (sender, err) =>
                 OnError?.Invoke(sender, err);
-            vm.MarCommRequested += (sender, mvm) => PageRequested?.Invoke(this, new MarComPage() { BindingContext = mvm });
-            vm.TheaterRequested += (sender, thvm) => PageRequested?.Invoke(this, new TheaterPage() { BindingContext = thvm });
+            vm.MarCommRequested += (sender, mvm) => PageRequested?.Invoke(this, new MarComPage(mvm));
+            vm.TheaterRequested += (sender, thvm) => PageRequested?.Invoke(this, new TheaterPage(thvm));
             vm.TechRequested += (sender, tvm) => PageRequested?.Invoke(this, new TechPage(tvm));
             vm.CateringRequested += (sender, cvm) => PageRequested?.Invoke(this, new CateringPage(cvm));
-            vm.FieldTripRequested += (sender, ftvm) => PageRequested?.Invoke(this, new FieldTripPage() { BindingContext = ftvm });
-            vm.FacilitesRequested += (sender, fvm) => PageRequested?.Invoke(this, new FacilitesPage() { BindingContext = fvm });
-
-            vm.TemplateRequested += (sender, vm) =>
-            {
-                PopThenPushRequested?.Invoke(this, new FormEditor(vm));
-            };
+            vm.FieldTripRequested += (sender, ftvm) => PageRequested?.Invoke(this, new FieldTripPage(ftvm));
+            vm.FacilitesRequested += (sender, fvm) => PageRequested?.Invoke(this, new FacilitesPage(fvm));
         }
     }
 }

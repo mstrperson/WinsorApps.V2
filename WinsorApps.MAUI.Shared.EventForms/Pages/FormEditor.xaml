@@ -15,9 +15,12 @@
             <conv:BoolInverter x:Key="Invert"/>
             <conv:StringToIntegerConverter x:Key="StringToInt" />
             <conv:CurrencyToStringConverter x:Key="Currency" />
+            <conv:CountGreaterThanZero x:Key="Any" />
         </ResourceDictionary>
     </ContentPage.Resources>
     <ContentPage.ToolbarItems>
+        <ToolbarItem
+            Text="{Binding StatusSelection.Selected.Label}" />
         <ToolbarItem
             Text="Delete Event"
             Command="{Binding DeleteCommand}" 
@@ -26,6 +29,10 @@
             Text="Print"
             Command="{Binding PrintCommand}"
             StyleClass="PrintButton" />
+        <ToolbarItem
+            Text="Template"
+            Command="{Binding TemplateCommand}"
+            StyleClass="AddButton" />
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <ScrollView>
@@ -123,12 +130,16 @@
                             IsVisible="{Binding LeaderSearch.IsSelected, Converter={StaticResource Invert}}"/>
                     </StackLayout>
                     <BoxView StyleClass="Bar"/>
-                    <Label
-                        StyleClass="H3"
-                        Text="On Campus Locations" />
-                    <views:LocationSingleSelector BindingContext="{Binding LocationSearch}" />
+                    <StackLayout
+                        Orientation="Horizontal">
+                        <Label
+                            StyleClass="H3"
+                            Text="On Campus Locations" />
+                        <views:LocationSingleSelector BindingContext="{Binding LocationSearch}" />
+                    </StackLayout>
                     <CollectionView
-                        ItemsSource="{Binding SelectedLocations}">
+                        ItemsSource="{Binding SelectedLocations}"
+                        IsVisible="{Binding SelectedLocations.Count, Converter={StaticResource Any}}">
                         <CollectionView.Header>
                             <Label 
                                 Text="Selected On-Campus Locations"
@@ -149,13 +160,17 @@
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                     <BoxView StyleClass="Bar"/>
-                    <Label
-                        StyleClass="H3"
-                        Text="Off Campus Locations" />
-                    <views:LocationSingleSelector BindingContext="{Binding CustomLocationSearch}" />
+                    <StackLayout Orientation="Horizontal">
+                        <Label
+                            StyleClass="H3"
+                            Text="Off Campus Locations" />
+                        <views:LocationSingleSelector BindingContext="{Binding CustomLocationSearch}" />
+                    </StackLayout>
+
                     <CollectionView
-                        ItemsSource="{Binding SelectedCustomLocations}">
-                      <CollectionView.Header>
+                        ItemsSource="{Binding SelectedCustomLocations}"
+                        IsVisible="{Binding SelectedCustomLocations.Count, Converter={StaticResource Any}}">
+                        <CollectionView.Header>
                             <Label 
                                 Text="Selected Custom Locations"
                                 StyleClass="H3" />
@@ -209,23 +224,29 @@
                     <Picker 
                         ItemsSource="{Binding TypeSelection.Types}"
                         IsVisible="{Binding IsNew}"
-                        SelectedItem="{Binding Type}"/>
+                        SelectedItem="{Binding Type}"
+                        WidthRequest="200"
+                        HeightRequest="50"/>
                     <Button
                         Text="Start New Event Form"
                         IsVisible="{Binding IsNew}"
                         Command="{Binding StartNewFormCommand}" />
-                    <Button
-                        Text="Start Editing This Form"
-                        IsVisible="{Binding CanEditBase, Converter={StaticResource Invert}}"
-                        Command="{Binding StartUpdatingCommand}" />
-                    <Button
-                        Text="Ready to Send for Approval"
-                        IsVisible="{Binding IsCreating}"
-                        Command="{Binding CompleteSubmissionCommand}" />
-                    <Button
-                        Text="Submit Edits to this Form"
-                        IsVisible="{Binding IsUpdating}"
-                        Command="{Binding CompleteUpdateCommand}" />
+                    <StackLayout
+                        Orientation="Horizontal"
+                        IsVisible="{Binding IsNew, Converter={StaticResource Invert}}">
+                        <Button
+                            Text="Start Editing This Form"
+                            IsVisible="{Binding CanEditBase, Converter={StaticResource Invert}}"
+                            Command="{Binding StartUpdatingCommand}" />
+                        <Button
+                            Text="Ready to Send for Approval"
+                            IsVisible="{Binding IsCreating}"
+                            Command="{Binding CompleteSubmissionCommand}" />
+                        <Button
+                            Text="Submit Edits to this Form"
+                            IsVisible="{Binding IsUpdating}"
+                            Command="{Binding CompleteUpdateCommand}" />
+                    </StackLayout>
                 </StackLayout>
                 <StackLayout
                     IsVisible="{Binding CanEditSubForms}"

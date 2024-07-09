@@ -124,6 +124,13 @@ public partial class BudgetCodeSearchViewModel :
     [ObservableProperty]
     private bool showOptions;
 
+    [ObservableProperty]
+    private bool showNew;
+    [ObservableProperty]
+    private string newName;
+    [ObservableProperty]
+    private string newAccountNumber;
+
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<ObservableCollection<BudgetCodeViewModel>>? OnMultipleResult;
     public event EventHandler<BudgetCodeViewModel>? OnSingleResult;
@@ -151,9 +158,48 @@ public partial class BudgetCodeSearchViewModel :
     }
 
     [RelayCommand]
-    public void CreateNew()
+    public void ClearSelection()
     {
-        NewBudgetCodeRequested?.Invoke(this, EventArgs.Empty);
+        Selected = new();
+        IsSelected = false;
+        Options = [];
+        AllSelected = [];
+        SearchText = "";
+        ShowOptions = false;
+        ZeroResults = false;
+
+    }
+
+    [RelayCommand]
+    public void CancelNew()
+    {
+        ShowNew = false;
+        NewName = "";
+        NewAccountNumber = "";
+    }
+
+    [RelayCommand]
+    public void StartNew()
+    {
+        ShowNew = true;
+        NewName = SearchText;
+        NewAccountNumber = "";
+    }
+
+    [RelayCommand]
+    public async Task Create()
+    {
+        var result = await _service.CreateNewBudgetCode(NewAccountNumber, NewName, OnError.DefaultBehavior(this));
+
+        if(result.HasValue)
+        {
+            ShowNew = false;
+            NewName = "";
+            NewAccountNumber = "";
+            var vm = BudgetCodeViewModel.Get(result.Value);
+            Available.Add(vm);
+            Select(vm);
+        }
     }
 
     [RelayCommand]

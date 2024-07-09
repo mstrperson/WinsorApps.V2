@@ -34,7 +34,7 @@ namespace WinsorApps.MAUI.EventForms
             builder.Services.AddSingleton<MainPage>();
             builder.Services.AddSingleton<LoginPage>();
             builder.Services.AddSingleton<MyEventsList>();
-            builder.Services.AddTransient<EventListViewModel>();
+            builder.Services.AddSingleton<EventListViewModel>();
 
 #if DEBUG
             builder.Logging.AddDebug();

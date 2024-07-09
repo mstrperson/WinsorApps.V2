@@ -197,6 +197,7 @@ public partial class TheaterMenuItemViewModel :
         IsDeleted = model.deleted
     };
 
+    [RelayCommand]
     public void Select()
     {
         IsSelected = !IsSelected;

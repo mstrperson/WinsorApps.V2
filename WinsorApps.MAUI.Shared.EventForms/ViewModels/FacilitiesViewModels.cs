@@ -64,9 +64,23 @@ public partial class FacilitesEventViewModel :
         Locations.LoadSetupInformation(model.locations);
     }
 
+    private void ValidationFailMessage(string message)
+    {
+        OnError?.Invoke(this, new("Invalid Data Entered.", message));
+    }
+
     [RelayCommand]
     public async Task Continue()
     {
+        foreach(var setup in this.Locations.Setups)
+        {
+            if(string.IsNullOrEmpty(setup.Instructions))
+            {
+                ValidationFailMessage($"You must enter instructions for setup in {setup.LocationSearch.Selected.Label}");
+                return;
+            }
+        }
+
         var result = await _service.PostFacilitiesEvent(Id, this, OnError.DefaultBehavior(this));
         if (result.HasValue)
         {
@@ -117,8 +131,21 @@ public partial class LocationSetupCollectionViewModel :
     [RelayCommand]
     public void AddSetup()
     {
-        Selected = new();
-        Selected.Selected += (_, selected) => Selected = selected;
+        var vm = new LocationSetupViewModel();
+        vm.LocationSearch.OnSingleResult += (_, e) =>
+        {
+            vm.IsSelected = true;
+        };
+
+        vm.LocationSearch.OnSingleResult += (_, loc) =>
+        {
+            SaveSelected();
+        };
+
+        vm.Selected += (_, selected) => Selected = selected;
+        vm.Deleted += (_, _) => Setups.Remove(vm);
+        vm.SetupDate = DateTime.Today.AddDays(14);
+        Selected = vm;
         ShowSelected = true;
     }
 

@@ -19,17 +19,16 @@
         <ToolbarItem 
             Text="Continue" 
             Command="{Binding ContinueCommand}" 
-            IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=White,
-                Glyph={x:Static styles:FontAwesomeSolid.ArrowAltCircleRight}}"/>
+            StyleClass="SubmitButton"/>
         <ToolbarItem
             Text="Remove Facilities Request"
             Command="{Binding DeleteCommand}" 
-            IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=White,
-                Glyph={x:Static styles:FontAwesomeSolid.Eraser}}"/>
+            StyleClass="DeleteButton"/>
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <ScrollView>
-            <StackLayout>
+            <StackLayout
+                Margin="15">
                 <StackLayout
                     Orientation="Horizontal"
                     Spacing="30">
@@ -70,24 +69,52 @@
                         StyleClass="AddButton"
                         Command="{Binding Locations.AddSetupCommand}" />
                 </StackLayout>
+                <StackLayout
+                    IsVisible="{Binding Locations.ShowSelected}">
+                    <BoxView StyleClass="Bar" />
+                    <StackLayout
+                        Orientation="Horizontal">
+                        <views:LocationSingleSelector 
+                            BindingContext="{Binding Locations.Selected.LocationSearch}" />
+                    </StackLayout>
+                </StackLayout>
                 <CollectionView
-                    ItemsSource="{Binding Locations.Setups}">
+                    ItemsSource="{Binding Locations.Setups}"
+                    BackgroundColor="Transparent">
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="vm:LocationSetupViewModel">
                             <StackLayout>
-                                <views:LocationSingleSelector BindingContext="{Binding LocationSearch}" />
+                                <BoxView StyleClass="Bar" />
+                                <Label 
+                                    VerticalTextAlignment="Center"
+                                    StyleClass="H3" 
+                                    Text="{Binding LocationSearch.Selected.Label}"
+                                    IsVisible="{Binding IsSelected}" />
+                                <views:LocationSingleSelector 
+                                    BindingContext="{Binding LocationSearch}" 
+                                    IsVisible="{Binding IsSelected, Converter={StaticResource Invert}}"/>
                                 <StackLayout
                                     Orientation="Horizontal"
                                     Spacing="30">
-                                    <Switch IsToggled="{Binding SandwichSign}" />
-                                    <Label Text="Need a Sandwich Sign at this Location.  Text will be provided in instructions." />
+                                    <CheckBox 
+                                        IsChecked="{Binding SandwichSign}" 
+                                        Margin="25, 0, -15, 0"/>
+                                    <Label 
+                                        Text="Sandwich Sign (Text in Instructions)" 
+                                        TranslationX="-30"/>
+                                    <DatePicker
+                                        Date="{Binding SetupDate}" 
+                                        Margin="25, 0"/>
+                                    <TimePicker
+                                        Time="{Binding SetupTime}" />
                                     <Button 
                                         StyleClass="DeleteButton"
                                         Command="{Binding DeleteCommand}" />
                                 </StackLayout>
                                 <Editor
                                     HeightRequest="250"
-                                    Placeholder="(Mandatory) Please provide instructions for the facilities crew to set up at this location." />
+                                    Placeholder="(Mandatory) Please provide instructions for the facilities crew to set up at this location."
+                                    Text="{Binding Instructions}"/>
                             </StackLayout>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>

@@ -41,6 +41,11 @@ public partial class CateringEventViewModel :
 
     public CateringEvent Model { get; private set; }
 
+    public CateringEventViewModel()
+    {
+        BudgetCodeSearch.OnError += (sender, err) => OnError?.Invoke(sender, err);
+    }
+
     public void Clear()
     {
         Id = "";
@@ -184,6 +189,7 @@ public partial class CateringMenuViewModel :
             Items = [..
             CateringMenuItemViewModel
                 .GetClonedViewModels(category.items)
+                .OrderBy(item => item.Ordinal)
                 .Select(CateringMenuSelectionViewModel.Create)
             ],
             IsFieldTrip = category.fieldTripCategory,
@@ -193,10 +199,23 @@ public partial class CateringMenuViewModel :
         foreach(var item in vm.Items)
         {
             item.OnError += (sender, e) => vm.OnError?.Invoke(sender, e);
+            item.PropertyChanged += (sender, e) =>
+            {
+                if(e.PropertyName == "Quantity")
+                {
+                    if (item.Quantity < 0)
+                        item.Quantity = 0;
+
+                    item.IsSelected = item.Quantity != 0;
+
+                    item.Cost = item.Quantity * item.Item.PricePerPerson;
+                }
+            };
         }
 
         return vm;
     }
+
 
     [RelayCommand]
     public void ClearSelections()
@@ -250,7 +269,8 @@ public partial class CateringMenuCollectionViewModel :
     private readonly CateringMenuService _service;
     [ObservableProperty] ImmutableArray<CateringMenuViewModel> menus = [];
     [ObservableProperty] CateringMenuViewModel selectedMenu = new();
-    
+    [ObservableProperty] bool showMenus = true;
+
     public CateringMenuViewModel this[string menuId]
     {
         get
@@ -267,7 +287,7 @@ public partial class CateringMenuCollectionViewModel :
     {
         get
         {
-            foreach(var menu in Menus)
+            foreach (var menu in Menus)
             {
                 if (menu.Items.Any(sel => sel.Item.Id == item.id))
                     return menu.Items.First(sel => sel.Item.Id == item.id);
@@ -302,10 +322,22 @@ public partial class CateringMenuCollectionViewModel :
             foreach (var menu in Menus)
             {
                 menu.OnError += (sender, e) => OnError?.Invoke(sender, e);
-                menu.Selected += (sender, e) => SelectedMenu = e;
+                menu.Selected += (sender, e) =>
+                {
+                    foreach (var menu in Menus)
+                    {
+                        if (menu.Id != e.Id)
+                            menu.IsSelected = false;
+                    }
+                    SelectedMenu = e;
+                    ShowMenus = false;
+                };
             }
         });
     }
+
+    [RelayCommand]
+    public void ToggleShowMenus() => ShowMenus = !ShowMenus;
 
     [RelayCommand]
     public void ClearSelections()

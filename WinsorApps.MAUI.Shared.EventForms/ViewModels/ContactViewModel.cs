@@ -238,6 +238,7 @@ public partial class ContactSearchViewModel :
         ShowOptions = false;
         ShowCreate = false;
         NewItem = new();
+        SearchText = "";
     }
 
     public void Select(ContactViewModel e)
