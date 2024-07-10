@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Global.Services;
@@ -9,11 +10,11 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
     public partial class EventsSearchViewModel : ObservableObject, ICachedSearchViewModel<RecurringEventViewModel>
     {
         [ObservableProperty]
-        private ImmutableArray<RecurringEventViewModel> available = [];
+        private ObservableCollection<RecurringEventViewModel> available = [];
         [ObservableProperty]
-        private ImmutableArray<RecurringEventViewModel> allSelected = [];
+        private ObservableCollection<RecurringEventViewModel> allSelected = [];
         [ObservableProperty]
-        private ImmutableArray<RecurringEventViewModel> options = [];
+        private ObservableCollection<RecurringEventViewModel> options = [];
         [ObservableProperty]
         private RecurringEventViewModel selected = RecurringEventViewModel.Default;
         [ObservableProperty]
@@ -26,7 +27,7 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         private bool showOptions;
 
 
-        public event EventHandler<ImmutableArray<RecurringEventViewModel>>? OnMultipleResult;
+        public event EventHandler<ObservableCollection<RecurringEventViewModel>>? OnMultipleResult;
         public event EventHandler<RecurringEventViewModel>? OnSingleResult;
         public event EventHandler? OnZeroResults;
 
@@ -36,7 +37,7 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         {
             cycleDayRecurringEventService = ServiceHelper.GetService<CycleDayRecurringEventService>();
 
-            Available = RecurringEventViewModel.ViewModelCache.ToImmutableArray();
+            Available = [..RecurringEventViewModel.ViewModelCache];
 
             foreach (var Event in Available)
             {

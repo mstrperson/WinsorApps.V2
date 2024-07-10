@@ -54,7 +54,7 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         public void LoadEvents()
         {
             IsBusy = true;
-            Events = RecurringEventViewModel.GetClonedViewModels(_eventService.RecurringEvents).ToImmutableArray();
+            Events = RecurringEventViewModel.GetClonedViewModels(_eventService.OpenEventList).ToImmutableArray();
             foreach (var evt in Events)
             {
                 evt.OnError += (sender, e) => OnError?.Invoke(sender, e);
