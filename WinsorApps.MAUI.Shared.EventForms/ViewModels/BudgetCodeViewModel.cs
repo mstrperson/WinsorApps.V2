@@ -1,12 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.EventForms.Services;
@@ -16,8 +12,9 @@ using WinsorApps.Services.Global.Services;
 namespace WinsorApps.MAUI.Shared.EventForms.ViewModels;
 
 public partial class BudgetCodeViewModel : 
-    ObservableObject, 
-    IEmptyViewModel<BudgetCodeViewModel>,
+    ObservableObject,
+    IDefaultValueViewModel<BudgetCodeViewModel>,
+    ISelectable<BudgetCodeViewModel>,
     IErrorHandling,
     IAutoRefreshingCacheService,
     ICachedViewModel<BudgetCodeViewModel, BudgetCode, BudgetCodeService>
@@ -28,6 +25,7 @@ public partial class BudgetCodeViewModel :
     [ObservableProperty] private string userId = "";
     [ObservableProperty] private string accountNumber = "";
     [ObservableProperty] private string commonName = "";
+    [ObservableProperty] private bool isSelected;
 
     public static ConcurrentBag<BudgetCodeViewModel> ViewModelCache { get; protected set; } = [];
 
@@ -35,8 +33,13 @@ public partial class BudgetCodeViewModel :
 
     public bool Refreshing => false;
 
+    public static BudgetCodeViewModel Default => new();
+
+    
+
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler? OnCacheRefreshed;
+    public event EventHandler<BudgetCodeViewModel>? Selected;
 
     public static implicit operator BudgetCodeViewModel(BudgetCode budgetCode) => new()
     {
@@ -77,17 +80,22 @@ public partial class BudgetCodeViewModel :
     public static BudgetCodeViewModel Get(BudgetCode model)
     {
         var vm = ViewModelCache.FirstOrDefault(code => code.CodeId == model.codeId);
-        if(vm is null)
-        {
-            vm = (BudgetCodeViewModel)model;
-            ViewModelCache.Add(vm);
-        }
+        if (vm is not null) return vm.Clone();
+        vm = (BudgetCodeViewModel)model;
+        ViewModelCache.Add(vm);
         return vm.Clone();
     }
 
     public BudgetCodeViewModel Clone() => (BudgetCodeViewModel)MemberwiseClone();
 
     public Task RefreshInBackground(CancellationToken token, ErrorAction onError) => Task.CompletedTask;
+
+    [RelayCommand]
+    public void Select()
+    {
+        IsSelected = !IsSelected;
+        Selected?.Invoke(this, this);
+    }
 }
 
 public partial class BudgetCodeSearchViewModel :
@@ -95,16 +103,16 @@ public partial class BudgetCodeSearchViewModel :
     ICachedSearchViewModel<BudgetCodeViewModel>,
     IErrorHandling
 {
-    private readonly BudgetCodeService _service;
+    private readonly BudgetCodeService _service = ServiceHelper.GetService<BudgetCodeService>();
 
     [ObservableProperty]
-    private ImmutableArray<BudgetCodeViewModel> available = [];
+    private ObservableCollection<BudgetCodeViewModel> available = [];
     [ObservableProperty]
-    private ImmutableArray<BudgetCodeViewModel> allSelected  = [];
+    private ObservableCollection<BudgetCodeViewModel> allSelected  = [];
     [ObservableProperty]
-    private ImmutableArray<BudgetCodeViewModel> options  = [];
+    private ObservableCollection<BudgetCodeViewModel> options  = [];
     [ObservableProperty]
-    private BudgetCodeViewModel selected = IEmptyViewModel<BudgetCodeViewModel>.Empty;
+    private BudgetCodeViewModel selected = BudgetCodeViewModel.Default;
     [ObservableProperty]
     private SelectionMode selectionMode = SelectionMode.Single;
     [ObservableProperty]
@@ -112,29 +120,86 @@ public partial class BudgetCodeSearchViewModel :
     [ObservableProperty]
     private bool isSelected;
     [ObservableProperty]
+    private bool zeroResults;
+    [ObservableProperty]
     private bool showOptions;
 
+    [ObservableProperty]
+    private bool showNew;
+    [ObservableProperty]
+    private string newName;
+    [ObservableProperty]
+    private string newAccountNumber;
+
     public event EventHandler<ErrorRecord>? OnError;
-    public event EventHandler<ImmutableArray<BudgetCodeViewModel>>? OnMultipleResult;
+    public event EventHandler<ObservableCollection<BudgetCodeViewModel>>? OnMultipleResult;
     public event EventHandler<BudgetCodeViewModel>? OnSingleResult;
     public event EventHandler? OnZeroResults;
+    public event EventHandler? NewBudgetCodeRequested;
 
-    public BudgetCodeSearchViewModel(BudgetCodeService service)
+    public BudgetCodeSearchViewModel()
     {
-        _service = service;
         _service.OnCacheRefreshed += BudgetCodeCacheRefreshed;
         if (_service.Ready)
-            available = BudgetCodeViewModel.GetClonedViewModels(_service.BudgetCodes).ToImmutableArray(); 
-        
+            available = [..BudgetCodeViewModel.GetClonedViewModels(_service.BudgetCodes)];
+
         foreach (var vm in Available)
+        {
             vm.OnError += (sender, err) => OnError?.Invoke(sender, err);
+            vm.Selected += (sender, e) => Select(e);
+        }
     }
 
     private void BudgetCodeCacheRefreshed(object? sender, EventArgs e)
     {
-        Available = BudgetCodeViewModel.GetClonedViewModels(_service.BudgetCodes).ToImmutableArray();
+        Available = [..BudgetCodeViewModel.GetClonedViewModels(_service.BudgetCodes)];
         foreach (var vm in Available)
             vm.OnError += (sender, err) => OnError?.Invoke(sender, err);
+    }
+
+    [RelayCommand]
+    public void ClearSelection()
+    {
+        Selected = new();
+        IsSelected = false;
+        Options = [];
+        AllSelected = [];
+        SearchText = "";
+        ShowOptions = false;
+        ZeroResults = false;
+
+    }
+
+    [RelayCommand]
+    public void CancelNew()
+    {
+        ShowNew = false;
+        NewName = "";
+        NewAccountNumber = "";
+    }
+
+    [RelayCommand]
+    public void StartNew()
+    {
+        ShowNew = true;
+        NewName = SearchText;
+        NewAccountNumber = "";
+    }
+
+    [RelayCommand]
+    public async Task Create()
+    {
+        var result = await _service.CreateNewBudgetCode(NewAccountNumber, NewName, OnError.DefaultBehavior(this));
+
+        if(result.HasValue)
+        {
+            ShowNew = false;
+            NewName = "";
+            NewAccountNumber = "";
+            var vm = BudgetCodeViewModel.Get(result.Value);
+            Available.Add(vm);
+            Select(vm);
+        }
     }
 
     [RelayCommand]
@@ -154,32 +219,36 @@ public partial class BudgetCodeSearchViewModel :
                     Selected = possible[0];
                     IsSelected = true;
                     ShowOptions = false;
+                    ZeroResults = false;
                     Options = [];
                     OnSingleResult?.Invoke(this, Selected);
                     return;
                 }
 
-                Selected = IEmptyViewModel<BudgetCodeViewModel>.Empty;
+                Selected = BudgetCodeViewModel.Default;
                 IsSelected = false;
 
                 if (possible.Length == 0)
                 {
                     Options = [];
                     ShowOptions = false;
+                    ZeroResults = true;
                     OnZeroResults?.Invoke(this, EventArgs.Empty);
                     return;
                 }
 
-                Options = possible;
+                Options = [..possible];
                 ShowOptions = true;
+                ZeroResults = false;
                 return;
             case SelectionMode.Multiple:
                 if(possible.Length == 0)
                 {
+                    ZeroResults = true;
                     OnZeroResults?.Invoke(this, EventArgs.Empty);
                     return;
                 }
-                AllSelected = possible;
+                AllSelected = [..possible];
                 OnMultipleResult?.Invoke(this, AllSelected);
                 return;
 
@@ -211,9 +280,9 @@ public partial class BudgetCodeSearchViewModel :
 
             case SelectionMode.Multiple:
                 if (AllSelected.Contains(sel))
-                    AllSelected = AllSelected.Remove(sel);
+                    AllSelected.Remove(sel);
                 else
-                    AllSelected = AllSelected.Add(sel);
+                    AllSelected.Add(sel);
                 return;
 
             case SelectionMode.None:

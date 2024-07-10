@@ -1,14 +1,7 @@
-﻿
-using AsyncAwaitBestPractices;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Csv;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Global;
@@ -64,7 +57,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
                 (_, _) => 
                 LoadCheckouts();
             searchMode = SearchModes[0];
-            selected = IEmptyViewModel<CheckoutSearchResultViewModel>.Empty;
+            selected = CheckoutSearchResultViewModel.Default;
             LoadCheckouts();
         }
 
@@ -73,7 +66,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         {
             SearchText = "";
             Options = [];
-            Selected = IEmptyViewModel<CheckoutSearchResultViewModel>.Empty;
+            Selected = CheckoutSearchResultViewModel.Default;
             AllSelected = [];
         }
 
@@ -121,7 +114,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
                     if (Options.Length == 0)
                     {
                         ShowOptions = false;
-                        Selected = IEmptyViewModel<CheckoutSearchResultViewModel>.Empty;
+                        Selected = CheckoutSearchResultViewModel.Default;
                         IsSelected = false;
                         OnZeroResults?.Invoke(this, EventArgs.Empty);
                         return;
@@ -137,7 +130,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
                     }
 
                     ShowOptions = true;
-                    Selected = IEmptyViewModel<CheckoutSearchResultViewModel>.Empty;
+                    Selected = CheckoutSearchResultViewModel.Default;
                     IsSelected = false;
                     return;
                 default: return;

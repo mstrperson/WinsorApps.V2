@@ -3,12 +3,9 @@
 
 using AsyncAwaitBestPractices;
 using System.Net;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using WinsorApps.Services.Global.Models;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 namespace WinsorApps.Services.Global.Services;
@@ -91,7 +88,14 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
                 AuthorizedUser = new AuthResponse("", savedCredential.JWT, default, savedCredential.RefreshToken);
                 try
                 {
-                    await RenewTokenAsync(onError: onError);
+                    var success = true;
+                    await RenewTokenAsync(onError: err => 
+                    {
+                        onError(err);
+                        success = false;
+                    }); 
+                    if(success)
+                        UserInfo = await SendAsync<UserRecord>(HttpMethod.Get, "api/users/self", onError: onError);
                 }
                 catch (Exception ex)
                 {
@@ -277,8 +281,13 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
                 {
                     AuthorizedUser = new(jwt: savedCred.JWT, refreshToken: savedCred.RefreshToken);
                 }
-
-                await Login(savedCred.SavedEmail, savedCred.SavedPassword, onError);
+                if (!string.IsNullOrWhiteSpace(savedCred.SavedPassword))
+                    await Login(savedCred.SavedEmail, savedCred.SavedPassword, onError);
+                else
+                {
+                    Refreshing = false;
+                    return;
+                }
             }
         }
         catch (Exception ex)
@@ -477,7 +486,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
         onError ??= err => _logging.LogMessage(LocalLoggingService.LogLevel.Error, err.error);
         var request = await BuildRequest(method, endpoint, jsonContent, authorize);
         var response = await client.SendAsync(request);
-        if (await CheckReAuth(response, () => BuildRequest(method, endpoint, jsonContent, authorize).Result))
+        if (endpoint!="api/auth" && await CheckReAuth(response, () => BuildRequest(method, endpoint, jsonContent, authorize).Result))
         {
             onError(new("Unauthorized Access", "Current user is not authorized to access this endpoint."));
             var result = await response.Content.ReadAsStringAsync();

@@ -35,8 +35,12 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
-		<AssemblyName>Winsor Cycle Day Recurring Events</AssemblyName>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion><SignAssembly>False</SignAssembly>
+		<Title>Cycle Day Recurring Events</Title>
+		<PackageId>Cycle Day Recurring Events</PackageId>
+		<Authors>Susan Zuo; Jason Cox</Authors>
+		<Company>The Winsor School</Company>
+		<PackageIcon>icon.png</PackageIcon>
 		<GenerateAppInstallerFile>False</GenerateAppInstallerFile>
 		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
 		<PackageCertificateThumbprint>08B7D1EC7093C4213DDFAB8A6877EB0159A73BDD</PackageCertificateThumbprint>
@@ -46,7 +50,43 @@
 		<GenerateTestArtifacts>True</GenerateTestArtifacts>
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-maccatalyst|AnyCPU'">
+		<ApplicationTitle>Cycle Day Recurring Events</ApplicationTitle>
+		<ApplicationId>maccatalyst.edu.winsor.cdre</ApplicationId>
+		<ApplicationIdGuid>P8CLK55JUH</ApplicationIdGuid>
+		<MtouchLink>SdkOnly</MtouchLink>
+		<EnableCodeSigning>True</EnableCodeSigning>
+		<EnablePackageSigning>true</EnablePackageSigning>
+		<CreatePackage>true</CreatePackage>
+		<CodesignKey>Developer ID Application: Jason Cox (P8CLK55JUH)</CodesignKey>
+		<CodesignProvision>Winsor Cycle Day Recurring Events</CodesignProvision>
+		<CodesignEntitlements>Platforms\MacCatalyst\Entitlements.plist</CodesignEntitlements>
+		<PackageSigningKey>Developer ID Installer: Jason Cox (P8CLK55JUH)</PackageSigningKey>
+		<UseHardenedRuntime>true</UseHardenedRuntime>
+	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-maccatalyst|AnyCPU'">
+		<ApplicationTitle>Cycle Day Recurring Events</ApplicationTitle>
+		<ApplicationId>maccatalyst.edu.winsor.cdre</ApplicationId>
+		<ApplicationIdGuid>P8CLK55JUH</ApplicationIdGuid>
+		<MtouchLink>SdkOnly</MtouchLink>
+		<EnableCodeSigning>True</EnableCodeSigning>
+		<EnablePackageSigning>true</EnablePackageSigning>
+		<CreatePackage>true</CreatePackage>
+		<CodesignKey>Developer ID Application: Jason Cox (P8CLK55JUH)</CodesignKey>
+		<CodesignProvision>Winsor Cycle Day Recurring Events</CodesignProvision>
+		<CodesignEntitlements>Platforms\MacCatalyst\Entitlements.plist</CodesignEntitlements>
+		<PackageSigningKey>Developer ID Installer: Jason Cox (P8CLK55JUH)</PackageSigningKey>
+		<UseHardenedRuntime>true</UseHardenedRuntime>
+	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-windows10.0.19041.0|AnyCPU'">
+		<ApplicationTitle>Cycle Day Recurring Events</ApplicationTitle>
+		<ApplicationId>edu.winsor.cdre</ApplicationId>
+		<ApplicationIdGuid>P8CLK55JUH</ApplicationIdGuid>
+	</PropertyGroup>
+	
 	<ItemGroup>
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\icon.png" />
@@ -68,8 +108,8 @@
 		<PackageReference Include="AcrylicView.Maui" Version="2.1.3" />
 		<PackageReference Include="CommunityToolkit.Maui.Core" Version="9.0.1" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
-		<PackageReference Include="Microsoft.Maui.Controls" Version="8.0.60" />
-		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.60" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="8.0.61" />
+		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.61" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
 	</ItemGroup>
 
@@ -77,20 +117,8 @@
 	  <ProjectReference Include="..\WinsorApps.MAUI.Shared\WinsorApps.MAUI.Shared.csproj" />
 	  <ProjectReference Include="..\WinsorApps.Services.Global\WinsorApps.Services.Global.csproj" />
 	</ItemGroup>
-
-	<ItemGroup>
-	  <MauiImage Update="Resources\Images\dotnet_bot.png">
-	    <Resize>True</Resize>
-	    <BaseSize>300,185</BaseSize>
-	  </MauiImage>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <MauiAsset Update="Resources\Raw\AboutAssets.txt">
-	    <LogicalName>%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
-	  </MauiAsset>
-	</ItemGroup>
-
+	
+	
 	<ItemGroup>
 	  <MauiXaml Update="Pages\Editor.xaml">
 	    <Generator>MSBuild:Compile</Generator>
@@ -99,5 +127,16 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
-
+	
+	<ItemGroup>
+		<None Update="Resources\AppIcon\icon.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+	<Target Name="_SkipCodesignVerify" BeforeTargets="_CodesignVerify" AfterTargets="_CodesignAppBundle">
+		<PropertyGroup>
+			<_RequireCodeSigning>false</_RequireCodeSigning>
+		</PropertyGroup>
+	</Target>
 </Project>

@@ -1,9 +1,4 @@
 using AsyncAwaitBestPractices;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Global.Services;
 
@@ -13,7 +8,7 @@ public partial class UserSearchBar : ContentView
 {
     public static BindableProperty SelectedUserProperty = 
         BindableProperty.Create(nameof(SelectedUser), typeof(UserViewModel), typeof(UserSearchBar),
-            IEmptyViewModel<UserViewModel>.Empty, BindingMode.TwoWay);
+            UserViewModel.Default, BindingMode.TwoWay);
     
     public UserViewModel SelectedUser
     {

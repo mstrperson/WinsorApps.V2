@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Bookstore.Services;
-using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.Shared.Bookstore.ViewModels;
@@ -36,7 +35,7 @@ public partial class BookSearchViewModel :
     [ObservableProperty]
     private ImmutableArray<BookViewModel> allSelected = [];
     [ObservableProperty]
-    private BookViewModel selected = IEmptyViewModel<BookViewModel>.Empty;
+    private BookViewModel selected = BookViewModel.Default;
     [ObservableProperty]
     private SelectionMode selectionMode = SelectionMode.Multiple;
     [ObservableProperty]

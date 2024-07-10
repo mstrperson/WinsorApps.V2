@@ -1,10 +1,5 @@
 ﻿using AsyncAwaitBestPractices;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Services;
@@ -19,6 +14,8 @@ namespace WinsorApps.Services.EventForms.Services
         public event EventHandler? OnCacheRefreshed;
 
         public ImmutableArray<CateringMenuCategory> MenuCategories { get; private set; } = [];
+
+        public ImmutableArray<CateringMenuCategory> AvailableCategories => [.. MenuCategories.Where(cat => !cat.isDeleted)];
 
 
         public CateringMenuService(LocalLoggingService logging, ApiService api)

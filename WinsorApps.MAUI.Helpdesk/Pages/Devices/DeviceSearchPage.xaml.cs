@@ -1,6 +1,5 @@
 using WinsorApps.MAUI.Helpdesk.ViewModels.Devices;
 using WinsorApps.MAUI.Shared;
-using WinsorApps.MAUI.Shared.ViewModels;
 
 namespace WinsorApps.MAUI.Helpdesk.Pages.Devices;
 
@@ -23,7 +22,7 @@ public partial class DeviceSearchPage : ContentPage
 
     private void ViewModel_OnZeroResults(object? sender, EventArgs e)
     {
-		var vm = IEmptyViewModel<DeviceViewModel>.Empty;
+		var vm = DeviceViewModel.Default;
 		vm.SerialNumber = ViewModel.SearchText;
 		vm.OnError += this.DefaultOnErrorHandler();
 		vm.Selected += ViewModel_OnSingleResult;

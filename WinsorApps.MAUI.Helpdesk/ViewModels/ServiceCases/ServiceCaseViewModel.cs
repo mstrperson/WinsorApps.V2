@@ -1,7 +1,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Linq;
 using AsyncAwaitBestPractices;
 using CommunityToolkit.Maui.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -18,8 +17,8 @@ using WinsorApps.Services.Helpdesk.Services;
 namespace WinsorApps.MAUI.Helpdesk.ViewModels.ServiceCases;
 
 public partial class ServiceCaseViewModel : 
-    ObservableObject, 
-    IEmptyViewModel<ServiceCaseViewModel>, 
+    ObservableObject,
+    IDefaultValueViewModel<ServiceCaseViewModel>, 
     ISelectable<ServiceCaseViewModel>,
     IErrorHandling,
     IAsyncSubmit,
@@ -68,7 +67,7 @@ public partial class ServiceCaseViewModel :
         Owner.GetPhoto().SafeFireAndForget(e => e.LogException());
         this.Device = DeviceViewModel.Get(serviceCase.device);
         Loaner =
-            IEmptyViewModel<DeviceViewModel>.Empty;
+            DeviceViewModel.Default;
         if(!string.IsNullOrEmpty(serviceCase.loaner))
         {
             var l = _deviceService.Loaners.FirstOrDefault(dev => dev.winsorDevice.HasValue && dev.winsorDevice.Value.assetTag == serviceCase.loaner);
@@ -93,9 +92,9 @@ public partial class ServiceCaseViewModel :
 
     [ObservableProperty] private string id = "";
 
-    [ObservableProperty] private DeviceViewModel device = IEmptyViewModel<DeviceViewModel>.Empty;
+    [ObservableProperty] private DeviceViewModel device = DeviceViewModel.Default;
 
-    [ObservableProperty] private UserViewModel owner = IEmptyViewModel<UserViewModel>.Empty;
+    [ObservableProperty] private UserViewModel owner = UserViewModel.Default;
 
     [ObservableProperty] private CommonIssueSelectionViewModel commonIssues = new();
     [ObservableProperty] private string intakeNotes = "";
@@ -105,7 +104,7 @@ public partial class ServiceCaseViewModel :
     [ObservableProperty] private ServiceStatusSearchViewModel statusSearch = new();
     [ObservableProperty] private ImmutableArray<DocumentViewModel> attachedDocuments = [];
     [ObservableProperty] private double repairCost = 0;
-    [ObservableProperty] private DeviceViewModel loaner = IEmptyViewModel<DeviceViewModel>.Empty;
+    [ObservableProperty] private DeviceViewModel loaner = DeviceViewModel.Default;
     [ObservableProperty] private bool loanerSelected;
     [ObservableProperty] private bool isSelected;
     [ObservableProperty] private bool working;
@@ -123,6 +122,8 @@ public partial class ServiceCaseViewModel :
     }
 
     public static ConcurrentBag<ServiceCaseViewModel> ViewModelCache { get; private set; } = [];
+
+    public static ServiceCaseViewModel Default => new();
 
     [RelayCommand]
     public void SetLoaner(DeviceViewModel loaner)
@@ -289,7 +290,7 @@ public partial class ServiceCaseSearchViewModel : ObservableObject, IAsyncSearch
 
     [ObservableProperty] private ImmutableArray<ServiceCaseViewModel> allSelected = [];
     [ObservableProperty] private ImmutableArray<ServiceCaseViewModel> options = [];
-    [ObservableProperty] private ServiceCaseViewModel selected = IEmptyViewModel<ServiceCaseViewModel>.Empty;
+    [ObservableProperty] private ServiceCaseViewModel selected = ServiceCaseViewModel.Default;
     [ObservableProperty] private bool isSelected;
     [ObservableProperty] private bool showOptions;
     [ObservableProperty] private string searchText = "";
@@ -368,7 +369,7 @@ public partial class ServiceCaseSearchViewModel : ObservableObject, IAsyncSearch
                 if (Options.Length == 0)
                 {
                     ShowOptions = false;
-                    Selected = IEmptyViewModel<ServiceCaseViewModel>.Empty;
+                    Selected = ServiceCaseViewModel.Default;
                     IsSelected = false;
                     OnZeroResults?.Invoke(this, EventArgs.Empty);
                     return;
@@ -384,7 +385,7 @@ public partial class ServiceCaseSearchViewModel : ObservableObject, IAsyncSearch
                 }
 
                 ShowOptions = true;
-                Selected = IEmptyViewModel<ServiceCaseViewModel>.Empty;
+                Selected = ServiceCaseViewModel.Default;
                 IsSelected = false;
                 return;
             default: return;

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.EventForms.ViewModels"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             xmlns:views="clr-namespace:WinsorApps.MAUI.Shared.EventForms.Views"
+             xmlns:styles="clr-namespace:WinsorApps.MAUI.Shared.Resources.Styles;assembly=WinsorApps.MAUI.Shared"
+             x:DataType="vm:VehicleRequestCollectionViewModel"
+             x:Class="WinsorApps.MAUI.Shared.EventForms.Views.VehicleRequestCollectionEditor">
+    <StackLayout>
+        <CollectionView
+            ItemsSource="{Binding CategoryCollection.Categories}">
+            <CollectionView.Header>
+                <Label 
+                    Text="Vehicles Avaiable"
+                    StyleClass="H3" />
+            </CollectionView.Header>
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="50" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:VehicleCategoryViewModel">
+                    <Label
+                        Text="{Binding Label}"
+                        FontAttributes="Bold">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding StartRequestCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+        <CollectionView
+            ItemsSource="{Binding Requests}">
+            <CollectionView.Header>
+                <Label
+                    Text="Requested Vehicles"
+                    StyleClass="H3" />
+            </CollectionView.Header>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:VehicleRequestViewModel">
+                    <StackLayout Orientation="Horizontal" Spacing="30">
+                        <Label 
+                            Text="{Binding Category.Label}" />
+                        <Entry
+                            Text="{Binding CountRequested}"
+                            Keyboard="Numeric" />
+                        <Button
+                            StyleClass="DeleteButton"
+                            Command="{Binding DeleteCommand}" />
+                    </StackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </StackLayout>
+</ContentView>

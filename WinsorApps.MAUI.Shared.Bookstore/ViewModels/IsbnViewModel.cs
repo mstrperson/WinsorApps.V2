@@ -11,8 +11,8 @@ using WinsorApps.Services.Global.Services;
 namespace WinsorApps.MAUI.Shared.Bookstore.ViewModels;
 
 public partial class IsbnViewModel : 
-    ObservableObject, 
-    IEmptyViewModel<IsbnViewModel>,
+    ObservableObject,
+    IDefaultValueViewModel<IsbnViewModel>,
     ICachedViewModel<IsbnViewModel, ISBNInfo, BookService>
 {
     public event EventHandler<OdinDataViewModel>? OdinUpdateRequested;
@@ -30,11 +30,13 @@ public partial class IsbnViewModel :
 
     public static ConcurrentBag<IsbnViewModel> ViewModelCache { get; private set; } = [];
 
+    public static IsbnViewModel Default => throw new NotImplementedException();
+
     [ObservableProperty] string displayName = "";
 
     [ObservableProperty] bool hasOdinData = false;
 
-    [ObservableProperty] OdinDataViewModel currentOdinData = IEmptyViewModel<OdinDataViewModel>.Empty;
+    [ObservableProperty] OdinDataViewModel currentOdinData = OdinDataViewModel.Default;
 
     [ObservableProperty] ImmutableArray<string> bindingOptions = [];
 
@@ -196,7 +198,7 @@ public partial class IsbnViewModel :
 
     public IsbnViewModel Clone() => (IsbnViewModel)MemberwiseClone();
 }
-public partial class OdinDataViewModel : ObservableObject
+public partial class OdinDataViewModel : ObservableObject, IDefaultValueViewModel<OdinDataViewModel>
 {
     private OdinData? data;
 
@@ -217,14 +219,16 @@ public partial class OdinDataViewModel : ObservableObject
         set => Cost = value.ConvertToCurrency();
     }
 
+    public static OdinDataViewModel Default => new();
+
     [ObservableProperty]
-    bool? isCurrent;
+    bool isCurrent;
 
     public OdinDataViewModel()
     {
         plu = "";
         cost = 0;
-        isCurrent = null;
+        isCurrent = false;
     }
     public OdinDataViewModel(OdinData data)
     {

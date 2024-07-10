@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.EventForms.ViewModels"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             xmlns:styles="clr-namespace:WinsorApps.MAUI.Shared.Resources.Styles;assembly=WinsorApps.MAUI.Shared"
+             x:DataType="vm:CateringEventViewModel"
+             x:Class="WinsorApps.MAUI.Shared.EventForms.Pages.CateringPage"
+             Title="Catering Details">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert"/>
+            <conv:StringToIntegerConverter x:Key="StringToInt" />
+            <conv:CurrencyToStringConverter x:Key="Currency" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem 
+            Text="Continue" 
+            Command="{Binding ContinueCommand}" 
+            StyleClass="SubmitButton"/>
+        <ToolbarItem
+            Text="Remove Catering Request"
+            Command="{Binding DeleteCommand}" 
+            StyleClass="DeleteButton"/>
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout
+                Orientation="Vertical"
+                IsEnabled="{Binding Busy, Converter={StaticResource Invert}}"
+                Margin="10">
+                <Label
+                    Text="{Binding BusyMessage}"
+                    StyleClass="Header"
+                    IsVisible="{Binding Busy}" />
+                <StackLayout 
+                    Orientation="Horizontal"
+                    MinimumHeightRequest="75"
+                    Margin="0">
+                    <!-- Budget Code Entry-->
+                    <Label 
+                        Text="Budget Code:"
+                        StyleClass="H3" />
+                    <StackLayout 
+                        Orientation="Horizontal"
+                        Margin="0"
+                        IsVisible="{Binding BudgetCodeSearch.IsSelected, Converter={StaticResource Invert}}">
+                        <StackLayout 
+                            Orientation="Horizontal"
+                            Margin="0"
+                            IsVisible="{Binding BudgetCodeSearch.ShowNew, Converter={StaticResource Invert}}"
+                            Spacing="30">
+                            <SearchBar 
+                                Placeholder="Budget Code"
+                                HeightRequest="40"
+                                WidthRequest="250"
+                                Text="{Binding BudgetCodeSearch.SearchText}"
+                                IsVisible="{Binding BudgetCodeSearch.ShowOptions, Converter={StaticResource Invert}}"
+                                SearchCommand="{Binding BudgetCodeSearch.SearchCommand}"/>
+                            <Image 
+                                StyleClass="AddButton">
+                                <Image.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding BudgetCodeSearch.StartNewCommand}"/>
+                                </Image.GestureRecognizers>
+                            </Image>
+                            <CollectionView
+                                ItemsSource="{Binding BudgetCodeSearch.Options}"
+                                IsVisible="{Binding BudgetCodeSearch.ShowOptions}">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:BudgetCodeViewModel">
+                                        <HorizontalStackLayout
+                                        ToolTipProperties.Text="{Binding AccountNumber}">
+                                            <HorizontalStackLayout.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                            </HorizontalStackLayout.GestureRecognizers>
+                                            <Label Text="{Binding CommonName}" />
+                                        </HorizontalStackLayout>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </StackLayout>
+                        <StackLayout
+                            Orientation="Horizontal"
+                            IsVisible="{Binding BudgetCodeSearch.ShowNew}"
+                            Spacing="30">
+                            <Entry
+                                Text="{Binding BudgetCodeSearch.NewName}"
+                                Placeholder="Common Name" 
+                                WidthRequest="150"
+                                HeightRequest="40" />
+                            <Entry
+                                Text="{Binding BudgetCodeSearch.NewAccountNumber}" 
+                                Placeholder="Account Number"
+                                WidthRequest="200"
+                                HeightRequest="40" />
+                            <Image
+                                StyleClass="SaveButton">
+                                <Image.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding BudgetCodeSearch.CreateCommand}" />
+                                </Image.GestureRecognizers>
+                            </Image>
+                            <Image
+                                StyleClass="CancelButton">
+                                <Image.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding BudgetCodeSearch.CancelNewCommand}" />
+                                </Image.GestureRecognizers>
+                            </Image>
+                        </StackLayout>
+                    </StackLayout>
+                    <StackLayout
+                        Orientation="Horizontal"
+                        Margin="0">
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding BudgetCodeSearch.ClearSelectionCommand}" />
+                        </StackLayout.GestureRecognizers>
+                        <Label
+                            Text="{Binding BudgetCodeSearch.Selected.CommonName}" 
+                            StyleClass="H3"
+                            IsVisible="{Binding BudgetCodeSearch.IsSelected}" />
+                        <Label
+                            Text="{Binding BudgetCodeSearch.Selected.AccountNumber}" 
+                            StyleClass="H3"
+                            TextDecorations="Underline"
+                            IsVisible="{Binding BudgetCodeSearch.IsSelected}"/>
+                    </StackLayout>
+                    <Label
+                        StyleClass="NegativeSignifier"
+                        IsVisible="{Binding BudgetCodeSearch.ZeroResults}" />
+                </StackLayout>
+                <!-- End Budget Code Entry-->
+                <StackLayout
+                    Orientation="Horizontal">
+                    <CheckBox
+                        IsChecked="{Binding ServersNeeded}" />
+                    <Label
+                        Text="Servers Needed" 
+                        Margin="10,0"/>
+                    <CheckBox
+                        IsChecked="{Binding CleanupRequired}" />
+                    <Label
+                        Text="Cleanup Needed"
+                        Margin="10,0" />
+                </StackLayout>
+                <Label
+                    Text="Evenings and Weekends will require an additional personnel charge to defray the cost of overtime labor. This will include time for setup, service, and breakdown of the event. Charges may run from $25 to $32 per hour." />
+                <BoxView StyleClass="Bar" />
+                <!-- Menu Selection -->
+                <CollectionView
+                    ItemsSource="{Binding Menu.Menus}"
+                    ItemsLayout="VerticalGrid,4"
+                    BackgroundColor="Transparent"
+                    IsVisible="{Binding Menu.ShowMenus}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:CateringMenuViewModel">
+                            <HorizontalStackLayout
+                                WidthRequest="350">
+                                <HorizontalStackLayout.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                </HorizontalStackLayout.GestureRecognizers>
+                                <Label
+                                    Text="{Binding Title}"
+                                    StyleClass="H3"
+                                    IsVisible="{Binding IsSelected, Converter={StaticResource Invert}}"/>
+                                <Label
+                                    Text="{Binding Title}"
+                                    StyleClass="SubHeader"
+                                    FontAttributes="Bold"
+                                    TextColor="{AppThemeBinding Light={DynamicResource WinsorRed}, Dark=White}"
+                                    IsVisible="{Binding IsSelected}"/>
+                            </HorizontalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                <!-- End Menu Selection-->
+                <!-- Display Selected Menu -->
+                <StackLayout
+                    Margin="0"
+                    Padding="0"
+                    IsVisible="{Binding Menu.ShowMenus, Converter={StaticResource Invert}}">
+                    <Label
+                        Text="{Binding Menu.SelectedMenu.Title}"
+                        StyleClass="SubHeader">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Menu.ToggleShowMenusCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                    <CollectionView
+                        ItemsSource="{Binding Menu.SelectedMenu.Items}"
+                        BackgroundColor="Transparent"
+                        Margin="0">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:CateringMenuSelectionViewModel">
+                                <StackLayout>
+                                    <StackLayout Orientation="Horizontal">
+                                        <Label
+                                            Text="{Binding Item.Name}" 
+                                            WidthRequest="300"
+                                            IsVisible="{Binding IsSelected,Converter={StaticResource Invert}}"/>
+                                        <Label
+                                            Text="{Binding Item.Name}" 
+                                            FontAttributes="Bold"
+                                            WidthRequest="300"
+                                            IsVisible="{Binding IsSelected}"/>
+                                        <Entry
+                                            Placeholder="# Needed"
+                                            WidthRequest="50"
+                                            HeightRequest="40"
+                                            Keyboard="Numeric"
+                                            Text="{Binding Quantity}"
+                                            Margin="75,0" />
+                                        <Label
+                                            Text="{Binding Cost, Converter={StaticResource Currency}}"/>
+                                        <Label
+                                            Text="{Binding Item.PricePerPerson, Converter={StaticResource Currency}}"
+                                            Margin="75, 0, 0, 0"/>
+                                        <Label
+                                            Text="per ea." />
+                                    </StackLayout>
+                                    <BoxView StyleClass="Bar" />
+                                </StackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </StackLayout>
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

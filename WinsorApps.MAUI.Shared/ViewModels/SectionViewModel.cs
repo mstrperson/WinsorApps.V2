@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using WinsorApps.Services.Global;
@@ -10,9 +11,10 @@ namespace WinsorApps.MAUI.Shared.ViewModels;
 
 public partial class CourseViewModel :
     ObservableObject,
-    IEmptyViewModel<CourseViewModel>,
+    IDefaultValueViewModel<CourseViewModel>,
     ISelectable<CourseViewModel>,
-    ICachedViewModel<CourseViewModel, CourseRecord, RegistrarService>
+    ICachedViewModel<CourseViewModel, CourseRecord, RegistrarService>,
+    IModelCarrier<CourseViewModel, CourseRecord>
 {
     private static readonly RegistrarService _registrar = ServiceHelper.GetService<RegistrarService>();
 
@@ -25,9 +27,11 @@ public partial class CourseViewModel :
     [ObservableProperty] string courseCode = "";
     [ObservableProperty] ImmutableArray<SectionViewModel> sections = [];
 
-    public CourseRecord Course { get; init; } = default;
+    public CourseRecord Model { get; init; } = default;
 
     public static ConcurrentBag<CourseViewModel> ViewModelCache { get; protected set; } = [];
+
+    public static CourseViewModel Default => new();
 
     [ObservableProperty]
     public bool isSelected;
@@ -38,7 +42,7 @@ public partial class CourseViewModel :
     public async Task LoadSections()
     {
         bool success = true;
-        var sections = await _registrar.GetSectionsOfAsync(Course, err =>
+        var sections = await _registrar.GetSectionsOfAsync(Model, err =>
         {
             _logging.LogError(err);
             success = false;
@@ -72,7 +76,7 @@ public partial class CourseViewModel :
             LengthInTerms = model.lengthInTerms,
             CourseCode = model.courseCode,
             DisplayName = model.displayName,
-            Course = model
+            Model = model
         };
         ViewModelCache.Add(vm);
         return vm.Clone();
@@ -93,7 +97,17 @@ public partial class CourseViewModel :
         _ = GetClonedViewModels(service.CourseList);
     }
 
-    public CourseViewModel Clone() => (CourseViewModel)MemberwiseClone();
+    public CourseViewModel Clone() => new()
+    {
+        Id = Id,
+        CourseCode = CourseCode,
+        Department = Department,
+        DisplayName = DisplayName,
+        IsSelected = false,
+        Model = Model,
+        LengthInTerms = LengthInTerms,
+        Sections = []
+    };
 
     [RelayCommand]
     public void Select()
@@ -107,23 +121,23 @@ public partial class CourseViewModel :
 public partial class CourseListViewModel :
     ObservableObject,
     ICachedSearchViewModel<CourseViewModel>,
-    IEmptyViewModel<CourseListViewModel>,
+    IDefaultValueViewModel<CourseListViewModel>,
     IErrorHandling
 {
 
     private readonly RegistrarService _registrar = ServiceHelper.GetService<RegistrarService>();
 
     [ObservableProperty]
-    private ImmutableArray<CourseViewModel> available = [];
+    private ObservableCollection<CourseViewModel> available = [];
 
     [ObservableProperty]
-    private ImmutableArray<CourseViewModel> allSelected = [];
+    private ObservableCollection<CourseViewModel> allSelected = [];
 
     [ObservableProperty]
-    private ImmutableArray<CourseViewModel> options = [];
+    private ObservableCollection<CourseViewModel> options = [];
 
     [ObservableProperty]
-    private CourseViewModel selected = IEmptyViewModel<CourseViewModel>.Empty;
+    private CourseViewModel selected = CourseViewModel.Default;
     [ObservableProperty]
     private SelectionMode selectionMode = SelectionMode.Single;
     [ObservableProperty]
@@ -133,7 +147,9 @@ public partial class CourseListViewModel :
     [ObservableProperty]
     private bool showOptions;
 
-    public event EventHandler<ImmutableArray<CourseViewModel>>? OnMultipleResult;
+    public static CourseListViewModel Default => CourseListViewModel.Default;
+
+    public event EventHandler<ObservableCollection<CourseViewModel>>? OnMultipleResult;
     public event EventHandler<CourseViewModel>? OnSingleResult;
     public event EventHandler? OnZeroResults;
     public event EventHandler<ErrorRecord>? OnError;
@@ -142,7 +158,7 @@ public partial class CourseListViewModel :
     {
         _registrar.WaitForInit(OnError.DefaultBehavior(this)).WhenCompleted(() =>
         {
-            Available = CourseViewModel.GetClonedViewModels(_registrar.CourseList).ToImmutableArray();
+            Available = [..CourseViewModel.GetClonedViewModels(_registrar.CourseList)];
         });
     }
 
@@ -160,35 +176,39 @@ public partial class CourseListViewModel :
 
 
 public partial class SectionViewModel : 
-    ObservableObject, 
-    IEmptyViewModel<SectionViewModel>, 
+    ObservableObject,
+    IDefaultValueViewModel<SectionViewModel>,
     ISelectable<SectionViewModel>,
-    ICachedViewModel<SectionViewModel, SectionRecord, RegistrarService>
+    ICachedViewModel<SectionViewModel, SectionRecord, RegistrarService>,
+    IModelCarrier<SectionViewModel, SectionRecord>
 {
-    public readonly SectionRecord Section;
+    public SectionRecord Model { get; private set; }
 
     public event EventHandler<UserViewModel>? TeacherSelected;
     public event EventHandler<UserViewModel>? StudentSelected;
 
     public event EventHandler<SectionViewModel>? Selected;
     
-    public string DisplayName => Section.displayName;
+    public string DisplayName => Model.displayName;
 
     public static ConcurrentBag<SectionViewModel> ViewModelCache { get; private set; } = [];
-    
+
+    public static SectionViewModel Default => new();
+
     [ObservableProperty] private ImmutableArray<UserViewModel> teachers = [];
 
     [ObservableProperty] private ImmutableArray<UserViewModel> students = [];
     [ObservableProperty] bool isSelected;
 
+
     public SectionViewModel()
     {
-        Section = new();
+        Model = new();
     }
 
     private SectionViewModel(SectionRecord section)
     {
-        Section = section;
+        Model = section;
         // Get the RegistrarService from the service helper...
         var registrar = ServiceHelper.GetService<RegistrarService>()!;
         
@@ -197,7 +217,7 @@ public partial class SectionViewModel :
         teachers = UserViewModel
             .GetClonedViewModels(
                 registrar.TeacherList
-                .Where(t => Section.teachers.Any(tch => t.id == tch.id)))
+                .Where(t => Model.teachers.Any(tch => t.id == tch.id)))
             .ToImmutableArray();
         
         // 
@@ -207,7 +227,7 @@ public partial class SectionViewModel :
         students = UserViewModel
             .GetClonedViewModels(
                 registrar.StudentList
-                .Where(s => Section.students.Any(stu => stu.id == s.id)))
+                .Where(s => Model.students.Any(stu => stu.id == s.id)))
             .ToImmutableArray();
         
         foreach (var student in Students)
@@ -237,7 +257,7 @@ public partial class SectionViewModel :
 
     public static SectionViewModel Get(SectionRecord model)
     {
-        var vm = ViewModelCache.FirstOrDefault(sec => sec.Section.sectionId == model.sectionId);
+        var vm = ViewModelCache.FirstOrDefault(sec => sec.Model.sectionId == model.sectionId);
         if (vm is not null)
             return vm.Clone();
 

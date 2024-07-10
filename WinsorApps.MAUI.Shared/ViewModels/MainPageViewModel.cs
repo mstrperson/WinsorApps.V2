@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using AsyncAwaitBestPractices;
 using CommunityToolkit.Mvvm.ComponentModel;
-using WinsorApps.MAUI.Shared.Pages;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 
@@ -23,7 +22,7 @@ public partial class MainPageViewModel : ObservableObject
 
     public MainPageViewModel(List<ServiceAwaiterViewModel> postLoginServices)
     {
-        userVM = IEmptyViewModel<UserViewModel>.Empty;
+        userVM = UserViewModel.Default;
         loginVM = new();
         loginVM.OnLogin += LoginVMOnOnLogin;
         loginVM.OnError += (sender, e) => OnError?.Invoke(sender, e);

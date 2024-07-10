@@ -42,18 +42,18 @@ public partial class LoginPage : ContentPage
     {
         _logging.LogMessage(LocalLoggingService.LogLevel.Error, e.type, e.error);
         ViewModel.StatusMessage = e.error;
-        StatusLabel.IsVisible = true;
+        //StatusLabel.IsVisible = true;
     }
 
     private void ViewModelOnOnForgotPassword(object? sender, string e)
     {
         ViewModel.StatusMessage = e;
-        StatusLabel.IsVisible = true;
+        //StatusLabel.IsVisible = true;
     }
 
     private void ViewModelOnOnLogout(object? sender, EventArgs e)
     {
-        StatusLabel.IsVisible = false;
+        //StatusLabel.IsVisible = false;
     }
 
     private void ViewModelOnOnLogin(object? sender, EventArgs e)

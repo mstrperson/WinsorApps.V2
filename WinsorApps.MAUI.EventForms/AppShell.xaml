@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="WinsorApps.MAUI.EventForms.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:shared="clr-namespace:WinsorApps.MAUI.Shared.Pages;assembly=WinsorApps.MAUI.Shared"
+    xmlns:pages="clr-namespace:WinsorApps.MAUI.EventForms.Pages"
+    xmlns:local="clr-namespace:WinsorApps.MAUI.EventForms"
+    Shell.FlyoutBehavior="Flyout"
+    Title="WinsorApps.MAUI.EventForms">
+
+    <ShellContent
+        Title="Home"
+        ContentTemplate="{DataTemplate local:MainPage}"
+        Route="MainPage" />
+
+    <ShellContent
+        Title="My Event Forms"
+        ContentTemplate="{DataTemplate pages:MyEventsList}"
+        Route="MyEventList" />
+
+    <ShellContent
+        Title="Help"
+        ContentTemplate="{DataTemplate shared:HelpPage}"
+        Route="HelpPage" />
+    
+</Shell>

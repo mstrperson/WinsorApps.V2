@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.EventForms.ViewModels"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             xmlns:views="clr-namespace:WinsorApps.MAUI.Shared.EventForms.Views"
+             xmlns:styles="clr-namespace:WinsorApps.MAUI.Shared.Resources.Styles;assembly=WinsorApps.MAUI.Shared"
+             x:DataType="vm:FieldTripViewModel"
+             x:Class="WinsorApps.MAUI.Shared.EventForms.Pages.FieldTripPage"
+             Title="Field Trip Information">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert"/>
+            <conv:StringToIntegerConverter x:Key="StringToInt" />
+            <conv:CurrencyToStringConverter x:Key="Currency" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem 
+        Text="Continue" 
+        Command="{Binding ContinueCommand}" 
+        IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=White,
+            Glyph={x:Static styles:FontAwesomeSolid.ArrowAltCircleRight}}"/>
+        <ToolbarItem
+        Text="Remove Catering Request"
+        Command="{Binding DeleteCommand}" 
+        IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=White,
+            Glyph={x:Static styles:FontAwesomeSolid.Eraser}}"/>
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout>
+                <Label
+                    StyleClass="SubHeader"
+                    Text="Primary Contact" />
+                <views:ContactSingleSelector BindingContext="{Binding PrimaryContactSearch}" />
+                <Label
+                    StyleClass="SubHeader"
+                    Text="Additional Chaperones" />
+                <views:ContactSingleSelector BindingContext="{Binding ChaperoneSearch}" />
+                <CollectionView
+                    ItemsSource="{Binding Chaperones}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ContactViewModel">
+                            <StackLayout
+                                Orientation="Horizontal">
+                                <StackLayout.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                </StackLayout.GestureRecognizers>
+                                <Label Text="{Binding FullName}" />
+                                <Label Text="❌" />
+                            </StackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                <Grid
+                    RowDefinitions="*,*,*,*,*,*"
+                    ColumnDefinitions="auto,auto,auto,auto">
+                    <Label
+                        Grid.Row="0"
+                        Grid.ColumnSpan="4"
+                        StyleClass="H3"
+                        Text="Lower School" />
+                    <Label
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Text="Class I" />
+                    <Entry
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Text="{Binding StudentsByClass.ClassI}"
+                        Keyboard="Numeric" />
+                    <Label
+                        Grid.Row="1"
+                        Grid.Column="2"
+                        Text="Class II" />
+                    <Entry
+                        Grid.Row="1"
+                        Grid.Column="3"
+                        Text="{Binding StudentsByClass.ClassII}"
+                        Keyboard="Numeric" />
+                    <Label
+                        Grid.Row="2"
+                        Grid.Column="0"
+                        Text="Class III" />
+                    <Entry
+                        Grid.Row="2"
+                        Grid.Column="1"
+                        Text="{Binding StudentsByClass.ClassIII}"
+                        Keyboard="Numeric" />
+                    <Label
+                        Grid.Row="2"
+                        Grid.Column="2"
+                        Text="Class IV" />
+                    <Entry
+                        Grid.Row="2"
+                        Grid.Column="3"
+                        Text="{Binding StudentsByClass.ClassIV}"
+                        Keyboard="Numeric" />
+                    <Label
+                        Grid.Row="3"
+                        Grid.ColumnSpan="4"
+                        StyleClass="H3"
+                        Text="Upper School" />
+                    <Label
+                        Grid.Row="4"
+                        Grid.Column="0"
+                        Text="Class V" />
+                    <Entry
+                        Grid.Row="4"
+                        Grid.Column="1"
+                        Text="{Binding StudentsByClass.ClassV}"
+                        Keyboard="Numeric" />
+                    <Label
+                        Grid.Row="4"
+                        Grid.Column="2"
+                        Text="Class VI" />
+                    <Entry
+                        Grid.Row="4"
+                        Grid.Column="3"
+                        Text="{Binding StudentsByClass.ClassVI}"
+                        Keyboard="Numeric" />
+                    <Label
+                        Grid.Row="5"
+                        Grid.Column="0"
+                        Text="Class VII" />
+                    <Entry
+                        Grid.Row="5"
+                        Grid.Column="1"
+                        Text="{Binding StudentsByClass.ClassVII}"
+                        Keyboard="Numeric" />
+                    <Label
+                        Grid.Row="5"
+                        Grid.Column="2"
+                        Text="Class VIII" />
+                    <Entry
+                        Grid.Row="5"
+                        Grid.Column="3"
+                        Text="{Binding StudentsByClass.ClassVIII}"
+                        Keyboard="Numeric" />
+                </Grid>
+                <Label
+                    StyleClass="SubHeader"
+                    Text="Transportation" />
+                <StackLayout
+                    Orientation="Horizontal"
+                    Spacing="30">
+                    <Switch IsToggled="{Binding Transportation.PublicTransit}" />
+                    <Label Text="Students may take Public Transit" />
+                </StackLayout>
+                <StackLayout
+                    Orientation="Horizontal"
+                    Spacing="30">
+                    <Switch IsToggled="{Binding Transportation.NoOrganizedTransit}" />
+                    <Label Text="Students are responsible for their own transportation" />
+                </StackLayout>
+                <StackLayout
+                    Orientation="Horizontal"
+                    Spacing="30">
+                    <Switch 
+                        IsToggled="{Binding Transportation.ShowHiredBusses}" 
+                        IsEnabled="{Binding Transportation.ShowHiredBusses, Converter={StaticResource Invert}}"/>
+                    <Label Text="Hire Outside Busses" />
+                </StackLayout>
+                <StackLayout
+                    Orientation="Horizontal"
+                    Spacing="30">
+                    <Switch 
+                        IsToggled="{Binding Transportation.ShowVehicleRequest}" 
+                        IsEnabled="{Binding Transportation.ShowVehicleRequest, Converter={StaticResource Invert}}"/>
+                    <Label Text="Use Winsor Owned Vehicle(s)" />
+                </StackLayout>
+                <StackLayout
+                    IsVisible="{Binding Transportation.ShowHiredBusses}">
+                    <StackLayout
+                        Orientation="Horizontal"
+                        Spacing="30">
+                        <Label
+                            StyleClass="H3"
+                            Text="Hired Outside Bus Information" />
+                        <Button
+                            StyleClass="DeleteButton"
+                            Command="{Binding Transportation.HiredBusses.DeleteCommand}" />
+                    </StackLayout>
+                    <StackLayout
+                        Orientation="Horizontal"
+                        Spacing="30">
+                        <Label Text="How many busses do you need?" />
+                        <Entry
+                            Text="{Binding Transportation.HiredBusses.Count}" />
+                    </StackLayout>
+                    <StackLayout
+                        Orientation="Horizontal"
+                        Spacing="30">
+                        <Label Text="What time are you leaving from Winsor?" />
+                        <TimePicker
+                            Time="{Binding Transportation.HiredBusses.DepartureTime}" />
+                    </StackLayout>
+                    <StackLayout
+                        Orientation="Horizontal"
+                        Spacing="30">
+                        <Label Text="What time will you be picked up at your desination?" />
+                        <TimePicker
+                            Time="{Binding Transportation.HiredBusses.PickupTime}" />
+                    </StackLayout>
+                    <StackLayout
+                        Orientation="Horizontal"
+                        Spacing="30">
+                        <Label Text="What time will you arrive back at Winsor?" />
+                        <TimePicker
+                            Time="{Binding Transportation.HiredBusses.ReturnArrivalTime}" />
+                    </StackLayout>
+                    <Editor
+                        Placeholder="Instructions for the Bus Driver"
+                        Text="{Binding Transportation.HiredBusses.Instructions}" />
+                </StackLayout>
+                <StackLayout
+                    IsVisible="{Binding Transportation.ShowVehicleRequest}">
+
+                    <StackLayout
+                        Orientation="Horizontal"
+                        Spacing="30">
+                        <Label
+                            StyleClass="H3"
+                            Text="Winsor Vehicle Requests" />
+                        <Button
+                            StyleClass="DeleteButton"
+                            Command="{Binding Transportation.VehicleRequestCollection.ClearRequestsCommand}" />
+                    </StackLayout>
+                    <CollectionView
+                        ItemsSource="{Binding Transportation.VehicleRequestCollection.CategoryCollection.Categories}">
+                        <CollectionView.Header>
+                            <Label Text="Available Vehicles" />
+                        </CollectionView.Header>
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Horizontal" ItemSpacing="50" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:VehicleCategoryViewModel">
+                                <Label
+                                    Text="{Binding Label}"
+                                    IsVisible="{Binding IsSelected, Converter={StaticResource Invert}}">
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                    </Label.GestureRecognizers>
+                                </Label>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <CollectionView
+                        ItemsSource="{Binding Transportation.VehicleRequestCollection.Requests}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:VehicleRequestViewModel">
+                                <StackLayout>
+                                    <StackLayout
+                                        Orientation="Horizontal"
+                                        Spacing="30">
+                                        <Label Text="{Binding Category.Label}" />
+                                        <Entry
+                                            Text="{Binding CountRequested}"
+                                            Keyboard="Numeric" />
+                                        <Button
+                                            StyleClass="DeleteButton"
+                                            Command="{Binding DeleteCommand}" />
+                                    </StackLayout>
+                                    <Editor
+                                        Placeholder="Anything we should know about this request?"
+                                        Text="{Binding Notes}" />
+                                </StackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </StackLayout>
+                <StackLayout
+                    Orientation="Horizontal"
+                    Spacing="30">
+                    <Switch 
+                        IsToggled="{Binding ShowFood}"
+                        IsEnabled="{Binding ShowFood, Converter={StaticResource Invert}}"/>
+                    <Label
+                        StyleClass="SubHeader"
+                        Text="Field Trip Will Provide Food for Students" />
+                </StackLayout>
+                <StackLayout
+                    IsVisible="{Binding ShowFood}">
+                    <StackLayout
+                        Orientation="Horizontal"
+                        Spacing="30">
+                        <Label
+                            StyleClass="H3"
+                            Text="Field Trip Food" />
+                        <Button
+                            StyleClass="DeleteButton"
+                            Command="{Binding FieldTripCateringRequest.DeleteCommand}" />
+                    </StackLayout>
+                    <CollectionView
+                        ItemsSource="{Binding FieldTripCateringRequest.MenuCollection.Menus}">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Horizontal" ItemSpacing="50" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.Header>
+                            <Label
+                                StyleClass="H3"
+                                Text="Menu" />
+                        </CollectionView.Header>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:CateringMenuViewModel">
+                                <StackLayout>
+                                    <StackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                    </StackLayout.GestureRecognizers>
+                                    <Label
+                                        Text="{Binding Title}"
+                                        IsVisible="{Binding IsSelected, Converter={StaticResource Invert}}" />
+                                    <Label
+                                        Text="{Binding Title}"
+                                        FontAttributes="Bold"
+                                        IsVisible="{Binding IsSelected}" />
+                                </StackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <CollectionView
+                        ItemsSource="{Binding FieldTripCateringRequest.MenuCollection.SelectedMenu.Items}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:CateringMenuSelectionViewModel">
+                                <StackLayout
+                                    Orientation="Horizontal"
+                                    Spacing="30">
+                                    <Label 
+                                        Text="{Binding Item.Name}" 
+                                        WidthRequest="350"/>
+                                    <Entry
+                                        Text="{Binding Quantity}"
+                                        Keyboard="Numeric" />
+                                    <Label Text="{Binding Cost, Converter={StaticResource Currency}}" />
+                                </StackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <StackLayout
+                        Orientation="Horizontal"
+                        Spacing="30">
+                        <Switch IsToggled="{Binding FieldTripCateringRequest.EatingAway}" />
+                        <Label Text="Eating Off Campus" />
+                    </StackLayout>
+
+                    <StackLayout
+                        Orientation="Horizontal"
+                        Spacing="30">
+                        <Label Text="How many Lunches do you need?" />
+                        <Entry
+                            Text="{Binding FieldTripCateringRequest.NumberOfLunches}"
+                            Keyboard="Numeric" />
+                    </StackLayout>
+                    <StackLayout
+                        Orientation="Horizontal"
+                        Spacing="30">
+                        <Label Text="What Time do you need to pick up these lunches?" />
+                        <TimePicker
+                            Time="{Binding FieldTripCateringRequest.PickupTime}"/>
+                    </StackLayout>
+                    <StackLayout
+                        Orientation="Horizontal"
+                        Spacing="30">
+                        <Label Text="How many people will be eating in the dining hall?" />
+                        <Entry
+                            Text="{Binding FieldTripCateringRequest.DiningInCount}"
+                            Keyboard="Numeric" />
+                    </StackLayout>
+                </StackLayout>
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

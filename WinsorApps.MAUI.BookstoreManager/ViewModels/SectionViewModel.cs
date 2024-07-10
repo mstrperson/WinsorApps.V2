@@ -1,12 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Bookstore.Services;
@@ -19,17 +14,18 @@ namespace WinsorApps.MAUI.BookstoreManager.ViewModels;
 public partial class SectionViewModel :
     ObservableObject,
     ICachedViewModel<SectionViewModel, SectionRecord, BookstoreManagerService>,
-    IEmptyViewModel<SectionViewModel>,
+    IDefaultValueViewModel<SectionViewModel>,
     IErrorHandling,
-    IBusyViewModel
+    IBusyViewModel,
+    IModelCarrier<SectionViewModel, SectionRecord>
 {
     private static readonly RegistrarService _registrar = ServiceHelper.GetService<RegistrarService>();
     private static readonly BookstoreManagerService _managerService = ServiceHelper.GetService<BookstoreManagerService>();
 
     [ObservableProperty] string id = "";
     [ObservableProperty] string schoolYearId = "";
-    [ObservableProperty] CourseViewModel course = IEmptyViewModel<CourseViewModel>.Empty;
-    [ObservableProperty] UserViewModel teacher = IEmptyViewModel<UserViewModel>.Empty;
+    [ObservableProperty] CourseViewModel course = CourseViewModel.Default;
+    [ObservableProperty] UserViewModel teacher = UserViewModel.Default;
     [ObservableProperty] DateTime created;
     [ObservableProperty] ImmutableArray<BookRequestOptionGroupViewModel> requestGroups = [];
 
@@ -37,6 +33,8 @@ public partial class SectionViewModel :
     [ObservableProperty] string busyMessage = "";
 
     public event EventHandler<ErrorRecord>? OnError;
+
+    public SectionRecord Model { get; private set; }
 
     public SectionViewModel()
     {
@@ -57,6 +55,7 @@ public partial class SectionViewModel :
             return;
         }
 
+        Model = result.Value;
         this.Id = result.Value.id;
         this.SchoolYearId = result.Value.schoolYearId;
         Busy = false;
@@ -74,6 +73,8 @@ public partial class SectionViewModel :
 
     public static ConcurrentBag<SectionViewModel> ViewModelCache { get; private set; } = [];
 
+    public static SectionViewModel Default => new();
+
     public static SectionViewModel Get(SectionRecord model)
     {
         var vm = ViewModelCache.FirstOrDefault(sec => sec.Id == model.id);
@@ -85,7 +86,8 @@ public partial class SectionViewModel :
                 SchoolYearId = model.schoolYearId,
                 Course = CourseViewModel.Get(model.course),
                 Teacher = UserViewModel.Get(_registrar.AllUsers.First(u => u.id == model.teacherId)),
-                Created = model.createdTimeStamp
+                Created = model.createdTimeStamp,
+                Model = model
             };
             ViewModelCache.Add(vm);
         }
@@ -116,7 +118,17 @@ public partial class SectionViewModel :
         _ = GetClonedViewModels(service.ProtoSections);
     }
 
-    public SectionViewModel Clone() => (SectionViewModel)MemberwiseClone();
+    public SectionViewModel Clone() => new()
+    {
+        Id = Id,
+        Busy = false,
+        BusyMessage = BusyMessage,
+        Course = Course.Clone(),
+        Created = Created,
+        RequestGroups = [.. RequestGroups.Select(ord => ord.Clone())],
+        SchoolYearId = SchoolYearId,
+        Teacher = Teacher.Clone()
+    };
 }
 
 public partial class SectionByTeacherCollectionViewModel :
@@ -136,7 +148,7 @@ public partial class SectionByTeacherCollectionViewModel :
         };
     }
 
-    [ObservableProperty] UserViewModel teacher = IEmptyViewModel<UserViewModel>.Empty;
+    [ObservableProperty] UserViewModel teacher = UserViewModel.Default;
     [ObservableProperty] ImmutableArray<SectionViewModel> sections = [];
 
     public static ConcurrentBag<SectionByTeacherCollectionViewModel> ViewModelCache { get; private set; } = [];
@@ -259,5 +271,4 @@ public partial class SectionSearchViewModel :
     [ObservableProperty] UserSearchViewModel userSearch = new();
 
 
-    [RelayCommand]
 }
