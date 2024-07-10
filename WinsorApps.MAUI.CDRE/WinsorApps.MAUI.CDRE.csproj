@@ -35,12 +35,60 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion><SignAssembly>False</SignAssembly>
+		<Title>Cycle Day Recurring Events</Title>
+		<PackageId>Cycle Day Recurring Events</PackageId>
+		<Authors>Susan Zuo; Jason Cox</Authors>
+		<Company>The Winsor School</Company>
+		<PackageIcon>icon.png</PackageIcon>
+		<GenerateAppInstallerFile>False</GenerateAppInstallerFile>
+		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+		<PackageCertificateThumbprint>08B7D1EC7093C4213DDFAB8A6877EB0159A73BDD</PackageCertificateThumbprint>
+		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+		<AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+		<AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
+		<GenerateTestArtifacts>True</GenerateTestArtifacts>
+		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-maccatalyst|AnyCPU'">
+		<ApplicationTitle>Cycle Day Recurring Events</ApplicationTitle>
+		<ApplicationId>maccatalyst.edu.winsor.cdre</ApplicationId>
+		<ApplicationIdGuid>P8CLK55JUH</ApplicationIdGuid>
+		<MtouchLink>SdkOnly</MtouchLink>
+		<EnableCodeSigning>True</EnableCodeSigning>
+		<EnablePackageSigning>true</EnablePackageSigning>
+		<CreatePackage>true</CreatePackage>
+		<CodesignKey>Developer ID Application: Jason Cox (P8CLK55JUH)</CodesignKey>
+		<CodesignProvision>Winsor Cycle Day Recurring Events</CodesignProvision>
+		<CodesignEntitlements>Platforms\MacCatalyst\Entitlements.plist</CodesignEntitlements>
+		<PackageSigningKey>Developer ID Installer: Jason Cox (P8CLK55JUH)</PackageSigningKey>
+		<UseHardenedRuntime>true</UseHardenedRuntime>
+	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-maccatalyst|AnyCPU'">
+		<ApplicationTitle>Cycle Day Recurring Events</ApplicationTitle>
+		<ApplicationId>maccatalyst.edu.winsor.cdre</ApplicationId>
+		<ApplicationIdGuid>P8CLK55JUH</ApplicationIdGuid>
+		<MtouchLink>SdkOnly</MtouchLink>
+		<EnableCodeSigning>True</EnableCodeSigning>
+		<EnablePackageSigning>true</EnablePackageSigning>
+		<CreatePackage>true</CreatePackage>
+		<CodesignKey>Developer ID Application: Jason Cox (P8CLK55JUH)</CodesignKey>
+		<CodesignProvision>Winsor Cycle Day Recurring Events</CodesignProvision>
+		<CodesignEntitlements>Platforms\MacCatalyst\Entitlements.plist</CodesignEntitlements>
+		<PackageSigningKey>Developer ID Installer: Jason Cox (P8CLK55JUH)</PackageSigningKey>
+		<UseHardenedRuntime>true</UseHardenedRuntime>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-windows10.0.19041.0|AnyCPU'">
+		<ApplicationTitle>Cycle Day Recurring Events</ApplicationTitle>
+		<ApplicationId>edu.winsor.cdre</ApplicationId>
+		<ApplicationIdGuid>P8CLK55JUH</ApplicationIdGuid>
+	</PropertyGroup>
+	
 	<ItemGroup>
 		<!-- App Icon -->
-		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
 		<MauiIcon Include="Resources\AppIcon\icon.png" />
 
 		<!-- Splash Screen -->
@@ -48,36 +96,12 @@
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
-		<MauiImage Update="Resources\Images\dotnet_bot.png" Resize="True" BaseSize="300,185" />
 
 		<!-- Custom Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />
 
 		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Remove="Resources\AppIcon\icon.png" />
-	  <None Remove="Resources\Fonts\CrimsonText-Semibold.ttf" />
-	  <None Remove="Resources\Fonts\fa-brands-400.ttf" />
-	  <None Remove="Resources\Fonts\fa-regular-400.ttf" />
-	  <None Remove="Resources\Fonts\fa-solid-900.ttf" />
-	  <None Remove="Resources\Fonts\NotoSans-Regular.ttf" />
-	  <None Remove="Resources\Fonts\OpenSans-Regular.ttf" />
-	  <None Remove="Resources\Fonts\OpenSans-Semibold.ttf" />
-	  <None Remove="Resources\Images\dotnet_bot.png" />
-	  <None Remove="Resources\Images\invisible.png" />
-	  <None Remove="Resources\Images\loading.gif" />
-	  <None Remove="Resources\Images\logo_withwordmark_black.png" />
-	  <None Remove="Resources\Images\logo_withwordmark_red.png" />
-	  <None Remove="Resources\Images\logo_withwordmark_white.png" />
-	  <None Remove="Resources\Images\wordmark_oneline_black_02.png" />
-	  <None Remove="Resources\Images\wordmark_oneline_red_01.png" />
-	  <None Remove="Resources\Images\wordmark_oneline_red_notoutlined.png" />
-	  <None Remove="Resources\Images\wordmark_oneline_white_03.png" />
-	  <None Remove="Resources\Raw\AboutAssets.txt" />
-	  <None Remove="Resources\Splash\splash.svg" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -93,20 +117,8 @@
 	  <ProjectReference Include="..\WinsorApps.MAUI.Shared\WinsorApps.MAUI.Shared.csproj" />
 	  <ProjectReference Include="..\WinsorApps.Services.Global\WinsorApps.Services.Global.csproj" />
 	</ItemGroup>
-
-	<ItemGroup>
-	  <MauiImage Update="Resources\Images\dotnet_bot.png">
-	    <Resize>True</Resize>
-	    <BaseSize>300,185</BaseSize>
-	  </MauiImage>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <MauiAsset Update="Resources\Raw\AboutAssets.txt">
-	    <LogicalName>%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
-	  </MauiAsset>
-	</ItemGroup>
-
+	
+	
 	<ItemGroup>
 	  <MauiXaml Update="Pages\Editor.xaml">
 	    <Generator>MSBuild:Compile</Generator>
@@ -115,5 +127,16 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
-
+	
+	<ItemGroup>
+		<None Update="Resources\AppIcon\icon.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+	<Target Name="_SkipCodesignVerify" BeforeTargets="_CodesignVerify" AfterTargets="_CodesignAppBundle">
+		<PropertyGroup>
+			<_RequireCodeSigning>false</_RequireCodeSigning>
+		</PropertyGroup>
+	</Target>
 </Project>
