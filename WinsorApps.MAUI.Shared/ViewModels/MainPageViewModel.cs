@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using AsyncAwaitBestPractices;
 using CommunityToolkit.Mvvm.ComponentModel;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 
@@ -8,19 +9,43 @@ namespace WinsorApps.MAUI.Shared.ViewModels;
 
 public partial class MainPageViewModel : ObservableObject
 {
-    [ObservableProperty] private List<ServiceAwaiterViewModel> postLoginServices;
-    [ObservableProperty] private List<TaskAwaiterViewModel> completion;
+    [ObservableProperty] private List<ServiceAwaiterViewModel> postLoginServices = [];
+    [ObservableProperty] private List<TaskAwaiterViewModel> completion = [];
     [ObservableProperty] private SplashPageViewModel splashPageVM;
     [ObservableProperty] private LoginViewModel loginVM;
     [ObservableProperty] private UserViewModel userVM;
     [ObservableProperty] private bool ready;
 
+    private string _appId = "";
 
+    public string AppId
+    {
+        get => _appId;
+        set
+        {
+            _appId = value;
+            var apiTask = _api.WaitForInit(OnError.DefaultBehavior(this));
+            apiTask.WhenCompleted( () =>
+            {
+                var allowedTask = _appService.AmIAllowed(_appId, OnError.DefaultBehavior(this));
+                allowedTask.WhenCompleted(() =>
+                {
+                    if (!allowedTask.Result) // 
+                    {
+                        OnError?.Invoke(this, new("App Not Authorized", "You aren't authorized to use this particular app."));
+                    }
+                });
+            });
+        }
+    }
+    
+    private readonly AppService _appService;
+    private readonly ApiService _api;
     public event EventHandler<SplashPageViewModel>? OnSplashPageReady;
     public event EventHandler? OnCompleted;
     public event EventHandler<ErrorRecord>? OnError;
 
-    public MainPageViewModel(List<ServiceAwaiterViewModel> postLoginServices)
+    public MainPageViewModel(List<ServiceAwaiterViewModel> postLoginServices, AppService appService, ApiService api)
     {
         userVM = UserViewModel.Default;
         loginVM = new();
@@ -29,6 +54,8 @@ public partial class MainPageViewModel : ObservableObject
         loginVM.OnLogout += LoginVMOnOnLogout;
         loginVM.OnForgotPassword += LoginVMOnOnForgotPassword;
         this.postLoginServices = postLoginServices;
+        _appService = appService;
+        _api = api;
         foreach (var serv in PostLoginServices)
         {
             serv.OnCompletion += (_, _) => SplashPageVM.Messages =

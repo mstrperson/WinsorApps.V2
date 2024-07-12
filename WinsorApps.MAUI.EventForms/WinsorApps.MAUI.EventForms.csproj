@@ -115,6 +115,7 @@
 	<ItemGroup>
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\icon.png" />
+		<MauiIcon Include="Resources\AppIcon\appicon.svg" />
 
 		<!-- Splash Screen -->
 		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
@@ -127,25 +128,6 @@
 
 		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Remove="Resources\AppIcon\appicon.svg" />
-	  <None Remove="Resources\Fonts\CrimsonText-Semibold.ttf" />
-	  <None Remove="Resources\Fonts\fa-brands-400.ttf" />
-	  <None Remove="Resources\Fonts\fa-regular-400.ttf" />
-	  <None Remove="Resources\Fonts\fa-solid-900.ttf" />
-	  <None Remove="Resources\Fonts\NotoSans-Regular.ttf" />
-	  <None Remove="Resources\Fonts\OpenSans-Regular.ttf" />
-	  <None Remove="Resources\Fonts\OpenSans-Semibold.ttf" />
-	  <None Remove="Resources\Images\dotnet_bot.png" />
-	  <None Remove="Resources\Images\logo_withwordmark_black.png" />
-	  <None Remove="Resources\Images\logo_withwordmark_red.png" />
-	  <None Remove="Resources\Images\logo_withwordmark_white.png" />
-	  <None Remove="Resources\Images\wordmark_oneline_black_02.png" />
-	  <None Remove="Resources\Images\wordmark_oneline_red_01.png" />
-	  <None Remove="Resources\Images\wordmark_oneline_red_notoutlined.png" />
-	  <None Remove="Resources\Images\wordmark_oneline_white_03.png" />
 	</ItemGroup>
 
 	<ItemGroup>

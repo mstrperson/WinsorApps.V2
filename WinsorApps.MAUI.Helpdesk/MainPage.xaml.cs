@@ -18,6 +18,7 @@ public partial class MainPage : ContentPage
     public MainPageViewModel ViewModel => (MainPageViewModel)BindingContext;
 
     public MainPage(
+        ApiService api,
         RegistrarService registrar, 
         AppService app, 
         DeviceService devService, 
@@ -33,7 +34,7 @@ public partial class MainPage : ContentPage
             new(jamfService, "Jamf Service"),
             new(cheqroom, "Cheqroom Checkouts"),
             new(caseService, "Service Cases")
-        ])
+        ], app, api)
         {
             Completion = [
                 new(new Task(async () => await DeviceViewModel.Initialize(devService, this.DefaultOnErrorAction())), "Device Cache"),
