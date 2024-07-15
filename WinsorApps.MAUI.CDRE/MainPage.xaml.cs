@@ -11,6 +11,8 @@ namespace WinsorApps.MAUI.CDRE
     {
        
         public MainPage(
+            AppService app,
+            ApiService api,
             RegistrarService registrar,
             LocalLoggingService logging,
             CycleDayRecurringEventService cdres)
@@ -19,7 +21,7 @@ namespace WinsorApps.MAUI.CDRE
             [
               new(registrar, "Registrar Data"),
               new(cdres, "Recurring Events")
-            ])
+            ], app, api)
             {
 
                 #region Service Post Init Tasks
