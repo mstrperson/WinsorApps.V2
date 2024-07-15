@@ -21,18 +21,21 @@
     <ContentPage.ToolbarItems>
         <ToolbarItem
             Text="{Binding StatusSelection.Selected.Label}" />
+        <ToolbarItem StyleClass="Separator" />
         <ToolbarItem
             Command="{Binding DeleteCommand}" 
             StyleClass="DeleteButton"/>
         <ToolbarItem
             Text="Delete Event"
             Command="{Binding DeleteCommand}" />
+        <ToolbarItem StyleClass="Separator" />
         <ToolbarItem
             Command="{Binding PrintCommand}"
             StyleClass="PrintButton" />
         <ToolbarItem 
             Text="Print"
             Command="{Binding PrintCommand}"/>
+        <ToolbarItem StyleClass="Separator" />
         <ToolbarItem
             Command="{Binding TemplateCommand}"
             StyleClass="AddButton" />

@@ -2,8 +2,7 @@
 <?xaml-comp compile="true" ?>
 <ResourceDictionary 
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:fa="clr-namespace:WinsorApps.MAUI.Shared;assembly=WinsorApps.MAUI.Shared">
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
    
     <!--
         This is the spinny thing that is a subtle indicator that the App is doing something
@@ -114,6 +113,7 @@
                     <VisualState x:Name="Disabled">
                         <VisualState.Setters>
                             <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource CoolGrey}, Dark={StaticResource WarmGrey}}" />
+                            <Setter Property="BackgroundColor" Value="Transparent"/>
                         </VisualState.Setters>
                     </VisualState>
                 </VisualStateGroup>
@@ -139,6 +139,7 @@
                     <VisualState x:Name="Disabled">
                         <VisualState.Setters>
                             <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource CoolGrey}, Dark={StaticResource WarmGrey}}" />
+                            <Setter Property="BackgroundColor" Value="Transparent" />
                         </VisualState.Setters>
                     </VisualState>
                 </VisualStateGroup>
@@ -178,85 +179,7 @@
             </VisualStateGroupList>
         </Setter>
     </Style>
-    <!--
-        Plain Text Display
-    -->
-    <Style TargetType="Label">
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
-        <Setter Property="BackgroundColor" Value="Transparent" />
-        <Setter Property="FontFamily" Value="SansSerif" />
-        <Setter Property="FontSize" Value="14" />
-        <Setter Property="Padding" Value="5"/>
-        <Setter Property="VerticalOptions" Value="Center" />
-        <Setter Property="VisualStateManager.VisualStateGroups">
-            <VisualStateGroupList>
-                <VisualStateGroup x:Name="CommonStates">
-                    <VisualState x:Name="Normal" />
-                    <VisualState x:Name="Disabled">
-                        <VisualState.Setters>
-                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource CoolGrey}, Dark={StaticResource WarmGrey}}" />
-                        </VisualState.Setters>
-                    </VisualState>
-                </VisualStateGroup>
-            </VisualStateGroupList>
-        </Setter>
-    </Style>
-
-    <Style TargetType="Label" Class="Warning">
-        <Setter Property="TextColor" Value="DarkGoldenrod"/>
-        <Setter Property="FontFamily" Value="SansSerif"/>
-    </Style>
-    <Style TargetType="Label" Class="Error">
-        <Setter Property="TextColor" Value="Red"/>
-        <Setter Property="FontFamily" Value="SansSerif"/>
-    </Style>
-
-    <Style TargetType="Label" Class="CardHeader">
-        <Setter Property="TextColor" Value="White"/>
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource SlateDark}}"/>
-        <Setter Property="FontFamily" Value="Serif"/>
-        <Setter Property="FontSize" Value="24"/>
-        <Setter Property="HorizontalTextAlignment" Value="Start"/>
-        <Setter Property="HorizontalOptions" Value="Start" />
-    </Style>
-
-    <Style TargetType="Label" Class="CardSubHeader">
-        <Setter Property="TextColor" Value="White"/>
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource SlateDark}}"/>
-        <Setter Property="FontFamily" Value="Serif"/>
-        <Setter Property="FontSize" Value="20"/>
-        <Setter Property="HorizontalTextAlignment" Value="Start"/>
-        <Setter Property="HorizontalOptions" Value="Start" />
-    </Style>
-
-    <Style TargetType="Label" Class="Header">
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource WarmGrey}}"/>
-        <Setter Property="FontFamily" Value="Serif"/>
-        <Setter Property="FontSize" Value="32"/>
-        <Setter Property="HorizontalTextAlignment" Value="Start"/>
-    </Style>
-
-    <Style TargetType="Label" Class="SubHeader">
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource WarmGrey}}"/>
-        <Setter Property="FontFamily" Value="Serif"/>
-        <Setter Property="FontSize" Value="24"/>
-        <Setter Property="HorizontalTextAlignment" Value="Start"/>
-    </Style>
-
-    <Style TargetType="Label" Class="H3">
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource WarmGrey}}"/>
-        <Setter Property="FontFamily" Value="Serif"/>
-        <Setter Property="FontAttributes" Value="Bold"/>
-        <Setter Property="FontSize" Value="20" />
-    </Style>
-    <Style TargetType="Label" Class="wordmark">
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource WarmGrey}}"/>
-        <Setter Property="FontFamily" Value="Serif"/>
-        <Setter Property="Text" Value="THE WINSOR SCHOOL"/>
-        <Setter Property="FontSize" Value="32"/>
-        <Setter Property="HorizontalTextAlignment" Value="Start"/>
-    </Style>
-
+    
     <Style TargetType="ListView">
         <Setter Property="SelectionMode" Value="None"/>
         <Setter Property="SeparatorColor" Value="{AppThemeBinding Light={StaticResource CoolGrey}, Dark={StaticResource WarmGrey}}" />
@@ -331,8 +254,8 @@
 
     <Style TargetType="SearchBar">
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
-        <Setter Property="PlaceholderColor" Value="{StaticResource WarmGrey}" />
-        <Setter Property="CancelButtonColor" Value="{StaticResource WarmGrey}" />
+        <Setter Property="PlaceholderColor" Value="{StaticResource SlateLight}" />
+        <Setter Property="CancelButtonColor" Value="{StaticResource WinsorRed}" />
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource WarmGrey}, Dark={StaticResource SlateDark}}" />
         <Setter Property="FontFamily" Value="SansSerif" />
         <Setter Property="FontSize" Value="14" />
@@ -344,8 +267,9 @@
                     <VisualState x:Name="Normal" />
                     <VisualState x:Name="Disabled">
                         <VisualState.Setters>
-                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource CoolGrey}, Dark={StaticResource WarmGrey}}" />
-                            <Setter Property="PlaceholderColor" Value="{AppThemeBinding Light={StaticResource CoolGrey}, Dark={StaticResource WarmGrey}}" />
+                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource SlateLight}, Dark={StaticResource WarmGrey}}" />
+                            <Setter Property="PlaceholderColor" Value="{AppThemeBinding Light={StaticResource SlateLight}, Dark={StaticResource WarmGrey}}" />
+                            <Setter Property="BackgroundColor" Value="Transparent"/>
                         </VisualState.Setters>
                     </VisualState>
                 </VisualStateGroup>
@@ -425,6 +349,7 @@
                     <VisualState x:Name="Disabled">
                         <VisualState.Setters>
                             <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource CoolGrey}, Dark={StaticResource SlateLight}}" />
+                            <Setter Property="BackgroundColor" Value="Transparent"/>
                         </VisualState.Setters>
                     </VisualState>
                 </VisualStateGroup>
@@ -443,18 +368,6 @@
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkBlue}}" />
     </Style>
     
-    <Style TargetType="Shell" ApplyToDerivedTypes="True">
-        <Setter Property="Shell.BackgroundColor" Value="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource WarmGrey}}" />
-        <Setter Property="Shell.ForegroundColor" Value="{OnPlatform WinUI={StaticResource WinsorRed}, Default={StaticResource White}}" />
-        <Setter Property="Shell.TitleColor" Value="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource DarkBlue}}" />
-        <Setter Property="Shell.DisabledColor" Value="{AppThemeBinding Light={StaticResource CoolGrey}, Dark={StaticResource WarmGrey}}" />
-        <Setter Property="Shell.UnselectedColor" Value="{AppThemeBinding Light={StaticResource CoolGrey}, Dark={StaticResource CoolGrey}}" />
-        <Setter Property="Shell.NavBarHasShadow" Value="True" />
-        <Setter Property="Shell.TabBarBackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkBlue}}" />
-        <Setter Property="Shell.TabBarForegroundColor" Value="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource White}}" />
-        <Setter Property="Shell.TabBarTitleColor" Value="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource White}}" />
-        <Setter Property="Shell.TabBarUnselectedColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource CoolGrey}}" />
-    </Style>
 
     <Style TargetType="NavigationPage">
         <Setter Property="BarBackgroundColor" Value="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource WarmGrey}}" />

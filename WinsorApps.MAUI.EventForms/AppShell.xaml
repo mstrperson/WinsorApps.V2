@@ -8,7 +8,7 @@
     xmlns:local="clr-namespace:WinsorApps.MAUI.EventForms"
     Shell.FlyoutBehavior="Flyout"
     Title="Winsor Event Forms">
-
+    
     <ShellContent
         Title="Home"
         ContentTemplate="{DataTemplate local:MainPage}"
