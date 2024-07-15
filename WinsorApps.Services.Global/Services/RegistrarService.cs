@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using AsyncAwaitBestPractices;
 using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.Services.Global.Services
@@ -469,12 +470,20 @@ namespace WinsorApps.Services.Global.Services
                 getStudents,
                 getEmployees,
                 acad);
-            
+
+            Progress = 1;
             Ready = true;
 
+            GetUniqueNames().SafeFireAndForget(e => e.LogException(_logging));
+        }
+
+        private async Task GetUniqueNames() => await Task.Run(() =>
+        {
             foreach (var user in AllUsers)
                 GetUniqueDisplayNameFor(user);
-        }
+        });
+        
+        
 
         /// <summary>
         /// Cache for MyAdvisees
