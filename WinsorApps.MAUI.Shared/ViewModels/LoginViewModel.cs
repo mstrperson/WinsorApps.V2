@@ -5,7 +5,9 @@ using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.Shared.ViewModels;
 
-public partial class LoginViewModel : ObservableObject
+public partial class LoginViewModel : 
+    ObservableObject,
+    IBusyViewModel
 {
     /***************************************
      * Ok, so ObservableProperty ...
@@ -23,6 +25,8 @@ public partial class LoginViewModel : ObservableObject
     [ObservableProperty] private bool isLoggedIn = false;
     [ObservableProperty] private bool showPasswordField = true;
     [ObservableProperty] private string statusMessage;
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "Working...";
 
     private readonly ApiService _api;
 
@@ -49,12 +53,22 @@ public partial class LoginViewModel : ObservableObject
     public LoginViewModel()
     {
         // Inject this service from the Service Helper!
-        _api = ServiceHelper.GetService<ApiService>()!;
+        _api = ServiceHelper.GetService<ApiService>();
+        busy = _api.AutoLoginInProgress;
         _api.OnLoginSuccess += _api_OnLoginSuccess;
         email = "";
         password = "";
-        statusMessage = _api.Ready ? "Login Successful" : "Please Log In";
+        statusMessage = _api.Ready ? "Login Successful" : busy ? "Waiting for Auto Login" : "Please Log In";
         isLoggedIn = _api.Ready;
+        
+    }
+
+    private async Task WaitForAutoLogin()
+    {
+        while (_api.AutoLoginInProgress)
+            await Task.Delay(100);
+        Busy = false;
+        StatusMessage = _api.Ready ? "Login Successful" : "Please Login";
     }
 
     private void _api_OnLoginSuccess(object? sender, EventArgs e)
@@ -107,4 +121,5 @@ public partial class LoginViewModel : ObservableObject
             str => OnForgotPassword?.Invoke(this, "Email Sent"),
             err => OnError?.Invoke(this, err));
     }
+
 }

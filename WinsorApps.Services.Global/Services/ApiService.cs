@@ -15,9 +15,11 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
     public TimeSpan RefreshInterval => TimeSpan.FromMinutes(2);
     public bool Refreshing { get; private set; }
     public bool BypassRefreshing { get; private set; }
-    public double Progress => 1;
+    public double Progress { get; private set; } = 1;
     public bool Started { get; private set; }
 
+    public bool AutoLoginInProgress { get; private set; } = true;
+    
     public event EventHandler? OnLoginSuccess;
     public event EventHandler? OnCacheRefreshed;
 
@@ -83,6 +85,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
         var savedCredential = await SavedCredential.GetSavedCredential();
         if (savedCredential is not null)
         {
+            AutoLoginInProgress = true;
             if (!string.IsNullOrEmpty(savedCredential.JWT) && !string.IsNullOrEmpty(savedCredential.RefreshToken))
             {
                 AuthorizedUser = new AuthResponse("", savedCredential.JWT, default, savedCredential.RefreshToken);
@@ -103,9 +106,11 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
                         ex.Message);
                     _logging.LogMessage(LocalLoggingService.LogLevel.Debug, ex.StackTrace);
                     onError(new("Auto Login Failed", ex.Message));
+                    AutoLoginInProgress = false;
                     return;
                 }
 
+                AutoLoginInProgress = false;
                 return;
             }
 
@@ -124,6 +129,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
                 onError(new("Auto Login Failed", ex.Message));
             }
         }
+        AutoLoginInProgress = false;
     }
 
     public async Task RefreshInBackground(CancellationToken cancellationToken, ErrorAction onError)

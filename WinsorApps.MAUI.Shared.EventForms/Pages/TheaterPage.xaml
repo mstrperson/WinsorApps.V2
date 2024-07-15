@@ -39,7 +39,8 @@
                             <CollectionView
                                 ItemsSource="{Binding Items}"
                                 BackgroundColor="Transparent"
-                                Margin="0">
+                                Margin="0"
+                                HeightRequest="50">
                                 <CollectionView.ItemsLayout>
                                     <LinearItemsLayout Orientation="Horizontal" ItemSpacing="5" />
                                 </CollectionView.ItemsLayout>

@@ -253,11 +253,17 @@ public partial class EventFormViewModel :
     [RelayCommand]
     public async Task Template()
     {
-        var clone = new EventFormViewModel();
-        clone.Summary = Summary;
-        clone.Description = Description;
-        clone.LeaderSearch.Selected = LeaderSearch.Selected.Clone();
-        clone.LeaderSearch.IsSelected = true;
+        var clone = new EventFormViewModel
+        {
+            Summary = Summary,
+            Description = Description,
+            LeaderSearch =
+            {
+                Selected = LeaderSearch.Selected.Clone(),
+                IsSelected = true
+            }
+        };
+        
         foreach (var customLocation in SelectedCustomLocations)
             clone.SelectedCustomLocations.Add(customLocation.Clone());
         foreach (var location in SelectedLocations)
@@ -630,11 +636,12 @@ public partial class EventFormViewModel :
             IsNew = false,
             IsCreating = model.status.Equals("creating", StringComparison.InvariantCultureIgnoreCase),
             IsUpdating = model.status.Equals("updating", StringComparison.InvariantCultureIgnoreCase),
-            CanEditBase = true,
-            CanEditSubForms = true,
             CanEditCatering = model.start > DateTime.Today.AddDays(14),
             Model = model
         };
+
+        vm.CanEditBase = vm.IsCreating || vm.IsUpdating;
+        vm.CanEditSubForms = vm.IsCreating || vm.IsUpdating;
 
         vm.StatusSelection.Select(eventForms.StatusLabels.First(status => status.label.Equals(model.status, StringComparison.InvariantCultureIgnoreCase)));
         vm.LeaderSearch.Select(UserViewModel.Get(registrar.AllUsers.First(u => u.id == model.leaderId)));
@@ -663,7 +670,8 @@ public partial class EventFormViewModel :
         return vm.Clone();
     }
 
-    public static List<EventFormViewModel> GetClonedViewModels(IEnumerable<EventFormBase> models) => models.Select(Get).ToList();
+    public static List<EventFormViewModel> GetClonedViewModels(IEnumerable<EventFormBase> models) => 
+        models.Select(Get).ToList();
 
     public static async Task Initialize(EventFormsService service, ErrorAction onError)
     {
@@ -674,7 +682,8 @@ public partial class EventFormViewModel :
         ViewModelCache = [.. ViewModelCache.Distinct()];
     }
 
-    public EventFormViewModel Clone() => (EventFormViewModel)MemberwiseClone();
+    public EventFormViewModel Clone() => 
+        (EventFormViewModel)MemberwiseClone();
 
     [RelayCommand]
     public void Select()

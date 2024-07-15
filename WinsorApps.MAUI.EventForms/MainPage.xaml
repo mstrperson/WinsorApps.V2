@@ -23,7 +23,9 @@
                     Text="{Binding UserVM.DisplayName}"
                     StyleClass="Header"/>
             </VerticalStackLayout>
-            <CollectionView ItemsSource="{Binding PostLoginServices}">
+            <CollectionView 
+                ItemsSource="{Binding PostLoginServices}"
+                IsVisible="{Binding Ready, Converter={StaticResource Invert}}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="vm:ServiceAwaiterViewModel">
                         <VerticalStackLayout IsVisible="{Binding Ready, Converter={StaticResource Invert}}">

@@ -22,17 +22,23 @@
         <ToolbarItem
             Text="{Binding StatusSelection.Selected.Label}" />
         <ToolbarItem
-            Text="Delete Event"
             Command="{Binding DeleteCommand}" 
             StyleClass="DeleteButton"/>
         <ToolbarItem
-            Text="Print"
+            Text="Delete Event"
+            Command="{Binding DeleteCommand}" />
+        <ToolbarItem
             Command="{Binding PrintCommand}"
             StyleClass="PrintButton" />
+        <ToolbarItem 
+            Text="Print"
+            Command="{Binding PrintCommand}"/>
         <ToolbarItem
-            Text="Template"
             Command="{Binding TemplateCommand}"
             StyleClass="AddButton" />
+        <ToolbarItem
+            Text="Template"
+            Command="{Binding TemplateCommand}" />
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <ScrollView>

@@ -13,6 +13,13 @@
     <ContentPage.Content>
         <StackLayout>
             <Image StyleClass="wordmark_oneline"/>
+            <Label
+                StyleClass="H3"
+                Text="{Binding StatusMessage}"
+                IsVisible="{Binding Busy}" />
+            <Image 
+                StyleClass="loading_symbol"
+                IsVisible="{Binding Busy}" />
             <StackLayout
                 Orientation="Horizontal"
                 Spacing="20"

@@ -400,6 +400,13 @@
         <Setter Property="HorizontalOptions" Value="Start"/>
         <Setter Property="MaximumHeightRequest" Value="100"/>
     </Style>
+    
+    <Style TargetType="Image" Class="loading_symbol">
+        <Setter Property="Source" Value="loading.gif"/>
+        <Setter Property="IsAnimationPlaying" Value="True"/>
+        <Setter Property="HeightRequest" Value="30"/>
+        <Setter Property="VerticalOptions" Value="End"/>
+    </Style>
 
     <Style TargetType="CheckBox">
         <Setter Property="Color" Value="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource White}}" />
