@@ -77,6 +77,27 @@
         <Setter Property="BackgroundColor" Value="Transparent" />
         <Setter Property="FontFamily" Value="SansSerif"/>
         <Setter Property="FontSize" Value="14"/>
+        <Setter Property="VerticalOptions" Value="Center"/>
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource SlateDark}, Dark={StaticResource SlateLight}}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+    
+    <Style TargetType="TimePicker">
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource WarmGrey}}" />
+        <Setter Property="BackgroundColor" Value="Transparent"/>
+        <Setter Property="FontFamily" Value="SansSerif"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="VerticalOptions" Value="Center"/>
         <Setter Property="VisualStateManager.VisualStateGroups">
             <VisualStateGroupList>
                 <VisualStateGroup x:Name="CommonStates">
@@ -337,25 +358,7 @@
         </Setter>
     </Style>
 
-    <Style TargetType="TimePicker">
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource DarkBlue}}" />
-        <Setter Property="BackgroundColor" Value="{StaticResource WarmGrey}"/>
-        <Setter Property="FontFamily" Value="SansSerif"/>
-        <Setter Property="FontSize" Value="14"/>
-        <Setter Property="VisualStateManager.VisualStateGroups">
-            <VisualStateGroupList>
-                <VisualStateGroup x:Name="CommonStates">
-                    <VisualState x:Name="Normal" />
-                    <VisualState x:Name="Disabled">
-                        <VisualState.Setters>
-                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource CoolGrey}, Dark={StaticResource SlateLight}}" />
-                            <Setter Property="BackgroundColor" Value="Transparent"/>
-                        </VisualState.Setters>
-                    </VisualState>
-                </VisualStateGroup>
-            </VisualStateGroupList>
-        </Setter>
-    </Style>
+    
 
     <Style TargetType="BoxView" Class="Bar">
         <Setter Property="HeightRequest" Value="2" />

@@ -35,31 +35,31 @@
                 <StackLayout
                     Orientation="Horizontal"
                     Spacing="30">
-                    <Switch IsToggled="{Binding Setup}" />
+                    <CheckBox IsChecked="{Binding Setup}" />
                     <Label Text="We need help setting up the event." />
                 </StackLayout>
                 <StackLayout
                     Orientation="Horizontal"
                     Spacing="30">
-                    <Switch IsToggled="{Binding Breakdown}" />
+                    <CheckBox IsChecked="{Binding Breakdown}" />
                     <Label Text="We need help breaking down after the event." />
                 </StackLayout>
                 <StackLayout
                     Orientation="Horizontal"
                     Spacing="30">
-                    <Switch IsToggled="{Binding Parking}" />
+                    <CheckBox IsChecked="{Binding Parking}" />
                     <Label Text="We need a parking attendant during the event." />
                 </StackLayout>
                 <StackLayout
                     Orientation="Horizontal"
                     Spacing="30">
-                    <Switch IsToggled="{Binding Presence}" />
+                    <CheckBox IsChecked="{Binding Presence}" />
                     <Label Text="We need folks on site during the event." />
                 </StackLayout>
                 <StackLayout
                     Orientation="Horizontal"
                     Spacing="30">
-                    <Switch IsToggled="{Binding Overnight}" />
+                    <CheckBox IsChecked="{Binding Overnight}" />
                     <Label Text="This event will happen overnight." />
                 </StackLayout>
 

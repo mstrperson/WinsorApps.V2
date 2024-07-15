@@ -6,7 +6,7 @@
              xmlns:styles="clr-namespace:WinsorApps.MAUI.Shared.Resources.Styles;assembly=WinsorApps.MAUI.Shared"
              x:DataType="vm:EventListViewModel"
              x:Class="WinsorApps.MAUI.EventForms.Pages.MyEventsList"
-             Title="MyEventsList">
+             Title="My Events">
     <ContentPage.Resources>
         <ResourceDictionary>
             <conv:BoolInverter x:Key="Invert"/>
@@ -24,20 +24,29 @@
         <ScrollView>
             <StackLayout>
                 <StackLayout
-                            Orientation="Horizontal"
-                            Spacing="30"
+                    Orientation="Horizontal"
+                    Spacing="30"
                     HorizontalOptions="Center">
                     <Button 
-                                StyleClass="LeftArrow"
-                                Command="{Binding DecrementMonthCommand}" />
+                        StyleClass="LeftArrow"
+                        Command="{Binding DecrementMonthCommand}" />
                     <Label
-                                StyleClass="Header"
-                                Text="{Binding PageLabel}" 
+                        StyleClass="Header"
+                        Text="{Binding PageLabel}" 
                         WidthRequest="400"
                         HorizontalTextAlignment="Center"/>
                     <Button
-                                StyleClass="RightArrow"
-                                Command="{Binding IncrementMonthCommand}" />
+                        StyleClass="RightArrow"
+                        Command="{Binding IncrementMonthCommand}" />
+                </StackLayout>
+                <StackLayout
+                    Orientation="Horizontal"
+                    IsVisible="{Binding Busy}">
+                    <Label
+                        Text="{Binding BusyMessage}"
+                        StyleClass="SubHeader"/>
+                    <Image
+                        StyleClass="loading_image" />
                 </StackLayout>
                 <CollectionView
                     ItemsSource="{Binding Events}">

@@ -60,7 +60,7 @@ public partial class UserViewModel :
     public UserRecord Model { get; private set; }
 
     public string BlackbaudId => $"{Model.blackbaudId}";
-    public string Id => Model.id;
+    public string Id => Model.id ?? "";
     
     [ObservableProperty] private string displayName;
     public string Email => Model.email;
@@ -69,7 +69,7 @@ public partial class UserViewModel :
 
     [ObservableProperty] private ImmutableArray<SectionViewModel> academicSchedule = [];
     [ObservableProperty] private bool showButton = false;
-    [ObservableProperty] bool isSelected;
+    [ObservableProperty] bool isSelected = false;
 
     [ObservableProperty] private ImageSource imageSource;
 

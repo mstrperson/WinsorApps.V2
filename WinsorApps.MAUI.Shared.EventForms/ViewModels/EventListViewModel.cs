@@ -17,7 +17,8 @@ namespace WinsorApps.MAUI.Shared.EventForms.ViewModels;
 
 public partial class EventListViewModel :
     ObservableObject,
-    IErrorHandling
+    IErrorHandling,
+    IBusyViewModel
 {
     [ObservableProperty] ObservableCollection<EventFormViewModel> events = [];
 
@@ -62,7 +63,8 @@ public partial class EventListViewModel :
 
     [ObservableProperty] DateTime start;
     [ObservableProperty] DateTime end;
-
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "Working...";
     [ObservableProperty] string pageLabel = "My Events List";
 
     Func<EventFormBase, bool> EventFilter { get; set; } = evt => true;
@@ -73,6 +75,7 @@ public partial class EventListViewModel :
     [RelayCommand]
     public void CreateNew()
     {
+        Busy = true;
         var vm = new EventFormViewModel(); 
         
         vm.MarCommRequested += (sender, mvm) => PageRequested?.Invoke(this, new MarComPage(mvm));
@@ -94,6 +97,7 @@ public partial class EventListViewModel :
         
         Events.Add(vm);
         OnEventSelected?.Invoke(this, vm);
+        Busy = false;
     }
 
     [RelayCommand]
@@ -134,6 +138,9 @@ public partial class EventListViewModel :
     [RelayCommand]
     public async Task Reload()
     {
+        Busy = true;
+        BusyMessage = $"Loading Events for {Start:MMMM yyyy}";
+        
         if (Start < _service.CacheStartDate || End > _service.CacheEndDate)
             await _service.UpdateCache(Start, End, OnError.DefaultBehavior(this));
 
@@ -155,5 +162,7 @@ public partial class EventListViewModel :
             vm.FieldTripRequested += (sender, ftvm) => PageRequested?.Invoke(this, new FieldTripPage(ftvm));
             vm.FacilitesRequested += (sender, fvm) => PageRequested?.Invoke(this, new FacilitesPage(fvm));
         }
+
+        Busy = false;
     }
 }

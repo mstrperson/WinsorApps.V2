@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.Input;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
-using System.Runtime.InteropServices;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.EventForms.Services;
@@ -36,6 +35,7 @@ public partial class EventFormViewModel :
     [ObservableProperty] TimeSpan startTime;
     [ObservableProperty] TimeSpan endTime;
     [ObservableProperty] UserViewModel creator = new();
+    [ObservableProperty] private UserViewModel leader = new();
     [ObservableProperty] UserSearchViewModel leaderSearch = new();
     [ObservableProperty] DateTime preapprovalDate = DateTime.Today;
     [ObservableProperty] int attendeeCount;
@@ -91,6 +91,11 @@ public partial class EventFormViewModel :
     {
         var registrar = ServiceHelper.GetService<RegistrarService>();
         LeaderSearch.SetAvailableUsers(registrar.EmployeeList);
+        LeaderSearch.OnSingleResult += (_, leader) =>
+        {
+            Leader = leader;
+            Leader.IsSelected = true;
+        };
         CustomLocationSearch.SetCustomLocations(true);
 
         LocationSearch.OnSingleResult += (_, e) =>
@@ -200,6 +205,13 @@ public partial class EventFormViewModel :
             vm.SelectedCustomLocations.Select(loc => loc.Id).ToImmutableArray()
         );
 
+    [RelayCommand]
+    public void ClearLeader()
+    {
+        Leader = new() { IsSelected = false };
+        LeaderSearch.ClearSelection();
+    }
+    
     protected void ValidationFailed(string message)
     {
         OnError?.Invoke(this, new("Invalid Form Data", message));
@@ -259,11 +271,12 @@ public partial class EventFormViewModel :
             Description = Description,
             LeaderSearch =
             {
-                Selected = LeaderSearch.Selected.Clone(),
+                Selected = Leader.Clone(),
                 IsSelected = true
             }
         };
         
+        clone.Leader = LeaderSearch.Selected;
         foreach (var customLocation in SelectedCustomLocations)
             clone.SelectedCustomLocations.Add(customLocation.Clone());
         foreach (var location in SelectedLocations)
@@ -646,6 +659,8 @@ public partial class EventFormViewModel :
         vm.StatusSelection.Select(eventForms.StatusLabels.First(status => status.label.Equals(model.status, StringComparison.InvariantCultureIgnoreCase)));
         vm.LeaderSearch.Select(UserViewModel.Get(registrar.AllUsers.First(u => u.id == model.leaderId)));
 
+        vm.Leader = vm.LeaderSearch.Selected;
+        
         var locationService = ServiceHelper.GetService<LocationService>();
 
         vm.SelectedLocations = [..LocationViewModel.GetClonedViewModels(locationService.OnCampusLocations.Where(loc => model.selectedLocations?.Contains(loc.id) ?? false))];

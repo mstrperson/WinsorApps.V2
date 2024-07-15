@@ -30,7 +30,7 @@ public partial class FormEditor : ContentPage
             vm.HasLoadedOnce = true;
         }
 
-        vm.CanEditBase = vm.IsUpdating || vm.IsCreating;
+        vm.CanEditBase = vm.IsNew || vm.IsUpdating || vm.IsCreating;
         vm.CanEditSubForms = vm is { CanEditBase: true, IsNew: false };
 
         InitializeComponent();

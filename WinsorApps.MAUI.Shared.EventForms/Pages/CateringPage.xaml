@@ -49,11 +49,9 @@
                         Orientation="Horizontal"
                         Margin="0"
                         IsVisible="{Binding BudgetCodeSearch.IsSelected, Converter={StaticResource Invert}}">
-                        <StackLayout 
-                            Orientation="Horizontal"
+                        <HorizontalStackLayout 
                             Margin="0"
-                            IsVisible="{Binding BudgetCodeSearch.ShowNew, Converter={StaticResource Invert}}"
-                            Spacing="30">
+                            IsVisible="{Binding BudgetCodeSearch.ShowNew, Converter={StaticResource Invert}}">
                             <SearchBar 
                                 Placeholder="Budget Code"
                                 HeightRequest="40"
@@ -61,7 +59,12 @@
                                 Text="{Binding BudgetCodeSearch.SearchText}"
                                 IsVisible="{Binding BudgetCodeSearch.ShowOptions, Converter={StaticResource Invert}}"
                                 SearchCommand="{Binding BudgetCodeSearch.SearchCommand}"/>
+                            <Button
+                                StyleClass="DownArrow"
+                                IsVisible="{Binding BudgetCodeSearch.ShowOptions, Converter={StaticResource Invert}}"
+                                Command="{Binding BudgetCodeSearch.SearchCommand}" />
                             <Image 
+                                Margin="30,0"
                                 StyleClass="AddButton">
                                 <Image.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding BudgetCodeSearch.StartNewCommand}"/>
@@ -73,7 +76,7 @@
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate x:DataType="vm:BudgetCodeViewModel">
                                         <HorizontalStackLayout
-                                        ToolTipProperties.Text="{Binding AccountNumber}">
+                                            ToolTipProperties.Text="{Binding AccountNumber}">
                                             <HorizontalStackLayout.GestureRecognizers>
                                                 <TapGestureRecognizer Command="{Binding SelectCommand}" />
                                             </HorizontalStackLayout.GestureRecognizers>
@@ -82,7 +85,7 @@
                                     </DataTemplate>
                                 </CollectionView.ItemTemplate>
                             </CollectionView>
-                        </StackLayout>
+                        </HorizontalStackLayout>
                         <StackLayout
                             Orientation="Horizontal"
                             IsVisible="{Binding BudgetCodeSearch.ShowNew}"
@@ -151,7 +154,7 @@
                 <!-- Menu Selection -->
                 <CollectionView
                     ItemsSource="{Binding Menu.Menus}"
-                    ItemsLayout="VerticalGrid,4"
+                    ItemsLayout="VerticalGrid"
                     BackgroundColor="Transparent"
                     IsVisible="{Binding Menu.ShowMenus}">
                     <CollectionView.ItemTemplate>

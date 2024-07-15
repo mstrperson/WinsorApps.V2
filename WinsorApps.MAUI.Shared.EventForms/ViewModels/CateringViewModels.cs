@@ -44,6 +44,10 @@ public partial class CateringEventViewModel :
     public CateringEventViewModel()
     {
         BudgetCodeSearch.OnError += (sender, err) => OnError?.Invoke(sender, err);
+        BudgetCodeSearch.OnZeroResults += (_, _) =>
+        {
+            BudgetCodeSearch.StartNew();
+        };
     }
 
     public void Clear()
@@ -257,8 +261,7 @@ public partial class CateringMenuViewModel :
     public void Select()
     {
         IsSelected = !IsSelected;
-        if (IsSelected)
-            Selected?.Invoke(this, this);
+        Selected?.Invoke(this, this);
     }
 }
 

@@ -43,7 +43,8 @@ public readonly record struct AdvisorRecord(string id, int blackbaudId, string f
 /// <param name="lastName">Family Name</param>
 /// <param name="email">Email address used for logging in and communication.</param>
 /// <param name="studentInfo"></param>
-public readonly record struct UserRecord(string id, int blackbaudId, string firstName, string nickname, string lastName, string email,
+public readonly record struct UserRecord(string id = "", int blackbaudId = -1, string firstName = "", 
+    string nickname = "", string lastName = "", string email = "",
     StudentInfoRecord? studentInfo = null, bool hasLogin = false, DocumentHeader? photo = null)
 {
 
