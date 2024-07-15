@@ -7,7 +7,7 @@
              xmlns:views="clr-namespace:WinsorApps.MAUI.Shared.EventForms.Views"
              x:DataType="vm:FacilitesEventViewModel"
              x:Class="WinsorApps.MAUI.Shared.EventForms.Pages.FacilitesPage"
-             Title="Facilites Information">
+             Title="Facilities Information">
     <ContentPage.Resources>
         <ResourceDictionary>
             <conv:BoolInverter x:Key="Invert"/>
@@ -17,11 +17,14 @@
     </ContentPage.Resources>
     <ContentPage.ToolbarItems>
         <ToolbarItem 
-            Text="Continue" 
             Command="{Binding ContinueCommand}" 
             StyleClass="SubmitButton"/>
         <ToolbarItem
-            Text="Remove Facilities Request"
+            Text="Continue"
+            Command="{Binding ContinueCommand}" />
+        <ToolbarItem
+            StyleClass="Separator" />
+        <ToolbarItem
             Command="{Binding DeleteCommand}" 
             StyleClass="DeleteButton"/>
     </ContentPage.ToolbarItems>

@@ -17,11 +17,14 @@
     </ContentPage.Resources>
     <ContentPage.ToolbarItems>
         <ToolbarItem 
-            Text="Continue" 
             Command="{Binding ContinueCommand}" 
             StyleClass="SubmitButton"/>
         <ToolbarItem
-            Text="Remove Technology Request"
+            Text="Continue"
+            Command="{Binding ContinueCommand}" />
+        <ToolbarItem
+            StyleClass="Separator" />
+        <ToolbarItem
             Command="{Binding DeleteCommand}" 
             StyleClass="DeleteButton"/>
     </ContentPage.ToolbarItems>

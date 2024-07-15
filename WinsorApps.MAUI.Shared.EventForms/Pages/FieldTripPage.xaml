@@ -17,15 +17,16 @@
     </ContentPage.Resources>
     <ContentPage.ToolbarItems>
         <ToolbarItem 
-        Text="Continue" 
-        Command="{Binding ContinueCommand}" 
-        IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=White,
-            Glyph={x:Static styles:FontAwesomeSolid.ArrowAltCircleRight}}"/>
+            Command="{Binding ContinueCommand}" 
+            StyleClass="SubmitButton"/>
         <ToolbarItem
-        Text="Remove Catering Request"
-        Command="{Binding DeleteCommand}" 
-        IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=White,
-            Glyph={x:Static styles:FontAwesomeSolid.Eraser}}"/>
+            Text="Continue"
+            Command="{Binding ContinueCommand}" />
+        <ToolbarItem
+            StyleClass="Separator" />
+        <ToolbarItem
+            Command="{Binding DeleteCommand}" 
+            StyleClass="DeleteButton"/>
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <ScrollView>
