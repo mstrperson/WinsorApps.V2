@@ -1,0 +1,70 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    <Style
+        TargetType="Image"
+        Class="AddButton">
+        <Setter 
+            Property="Source"
+            Value="{FontImage 
+                FontFamily=Serif,
+                Glyph=➕}" />
+    </Style>
+    <Style
+        TargetType="Image"
+        Class="CancelButton">
+        <Setter 
+            Property="Source"
+            Value="{FontImage 
+            FontFamily=Serif,
+            Glyph=✘}" />
+    </Style>
+
+    <Style
+        TargetType="Image"
+        Class="SaveButton">
+        <Setter 
+            Property="Source"
+            Value="{FontImage 
+                FontFamily=Serif,
+                Glyph=💾}" />
+    </Style>
+    <Style
+        TargetType="Image"
+        Class="DeleteButton">
+        <Setter 
+            Property="Source"
+            Value="{FontImage 
+                FontFamily=Serif,
+                Glyph=🗑}" />
+    </Style>
+    <Style
+        TargetType="Image"
+        Class="PrintButton">
+        <Setter 
+            Property="Source"
+            Value="{FontImage 
+                FontFamily=Serif,
+                Glyph=🖨}" />
+    </Style>
+    <!--
+        This is for inserting a wordmark_oneline logo anywhere in the project.
+    -->
+    <Style TargetType="Image" Class="wordmark_oneline">
+        <Setter Property="Source" Value="{AppThemeBinding Light='wordmark_oneline_red_01.png', Dark='wordmark_oneline_white_03.png'}"/>
+        <Setter Property="HorizontalOptions" Value="Start"/>
+        <Setter Property="MaximumHeightRequest" Value="100"/>
+    </Style>
+
+    <Style TargetType="Image" Class="logo_withwordmark">
+        <Setter Property="Source" Value="{AppThemeBinding Light='logo_withwordmark_red.png', Dark='logo_withwordmark_white.png'}"/>
+        <Setter Property="HorizontalOptions" Value="Start"/>
+        <Setter Property="MaximumHeightRequest" Value="100"/>
+    </Style>
+    
+    <Style TargetType="Image" Class="loading_symbol">
+        <Setter Property="Source" Value="loading.gif"/>
+        <Setter Property="IsAnimationPlaying" Value="True"/>
+        <Setter Property="HeightRequest" Value="30"/>
+        <Setter Property="VerticalOptions" Value="End"/>
+    </Style>
+</ResourceDictionary>

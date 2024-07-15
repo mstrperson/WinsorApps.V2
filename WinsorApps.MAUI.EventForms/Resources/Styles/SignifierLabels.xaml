@@ -1,0 +1,78 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    <Style TargetType="Label" Class="UpArrow">
+        <Setter Property="Text" Value="↑"/>
+        <Setter Property="MinimumWidthRequest" Value="50" />
+        <Setter Property="WidthRequest" Value="50" />
+        <Setter Property="MinimumHeightRequest" Value="50" />
+        <Setter Property="HeightRequest" Value="50"/>
+        <Setter Property="Padding" Value="5" />
+    </Style>
+
+    <Style TargetType="Label" Class="DownArrow">
+        <Setter Property="Text" Value="↓"/>
+        <Setter Property="MinimumWidthRequest" Value="50" />
+        <Setter Property="WidthRequest" Value="50" />
+    </Style>
+    <Style TargetType="Label" Class="RightArrow">
+        <Setter Property="Text" Value="→"/>
+        <Setter Property="MinimumWidthRequest" Value="50" />
+        <Setter Property="WidthRequest" Value="50" />
+    </Style>
+
+    <Style TargetType="Label" Class="LeftArrow">
+        <Setter Property="Text" Value="←"/>
+        <Setter Property="MinimumWidthRequest" Value="50" />
+        <Setter Property="WidthRequest" Value="50" />
+    </Style>
+    <Style TargetType="Label" Class="ErrorSignifier">
+        <Setter Property="Text" Value="⛔" />
+        <Setter Property="FontSize" Value="Medium" />
+        <Setter Property="MinimumWidthRequest" Value="50" />
+        <Setter Property="WidthRequest" Value="50" />
+        <Setter Property="MinimumHeightRequest" Value="30" />
+        <Setter Property="HeightRequest" Value="30"/>
+        <Setter Property="Padding" Value="5" />
+    </Style>
+    
+    <Style TargetType="Label" Class="PositiveSignifier">
+        <Setter Property="Text" Value="✅" />
+        <Setter Property="FontSize" Value="Medium" />
+        <Setter Property="MinimumWidthRequest" Value="50" />
+        <Setter Property="WidthRequest" Value="50" />
+        <Setter Property="MinimumHeightRequest" Value="30" />
+        <Setter Property="HeightRequest" Value="30"/>
+        <Setter Property="Padding" Value="5" />
+    </Style>
+
+
+    <Style TargetType="Label" Class="NeutralSignifier">
+        <Setter Property="Text" Value="🔘" />
+        <Setter Property="FontSize" Value="Medium" />
+        <Setter Property="MinimumWidthRequest" Value="50" />
+        <Setter Property="WidthRequest" Value="50" />
+        <Setter Property="MinimumHeightRequest" Value="30" />
+        <Setter Property="HeightRequest" Value="30"/>
+        <Setter Property="Padding" Value="5" />
+    </Style>
+    <Style TargetType="Label" Class="DragUpDownSignifier">
+        <Setter Property="Text" Value="↕" />
+        <Setter Property="FontSize" Value="Medium" />
+        <Setter Property="MinimumWidthRequest" Value="50" />
+        <Setter Property="WidthRequest" Value="50" />
+        <Setter Property="MinimumHeightRequest" Value="30" />
+        <Setter Property="HeightRequest" Value="30"/>
+        <Setter Property="Padding" Value="5" />
+    </Style>
+
+
+    <Style TargetType="Label" Class="TrashBin">
+        <Setter Property="Text" Value="🗑" />
+        <Setter Property="FontSize" Value="100" />
+        <Setter Property="MinimumWidthRequest" Value="100" />
+        <Setter Property="WidthRequest" Value="100" />
+        <Setter Property="MinimumHeightRequest" Value="100" />
+        <Setter Property="HeightRequest" Value="100"/>
+        <Setter Property="Padding" Value="5" />
+    </Style>
+</ResourceDictionary>
