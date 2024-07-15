@@ -9,7 +9,7 @@
              xmlns:sviews="clr-namespace:WinsorApps.MAUI.Shared.Views;assembly=WinsorApps.MAUI.Shared"
              x:DataType="vm:EventFormViewModel"
              x:Class="WinsorApps.MAUI.Shared.EventForms.Pages.FormEditor"
-             Title="Event Form Editor">
+             Title="{Binding StatusSelection.Selected.Label}">
     <ContentPage.Resources>
         <ResourceDictionary>
             <conv:BoolInverter x:Key="Invert"/>
@@ -19,9 +19,6 @@
         </ResourceDictionary>
     </ContentPage.Resources>
     <ContentPage.ToolbarItems>
-        <ToolbarItem
-            Text="{Binding StatusSelection.Selected.Label}" />
-        <ToolbarItem StyleClass="Separator" />
         <ToolbarItem
             Command="{Binding DeleteCommand}" 
             StyleClass="DeleteButton"/>

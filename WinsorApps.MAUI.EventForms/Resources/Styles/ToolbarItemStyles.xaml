@@ -20,7 +20,7 @@
             Value="{FontImage 
                 FontFamily=Serif, 
                 Color=Black,
-                Glyph=▒}" />
+                Glyph=⎹}" />
     </Style>
     <Style TargetType="Shell" ApplyToDerivedTypes="True">
         <Setter Property="Shell.BackgroundColor" Value="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource WarmGrey}}" />
