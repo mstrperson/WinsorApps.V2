@@ -54,14 +54,16 @@
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
+                <BoxView StyleClass="Bar" />
                 <Grid
-                    RowDefinitions="*,*,*,*,*,*"
-                    ColumnDefinitions="auto,auto,auto,auto">
+                    RowDefinitions="*,*,*"
+                    ColumnDefinitions="150,80,80,150,80">
                     <Label
                         Grid.Row="0"
-                        Grid.ColumnSpan="4"
+                        Grid.ColumnSpan="5"
                         StyleClass="H3"
-                        Text="Lower School" />
+                        Text="Lower School" 
+                        TextDecorations="Underline"/>
                     <Label
                         Grid.Row="1"
                         Grid.Column="0"
@@ -73,11 +75,11 @@
                         Keyboard="Numeric" />
                     <Label
                         Grid.Row="1"
-                        Grid.Column="2"
+                        Grid.Column="3"
                         Text="Class II" />
                     <Entry
                         Grid.Row="1"
-                        Grid.Column="3"
+                        Grid.Column="4"
                         Text="{Binding StudentsByClass.ClassII}"
                         Keyboard="Numeric" />
                     <Label
@@ -91,88 +93,94 @@
                         Keyboard="Numeric" />
                     <Label
                         Grid.Row="2"
-                        Grid.Column="2"
+                        Grid.Column="3"
                         Text="Class IV" />
                     <Entry
                         Grid.Row="2"
-                        Grid.Column="3"
+                        Grid.Column="4"
                         Text="{Binding StudentsByClass.ClassIV}"
                         Keyboard="Numeric" />
+                </Grid>
+                <BoxView StyleClass="Bar" />
+                <Grid
+                    RowDefinitions="*,*,*"
+                    ColumnDefinitions="150,80,80,150,80">
                     <Label
-                        Grid.Row="3"
-                        Grid.ColumnSpan="4"
+                        Grid.Row="0"
+                        Grid.ColumnSpan="5"
                         StyleClass="H3"
-                        Text="Upper School" />
+                        Text="Upper School"
+                        TextDecorations="Underline" />
                     <Label
-                        Grid.Row="4"
+                        Grid.Row="1"
                         Grid.Column="0"
                         Text="Class V" />
                     <Entry
-                        Grid.Row="4"
+                        Grid.Row="1"
                         Grid.Column="1"
                         Text="{Binding StudentsByClass.ClassV}"
                         Keyboard="Numeric" />
                     <Label
-                        Grid.Row="4"
-                        Grid.Column="2"
+                        Grid.Row="1"
+                        Grid.Column="3"
                         Text="Class VI" />
                     <Entry
-                        Grid.Row="4"
-                        Grid.Column="3"
+                        Grid.Row="1"
+                        Grid.Column="4"
                         Text="{Binding StudentsByClass.ClassVI}"
                         Keyboard="Numeric" />
                     <Label
-                        Grid.Row="5"
+                        Grid.Row="2"
                         Grid.Column="0"
                         Text="Class VII" />
                     <Entry
-                        Grid.Row="5"
+                        Grid.Row="2"
                         Grid.Column="1"
                         Text="{Binding StudentsByClass.ClassVII}"
                         Keyboard="Numeric" />
                     <Label
-                        Grid.Row="5"
-                        Grid.Column="2"
+                        Grid.Row="2"
+                        Grid.Column="3"
                         Text="Class VIII" />
                     <Entry
-                        Grid.Row="5"
-                        Grid.Column="3"
+                        Grid.Row="2"
+                        Grid.Column="4"
                         Text="{Binding StudentsByClass.ClassVIII}"
                         Keyboard="Numeric" />
                 </Grid>
+                <BoxView StyleClass="Bar" />
                 <Label
                     StyleClass="SubHeader"
                     Text="Transportation" />
                 <StackLayout
                     Orientation="Horizontal"
                     Spacing="30">
-                    <Switch IsToggled="{Binding Transportation.PublicTransit}" />
+                    <CheckBox IsChecked="{Binding Transportation.PublicTransit}" />
                     <Label Text="Students may take Public Transit" />
                 </StackLayout>
                 <StackLayout
                     Orientation="Horizontal"
                     Spacing="30">
-                    <Switch IsToggled="{Binding Transportation.NoOrganizedTransit}" />
+                    <CheckBox IsChecked="{Binding Transportation.NoOrganizedTransit}" />
                     <Label Text="Students are responsible for their own transportation" />
                 </StackLayout>
                 <StackLayout
                     Orientation="Horizontal"
                     Spacing="30">
-                    <Switch 
-                        IsToggled="{Binding Transportation.ShowHiredBusses}" 
+                    <CheckBox IsChecked="{Binding Transportation.ShowHiredBusses}" 
                         IsEnabled="{Binding Transportation.ShowHiredBusses, Converter={StaticResource Invert}}"/>
                     <Label Text="Hire Outside Busses" />
                 </StackLayout>
                 <StackLayout
                     Orientation="Horizontal"
                     Spacing="30">
-                    <Switch 
-                        IsToggled="{Binding Transportation.ShowVehicleRequest}" 
+                    <CheckBox IsChecked="{Binding Transportation.ShowVehicleRequest}" 
                         IsEnabled="{Binding Transportation.ShowVehicleRequest, Converter={StaticResource Invert}}"/>
                     <Label Text="Use Winsor Owned Vehicle(s)" />
                 </StackLayout>
                 <StackLayout
                     IsVisible="{Binding Transportation.ShowHiredBusses}">
+                    <BoxView StyleClass="Bar" />
                     <StackLayout
                         Orientation="Horizontal"
                         Spacing="30">
@@ -218,6 +226,7 @@
                 <StackLayout
                     IsVisible="{Binding Transportation.ShowVehicleRequest}">
 
+                    <BoxView StyleClass="Bar" />
                     <StackLayout
                         Orientation="Horizontal"
                         Spacing="30">
@@ -272,14 +281,13 @@
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </StackLayout>
+                <BoxView StyleClass="Bar" />
                 <StackLayout
                     Orientation="Horizontal"
                     Spacing="30">
-                    <Switch 
-                        IsToggled="{Binding ShowFood}"
+                    <CheckBox IsChecked="{Binding ShowFood}"
                         IsEnabled="{Binding ShowFood, Converter={StaticResource Invert}}"/>
                     <Label
-                        StyleClass="SubHeader"
                         Text="Field Trip Will Provide Food for Students" />
                 </StackLayout>
                 <StackLayout
@@ -290,9 +298,13 @@
                         <Label
                             StyleClass="H3"
                             Text="Field Trip Food" />
-                        <Button
-                            StyleClass="DeleteButton"
-                            Command="{Binding FieldTripCateringRequest.DeleteCommand}" />
+                        <Image
+                            StyleClass="DeleteButton">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer 
+                                    Command="{Binding FieldTripCateringRequest.DeleteCommand}" />
+                            </Image.GestureRecognizers>
+                        </Image>
                     </StackLayout>
                     <CollectionView
                         ItemsSource="{Binding FieldTripCateringRequest.MenuCollection.Menus}">
