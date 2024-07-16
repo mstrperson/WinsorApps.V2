@@ -30,63 +30,54 @@
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <ScrollView>
-            <StackLayout
+            <VerticalStackLayout
                 Margin="15">
-                <StackLayout
-                    Orientation="Horizontal"
+                <HorizontalStackLayout
                     Spacing="30">
                     <CheckBox IsChecked="{Binding Setup}" />
                     <Label Text="We need help setting up the event." />
-                </StackLayout>
-                <StackLayout
-                    Orientation="Horizontal"
+                </HorizontalStackLayout>
+                <HorizontalStackLayout
                     Spacing="30">
                     <CheckBox IsChecked="{Binding Breakdown}" />
                     <Label Text="We need help breaking down after the event." />
-                </StackLayout>
-                <StackLayout
-                    Orientation="Horizontal"
+                </HorizontalStackLayout>
+                <HorizontalStackLayout
                     Spacing="30">
                     <CheckBox IsChecked="{Binding Parking}" />
                     <Label Text="We need a parking attendant during the event." />
-                </StackLayout>
-                <StackLayout
-                    Orientation="Horizontal"
+                </HorizontalStackLayout>
+                <HorizontalStackLayout
                     Spacing="30">
                     <CheckBox IsChecked="{Binding Presence}" />
                     <Label Text="We need folks on site during the event." />
-                </StackLayout>
-                <StackLayout
-                    Orientation="Horizontal"
+                </HorizontalStackLayout>
+                <HorizontalStackLayout
                     Spacing="30">
                     <CheckBox IsChecked="{Binding Overnight}" />
                     <Label Text="This event will happen overnight." />
-                </StackLayout>
-
-                <StackLayout
-                    Orientation="Horizontal"
+                </HorizontalStackLayout>
+                <HorizontalStackLayout
                     Spacing="30">
                     <Label 
                         Text="Specific Location Setup Needed" />
                     <Button 
                         StyleClass="AddButton"
                         Command="{Binding Locations.AddSetupCommand}" />
-                </StackLayout>
-                <StackLayout
+                </HorizontalStackLayout>
+                <VerticalStackLayout
+                    WidthRequest="800"
                     IsVisible="{Binding Locations.ShowSelected}">
                     <BoxView StyleClass="Bar" />
-                    <StackLayout
-                        Orientation="Horizontal">
-                        <views:LocationSingleSelector 
-                            BindingContext="{Binding Locations.Selected.LocationSearch}" />
-                    </StackLayout>
-                </StackLayout>
+                    <views:LocationSingleSelector 
+                        BindingContext="{Binding Locations.Selected.LocationSearch}" />
+                </VerticalStackLayout>
                 <CollectionView
                     ItemsSource="{Binding Locations.Setups}"
                     BackgroundColor="Transparent">
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="vm:LocationSetupViewModel">
-                            <StackLayout>
+                            <VerticalStackLayout>
                                 <BoxView StyleClass="Bar" />
                                 <Label 
                                     VerticalTextAlignment="Center"
@@ -96,8 +87,7 @@
                                 <views:LocationSingleSelector 
                                     BindingContext="{Binding LocationSearch}" 
                                     IsVisible="{Binding IsSelected, Converter={StaticResource Invert}}"/>
-                                <StackLayout
-                                    Orientation="Horizontal"
+                                <HorizontalStackLayout
                                     Spacing="30">
                                     <CheckBox 
                                         IsChecked="{Binding SandwichSign}" 
@@ -113,16 +103,16 @@
                                     <Button 
                                         StyleClass="DeleteButton"
                                         Command="{Binding DeleteCommand}" />
-                                </StackLayout>
+                                </HorizontalStackLayout>
                                 <Editor
                                     HeightRequest="250"
                                     Placeholder="(Mandatory) Please provide instructions for the facilities crew to set up at this location."
                                     Text="{Binding Instructions}"/>
-                            </StackLayout>
+                            </VerticalStackLayout>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
-            </StackLayout>
+            </VerticalStackLayout>
         </ScrollView>
     </ContentPage.Content>
 </ContentPage>

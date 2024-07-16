@@ -16,10 +16,10 @@
         </ResourceDictionary>
     </ContentView.Resources>
     <VerticalStackLayout>
-        <StackLayout
+        <VerticalStackLayout
+            WidthRequest="800"
             IsVisible="{Binding ShowCreate, Converter={StaticResource Invert}}">
-            <StackLayout
-                Orientation="Horizontal"
+            <HorizontalStackLayout
                 Spacing="30"
                 IsVisible="{Binding IsSelected, Converter={StaticResource Invert}}">
                 <SearchBar
@@ -35,35 +35,32 @@
                         <TapGestureRecognizer Command="{Binding CreateCommand}" />
                     </Image.GestureRecognizers>
                 </Image>
-            </StackLayout>
+            </HorizontalStackLayout>
             <CollectionView
                 IsVisible="{Binding ShowOptions}"
                 ItemsSource="{Binding Options}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="vm:LocationViewModel">
-                        <StackLayout
-                            Orientation="Horizontal"
+                        <HorizontalStackLayout
                             Spacing="30">
-                            <StackLayout.GestureRecognizers>
+                            <HorizontalStackLayout.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding SelectCommand}" />
-                            </StackLayout.GestureRecognizers>
+                            </HorizontalStackLayout.GestureRecognizers>
                             <Label Text="{Binding Label}" />
-                        </StackLayout>
+                        </HorizontalStackLayout>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-            <StackLayout
-                Orientation="Horizontal"
+            <HorizontalStackLayout
                 Spacing="30"
                 IsVisible="{Binding IsSelected}">
-                <StackLayout.GestureRecognizers>
+                <HorizontalStackLayout.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding ClearSelectionCommand}" />
-                </StackLayout.GestureRecognizers>
+                </HorizontalStackLayout.GestureRecognizers>
             <Label Text="{Binding Selected.Label}" />
-        </StackLayout>
-        </StackLayout>
-        <StackLayout
-            Orientation="Horizontal"
+        </HorizontalStackLayout>
+        </VerticalStackLayout>
+        <HorizontalStackLayout
             Spacing="30"
             IsVisible="{Binding ShowCreate}">
             <Entry
@@ -99,7 +96,7 @@
                         Command="{Binding CancelCreateCommand}"/>
                 </Image.GestureRecognizers>
             </Image>
-        </StackLayout>
+        </HorizontalStackLayout>
 
     </VerticalStackLayout>
 </ContentView>
