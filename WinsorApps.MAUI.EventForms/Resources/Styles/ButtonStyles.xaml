@@ -93,6 +93,7 @@
         <Setter Property="MinimumHeightRequest" Value="50" />
         <Setter Property="HeightRequest" Value="50"/>
         <Setter Property="Padding" Value="5" />
+        
     </Style><Style TargetType="Button" Class="DeleteButton">
         <Setter Property="Text" Value="✘"/>
         <Setter Property="MinimumWidthRequest" Value="50" />

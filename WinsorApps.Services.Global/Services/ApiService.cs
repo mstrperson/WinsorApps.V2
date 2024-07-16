@@ -452,6 +452,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
         ErrorAction? onError = null, bool isReAuth = false,
         FileStreamWrapper? inStream = null)
     {
+        onError ??= _logging.LogError;
         var request = await BuildRequest(
             (string.IsNullOrEmpty(jsonContent) && inStream is null) ? HttpMethod.Get : HttpMethod.Post,
             endpoint, jsonContent, authorize, inStream);

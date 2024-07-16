@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Maui.Storage;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
@@ -23,6 +24,7 @@ public partial class EventFormViewModel :
     IModelCarrier<EventFormViewModel, EventFormBase>
 {
     private readonly EventFormsService _service = ServiceHelper.GetService<EventFormsService>();
+    private readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
 
     [ObservableProperty] string id = "";
     [ObservableProperty] string summary = "";
@@ -183,8 +185,16 @@ public partial class EventFormViewModel :
     [RelayCommand]
     public async Task Print()
     {
-        await Task.Delay(20);
-        //var download = await _service.
+        var download = await _service.DownloadPdf(Id, OnError.DefaultBehavior(this));
+        if(download.Length > 0)
+        {
+            using MemoryStream ms = new MemoryStream(download);
+            var result = await FileSaver.SaveAsync(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), $"{Summary}.pdf", ms);
+            _logging.LogMessage(LocalLoggingService.LogLevel.Debug,
+                $"Downloaded PDF for {Summary}.",
+                $"FileSaverResult has status IsSuccessful: {result.IsSuccessful}",
+                $"Saved file to: {result.FilePath ?? "nowhere"}");
+        }
     }
 
     private static readonly ApiService _api = ServiceHelper.GetService<ApiService>();
@@ -257,6 +267,7 @@ public partial class EventFormViewModel :
             IsCreating = true;
             IsNew = false;
             Id = result.Value.id;
+            IsFieldTrip = result.Value.type.StartsWith("Field", StringComparison.InvariantCultureIgnoreCase);
         }
 
         Busy = false;
@@ -403,6 +414,7 @@ public partial class EventFormViewModel :
             CanEditSubForms = false;
             CanEditCatering = false;
             IsNew = false;
+            IsFieldTrip = result.Value.type.Contains("Field", StringComparison.InvariantCultureIgnoreCase);
             StatusSelection.Select(result.Value.status);
         }
         Busy = false;
@@ -424,6 +436,7 @@ public partial class EventFormViewModel :
             CanEditSubForms = false;
             CanEditCatering = false;
             IsNew = false;
+            IsFieldTrip = result.Value.type.Contains("Field", StringComparison.InvariantCultureIgnoreCase);
             StatusSelection.Select(result.Value.status);
         }
         Busy = false;
@@ -491,7 +504,7 @@ public partial class EventFormViewModel :
     public async Task LoadFacilities()
     {
         Busy = true;
-        if (string.IsNullOrEmpty(Facilites.Model.id))
+        if (!string.IsNullOrEmpty(Facilites.Model.id))
         {
             var facilities = await _service.GetFacilitiesEvent(Id, OnError.DefaultBehavior(this));
             if (!facilities.HasValue)
@@ -512,7 +525,7 @@ public partial class EventFormViewModel :
     public async Task LoadTech()
     {
         Busy = true;
-        if (string.IsNullOrEmpty(Tech.Model.id))
+        if (!string.IsNullOrEmpty(Tech.Model.id))
         {
             var tech = await _service.GetTechDetails(Id, OnError.DefaultBehavior(this));
             if (!tech.HasValue)
@@ -535,7 +548,7 @@ public partial class EventFormViewModel :
     public async Task LoadCatering()
     {
         Busy = true;
-        if (string.IsNullOrEmpty(Catering.Model.id))
+        if (!string.IsNullOrEmpty(Catering.Model.id))
         {
             var sub = await _service.GetCateringEvent(Id, OnError.DefaultBehavior(this));
             if (!sub.HasValue)
@@ -558,7 +571,7 @@ public partial class EventFormViewModel :
     public async Task LoadTheater()
     {
         Busy = true;
-        if (string.IsNullOrEmpty(Theater.Model.eventId))
+        if (!string.IsNullOrEmpty(Theater.Model.eventId))
         {
             var sub = await _service.GetTheaterDetails(Id, OnError.DefaultBehavior(this));
             if (!sub.HasValue)
@@ -580,7 +593,7 @@ public partial class EventFormViewModel :
     public async Task LoadFieldTrip()
     {
         Busy = true;
-        if (string.IsNullOrEmpty(FieldTrip.Model.eventId))
+        if (!string.IsNullOrEmpty(FieldTrip.Model.eventId))
         {
             var sub = await _service.GetFieldTripDetails(Id, OnError.DefaultBehavior(this));
             if (!sub.HasValue)

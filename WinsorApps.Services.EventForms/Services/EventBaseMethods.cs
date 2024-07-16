@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using WinsorApps.Services.EventForms.Models;
+using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.Services.EventForms.Services;
 
@@ -178,5 +179,15 @@ public partial class EventFormsService
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
         return evt.Value;
+    }
+
+    public async Task<byte[]> DownloadPdf(string eventId, ErrorAction onError)
+    {
+        var fileContent = await _api.DownloadFile($"api/events/{eventId}/pdf", onError: onError);
+        if(fileContent is not null && fileContent.Length > 0)
+        {
+            return fileContent;
+        }
+        return [];
     }
 }

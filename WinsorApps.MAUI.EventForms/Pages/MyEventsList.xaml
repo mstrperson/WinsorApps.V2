@@ -27,18 +27,29 @@
                     Orientation="Horizontal"
                     Spacing="30"
                     HorizontalOptions="Center">
-                    <Button 
+                    <Label 
                         StyleClass="LeftArrow"
-                        Command="{Binding DecrementMonthCommand}" />
+                        FontSize="Large">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer 
+                                Command="{Binding DecrementMonthCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
                     <Label
                         StyleClass="Header"
                         Text="{Binding PageLabel}" 
                         WidthRequest="400"
                         HorizontalTextAlignment="Center"/>
-                    <Button
+                    <Label
                         StyleClass="RightArrow"
-                        Command="{Binding IncrementMonthCommand}" />
+                        FontSize="Large">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding IncrementMonthCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
                 </StackLayout>
+                <BoxView StyleClass="Bar" />
                 <StackLayout
                     Orientation="Horizontal"
                     IsVisible="{Binding Busy}">
@@ -49,20 +60,66 @@
                         StyleClass="loading_image" />
                 </StackLayout>
                 <CollectionView
-                    ItemsSource="{Binding Events}">
+                    ItemsSource="{Binding Events}"
+                    BackgroundColor="Transparent">
+                    <CollectionView.Header>
+                        <HorizontalStackLayout
+                            HorizontalOptions="Center">
+                            <Label
+                                StyleClass="SubHeader"
+                                Text="My Events" />
+                            <Image
+                                StyleClass="RefreshButton">
+                                <Image.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ReloadCommand}" />
+                                </Image.GestureRecognizers>
+                            </Image>
+                        </HorizontalStackLayout>
+                    </CollectionView.Header>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="vm:EventFormViewModel">
-                            <StackLayout
-                                Orientation="Horizontal"
-                                Spacing="30">
-                                <StackLayout.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding SelectCommand}" />
-                                </StackLayout.GestureRecognizers>
-                                <Label Text="{Binding StatusSelection.Selected.Label}"/>
-                                <Label Text="-" />
-                                <Label Text="{Binding Summary}" />
-                                <Label Text="{Binding StartDate,StringFormat='{0:dd MMMM yyyy}'}"/>
-                            </StackLayout>
+                            <Grid
+                                RowDefinitions="*,*"
+                                ColumnDefinitions="*,250">
+                                <HorizontalStackLayout
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    Spacing="15"
+                                    HeightRequest="60">
+                                    <Label Text="{Binding StatusSelection.Selected.Label}"/>
+                                    <Label Text="-" />
+                                    <Label Text="{Binding Summary}" />
+                                    <Label Text="{Binding StartDate,StringFormat='{0:dddd dd MMMM, yyyy}'}"/>
+                                </HorizontalStackLayout>
+                                <HorizontalStackLayout
+                                    Grid.Row="0"
+                                    Grid.Column="1"
+                                    Spacing="30">
+                                    <Image
+                                        StyleClass="EditButton">
+                                        <Image.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding SelectCommand}"/>
+                                        </Image.GestureRecognizers>
+                                    </Image>
+                                    <Image
+                                        StyleClass="PrintButton">
+                                        <Image.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding PrintCommand}"/>
+                                        </Image.GestureRecognizers>
+                                    </Image>
+                                    <Image
+                                        StyleClass="AddButton"
+                                        >
+                                        <Image.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding TemplateCommand}"/>
+                                        </Image.GestureRecognizers>
+                                    </Image>
+                                </HorizontalStackLayout>
+                                <BoxView 
+                                    StyleClass="Bar"
+                                    Grid.Row="1"
+                                    Grid.ColumnSpan="2" />
+                            </Grid>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>

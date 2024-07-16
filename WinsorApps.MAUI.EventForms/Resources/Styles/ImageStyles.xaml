@@ -9,7 +9,8 @@
             Property="Source"
             Value="{FontImage 
                 FontFamily=Serif,
-                Glyph=➕}" />
+                Glyph=➕,
+                Size=18}" />
     </Style>
     <Style
         TargetType="Image"
@@ -17,8 +18,9 @@
         <Setter 
             Property="Source"
             Value="{FontImage 
-            FontFamily=Serif,
-            Glyph=✘}" />
+                FontFamily=Serif,
+                Glyph=✘,
+                Size=18}" />
     </Style>
 
     <Style
@@ -28,7 +30,8 @@
             Property="Source"
             Value="{FontImage 
                 FontFamily=Serif,
-                Glyph=💾}" />
+                Glyph=💾,
+                Size=18}" />
     </Style>
     <Style
         TargetType="Image"
@@ -37,7 +40,8 @@
             Property="Source"
             Value="{FontImage 
                 FontFamily=Serif,
-                Glyph=🗑}" />
+                Glyph=🗑,
+                Size=18}" />
     </Style>
     <Style
         TargetType="Image"
@@ -46,8 +50,21 @@
             Property="Source"
             Value="{FontImage 
                 FontFamily=Serif,
-                Glyph=🖨}" />
+                Glyph=🖨,
+                Size=18}" />
     </Style>
+
+    <Style
+        TargetType="Image"
+        Class="EditButton">
+        <Setter 
+            Property="Source"
+            Value="{FontImage
+                FontFamily=Serif,
+                Glyph=✍,
+                Size=18}" />
+    </Style>
+        
     <!--
         This is for inserting a wordmark_oneline logo anywhere in the project.
     -->
