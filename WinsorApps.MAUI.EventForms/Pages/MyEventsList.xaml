@@ -23,8 +23,7 @@
     <ContentPage.Content>
         <ScrollView>
             <StackLayout>
-                <StackLayout
-                    Orientation="Horizontal"
+                <HorizontalStackLayout
                     Spacing="30"
                     HorizontalOptions="Center">
                     <Label 
@@ -48,18 +47,18 @@
                                 Command="{Binding IncrementMonthCommand}" />
                         </Label.GestureRecognizers>
                     </Label>
-                </StackLayout>
+                </HorizontalStackLayout>
                 <BoxView StyleClass="Bar" />
-                <StackLayout
-                    Orientation="Horizontal"
+                <HorizontalStackLayout
                     IsVisible="{Binding Busy}">
                     <Label
                         Text="{Binding BusyMessage}"
                         StyleClass="SubHeader"/>
                     <Image
                         StyleClass="loading_image" />
-                </StackLayout>
+                </HorizontalStackLayout>
                 <CollectionView
+                    HeightRequest="1000"
                     ItemsSource="{Binding Events}"
                     BackgroundColor="Transparent">
                     <CollectionView.Header>
@@ -86,6 +85,9 @@
                                     Grid.Column="0"
                                     Spacing="15"
                                     HeightRequest="60">
+                                    <HorizontalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                    </HorizontalStackLayout.GestureRecognizers>
                                     <Label Text="{Binding StatusSelection.Selected.Label}"/>
                                     <Label Text="-" />
                                     <Label Text="{Binding Summary}" />
@@ -96,20 +98,13 @@
                                     Grid.Column="1"
                                     Spacing="30">
                                     <Image
-                                        StyleClass="EditButton">
-                                        <Image.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding SelectCommand}"/>
-                                        </Image.GestureRecognizers>
-                                    </Image>
-                                    <Image
                                         StyleClass="PrintButton">
                                         <Image.GestureRecognizers>
                                             <TapGestureRecognizer Command="{Binding PrintCommand}"/>
                                         </Image.GestureRecognizers>
                                     </Image>
                                     <Image
-                                        StyleClass="AddButton"
-                                        >
+                                        StyleClass="AddButton">
                                         <Image.GestureRecognizers>
                                             <TapGestureRecognizer Command="{Binding TemplateCommand}"/>
                                         </Image.GestureRecognizers>

@@ -9,7 +9,7 @@
             Property="IconImageSource"
             Value="{FontImage 
                 FontFamily=Serif, 
-                Color=Black,
+                Color=White,
                 Glyph=➕}" />
     </Style>
     <Style
@@ -19,7 +19,7 @@
             Property="IconImageSource"
             Value="{FontImage 
                 FontFamily=Serif, 
-                Color=Black,
+                Color=White,
                 Glyph=⎹}" />
     </Style>
     <Style TargetType="Shell" ApplyToDerivedTypes="True">
@@ -30,16 +30,46 @@
                 OnPlatform 
                     WinUI={StaticResource WinsorRed}, 
                     Default={AppThemeBinding 
-                    Light={StaticResource WinsorRed}, 
+                        Light={StaticResource White}, 
                         Dark={StaticResource DarkBlue}}}" />
-        <Setter Property="Shell.TitleColor" Value="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource DarkBlue}}" />
-        <Setter Property="Shell.DisabledColor" Value="{AppThemeBinding Light={StaticResource CoolGrey}, Dark={StaticResource WarmGrey}}" />
-        <Setter Property="Shell.UnselectedColor" Value="{AppThemeBinding Light={StaticResource CoolGrey}, Dark={StaticResource CoolGrey}}" />
-        <Setter Property="Shell.NavBarHasShadow" Value="True" />
-        <Setter Property="Shell.TabBarBackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkBlue}}" />
-        <Setter Property="Shell.TabBarForegroundColor" Value="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource White}}" />
-        <Setter Property="Shell.TabBarTitleColor" Value="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource White}}" />
-        <Setter Property="Shell.TabBarUnselectedColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource CoolGrey}}" />
+        <Setter 
+            Property="Shell.TitleColor" 
+            Value="{AppThemeBinding 
+                Light={StaticResource White}, 
+                Dark={StaticResource DarkBlue}}" />
+        <Setter 
+            Property="Shell.DisabledColor" 
+            Value="{AppThemeBinding 
+                Light={StaticResource CoolGrey},
+                Dark={StaticResource WarmGrey}}" />
+        <Setter 
+            Property="Shell.UnselectedColor" 
+            Value="{AppThemeBinding 
+                Light={StaticResource CoolGrey}, 
+                Dark={StaticResource CoolGrey}}" />
+        <Setter 
+            Property="Shell.NavBarHasShadow" 
+            Value="True" />
+        <Setter 
+            Property="Shell.TabBarBackgroundColor" 
+            Value="{AppThemeBinding 
+                Light={StaticResource White}, 
+                Dark={StaticResource DarkBlue}}" />
+        <Setter 
+            Property="Shell.TabBarForegroundColor" 
+            Value="{AppThemeBinding 
+                Light={StaticResource WinsorRed}, 
+                Dark={StaticResource White}}" />
+        <Setter 
+            Property="Shell.TabBarTitleColor" 
+            Value="{AppThemeBinding 
+                Light={StaticResource WinsorRed}, 
+                Dark={StaticResource White}}" />
+        <Setter 
+            Property="Shell.TabBarUnselectedColor" 
+            Value="{AppThemeBinding 
+                Light={StaticResource Black}, 
+                Dark={StaticResource CoolGrey}}" />
     </Style>
     <Style
         TargetType="ToolbarItem"
@@ -48,7 +78,7 @@
             Property="IconImageSource"
             Value="{FontImage 
                 FontFamily=Serif, 
-                Color=Black,
+                Color=White,
                 Glyph=➥}" />
     </Style>
 
@@ -59,18 +89,18 @@
             Property="IconImageSource"
             Value="{FontImage 
                 FontFamily=Serif, 
-                Color=Black,
+                Color=White,
                 Glyph=🗑}" />
     </Style>
     
     <Style
-                TargetType="ToolbarItem"
-                Class="PrintButton">
+        TargetType="ToolbarItem"
+        Class="PrintButton">
         <Setter 
             Property="IconImageSource"
             Value="{FontImage 
             FontFamily=Serif,
-            Color=Black,
+            Color=White,
             Glyph=🖨}" />
     </Style>
 </ResourceDictionary>
