@@ -85,7 +85,7 @@ public partial class EventFormsService
         return result;
     }
 
-    public async Task<EventFormBase?> BeginUpdating(string eventId, NewEvent updatedEvent, ErrorAction onError)
+    public async Task<EventFormBase?> UpdateEvent(string eventId, NewEvent updatedEvent, ErrorAction onError)
     {
         var result = await _api.SendAsync<NewEvent, EventFormBase?>(HttpMethod.Post,
             $"api/events/{eventId}", updatedEvent, onError: onError);

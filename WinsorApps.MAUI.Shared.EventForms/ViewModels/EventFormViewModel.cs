@@ -402,7 +402,7 @@ public partial class EventFormViewModel :
         if (string.IsNullOrEmpty(Id))
             return;
         Busy = true;
-        var result = await _service.BeginUpdating(Id, this, OnError.DefaultBehavior(this));
+        var result = await _service.UpdateEvent(Id, this, OnError.DefaultBehavior(this));
         if(result.HasValue)
         {
             Model = result.Value;
@@ -421,9 +421,18 @@ public partial class EventFormViewModel :
         if (!IsCreating)
             return;
         Busy = true;
-        
-        // TODO: submit update event base
-        
+
+        var updatedBase = await _service.UpdateEvent(Id, this, OnError.DefaultBehavior(this));
+
+        if(!updatedBase.HasValue)
+        {
+            Busy = false;
+            _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Failed to update event {Summary} when attempting to complete submission");
+            return;
+        }
+
+        Model = updatedBase.Value;
+
         var result = await _service.CompleteSubmission(Id, OnError.DefaultBehavior(this));
         if(result.HasValue)
         {
@@ -446,6 +455,18 @@ public partial class EventFormViewModel :
             return;
 
         Busy = true;
+
+        var updatedBase = await _service.UpdateEvent(Id, this, OnError.DefaultBehavior(this));
+
+        if (!updatedBase.HasValue)
+        {
+            Busy = false;
+            _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Failed to update event {Summary} when attempting to complete submission");
+            return;
+        }
+
+        Model = updatedBase.Value;
+
         var result = await _service.CompleteUpdate(Id, OnError.DefaultBehavior(this));
         if (result.HasValue)
         {
