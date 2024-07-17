@@ -421,6 +421,9 @@ public partial class EventFormViewModel :
         if (!IsCreating)
             return;
         Busy = true;
+        
+        // TODO: submit update event base
+        
         var result = await _service.CompleteSubmission(Id, OnError.DefaultBehavior(this));
         if(result.HasValue)
         {
