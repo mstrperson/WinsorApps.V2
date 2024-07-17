@@ -24,6 +24,7 @@ public partial class TheaterEventViewModel :
     [ObservableProperty] string notes = "";
     [ObservableProperty] ImmutableArray<DocumentViewModel> documents = [];
     [ObservableProperty] TheaterMenuCollectionViewModel theaterMenu = new();
+    [ObservableProperty] private bool hasLoaded;
 
     public TheaterEvent Model { get; private set; }
 
@@ -49,6 +50,7 @@ public partial class TheaterEventViewModel :
         Documents = model.attachments.Select(doc => new DocumentViewModel(doc)).ToImmutableArray();
         
         LoadSelections(model.items);
+        HasLoaded = true;
     }
 
     public TheaterEventViewModel()

@@ -78,13 +78,6 @@ public partial class EventListViewModel :
         Busy = true;
         var vm = new EventFormViewModel(); 
         
-        vm.MarCommRequested += (sender, mvm) => PageRequested?.Invoke(this, new MarComPage(mvm));
-        vm.TheaterRequested += (sender, thvm) => PageRequested?.Invoke(this, new TheaterPage(thvm));
-        vm.TechRequested += (sender, tvm) => PageRequested?.Invoke(this, new TechPage(tvm));
-        vm.CateringRequested += (sender, cvm) => PageRequested?.Invoke(this, new CateringPage(cvm));
-        vm.FieldTripRequested += (sender, ftvm) => PageRequested?.Invoke(this, new FieldTripPage(ftvm));
-        vm.FacilitesRequested += (sender, fvm) => PageRequested?.Invoke(this, new FacilitesPage(fvm));
-
         vm.StatusSelection.Select("Draft");
         vm.IsNew = true;
         vm.IsUpdating = false;
@@ -152,15 +145,6 @@ public partial class EventListViewModel :
         {
             vm.Selected += (sender, evt) => OnEventSelected?.Invoke(this, vm);
             vm.Deleted += (_, _) => Events.Remove(vm);
-
-            vm.OnError += (sender, err) =>
-                OnError?.Invoke(sender, err);
-            vm.MarCommRequested += (sender, mvm) => PageRequested?.Invoke(this, new MarComPage(mvm));
-            vm.TheaterRequested += (sender, thvm) => PageRequested?.Invoke(this, new TheaterPage(thvm));
-            vm.TechRequested += (sender, tvm) => PageRequested?.Invoke(this, new TechPage(tvm));
-            vm.CateringRequested += (sender, cvm) => PageRequested?.Invoke(this, new CateringPage(cvm));
-            vm.FieldTripRequested += (sender, ftvm) => PageRequested?.Invoke(this, new FieldTripPage(ftvm));
-            vm.FacilitesRequested += (sender, fvm) => PageRequested?.Invoke(this, new FacilitesPage(fvm));
         }
 
         Busy = false;

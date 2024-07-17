@@ -268,6 +268,7 @@ public partial class EventFormViewModel :
             IsNew = false;
             Id = result.Value.id;
             IsFieldTrip = result.Value.type.StartsWith("Field", StringComparison.InvariantCultureIgnoreCase);
+            StatusSelection.Select(result.Value.status);
         }
 
         Busy = false;
@@ -310,7 +311,7 @@ public partial class EventFormViewModel :
         clone.StatusSelection.Select("Draft");
         clone.HasLoadedOnce = false;
         clone.StartDate = DateTime.Today.AddDays(21);
-        clone.EndDate = DateTime.Today.Add(EndDate - StartDate).Date;
+        clone.EndDate = clone.StartDate.Add(EndDate - StartDate).Date;
         clone.Leader = LeaderSearch.Selected;
         
         foreach (var customLocation in SelectedCustomLocations)
@@ -318,8 +319,12 @@ public partial class EventFormViewModel :
         foreach (var location in SelectedLocations)
             clone.SelectedLocations.Add(location.Clone());
 
-        await clone.StartNewForm(); 
-        
+        await clone.StartNewForm();
+        if (string.IsNullOrEmpty(clone.Id))
+        {
+            _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Failed to start template of {Summary}");
+            return;
+        }
         clone.HasCatering = Model.hasCatering;
         if (Model.hasCatering)
         {
@@ -543,7 +548,7 @@ public partial class EventFormViewModel :
     public async Task LoadFacilities()
     {
         Busy = true;
-        if (!string.IsNullOrEmpty(Facilites.Model.id))
+        if (string.IsNullOrEmpty(Facilites.Model.id) && !Facilites.HasLoaded)
         {
             var facilities = await _service.GetFacilitiesEvent(Id, OnError.DefaultBehavior(this));
             if (!facilities.HasValue)
@@ -564,7 +569,7 @@ public partial class EventFormViewModel :
     public async Task LoadTech()
     {
         Busy = true;
-        if (!string.IsNullOrEmpty(Tech.Model.id))
+        if (string.IsNullOrEmpty(Tech.Model.id) && !Tech.HasLoaded)
         {
             var tech = await _service.GetTechDetails(Id, OnError.DefaultBehavior(this));
             if (!tech.HasValue)
@@ -587,7 +592,7 @@ public partial class EventFormViewModel :
     public async Task LoadCatering()
     {
         Busy = true;
-        if (!string.IsNullOrEmpty(Catering.Model.id))
+        if (string.IsNullOrEmpty(Catering.Model.id) && !Catering.HasLoaded)
         {
             var sub = await _service.GetCateringEvent(Id, OnError.DefaultBehavior(this));
             if (!sub.HasValue)
@@ -610,7 +615,7 @@ public partial class EventFormViewModel :
     public async Task LoadTheater()
     {
         Busy = true;
-        if (!string.IsNullOrEmpty(Theater.Model.eventId))
+        if (string.IsNullOrEmpty(Theater.Model.eventId) && !Theater.HasLoaded)
         {
             var sub = await _service.GetTheaterDetails(Id, OnError.DefaultBehavior(this));
             if (!sub.HasValue)
@@ -632,7 +637,7 @@ public partial class EventFormViewModel :
     public async Task LoadFieldTrip()
     {
         Busy = true;
-        if (!string.IsNullOrEmpty(FieldTrip.Model.eventId))
+        if (string.IsNullOrEmpty(FieldTrip.Model.eventId) && !FieldTrip.HasLoaded)
         {
             var sub = await _service.GetFieldTripDetails(Id, OnError.DefaultBehavior(this));
             if (!sub.HasValue)
@@ -654,17 +659,20 @@ public partial class EventFormViewModel :
     public async Task LoadMarComm()
     {
         Busy = true;
-        var sub = await _service.GetMarCommRequest(Id, OnError.DefaultBehavior(this));
-        if (!sub.HasValue)
+        if (string.IsNullOrEmpty(MarComm.Model.eventId) && !MarComm.HasLoaded)
         {
-            MarComm.Clear();
-            HasMarComm = false;
-            Busy = false;
-            return;
-        }
+            var sub = await _service.GetMarCommRequest(Id, OnError.DefaultBehavior(this));
+            if (!sub.HasValue)
+            {
+                MarComm.Clear();
+                HasMarComm = false;
+                Busy = false;
+                return;
+            }
 
-        MarComm.Load(sub.Value);
-        HasMarComm = true;
+            MarComm.Load(sub.Value);
+            HasMarComm = true;
+        }
 
         Busy = false;
         MarCommRequested?.Invoke(this, MarComm);

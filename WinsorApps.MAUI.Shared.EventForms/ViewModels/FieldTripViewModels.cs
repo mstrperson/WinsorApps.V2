@@ -23,6 +23,7 @@ public partial class FieldTripViewModel :
     [ObservableProperty] StudentsByClassViewModel studentsByClass = new();
     [ObservableProperty] FieldTripCateringRequestViewModel fieldTripCateringRequest = new();
     [ObservableProperty] bool showFood;
+    [ObservableProperty] private bool hasLoaded;
 
     public event EventHandler? ReadyToContinue;
     public event EventHandler? Deleted;
@@ -98,6 +99,8 @@ public partial class FieldTripViewModel :
                 Chaperones.Remove(chap);
             };
         }
+
+        HasLoaded = true;
     }
         
     private readonly EventFormsService _service = ServiceHelper.GetService<EventFormsService>();
@@ -153,10 +156,16 @@ public partial class TransportationViewModel :
             NoOrganizedTransit = model.noOrganizedTransit
         };
         if (model.hiredBusses.HasValue)
+        {
+            vm.ShowHiredBusses = true;
             vm.HiredBusses = HiredBusViewModel.Get(model.hiredBusses.Value);
+        }
 
         if (model.vehicleRequests.HasValue)
+        {
+            vm.ShowVehicleRequest = true;
             vm.VehicleRequestCollection.LoadRequests(model.vehicleRequests.Value.Select(VehicleRequestViewModel.Get));
+        }
 
         return vm;
     }

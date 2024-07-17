@@ -29,6 +29,7 @@ public partial class MarCommEventViewModel :
     [ObservableProperty] bool needPhotographer;
     [ObservableProperty] ObservableCollection<ContactViewModel> inviteList = [];
     [ObservableProperty] ContactSearchViewModel contactSearch = new() { SelectionMode = SelectionMode.Single };
+    [ObservableProperty] private bool hasLoaded;
 
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "Working";
@@ -106,6 +107,7 @@ public partial class MarCommEventViewModel :
         InviteList = [..model.inviteList.Select(ContactViewModel.Get)];
         foreach(var contact in InviteList)
             contact.Selected += (_, _) => InviteList.Remove(contact);
+        HasLoaded = true;
     }
 
     public static MarCommEventViewModel Default => new();

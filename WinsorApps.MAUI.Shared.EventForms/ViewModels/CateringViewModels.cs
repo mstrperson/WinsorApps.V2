@@ -32,6 +32,7 @@ public partial class CateringEventViewModel :
     [ObservableProperty] BudgetCodeSearchViewModel budgetCodeSearch = new();
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "Working";
+    [ObservableProperty] private bool hasLoaded;
 
     public static CateringEventViewModel Default => new();
 
@@ -78,6 +79,7 @@ public partial class CateringEventViewModel :
         BudgetCodeSearch.Select(BudgetCodeViewModel.Get(model.budgetCode));
         Menu.ClearSelections();
         Menu.LoadMenuSelections(model.menuSelections);
+        HasLoaded = true;
     }
 
     [RelayCommand]

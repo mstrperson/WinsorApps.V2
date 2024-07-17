@@ -87,7 +87,7 @@ public partial class EventFormsService
 
     public async Task<EventFormBase?> UpdateEvent(string eventId, NewEvent updatedEvent, ErrorAction onError)
     {
-        var result = await _api.SendAsync<NewEvent, EventFormBase?>(HttpMethod.Post,
+        var result = await _api.SendAsync<NewEvent, EventFormBase?>(HttpMethod.Put,
             $"api/events/{eventId}", updatedEvent, onError: onError);
 
         if (result.HasValue)

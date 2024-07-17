@@ -12,6 +12,8 @@ public interface IEventSubFormViewModel<T, TModel>
 
     public string Id { get; set; }
 
+    public bool HasLoaded { get; set; }
+    
     public void Load(TModel model);
 
     public void Clear();

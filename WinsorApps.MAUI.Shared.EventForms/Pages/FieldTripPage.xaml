@@ -4,7 +4,6 @@
              xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.EventForms.ViewModels"
              xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
              xmlns:views="clr-namespace:WinsorApps.MAUI.Shared.EventForms.Views"
-             xmlns:styles="clr-namespace:WinsorApps.MAUI.Shared.Resources.Styles;assembly=WinsorApps.MAUI.Shared"
              x:DataType="vm:FieldTripViewModel"
              x:Class="WinsorApps.MAUI.Shared.EventForms.Pages.FieldTripPage"
              Title="Field Trip Information">
@@ -18,10 +17,12 @@
     <ContentPage.ToolbarItems>
         <ToolbarItem 
             Command="{Binding ContinueCommand}" 
+            CommandParameter="{x:Boolean false}"
             StyleClass="SubmitButton"/>
         <ToolbarItem
             Text="Continue"
-            Command="{Binding ContinueCommand}" />
+            Command="{Binding ContinueCommand}" 
+            CommandParameter="{x:Boolean false}"/>
         <ToolbarItem
             StyleClass="Separator" />
         <ToolbarItem
@@ -227,8 +228,7 @@
                     IsVisible="{Binding Transportation.ShowVehicleRequest}">
 
                     <BoxView StyleClass="Bar" />
-                    <StackLayout
-                        Orientation="Horizontal"
+                    <HorizontalStackLayout
                         Spacing="30">
                         <Label
                             StyleClass="H3"
@@ -236,9 +236,10 @@
                         <Button
                             StyleClass="DeleteButton"
                             Command="{Binding Transportation.VehicleRequestCollection.ClearRequestsCommand}" />
-                    </StackLayout>
+                    </HorizontalStackLayout>
                     <CollectionView
-                        ItemsSource="{Binding Transportation.VehicleRequestCollection.CategoryCollection.Categories}">
+                        ItemsSource="{Binding Transportation.VehicleRequestCollection.CategoryCollection.Categories}"
+                        HeightRequest="60">
                         <CollectionView.Header>
                             <Label Text="Available Vehicles" />
                         </CollectionView.Header>

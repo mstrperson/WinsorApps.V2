@@ -23,6 +23,7 @@ public partial class FacilitesEventViewModel :
     [ObservableProperty] bool overnight;
     [ObservableProperty] bool parking;
     [ObservableProperty] LocationSetupCollectionViewModel locations = new();
+    [ObservableProperty] private bool hasLoaded;
 
     public event EventHandler? ReadyToContinue;
     public event EventHandler? Deleted;
@@ -62,6 +63,7 @@ public partial class FacilitesEventViewModel :
         Model = model;
         
         Locations.LoadSetupInformation(model.locations);
+        HasLoaded = true;
     }
 
     private void ValidationFailMessage(string message)

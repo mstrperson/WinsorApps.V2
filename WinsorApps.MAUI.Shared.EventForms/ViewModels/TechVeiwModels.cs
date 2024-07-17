@@ -27,6 +27,7 @@ public partial class TechEventViewModel :
     [ObservableProperty] string details = "";
     [ObservableProperty] bool isVirtual;
     [ObservableProperty] VirtualEventViewModel virtualEvent = VirtualEventViewModel.Default;
+    [ObservableProperty] private bool hasLoaded;
 
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "Working";
@@ -86,6 +87,8 @@ public partial class TechEventViewModel :
         {
             VirtualEvent.Load(model.virtualEvent.Value);
         }
+
+        HasLoaded = true;
     }
 
     public static implicit operator NewTechEvent(TechEventViewModel vm) =>
@@ -151,6 +154,7 @@ public partial class VirtualEventViewModel :
     [ObservableProperty] bool showPanelits;
     [ObservableProperty] ContactSearchViewModel panelistSearch = new() { SelectionMode = SelectionMode.Single };
     [ObservableProperty] ObservableCollection<ContactViewModel> panelists = [];
+    [ObservableProperty] private bool hasLoaded;
 
     public event EventHandler? ReadyToContinue;
     public event EventHandler? Deleted;
@@ -227,6 +231,8 @@ public partial class VirtualEventViewModel :
                 Panelists.Remove(contact);
             };
         }
+
+        HasLoaded = true;
     }
 
     [RelayCommand]
