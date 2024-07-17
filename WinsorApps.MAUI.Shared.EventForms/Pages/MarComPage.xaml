@@ -18,10 +18,12 @@
     <ContentPage.ToolbarItems>
         <ToolbarItem 
             Command="{Binding ContinueCommand}"
+            CommandParameter="{x:Boolean false}"
             StyleClass="SubmitButton"/>
         <ToolbarItem
             Text="Continue"
-            Command="{Binding ContinueCommand}" />
+            Command="{Binding ContinueCommand}"
+            CommandParameter="{x:Boolean false}" />
         <ToolbarItem
             StyleClass="Separator" />
         <ToolbarItem

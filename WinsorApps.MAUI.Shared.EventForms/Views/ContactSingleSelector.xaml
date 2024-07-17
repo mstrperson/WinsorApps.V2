@@ -67,18 +67,26 @@
             IsVisible="{Binding ShowCreate}">
             <Entry
                 Text="{Binding NewItem.FirstName}"
-                Placeholder="First Name"/>
+                Placeholder="First Name"
+                WidthRequest="120"
+                HeightRequest="40"/>
             <Entry
                 Text="{Binding NewItem.LastName}"
-                Placeholder="Last Name"/>
+                Placeholder="Last Name"
+                WidthRequest="120"
+                HeightRequest="40"/>
             <Entry
                 Text="{Binding NewItem.Email}"
                 Placeholder="Email Address"
-                Keyboard="Email" />
+                Keyboard="Email"
+                WidthRequest="120"
+                HeightRequest="40" />
             <Entry
                 Text="{Binding NewItem.Phone}"
                 Placeholder="Cellphone Number"
-                Keyboard="Telephone" />
+                Keyboard="Telephone"
+                WidthRequest="120"
+                HeightRequest="40" />
             <Button
                 StyleClass="SaveButton"
                 ToolTipProperties.Text="Save Contact" 
