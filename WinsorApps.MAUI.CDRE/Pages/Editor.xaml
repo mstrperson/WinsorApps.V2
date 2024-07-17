@@ -16,7 +16,10 @@
     </ContentPage.Resources>
     <ContentPage.Content>
         <ScrollView>
-            <StackLayout Spacing="3" Padding="15" IsEnabled="{Binding Busy,Converter={StaticResource Invert}}">
+            <VerticalStackLayout 
+                Spacing="3" 
+                Padding="15" 
+                IsEnabled="{Binding Busy,Converter={StaticResource Invert}}">
                 
                 <Entry
                     Text="{Binding Summary, Mode=TwoWay}" 
@@ -25,6 +28,7 @@
                     BackgroundColor="{DynamicResource WarmGrey}"
                     Placeholder="Event Name"
                     PlaceholderColor="{DynamicResource DarkBlue}"/>
+                
                 <Editor 
                     Text="{Binding Description, Mode=TwoWay}" 
                     HeightRequest="90" 
@@ -34,9 +38,12 @@
                     Placeholder="Description (Optional)"
                     PlaceholderColor="{DynamicResource DarkBlue}"/>
 
-                <CollectionView ItemsSource="{Binding CycleDays.Items}"
-                                FlowDirection="LeftToRight" 
-                                Margin="0">
+                <CollectionView 
+                    ItemsSource="{Binding CycleDays.Items}"
+                    FlowDirection="LeftToRight" 
+                    ItemsLayout="HorizontalGrid"
+                    Margin="0"
+                    BackgroundColor="Transparent">
 
                     <CollectionView.Header>
                         <HorizontalStackLayout>
@@ -44,52 +51,64 @@
                                 Text="Cycle Day(s)"
                                 FontSize="Micro"
                                 Margin="0"
-                                TranslationY="-12"
                                 FontAttributes="Bold"/>
                         </HorizontalStackLayout>
                     </CollectionView.Header>
-
-                    <CollectionView.ItemsLayout>
-                        <LinearItemsLayout Orientation="Horizontal" />
-                    </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="svm:SelectableLabelViewModel">
                             <HorizontalStackLayout>
-                                <Label Text="{Binding Label}" 
-                                   FontSize="Micro" 
-                                   TextColor="White" />
+                                <HorizontalStackLayout.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                </HorizontalStackLayout.GestureRecognizers>
+                                <Label 
+                                    Text="{Binding Label}" 
+                                    FontSize="Micro" 
+                                    IsVisible="{Binding IsSelected, Converter={StaticResource Invert}}"
+                                    TextColor="White" />
+                                <Label 
+                                    Text="{Binding Label}" 
+                                    FontSize="Micro" 
+                                    FontAttributes="Bold"
+                                    IsVisible="{Binding IsSelected}"
+                                    TextColor="White" />
                                 <CheckBox IsChecked="{Binding IsSelected}" />
                             </HorizontalStackLayout>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
-                <HorizontalStackLayout HorizontalOptions="End">
-                    <Label Text="Every"/>
-                    <Picker
-                        SelectedItem="{Binding Frequency, Mode=TwoWay}"
-                        ItemsSource="{Binding FrequencyOptions}"
-                        TranslationY="-3"/>
-                    <Label Text="Cycle(s)"/>
 
-                </HorizontalStackLayout>
-                
-
-                <HorizontalStackLayout Margin="0,-25,0,0">
-                    <Label 
+                <Grid
+                    RowDefinitions="*"
+                    ColumnDefinitions="*,*">
+                    <HorizontalStackLayout 
+                        Grid.Column="1"
+                        Grid.Row="0"
+                        HorizontalOptions="End">
+                        <Label Text="Every"/>
+                        <Picker
+                            SelectedItem="{Binding Frequency, Mode=TwoWay}"
+                            ItemsSource="{Binding FrequencyOptions}"
+                            TranslationY="-3"/>
+                        <Label Text="Cycle(s)"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout
+                        Grid.Row="0"
+                        Grid.Column="0">
+                        <Label 
                         Text="Date:"
                         FontSize="Micro"
                         Margin="0"
                         FontAttributes="Bold"/>
-                    <DatePicker     
-                        Date="{Binding Beginning}"/>
-                    <Label
-                        Text="--"
-                           TranslationX="15"/>
-                    <DatePicker     
-                         Date="{Binding Ending}"
-                        TranslationX="30"/>
-                </HorizontalStackLayout>
-
+                        <DatePicker     
+                            Date="{Binding Beginning}"/>
+                        <Label
+                            Text="--"
+                            TranslationX="15"/>
+                        <DatePicker     
+                            Date="{Binding Ending}"
+                            TranslationX="30"/>
+                    </HorizontalStackLayout>
+                </Grid>
                 <HorizontalStackLayout>
                     <Label
                         Text="All Day"
@@ -148,11 +167,11 @@
                 </HorizontalStackLayout>
                 
                 <HorizontalStackLayout>
-                        <Label
-                            Text="Added:"
-                            VerticalOptions="Start"
-                            TranslationY="-3.5"
-                            FontSize="Micro"/>
+                    <Label
+                        Text="Added:"
+                        VerticalOptions="Start"
+                        TranslationY="-3.5"
+                        FontSize="Micro"/>
                     <CollectionView ItemsSource="{Binding Attendees.Emails}">
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="svm:SelectableLabelViewModel">
@@ -163,7 +182,7 @@
                                                 VerticalOptions="Center"/>
                                     <Image
                                                 Source="{FontImage FontFamily=FontAwesomeSolid, Color=White,
-                                                         Glyph={x:Static styles:FontAwesomeSolid.TrashAlt}}"
+                                                            Glyph={x:Static styles:FontAwesomeSolid.TrashAlt}}"
                                                 Scale="0.4"
                                                 VerticalOptions="Center">
                                         <Image.GestureRecognizers>
@@ -186,7 +205,7 @@
                         IsEnabled="True"/>
                 </HorizontalStackLayout>
 
-                <StackLayout Orientation="Horizontal">
+                <HorizontalStackLayout>
                        <Button 
                             Text="Save" 
                             Command="{Binding SubmitCommand}"
@@ -210,9 +229,9 @@
                        <Image
                             IsVisible="{Binding Busy}"
                             StyleClass="loading_symbol"/>
-                </StackLayout>
+                </HorizontalStackLayout>
                 
-            </StackLayout>
+            </VerticalStackLayout>
         </ScrollView>
     </ContentPage.Content>
 </ContentPage>
