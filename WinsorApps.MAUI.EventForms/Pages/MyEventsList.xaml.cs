@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using AsyncAwaitBestPractices;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.EventForms.Pages;
@@ -20,13 +21,13 @@ public partial class MyEventsList : ContentPage
             await Navigation.PopToRootAsync();
             Vm_PageRequested(sender, e);
         };
+        
 		vm.Reload().SafeFireAndForget(e => e.LogException());
 		BindingContext = vm;
 		InitializeComponent();
 	}
 
-
-    private void Vm_PageRequested(object? sender, ContentPage e)
+	private void Vm_PageRequested(object? sender, ContentPage e)
     {
         Navigation.PushAsync(e);
     }

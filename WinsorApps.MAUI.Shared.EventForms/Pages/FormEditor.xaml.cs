@@ -16,9 +16,8 @@ public partial class FormEditor : ContentPage
         {
             vm.TemplateRequested += (sender, template) =>
             {
-                Navigation.PopToRootAsync();
                 var page = new FormEditor(template);
-                MainThread.BeginInvokeOnMainThread(() => Navigation.PushAsync(page));
+                Navigation.PushAsync(page);
             };
 
             vm.OnError += this.DefaultOnErrorHandler();

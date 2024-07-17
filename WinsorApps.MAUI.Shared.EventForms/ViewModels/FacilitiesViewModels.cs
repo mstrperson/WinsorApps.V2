@@ -70,7 +70,7 @@ public partial class FacilitesEventViewModel :
     }
 
     [RelayCommand]
-    public async Task Continue()
+    public async Task Continue(bool template = false)
     {
         foreach(var setup in this.Locations.Setups)
         {
@@ -85,7 +85,8 @@ public partial class FacilitesEventViewModel :
         if (result.HasValue)
         {
             Model = result.Value;
-            ReadyToContinue?.Invoke(this, EventArgs.Empty);
+            if(!template)
+                ReadyToContinue?.Invoke(this, EventArgs.Empty);
         }
     }
 

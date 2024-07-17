@@ -286,69 +286,6 @@ public partial class EventFormViewModel :
                 IsSelected = true
             }
         };
-        
-        clone.Leader = LeaderSearch.Selected;
-        foreach (var customLocation in SelectedCustomLocations)
-            clone.SelectedCustomLocations.Add(customLocation.Clone());
-        foreach (var location in SelectedLocations)
-            clone.SelectedLocations.Add(location.Clone());
-
-        clone.HasCatering = Model.hasCatering;
-        if (Model.hasCatering)
-        {
-            var stuff = await _service.GetCateringEvent(Id, OnError.DefaultBehavior(this));
-            if (stuff.HasValue)
-            {
-                clone.Catering.Load(stuff.Value);
-            }
-        }
-
-        clone.HasFacilities = Model.hasFacilitiesInfo;
-        if (Model.hasFacilitiesInfo)
-        {
-            var stuff = await _service.GetFacilitiesEvent(Id, OnError.DefaultBehavior(this));
-            if (stuff.HasValue)
-            {
-                clone.Facilites.Load(stuff.Value);
-            }
-        }
-        clone.HasTech = Model.hasTechRequest;
-        if (Model.hasTechRequest)
-        {
-            var stuff = await _service.GetTechDetails(Id, OnError.DefaultBehavior(this));
-            if (stuff.HasValue)
-            {
-                clone.Tech.Load(stuff.Value);
-            }
-        }
-        clone.HasTheater = Model.hasTheaterRequest;
-        if (Model.hasTheaterRequest)
-        {
-            var stuff = await _service.GetTheaterDetails(Id, OnError.DefaultBehavior(this));
-            if (stuff.HasValue)
-            {
-                clone.Theater.Load(stuff.Value);
-            }
-        }
-        clone.HasMarComm = Model.hasMarCom;
-        if (Model.hasMarCom)
-        {
-            var stuff = await _service.GetMarCommRequest(Id, OnError.DefaultBehavior(this));
-            if (stuff.HasValue)
-            {
-                clone.MarComm.Load(stuff.Value);
-            }
-        }
-        clone.IsFieldTrip = Model.hasFieldTripInfo;
-        if (Model.hasFieldTripInfo)
-        {
-            var stuff = await _service.GetFieldTripDetails(Id, OnError.DefaultBehavior(this));
-            if (stuff.HasValue)
-            {
-                clone.FieldTrip.Load(stuff.Value);
-            }
-        }
-
         clone.PreapprovalDate = DateTime.Today;
         clone.AttendeeCount = AttendeeCount;
         clone.Attachments = [];
@@ -372,8 +309,86 @@ public partial class EventFormViewModel :
         clone.Model = new();
         clone.StatusSelection.Select("Draft");
         clone.HasLoadedOnce = false;
-        clone.StartDate = DateTime.Today;
+        clone.StartDate = DateTime.Today.AddDays(21);
         clone.EndDate = DateTime.Today.Add(EndDate - StartDate).Date;
+        clone.Leader = LeaderSearch.Selected;
+        
+        foreach (var customLocation in SelectedCustomLocations)
+            clone.SelectedCustomLocations.Add(customLocation.Clone());
+        foreach (var location in SelectedLocations)
+            clone.SelectedLocations.Add(location.Clone());
+
+        await clone.StartNewForm(); 
+        
+        clone.HasCatering = Model.hasCatering;
+        if (Model.hasCatering)
+        {
+            var stuff = await _service.GetCateringEvent(Id, OnError.DefaultBehavior(this));
+            if (stuff.HasValue)
+            {
+                clone.Catering.Load(stuff.Value);
+                clone.Catering.Id = clone.Id;
+                await clone.Catering.Continue(true);
+            }
+        }
+
+        clone.HasFacilities = Model.hasFacilitiesInfo;
+        if (Model.hasFacilitiesInfo)
+        {
+            var stuff = await _service.GetFacilitiesEvent(Id, OnError.DefaultBehavior(this));
+            if (stuff.HasValue)
+            {
+                clone.Facilites.Load(stuff.Value);
+                clone.Facilites.Id = clone.Id;
+                await clone.Facilites.Continue(true);
+            }
+        }
+        clone.HasTech = Model.hasTechRequest;
+        if (Model.hasTechRequest)
+        {
+            var stuff = await _service.GetTechDetails(Id, OnError.DefaultBehavior(this));
+            if (stuff.HasValue)
+            {
+                clone.Tech.Load(stuff.Value);
+                clone.Tech.Id = clone.Id;
+                await clone.Tech.Continue(true);
+            }
+        }
+        clone.HasTheater = Model.hasTheaterRequest;
+        if (Model.hasTheaterRequest)
+        {
+            var stuff = await _service.GetTheaterDetails(Id, OnError.DefaultBehavior(this));
+            if (stuff.HasValue)
+            {
+                clone.Theater.Load(stuff.Value);
+                clone.Theater.Id = clone.Id;
+                await clone.Theater.Continue(true);
+            }
+        }
+        clone.HasMarComm = Model.hasMarCom;
+        if (Model.hasMarCom)
+        {
+            var stuff = await _service.GetMarCommRequest(Id, OnError.DefaultBehavior(this));
+            if (stuff.HasValue)
+            {
+                clone.MarComm.Load(stuff.Value);
+                clone.MarComm.Id = clone.Id;
+                await clone.MarComm.Continue(true);
+            }
+        }
+        clone.IsFieldTrip = Model.hasFieldTripInfo;
+        if (Model.hasFieldTripInfo)
+        {
+            var stuff = await _service.GetFieldTripDetails(Id, OnError.DefaultBehavior(this));
+            if (stuff.HasValue)
+            {
+                clone.FieldTrip.Load(stuff.Value);
+                clone.FieldTrip.Id = clone.Id;
+                await clone.FieldTrip.Continue(true);
+            }
+        }
+
+        
 
         var eventList = ServiceHelper.GetService<EventListViewModel>();
         eventList.AddEvents([clone]);

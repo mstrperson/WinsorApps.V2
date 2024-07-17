@@ -81,7 +81,7 @@ public partial class CateringEventViewModel :
     }
 
     [RelayCommand]
-    public async Task Continue()
+    public async Task Continue(bool template = false)
     {
         Busy = true;
         var details = new NewCateringEvent(
@@ -98,7 +98,8 @@ public partial class CateringEventViewModel :
         if(updated.HasValue)
         {
             Model = updated.Value;
-            ReadyToContinue?.Invoke(this, EventArgs.Empty);
+            if(!template)
+                ReadyToContinue?.Invoke(this, EventArgs.Empty);
         }
         Busy = false;
     }

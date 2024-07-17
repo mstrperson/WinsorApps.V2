@@ -17,7 +17,7 @@ public interface IEventSubFormViewModel<T, TModel>
     public void Clear();
 
     [RelayCommand]
-    public abstract Task Continue();
+    public abstract Task Continue(bool template = false);
 
     [RelayCommand]
     public abstract Task Delete();

@@ -118,13 +118,14 @@ public partial class MarCommEventViewModel :
     private readonly ContactService  _contactService = ServiceHelper.GetService<ContactService>();
 
     [RelayCommand]
-    public async Task Continue()
+    public async Task Continue(bool template = false)
     {
         var result = await _service.PostMarComRequest(Id, this, OnError.DefaultBehavior(this));
         if (result.HasValue)
         {
             Model = result.Value;
-            ReadyToContinue?.Invoke(this, EventArgs.Empty);
+            if(!template)
+                ReadyToContinue?.Invoke(this, EventArgs.Empty);
         }
     }
 
