@@ -8,16 +8,16 @@
              x:Class="WinsorApps.MAUI.Shared.EventForms.Views.ContactMultiSelector">
     <StackLayout>
     <StackLayout
-    Margin="0"
-    Orientation="Horizontal"
-    IsVisible="{Binding ShowCreate, Converter={StaticResource Invert}}">
+        Margin="0"
+        Orientation="Horizontal"
+        IsVisible="{Binding ShowCreate, Converter={StaticResource Invert}}">
         <SearchBar 
-        Placeholder="Panelist Name"
-        Text="{Binding SearchText}"
-        SearchCommand="{Binding SearchCommand}"/>
+            Placeholder="Panelist Name"
+            Text="{Binding SearchText}"
+            SearchCommand="{Binding SearchCommand}"/>
         <Button
-        StyleClass="AddButton"
-        Command="{Binding CreateCommand}" />
+            StyleClass="AddButton"
+            Command="{Binding CreateCommand}" />
     </StackLayout>
     <!-- Create new Contact -->
     <StackLayout

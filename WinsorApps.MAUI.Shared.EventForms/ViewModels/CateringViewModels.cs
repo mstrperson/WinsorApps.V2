@@ -32,6 +32,7 @@ public partial class CateringEventViewModel :
     [ObservableProperty] BudgetCodeSearchViewModel budgetCodeSearch = new();
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "Working";
+    [ObservableProperty] private bool hasLoaded;
 
     public static CateringEventViewModel Default => new();
 
@@ -40,6 +41,15 @@ public partial class CateringEventViewModel :
     public event EventHandler? Deleted;
 
     public CateringEvent Model { get; private set; }
+
+    public CateringEventViewModel()
+    {
+        BudgetCodeSearch.OnError += (sender, err) => OnError?.Invoke(sender, err);
+        BudgetCodeSearch.OnZeroResults += (_, _) =>
+        {
+            BudgetCodeSearch.StartNew();
+        };
+    }
 
     public void Clear()
     {
@@ -69,10 +79,11 @@ public partial class CateringEventViewModel :
         BudgetCodeSearch.Select(BudgetCodeViewModel.Get(model.budgetCode));
         Menu.ClearSelections();
         Menu.LoadMenuSelections(model.menuSelections);
+        HasLoaded = true;
     }
 
     [RelayCommand]
-    public async Task Continue()
+    public async Task Continue(bool template = false)
     {
         Busy = true;
         var details = new NewCateringEvent(
@@ -89,7 +100,8 @@ public partial class CateringEventViewModel :
         if(updated.HasValue)
         {
             Model = updated.Value;
-            ReadyToContinue?.Invoke(this, EventArgs.Empty);
+            if(!template)
+                ReadyToContinue?.Invoke(this, EventArgs.Empty);
         }
         Busy = false;
     }
@@ -184,6 +196,7 @@ public partial class CateringMenuViewModel :
             Items = [..
             CateringMenuItemViewModel
                 .GetClonedViewModels(category.items)
+                .OrderBy(item => item.Ordinal)
                 .Select(CateringMenuSelectionViewModel.Create)
             ],
             IsFieldTrip = category.fieldTripCategory,
@@ -193,10 +206,23 @@ public partial class CateringMenuViewModel :
         foreach(var item in vm.Items)
         {
             item.OnError += (sender, e) => vm.OnError?.Invoke(sender, e);
+            item.PropertyChanged += (sender, e) =>
+            {
+                if(e.PropertyName == "Quantity")
+                {
+                    if (item.Quantity < 0)
+                        item.Quantity = 0;
+
+                    item.IsSelected = item.Quantity != 0;
+
+                    item.Cost = item.Quantity * item.Item.PricePerPerson;
+                }
+            };
         }
 
         return vm;
     }
+
 
     [RelayCommand]
     public void ClearSelections()
@@ -238,8 +264,7 @@ public partial class CateringMenuViewModel :
     public void Select()
     {
         IsSelected = !IsSelected;
-        if (IsSelected)
-            Selected?.Invoke(this, this);
+        Selected?.Invoke(this, this);
     }
 }
 
@@ -250,7 +275,8 @@ public partial class CateringMenuCollectionViewModel :
     private readonly CateringMenuService _service;
     [ObservableProperty] ImmutableArray<CateringMenuViewModel> menus = [];
     [ObservableProperty] CateringMenuViewModel selectedMenu = new();
-    
+    [ObservableProperty] bool showMenus = true;
+
     public CateringMenuViewModel this[string menuId]
     {
         get
@@ -267,7 +293,7 @@ public partial class CateringMenuCollectionViewModel :
     {
         get
         {
-            foreach(var menu in Menus)
+            foreach (var menu in Menus)
             {
                 if (menu.Items.Any(sel => sel.Item.Id == item.id))
                     return menu.Items.First(sel => sel.Item.Id == item.id);
@@ -302,10 +328,22 @@ public partial class CateringMenuCollectionViewModel :
             foreach (var menu in Menus)
             {
                 menu.OnError += (sender, e) => OnError?.Invoke(sender, e);
-                menu.Selected += (sender, e) => SelectedMenu = e;
+                menu.Selected += (sender, e) =>
+                {
+                    foreach (var menu in Menus)
+                    {
+                        if (menu.Id != e.Id)
+                            menu.IsSelected = false;
+                    }
+                    SelectedMenu = e;
+                    ShowMenus = false;
+                };
             }
         });
     }
+
+    [RelayCommand]
+    public void ToggleShowMenus() => ShowMenus = !ShowMenus;
 
     [RelayCommand]
     public void ClearSelections()

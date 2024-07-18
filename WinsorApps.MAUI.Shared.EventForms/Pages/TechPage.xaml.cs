@@ -7,7 +7,9 @@ public partial class TechPage : ContentPage
 	public TechPage(TechEventViewModel vm)
 	{
 		vm.OnError += this.DefaultOnErrorHandler();
-		BindingContext = vm;
+		vm.Deleted += async (_, _) => await Navigation.PopAsync();
+		vm.ReadyToContinue += async (_, _) => await Navigation.PopAsync();
+        BindingContext = vm;
 		InitializeComponent();
 	}
 }

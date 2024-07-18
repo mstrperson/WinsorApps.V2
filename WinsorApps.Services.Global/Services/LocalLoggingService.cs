@@ -56,7 +56,11 @@ namespace WinsorApps.Services.Global.Services
             }
         }
 
-        public static readonly string AppDataPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}";
+        public static readonly string AppDataPathOld = $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}";
+        public static readonly string AppDataPath = 
+            Environment.OSVersion.Platform == PlatformID.Win32NT ?
+            $"{Environment.GetFolderPath(Environment.SpecialFolder.Personal)}" :
+            AppDataPathOld;
 
         private static char separator = Path.DirectorySeparatorChar;
         public LocalLoggingService()

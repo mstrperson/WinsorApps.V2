@@ -16,11 +16,16 @@
     </ContentPage.Resources>
     <ContentPage.ToolbarItems>
         <ToolbarItem 
-            Text="Continue" 
             Command="{Binding ContinueCommand}" 
+            CommandParameter="{x:Boolean false}"
             StyleClass="SubmitButton"/>
         <ToolbarItem
-            Text="Remove Theater Request"
+            Text="Continue"
+            Command="{Binding ContinueCommand}" 
+            CommandParameter="{x:Boolean false}"/>
+        <ToolbarItem
+            StyleClass="Separator" />
+        <ToolbarItem
             Command="{Binding DeleteCommand}" 
             StyleClass="DeleteButton"/>
     </ContentPage.ToolbarItems>
@@ -31,11 +36,16 @@
                     StyleClass="H3"
                     Text="Theater Needs (Select all Required)" />
                 <CollectionView
-                    ItemsSource="{Binding TheaterMenu.Menus}">
+                    ItemsSource="{Binding TheaterMenu.Menus}"
+                    BackgroundColor="Transparent"
+                    Margin="5,5,5,25">
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="vm:TheaterMenuViewModel">
                             <CollectionView
-                                ItemsSource="{Binding Items}">
+                                ItemsSource="{Binding Items}"
+                                BackgroundColor="Transparent"
+                                Margin="0"
+                                HeightRequest="50">
                                 <CollectionView.ItemsLayout>
                                     <LinearItemsLayout Orientation="Horizontal" ItemSpacing="5" />
                                 </CollectionView.ItemsLayout>
@@ -48,7 +58,12 @@
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate x:DataType="vm:TheaterMenuItemViewModel">
                                         <StackLayout
-                                            Orientation="Horizontal">
+                                            Orientation="Horizontal"
+                                            Margin="0"
+                                            Padding="0">
+                                            <StackLayout.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                            </StackLayout.GestureRecognizers>
                                             <CheckBox 
                                                 IsChecked="{Binding IsSelected}" />
                                             <Label 

@@ -66,7 +66,15 @@ public partial class UserSearchViewModel :
         {
             case SelectionMode.Single:
                 Selected = Available.FirstOrDefault(user => user.Id == selectedUser.Id) ?? UserViewModel.Default;
-                IsSelected = string.IsNullOrEmpty(Selected.Id);
+                if (Selected.Id != "")
+                {
+                    foreach (var item in Available.Except([Selected]))
+                    {
+                        item.IsSelected = false;
+                    }
+                    Selected.IsSelected = true;
+                }
+                IsSelected = true;
                 Options = [];
                 ShowOptions = false;
                 SearchText = Selected.DisplayName;
@@ -79,8 +87,15 @@ public partial class UserSearchViewModel :
                     AllSelected = [.. AllSelected.Except([user])];
                 else
                     AllSelected = [.. AllSelected, user];
-
+                
                 IsSelected = AllSelected.Count > 0;
+                if (AllSelected.Count > 0)
+                {
+                    foreach (var item in Available)
+                    {
+                        item.IsSelected = AllSelected.Contains(item);
+                    }
+                }
                 return;
             case SelectionMode.None:
             default: return;

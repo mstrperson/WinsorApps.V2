@@ -6,7 +6,8 @@
              xmlns:styles="clr-namespace:WinsorApps.MAUI.Shared.Resources.Styles;assembly=WinsorApps.MAUI.Shared"
              x:DataType="vm:EventListViewModel"
              x:Class="WinsorApps.MAUI.EventForms.Pages.MyEventsList"
-             Title="MyEventsList">
+             NavigatedTo="MyEventsList_OnNavigatedTo"
+             Title="My Events">
     <ContentPage.Resources>
         <ResourceDictionary>
             <conv:BoolInverter x:Key="Invert"/>
@@ -23,37 +24,92 @@
     <ContentPage.Content>
         <ScrollView>
             <StackLayout>
-                <StackLayout
-                            Orientation="Horizontal"
-                            Spacing="30"
+                <HorizontalStackLayout
+                    Spacing="30"
                     HorizontalOptions="Center">
-                    <Button 
-                                StyleClass="LeftArrow"
+                    <Label 
+                        StyleClass="LeftArrow"
+                        FontSize="Large">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer 
                                 Command="{Binding DecrementMonthCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
                     <Label
-                                StyleClass="Header"
-                                Text="{Binding PageLabel}" 
+                        StyleClass="Header"
+                        Text="{Binding PageLabel}" 
                         WidthRequest="400"
                         HorizontalTextAlignment="Center"/>
-                    <Button
-                                StyleClass="RightArrow"
+                    <Label
+                        StyleClass="RightArrow"
+                        FontSize="Large">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer
                                 Command="{Binding IncrementMonthCommand}" />
-                </StackLayout>
+                        </Label.GestureRecognizers>
+                    </Label>
+                </HorizontalStackLayout>
+                <BoxView StyleClass="Bar" />
+                <HorizontalStackLayout
+                    IsVisible="{Binding Busy}">
+                    <Label
+                        Text="{Binding BusyMessage}"
+                        StyleClass="SubHeader"/>
+                    <Image
+                        StyleClass="loading_image" />
+                </HorizontalStackLayout>
                 <CollectionView
-                    ItemsSource="{Binding Events}">
+                    HeightRequest="1000"
+                    ItemsSource="{Binding Events}"
+                    BackgroundColor="Transparent">
+                    <CollectionView.Header>
+                        <HorizontalStackLayout
+                            HorizontalOptions="Center">
+                            <Label
+                                StyleClass="SubHeader"
+                                Text="My Events" />
+                            <Image
+                                StyleClass="RefreshButton">
+                                <Image.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ReloadCommand}" />
+                                </Image.GestureRecognizers>
+                            </Image>
+                        </HorizontalStackLayout>
+                    </CollectionView.Header>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="vm:EventFormViewModel">
-                            <StackLayout
-                                Orientation="Horizontal"
-                                Spacing="30">
-                                <StackLayout.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding SelectCommand}" />
-                                </StackLayout.GestureRecognizers>
-                                <Label Text="{Binding StatusSelection.Selected.Label}"/>
-                                <Label Text="-" />
-                                <Label Text="{Binding Summary}" />
-                                <Label Text="{Binding StartDate,StringFormat='{0:dd MMMM yyyy}'}"/>
-                            </StackLayout>
+                            <Grid
+                                RowDefinitions="*,*"
+                                ColumnDefinitions="*,250">
+                                <HorizontalStackLayout
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    Spacing="15"
+                                    HeightRequest="60">
+                                    <HorizontalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                    </HorizontalStackLayout.GestureRecognizers>
+                                    <Label Text="{Binding StatusSelection.Selected.Label}"/>
+                                    <Label Text="-" />
+                                    <Label Text="{Binding Summary}" />
+                                    <Label Text="{Binding StartDate,StringFormat='{0:dddd dd MMMM, yyyy}'}"/>
+                                </HorizontalStackLayout>
+                                <HorizontalStackLayout
+                                    Grid.Row="0"
+                                    Grid.Column="1"
+                                    Spacing="30">
+                                    <Image
+                                        StyleClass="PrintButton">
+                                        <Image.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding PrintCommand}"/>
+                                        </Image.GestureRecognizers>
+                                    </Image>
+                                </HorizontalStackLayout>
+                                <BoxView 
+                                    StyleClass="Bar"
+                                    Grid.Row="1"
+                                    Grid.ColumnSpan="2" />
+                            </Grid>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>

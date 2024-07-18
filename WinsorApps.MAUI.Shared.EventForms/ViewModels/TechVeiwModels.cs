@@ -27,6 +27,7 @@ public partial class TechEventViewModel :
     [ObservableProperty] string details = "";
     [ObservableProperty] bool isVirtual;
     [ObservableProperty] VirtualEventViewModel virtualEvent = VirtualEventViewModel.Default;
+    [ObservableProperty] private bool hasLoaded;
 
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "Working";
@@ -86,6 +87,8 @@ public partial class TechEventViewModel :
         {
             VirtualEvent.Load(model.virtualEvent.Value);
         }
+
+        HasLoaded = true;
     }
 
     public static implicit operator NewTechEvent(TechEventViewModel vm) =>
@@ -104,13 +107,14 @@ public partial class TechEventViewModel :
     public event EventHandler<ErrorRecord>? OnError;
 
     [RelayCommand]
-    public async Task Continue()
+    public async Task Continue(bool template = false)
     {
         var result = await _eventsService.PostTechEvent(Id, this, OnError.DefaultBehavior(this));
         if(result.HasValue)
         {
             Model = result.Value;
-            ReadyToContinue?.Invoke(this, EventArgs.Empty);
+            if(!template)
+                ReadyToContinue?.Invoke(this, EventArgs.Empty);
         }
     }
 
@@ -150,6 +154,7 @@ public partial class VirtualEventViewModel :
     [ObservableProperty] bool showPanelits;
     [ObservableProperty] ContactSearchViewModel panelistSearch = new() { SelectionMode = SelectionMode.Single };
     [ObservableProperty] ObservableCollection<ContactViewModel> panelists = [];
+    [ObservableProperty] private bool hasLoaded;
 
     public event EventHandler? ReadyToContinue;
     public event EventHandler? Deleted;
@@ -226,6 +231,8 @@ public partial class VirtualEventViewModel :
                 Panelists.Remove(contact);
             };
         }
+
+        HasLoaded = true;
     }
 
     [RelayCommand]
@@ -236,12 +243,13 @@ public partial class VirtualEventViewModel :
     }
 
     [RelayCommand]
-    public async Task Continue()
+    public async Task Continue(bool template = false)
     {
         var result = await _eventService.PostVirtualEvent(Id, this, OnError.DefaultBehavior(this));
         if(result.HasValue)
         {
-            ReadyToContinue?.Invoke(this, EventArgs.Empty);
+            if(!template)
+                ReadyToContinue?.Invoke(this, EventArgs.Empty);
         }
     }
 

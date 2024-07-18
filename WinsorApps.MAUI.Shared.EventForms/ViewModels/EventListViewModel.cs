@@ -17,7 +17,8 @@ namespace WinsorApps.MAUI.Shared.EventForms.ViewModels;
 
 public partial class EventListViewModel :
     ObservableObject,
-    IErrorHandling
+    IErrorHandling,
+    IBusyViewModel
 {
     [ObservableProperty] ObservableCollection<EventFormViewModel> events = [];
 
@@ -62,7 +63,8 @@ public partial class EventListViewModel :
 
     [ObservableProperty] DateTime start;
     [ObservableProperty] DateTime end;
-
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "Working...";
     [ObservableProperty] string pageLabel = "My Events List";
 
     Func<EventFormBase, bool> EventFilter { get; set; } = evt => true;
@@ -73,24 +75,22 @@ public partial class EventListViewModel :
     [RelayCommand]
     public void CreateNew()
     {
+        Busy = true;
         var vm = new EventFormViewModel(); 
         
-        vm.OnError += (sender, err) =>
-            OnError?.Invoke(sender, err);
-        vm.MarCommRequested += (sender, mvm) => PageRequested?.Invoke(this, new MarComPage() { BindingContext = mvm });
-        vm.TheaterRequested += (sender, thvm) => PageRequested?.Invoke(this, new TheaterPage() { BindingContext = thvm });
-        vm.TechRequested += (sender, tvm) => PageRequested?.Invoke(this, new TechPage(tvm));
-        vm.CateringRequested += (sender, cvm) => PageRequested?.Invoke(this, new CateringPage(cvm));
-        vm.FieldTripRequested += (sender, ftvm) => PageRequested?.Invoke(this, new FieldTripPage() { BindingContext = ftvm });
-        vm.FacilitesRequested += (sender, fvm) => PageRequested?.Invoke(this, new FacilitesPage() { BindingContext = fvm });
+        vm.StatusSelection.Select("Draft");
+        vm.IsNew = true;
+        vm.IsUpdating = false;
+        vm.IsSelected = false;
+        vm.IsCreating = false;
+        vm.CanEditBase = true;
+        vm.CanEditSubForms = false;
 
-        vm.TemplateRequested += (sender, vm) =>
-        {
-            PopThenPushRequested?.Invoke(this, new FormEditor(vm));
-        };
-        vm.OnError += (sender, err) => OnError?.Invoke(sender, err);
+        vm.Selected += (_, e) => OnEventSelected?.Invoke(this, e);
+        
         Events.Add(vm);
         OnEventSelected?.Invoke(this, vm);
+        Busy = false;
     }
 
     [RelayCommand]
@@ -131,6 +131,9 @@ public partial class EventListViewModel :
     [RelayCommand]
     public async Task Reload()
     {
+        Busy = true;
+        BusyMessage = $"Loading Events for {Start:MMMM yyyy}";
+        
         if (Start < _service.CacheStartDate || End > _service.CacheEndDate)
             await _service.UpdateCache(Start, End, OnError.DefaultBehavior(this));
 
@@ -142,20 +145,8 @@ public partial class EventListViewModel :
         {
             vm.Selected += (sender, evt) => OnEventSelected?.Invoke(this, vm);
             vm.Deleted += (_, _) => Events.Remove(vm);
-
-            vm.OnError += (sender, err) =>
-                OnError?.Invoke(sender, err);
-            vm.MarCommRequested += (sender, mvm) => PageRequested?.Invoke(this, new MarComPage() { BindingContext = mvm });
-            vm.TheaterRequested += (sender, thvm) => PageRequested?.Invoke(this, new TheaterPage() { BindingContext = thvm });
-            vm.TechRequested += (sender, tvm) => PageRequested?.Invoke(this, new TechPage(tvm));
-            vm.CateringRequested += (sender, cvm) => PageRequested?.Invoke(this, new CateringPage(cvm));
-            vm.FieldTripRequested += (sender, ftvm) => PageRequested?.Invoke(this, new FieldTripPage() { BindingContext = ftvm });
-            vm.FacilitesRequested += (sender, fvm) => PageRequested?.Invoke(this, new FacilitesPage() { BindingContext = fvm });
-
-            vm.TemplateRequested += (sender, vm) =>
-            {
-                PopThenPushRequested?.Invoke(this, new FormEditor(vm));
-            };
         }
+
+        Busy = false;
     }
 }

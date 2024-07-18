@@ -9,37 +9,56 @@
              xmlns:sviews="clr-namespace:WinsorApps.MAUI.Shared.Views;assembly=WinsorApps.MAUI.Shared"
              x:DataType="vm:EventFormViewModel"
              x:Class="WinsorApps.MAUI.Shared.EventForms.Pages.FormEditor"
-             Title="Event Form Editor">
+             Title="{Binding StatusSelection.Selected.Label}">
     <ContentPage.Resources>
         <ResourceDictionary>
             <conv:BoolInverter x:Key="Invert"/>
             <conv:StringToIntegerConverter x:Key="StringToInt" />
             <conv:CurrencyToStringConverter x:Key="Currency" />
+            <conv:CountGreaterThanZero x:Key="Any" />
         </ResourceDictionary>
     </ContentPage.Resources>
     <ContentPage.ToolbarItems>
         <ToolbarItem
-            Text="Delete Event"
             Command="{Binding DeleteCommand}" 
             StyleClass="DeleteButton"/>
         <ToolbarItem
-            Text="Print"
+            Text="Delete Event"
+            Command="{Binding DeleteCommand}" />
+        <ToolbarItem StyleClass="Separator" />
+        <ToolbarItem
             Command="{Binding PrintCommand}"
             StyleClass="PrintButton" />
+        <ToolbarItem 
+            Text="Print"
+            Command="{Binding PrintCommand}"/>
+        <ToolbarItem StyleClass="Separator" />
+        <ToolbarItem
+            Command="{Binding TemplateCommand}"
+            StyleClass="AddButton" />
+        <ToolbarItem
+            Text="Template"
+            Command="{Binding TemplateCommand}" />
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <ScrollView>
-            <StackLayout
+            <!-- Container that controls enablement of the form based on Busy Status -->
+            <VerticalStackLayout
                 IsEnabled="{Binding Busy, Converter={StaticResource Invert}}"
                 Margin="5,0">
-                <StackLayout
+                <!-- Busy Message Container -->
+                <HorizontalStackLayout
+                    IsVisible="{Binding Busy}">
+                    <Label 
+                        StyleClass="SubHeader"
+                        Text="{Binding BusyMessage}" />
+                    <Image
+                        StyleClass="loading_image"/>
+                </HorizontalStackLayout>
+                <!-- End Busy Message Container -->
+                <!-- Container Enabled if CanEditBase -->
+                <VerticalStackLayout
                     IsEnabled="{Binding CanEditBase}">
-                    <Label
-                        StyleClass="Header"
-                        HorizontalTextAlignment="Center"
-                        Text="{Binding BusyMessage}"
-                        IsVisible="{Binding Busy}" />
-
                     <Entry
                         Placeholder="Event Name"
                         TextColor="{DynamicResource DarkBlue}"
@@ -51,6 +70,7 @@
                         Placeholder="Please enter details that are relevant to everyone to see here.  Sub forms will have specific information for other folks."
                         Text="{Binding Description}" />
                     <BoxView StyleClass="Bar"/>
+                    <!-- Start and End Dates and Times -->
                     <StackLayout
                         Orientation="Horizontal"
                         Spacing="5">
@@ -61,143 +81,204 @@
                         <DatePicker
                             Date="{Binding StartDate}" />
                         <TimePicker
-                            Time="{Binding StartTime}"
-                            BackgroundColor="{DynamicResource WarmGrey}"
-                            TextColor="{AppThemeBinding Light={DynamicResource WinsorRed}, Dark={DynamicResource DarkBlue}}"/>
+                            Time="{Binding StartTime}"/>
                         <Label 
                             Text="End"
                             StyleClass="H3"
                             Margin="25, 0, 0, 0"/>
                         <DatePicker
-                            Date="{Binding EndDate}"/>
+                            Date="{Binding EndDate}" />
                         <TimePicker
-                            Time="{Binding EndTime}" 
-                            BackgroundColor="{DynamicResource WarmGrey}"
-                            TextColor="{AppThemeBinding Light={DynamicResource WinsorRed}, Dark={DynamicResource DarkBlue}}"/>
+                            Time="{Binding EndTime}" />
                     </StackLayout>
+                    <!-- End Dates and Times -->
+                    
                     <BoxView StyleClass="Bar"/>
-                    <StackLayout
-                        Orientation="Horizontal"
+                    
+                    <!-- Complex Leader stuff -->
+                    <HorizontalStackLayout
                         Spacing="30"
                         Margin="0,10">
                         <Label
                             StyleClass="H3"
                             Text="Leader" />
-                        <StackLayout
-                            Orientation="Horizontal"
-                            IsVisible="{Binding LeaderSearch.IsSelected}">
-                            <StackLayout.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding LeaderSearch.ClearSelectionCommand}" />
-                            </StackLayout.GestureRecognizers>
+                        
+                        <!-- LeaderStuff Visible When Can Edit Base -->
+                        <HorizontalStackLayout
+                            IsVisible="{Binding CanEditBase}">
+                            <!-- Leader is Selected -->
+                            <HorizontalStackLayout
+                                IsVisible="{Binding Leader.IsSelected}">
+                                <HorizontalStackLayout.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding ClearLeaderCommand}" />
+                                </HorizontalStackLayout.GestureRecognizers>
+                                <Label
+                                    Text="{Binding Leader.DisplayName}"/>
+                                <Label
+                                    StyleClass="PositiveSignifier"
+                                    FontSize="18"/>
+                            </HorizontalStackLayout>
+                            <!-- End Leader is Selected -->
+                            <!-- Leader Selection -->
+                            <VerticalStackLayout
+                                WidthRequest="800"
+                                IsVisible="{Binding Leader.IsSelected, Converter={StaticResource Invert}}">
+                                <SearchBar 
+                                    WidthRequest="500"
+                                    HeightRequest="40"
+                                    Placeholder="Leader"
+                                    Text="{Binding LeaderSearch.SearchText}"
+                                    SearchCommand="{Binding LeaderSearch.SearchCommand}"/>
+                                <CollectionView
+                                    ItemsSource="{Binding LeaderSearch.Options}"
+                                    IsVisible="{Binding LeaderSearch.ShowOptions}">
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate x:DataType="svm:UserViewModel">
+                                            <Label Text="{Binding DisplayName}">
+                                                <Label.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                                </Label.GestureRecognizers>
+                                            </Label>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
+                            </VerticalStackLayout>
+                            <!-- End Leader Selection -->
+                        </HorizontalStackLayout>
+                        <!-- End Leader Stuff Visible When CanEditBase -->
+                        <!-- Leader Display only for When readonly -->
+                        <HorizontalStackLayout
+                            IsVisible="{Binding CanEditBase, Converter={StaticResource Invert}}">
                             <Label
-                                Text="{Binding LeaderSearch.Selected.DisplayName}"/>
-                            <Label
-                                StyleClass="PositiveSignifier"
-                                FontSize="18"/>
-                        </StackLayout>
-
+                                Text="{Binding Leader.DisplayName}" />
+                        </HorizontalStackLayout>
+                        <!-- End Readonly Leader Display -->
+                    </HorizontalStackLayout>
+                    <!-- End Complex Leader Stuff -->
+                    <!--  -->
+                        <BoxView StyleClass="Bar"/>
                         <StackLayout
-                                IsVisible="{Binding LeaderSearch.IsSelected, Converter={StaticResource Invert}}">
-                            <SearchBar 
-                                WidthRequest="250"
-                                Placeholder="Leader"
-                                Text="{Binding LeaderSearch.SearchText}"
-                                SearchCommand="{Binding LeaderSearch.SearchCommand}"/>
+                            IsVisible="{Binding CanEditBase}">
+                            <StackLayout
+                                Orientation="Horizontal">
+                                <Label
+                                    StyleClass="H3"
+                                    Text="On Campus Locations" />
+                                <views:LocationSingleSelector 
+                                    BindingContext="{Binding LocationSearch}" />
+                            </StackLayout>
                             <CollectionView
-                                ItemsSource="{Binding LeaderSearch.Options}"
-                                IsVisible="{Binding LeaderSearch.ShowOptions}">
+                                ItemsSource="{Binding SelectedLocations}"
+                                IsVisible="{Binding SelectedLocations.Count, Converter={StaticResource Any}}">
+                                <CollectionView.Header>
+                                    <Label 
+                                        Text="Selected On-Campus Locations"
+                                        StyleClass="H3" />
+                                </CollectionView.Header>
                                 <CollectionView.ItemTemplate>
-                                    <DataTemplate x:DataType="svm:UserViewModel">
-                                        <Label Text="{Binding DisplayName}">
-                                            <Label.GestureRecognizers>
+                                    <DataTemplate x:DataType="vm:LocationViewModel">
+                                        <StackLayout
+                                            Orientation="Horizontal"
+                                            Spacing="30">
+                                            <StackLayout.GestureRecognizers>
                                                 <TapGestureRecognizer Command="{Binding SelectCommand}" />
-                                            </Label.GestureRecognizers>
-                                        </Label>
+                                            </StackLayout.GestureRecognizers>
+                                            <Label Text="{Binding Label}" />
+                                            <Label Text="❌" />
+                                        </StackLayout>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                            <BoxView StyleClass="Bar"/>
+                            <StackLayout Orientation="Horizontal">
+                                <Label
+                                    StyleClass="H3"
+                                    Text="Off Campus Locations" />
+                                <views:LocationSingleSelector BindingContext="{Binding CustomLocationSearch}" />
+                            </StackLayout>
+
+                            <CollectionView
+                                ItemsSource="{Binding SelectedCustomLocations}"
+                                IsVisible="{Binding SelectedCustomLocations.Count, Converter={StaticResource Any}}">
+                                <CollectionView.Header>
+                                    <Label 
+                                        Text="Selected Custom Locations"
+                                        StyleClass="H3" />
+                                </CollectionView.Header>
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:LocationViewModel">
+                                        <StackLayout
+                                            Orientation="Horizontal"
+                                            Spacing="30">
+                                            <StackLayout.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                            </StackLayout.GestureRecognizers>
+                                            <Label Text="{Binding Label}" />
+                                            <Label Text="❌" />
+                                        </StackLayout>
                                     </DataTemplate>
                                 </CollectionView.ItemTemplate>
                             </CollectionView>
                         </StackLayout>
+                        <StackLayout
+                            IsVisible="{Binding CanEditBase, Converter={StaticResource Invert}}">
+                            <CollectionView
+                                ItemsSource="{Binding SelectedLocations}"
+                                IsVisible="{Binding SelectedLocations.Count, Converter={StaticResource Any}}">
+                                <CollectionView.Header>
+                                    <Label 
+                                        Text="Selected On-Campus Locations"
+                                        StyleClass="H3" />
+                                </CollectionView.Header>
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:LocationViewModel">
+                                            <Label Text="{Binding Label}" />
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                            <BoxView StyleClass="Bar"/>
+                            <CollectionView
+                                ItemsSource="{Binding SelectedCustomLocations}"
+                                IsVisible="{Binding SelectedCustomLocations.Count, Converter={StaticResource Any}}">
+                                <CollectionView.Header>
+                                    <Label 
+                                        Text="Selected Custom Locations"
+                                        StyleClass="H3" />
+                                </CollectionView.Header>
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:LocationViewModel">
+                                        <Label Text="{Binding Label}" />
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </StackLayout>
+                        <BoxView StyleClass="Bar"/>
                         <Label
-                            StyleClass="ErrorSignifier"
-                            FontSize="18"
-                            IsVisible="{Binding LeaderSearch.IsSelected, Converter={StaticResource Invert}}"/>
-                    </StackLayout>
-                    <BoxView StyleClass="Bar"/>
-                    <Label
-                        StyleClass="H3"
-                        Text="On Campus Locations" />
-                    <views:LocationSingleSelector BindingContext="{Binding LocationSearch}" />
-                    <CollectionView
-                        ItemsSource="{Binding SelectedLocations}">
-                        <CollectionView.Header>
-                            <Label 
-                                Text="Selected On-Campus Locations"
-                                StyleClass="H3" />
-                        </CollectionView.Header>
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="vm:LocationViewModel">
-                                <StackLayout
-                                    Orientation="Horizontal"
-                                    Spacing="30">
-                                    <StackLayout.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding SelectCommand}" />
-                                    </StackLayout.GestureRecognizers>
-                                    <Label Text="{Binding Label}" />
-                                    <Label Text="❌" />
-                                </StackLayout>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                    <BoxView StyleClass="Bar"/>
-                    <Label
-                        StyleClass="H3"
-                        Text="Off Campus Locations" />
-                    <views:LocationSingleSelector BindingContext="{Binding CustomLocationSearch}" />
-                    <CollectionView
-                        ItemsSource="{Binding SelectedCustomLocations}">
-                      <CollectionView.Header>
-                            <Label 
-                                Text="Selected Custom Locations"
-                                StyleClass="H3" />
-                        </CollectionView.Header>
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="vm:LocationViewModel">
-                                <StackLayout
-                                    Orientation="Horizontal"
-                                    Spacing="30">
-                                    <StackLayout.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding SelectCommand}" />
-                                    </StackLayout.GestureRecognizers>
-                                    <Label Text="{Binding Label}" />
-                                    <Label Text="❌" />
-                                </StackLayout>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                    <BoxView StyleClass="Bar"/>
-                    <Label
-                        Text="Please note that Submitted Event Forms will not be sent for approval until any On Campus Rooms have been cleared by the Registrar."/>
-                    <Label
-                        Text="Also, note that you must have approval from Division Head as well as Clearing the Date with Operations before Submitting an Event Form." />
-                    <BoxView StyleClass="Bar"/>
-                    <StackLayout
-                        Orientation="Horizontal"
-                        Spacing="30">
+                            Text="Please note that Submitted Event Forms will not be sent for approval until any On Campus Rooms have been cleared by the Registrar."/>
                         <Label
-                            Text="Date Cleared with Operations" />
-                        <DatePicker
-                            Date="{Binding PreapprovalDate}" />
-                        <Label
-                            Text="Expected Attendees" />
-                        <Entry
-                            Text="{Binding AttendeeCount}"
-                            Keyboard="Numeric"
-                            WidthRequest="100"
-                            BackgroundColor="{DynamicResource WarmGrey}"
-                            TextColor="{AppThemeBinding Light=Black, Dark={DynamicResource DarkBlue}}"/>
-                    </StackLayout>
-                </StackLayout>
-                <StackLayout Orientation="Horizontal">
+                            Text="Also, note that you must have approval from Division Head as well as Clearing the Date with Operations before Submitting an Event Form." />
+                        <BoxView StyleClass="Bar"/>
+                        <StackLayout
+                            Orientation="Horizontal"
+                            Spacing="30">
+                            <Label
+                                Text="Date Cleared with Operations" />
+                            <DatePicker
+                                Date="{Binding PreapprovalDate}" />
+                            <Label
+                                Text="Expected Attendees" />
+                            <Entry
+                                Text="{Binding AttendeeCount}"
+                                Keyboard="Numeric"
+                                WidthRequest="100"
+                                BackgroundColor="{DynamicResource WarmGrey}"
+                                TextColor="{AppThemeBinding Light=Black, Dark={DynamicResource DarkBlue}}"/>
+                        </StackLayout>
+                </VerticalStackLayout>
+                <!-- End Container Enabled if CanEdit Base -->
+                <!-- Status Related Buttons -->
+                <HorizontalStackLayout >
                     <Label
                         StyleClass="SubHeader"
                         Text="{Binding StatusSelection.Selected.Label}" 
@@ -209,24 +290,31 @@
                     <Picker 
                         ItemsSource="{Binding TypeSelection.Types}"
                         IsVisible="{Binding IsNew}"
-                        SelectedItem="{Binding Type}"/>
+                        SelectedItem="{Binding Type}"
+                        WidthRequest="200"
+                        HeightRequest="50"/>
                     <Button
                         Text="Start New Event Form"
                         IsVisible="{Binding IsNew}"
                         Command="{Binding StartNewFormCommand}" />
-                    <Button
-                        Text="Start Editing This Form"
-                        IsVisible="{Binding CanEditBase, Converter={StaticResource Invert}}"
-                        Command="{Binding StartUpdatingCommand}" />
-                    <Button
-                        Text="Ready to Send for Approval"
-                        IsVisible="{Binding IsCreating}"
-                        Command="{Binding CompleteSubmissionCommand}" />
-                    <Button
-                        Text="Submit Edits to this Form"
-                        IsVisible="{Binding IsUpdating}"
-                        Command="{Binding CompleteUpdateCommand}" />
-                </StackLayout>
+                    <HorizontalStackLayout
+                        IsVisible="{Binding IsNew, Converter={StaticResource Invert}}">
+                        <Button
+                            Text="Start Editing This Form"
+                            IsVisible="{Binding CanEditBase, Converter={StaticResource Invert}}"
+                            Command="{Binding StartUpdatingCommand}" />
+                        <Button
+                            Text="Ready to Send for Approval"
+                            IsVisible="{Binding IsCreating}"
+                            Command="{Binding CompleteSubmissionCommand}" />
+                        <Button
+                            Text="Submit Edits to this Form"
+                            IsVisible="{Binding IsUpdating}"
+                            Command="{Binding CompleteUpdateCommand}" />
+                    </HorizontalStackLayout>
+                </HorizontalStackLayout>
+                <!-- End Status Related Buttons -->
+                <!-- Sub Form Buttons -->
                 <StackLayout
                     IsVisible="{Binding CanEditSubForms}"
                     Orientation="Vertical">
@@ -235,6 +323,7 @@
                         Text="Edit Field Trip Details"
                         IsVisible="{Binding IsFieldTrip}"
                         Command="{Binding LoadFieldTripCommand}" />
+                    <!-- Non Field Trip SubForms -->
                     <StackLayout
                         IsVisible="{Binding IsFieldTrip, Converter={StaticResource Invert}}">
                         <Button
@@ -285,7 +374,10 @@
                             Command="{Binding LoadMarCommCommand}" />
                     </StackLayout>
                 </StackLayout>
-            </StackLayout>
+                <!-- End Subform Buttons -->
+            </VerticalStackLayout>
+            <!-- End Busy status disabled container -->
         </ScrollView>
+        
     </ContentPage.Content>
 </ContentPage>

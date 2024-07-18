@@ -28,13 +28,13 @@ namespace WinsorApps.MAUI.EventForms
                     fonts.AddFont("NotoSans-Regular.ttf", "SansSerif");
                 })
                 .UseMauiCommunityToolkitCore()
-                .AddEventFormsServices()
-                .AddGlobalServices();
+                .AddGlobalServices()
+                .AddEventFormsServices();
 
             builder.Services.AddSingleton<MainPage>();
             builder.Services.AddSingleton<LoginPage>();
+            builder.Services.AddSingleton<EventListViewModel>();
             builder.Services.AddSingleton<MyEventsList>();
-            builder.Services.AddTransient<EventListViewModel>();
 
 #if DEBUG
             builder.Logging.AddDebug();
@@ -59,6 +59,7 @@ namespace WinsorApps.MAUI.EventForms
                 new(ServiceHelper.GetService<CateringMenuService>(), "Catering Menu Service")
             ];
 
+            logging.LogMessage(LocalLoggingService.LogLevel.Information, "App Built Successfully!");
             return app;
         }
     }

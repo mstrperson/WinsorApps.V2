@@ -15,9 +15,11 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
     public TimeSpan RefreshInterval => TimeSpan.FromMinutes(2);
     public bool Refreshing { get; private set; }
     public bool BypassRefreshing { get; private set; }
-    public double Progress => 1;
+    public double Progress { get; private set; } = 1;
     public bool Started { get; private set; }
 
+    public bool AutoLoginInProgress { get; private set; } = true;
+    
     public event EventHandler? OnLoginSuccess;
     public event EventHandler? OnCacheRefreshed;
 
@@ -83,6 +85,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
         var savedCredential = await SavedCredential.GetSavedCredential();
         if (savedCredential is not null)
         {
+            AutoLoginInProgress = true;
             if (!string.IsNullOrEmpty(savedCredential.JWT) && !string.IsNullOrEmpty(savedCredential.RefreshToken))
             {
                 AuthorizedUser = new AuthResponse("", savedCredential.JWT, default, savedCredential.RefreshToken);
@@ -103,9 +106,11 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
                         ex.Message);
                     _logging.LogMessage(LocalLoggingService.LogLevel.Debug, ex.StackTrace);
                     onError(new("Auto Login Failed", ex.Message));
+                    AutoLoginInProgress = false;
                     return;
                 }
 
+                AutoLoginInProgress = false;
                 return;
             }
 
@@ -124,6 +129,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
                 onError(new("Auto Login Failed", ex.Message));
             }
         }
+        AutoLoginInProgress = false;
     }
 
     public async Task RefreshInBackground(CancellationToken cancellationToken, ErrorAction onError)
@@ -281,8 +287,13 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
                 {
                     AuthorizedUser = new(jwt: savedCred.JWT, refreshToken: savedCred.RefreshToken);
                 }
-
-                await Login(savedCred.SavedEmail, savedCred.SavedPassword, onError);
+                if (!string.IsNullOrWhiteSpace(savedCred.SavedPassword))
+                    await Login(savedCred.SavedEmail, savedCred.SavedPassword, onError);
+                else
+                {
+                    Refreshing = false;
+                    return;
+                }
             }
         }
         catch (Exception ex)
@@ -441,6 +452,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
         ErrorAction? onError = null, bool isReAuth = false,
         FileStreamWrapper? inStream = null)
     {
+        onError ??= _logging.LogError;
         var request = await BuildRequest(
             (string.IsNullOrEmpty(jsonContent) && inStream is null) ? HttpMethod.Get : HttpMethod.Post,
             endpoint, jsonContent, authorize, inStream);
@@ -481,7 +493,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
         onError ??= err => _logging.LogMessage(LocalLoggingService.LogLevel.Error, err.error);
         var request = await BuildRequest(method, endpoint, jsonContent, authorize);
         var response = await client.SendAsync(request);
-        if (await CheckReAuth(response, () => BuildRequest(method, endpoint, jsonContent, authorize).Result))
+        if (endpoint!="api/auth" && await CheckReAuth(response, () => BuildRequest(method, endpoint, jsonContent, authorize).Result))
         {
             onError(new("Unauthorized Access", "Current user is not authorized to access this endpoint."));
             var result = await response.Content.ReadAsStringAsync();

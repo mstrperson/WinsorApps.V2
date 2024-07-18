@@ -36,7 +36,7 @@ public partial class MainPage : ContentPage
             new(cateringMenuService, "Catering Services"),
             new(theaterService, "Theater Services")
 
-        ])
+        ], app, api)
         {
             Completion = [
                 new(new Task(async () => await EventFormViewModel.Initialize(eventForms, this.DefaultOnErrorAction())), "Event Forms Cache"),

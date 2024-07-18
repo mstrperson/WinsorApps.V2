@@ -24,6 +24,7 @@ public partial class TheaterEventViewModel :
     [ObservableProperty] string notes = "";
     [ObservableProperty] ImmutableArray<DocumentViewModel> documents = [];
     [ObservableProperty] TheaterMenuCollectionViewModel theaterMenu = new();
+    [ObservableProperty] private bool hasLoaded;
 
     public TheaterEvent Model { get; private set; }
 
@@ -49,6 +50,7 @@ public partial class TheaterEventViewModel :
         Documents = model.attachments.Select(doc => new DocumentViewModel(doc)).ToImmutableArray();
         
         LoadSelections(model.items);
+        HasLoaded = true;
     }
 
     public TheaterEventViewModel()
@@ -97,13 +99,14 @@ public partial class TheaterEventViewModel :
         );
 
     [RelayCommand]
-    public async Task Continue()
+    public async Task Continue(bool template = false)
     {
         var result = await _eventService.PostTheaterDetails(Id, this, OnError.DefaultBehavior(this));
         if(result.HasValue)
         {
             Model = result.Value;
-            ReadyToContinue?.Invoke(this, EventArgs.Empty);
+            if(!template)
+                ReadyToContinue?.Invoke(this, EventArgs.Empty);
         }
     }
 
@@ -197,6 +200,7 @@ public partial class TheaterMenuItemViewModel :
         IsDeleted = model.deleted
     };
 
+    [RelayCommand]
     public void Select()
     {
         IsSelected = !IsSelected;

@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using Csv;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Global;
@@ -16,13 +17,13 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
 
         private readonly CheqroomService _cheqroom;
 
-        [ObservableProperty] private ImmutableArray<CheckoutSearchResultViewModel> available;
-        [ObservableProperty] private ImmutableArray<CheckoutSearchResultViewModel> allSelected = [];
+        [ObservableProperty] private ObservableCollection<CheckoutSearchResultViewModel> available;
+        [ObservableProperty] private ObservableCollection<CheckoutSearchResultViewModel> allSelected = [];
         [ObservableProperty] private SelectionMode selectionMode = SelectionMode.Single;
         [ObservableProperty] private string searchText = "";
         [ObservableProperty] private bool showOptions;
         [ObservableProperty] private bool isSelected;
-        [ObservableProperty] private ImmutableArray<CheckoutSearchResultViewModel> options = [];
+        [ObservableProperty] private ObservableCollection<CheckoutSearchResultViewModel> options = [];
         [ObservableProperty] private CheckoutSearchResultViewModel selected;
         [ObservableProperty] private bool working;
 
@@ -41,7 +42,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         private string searchMode;
 
         public event EventHandler<ErrorRecord>? OnError;
-        public event EventHandler<ImmutableArray<CheckoutSearchResultViewModel>>? OnMultipleResult;
+        public event EventHandler<ObservableCollection<CheckoutSearchResultViewModel>>? OnMultipleResult;
         public event EventHandler<CheckoutSearchResultViewModel>? OnSingleResult;
 
         public event EventHandler? OnZeroResults;
@@ -73,7 +74,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         [RelayCommand]
         public void LoadCheckouts()
         {
-            Available = CheckoutSearchResultViewModel.GetClonedViewModels(_cheqroom.OpenOrders).ToImmutableArray();
+            Available = [..CheckoutSearchResultViewModel.GetClonedViewModels(_cheqroom.OpenOrders)];
             foreach (var order in Available)
             {
                 order.OnError += (sender, e) => OnError?.Invoke(sender, e);
@@ -94,7 +95,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         [RelayCommand]
         public void Search()
         {
-            if (Available.Length == 0)
+            if (Available.Count == 0)
                 LoadCheckouts();
 
             var possible = Available
@@ -106,12 +107,12 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
             {
                 case SelectionMode.Multiple:
                     AllSelected = [.. possible];
-                    IsSelected = AllSelected.Length > 0;
+                    IsSelected = AllSelected.Count > 0;
                     OnMultipleResult?.Invoke(this, AllSelected);
                     return;
                 case SelectionMode.Single:
                     Options = [.. possible];
-                    if (Options.Length == 0)
+                    if (Options.Count == 0)
                     {
                         ShowOptions = false;
                         Selected = CheckoutSearchResultViewModel.Default;
@@ -120,7 +121,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
                         return;
                     }
 
-                    if (Options.Length == 1)
+                    if (Options.Count == 1)
                     {
                         ShowOptions = false;
                         Selected = Options.First();

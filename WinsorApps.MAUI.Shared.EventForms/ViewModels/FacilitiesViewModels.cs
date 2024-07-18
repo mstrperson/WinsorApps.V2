@@ -23,6 +23,7 @@ public partial class FacilitesEventViewModel :
     [ObservableProperty] bool overnight;
     [ObservableProperty] bool parking;
     [ObservableProperty] LocationSetupCollectionViewModel locations = new();
+    [ObservableProperty] private bool hasLoaded;
 
     public event EventHandler? ReadyToContinue;
     public event EventHandler? Deleted;
@@ -62,16 +63,32 @@ public partial class FacilitesEventViewModel :
         Model = model;
         
         Locations.LoadSetupInformation(model.locations);
+        HasLoaded = true;
+    }
+
+    private void ValidationFailMessage(string message)
+    {
+        OnError?.Invoke(this, new("Invalid Data Entered.", message));
     }
 
     [RelayCommand]
-    public async Task Continue()
+    public async Task Continue(bool template = false)
     {
+        foreach(var setup in this.Locations.Setups)
+        {
+            if(string.IsNullOrEmpty(setup.Instructions))
+            {
+                ValidationFailMessage($"You must enter instructions for setup in {setup.LocationSearch.Selected.Label}");
+                return;
+            }
+        }
+
         var result = await _service.PostFacilitiesEvent(Id, this, OnError.DefaultBehavior(this));
         if (result.HasValue)
         {
             Model = result.Value;
-            ReadyToContinue?.Invoke(this, EventArgs.Empty);
+            if(!template)
+                ReadyToContinue?.Invoke(this, EventArgs.Empty);
         }
     }
 
@@ -117,8 +134,21 @@ public partial class LocationSetupCollectionViewModel :
     [RelayCommand]
     public void AddSetup()
     {
-        Selected = new();
-        Selected.Selected += (_, selected) => Selected = selected;
+        var vm = new LocationSetupViewModel();
+        vm.LocationSearch.OnSingleResult += (_, e) =>
+        {
+            vm.IsSelected = true;
+        };
+
+        vm.LocationSearch.OnSingleResult += (_, loc) =>
+        {
+            SaveSelected();
+        };
+
+        vm.Selected += (_, selected) => Selected = selected;
+        vm.Deleted += (_, _) => Setups.Remove(vm);
+        vm.SetupDate = DateTime.Today.AddDays(14);
+        Selected = vm;
         ShowSelected = true;
     }
 

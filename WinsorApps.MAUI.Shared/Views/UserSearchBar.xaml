@@ -5,31 +5,26 @@
              xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels"
              x:DataType="vm:UserSearchViewModel"
              x:Class="WinsorApps.MAUI.Shared.Views.UserSearchBar">
-    <VerticalStackLayout
-        VerticalOptions="Center">
+    <StackLayout>
         <SearchBar 
-            Grid.Row="0"
-            Grid.Column="0"
             Text="{Binding SearchText}"
             SearchCommand="{Binding SearchCommand}"
-            WidthRequest="250"/>
-        <ScrollView>
-            <CollectionView 
-                ItemsSource="{Binding Options}"
-                IsVisible="{Binding ShowOptions}"
-                BackgroundColor="Transparent">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="vm:UserViewModel">
-                        <Label 
-                            Text="{Binding DisplayName}"
-                            BackgroundColor="{AppThemeBinding Dark={StaticResource SlateDark}, Light={StaticResource WarmGrey}}">
-                            <Label.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding SelectCommand}"/>
-                            </Label.GestureRecognizers>
-                        </Label>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </ScrollView>
-    </VerticalStackLayout>
+            WidthRequest="400"/>
+        <CollectionView 
+            ItemsSource="{Binding Options}"
+            IsVisible="{Binding ShowOptions}"
+            BackgroundColor="Transparent">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:UserViewModel">
+                    <Label 
+                        Text="{Binding DisplayName}"
+                        BackgroundColor="{AppThemeBinding Dark={StaticResource SlateDark}, Light={StaticResource WarmGrey}}">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SelectCommand}"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </StackLayout>
 </ContentView>

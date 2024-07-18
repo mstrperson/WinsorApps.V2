@@ -11,38 +11,39 @@ public record SavedCredential(
 {
     private static byte[]? _appGuid;
 
+    private static string GuidFilePath => $"{LocalLoggingService.AppDataPath}{Path.DirectorySeparatorChar}.forms-app.guid";
+    private static string GuidFilePathOld => $"{LocalLoggingService.AppDataPathOld}{Path.DirectorySeparatorChar}forms-app.guid";
+
+
+
     private static byte[] ApplicationGuid
     {
         get
         {
             if (_appGuid is null)
             {
-                char separator = Environment.OSVersion.Platform == PlatformID.Win32NT ? '\\' : '/';
-                var guidFilePath =
-                    $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}{separator}forms-app.guid";
-
-                if (!File.Exists(guidFilePath))
+                if (!File.Exists(GuidFilePath) && !File.Exists(GuidFilePathOld))
                 {
                     byte[] guid = Guid.NewGuid().ToByteArray();
-                    File.WriteAllBytes(guidFilePath, guid);
+                    File.WriteAllBytes(GuidFilePath, guid);
                     _appGuid = guid;
                 }
-                else
-                    _appGuid = File.ReadAllBytes(guidFilePath);
+                
+                if(!File.Exists(GuidFilePath))
+                {
+                    File.Copy(GuidFilePathOld, GuidFilePath, true);
+                    File.Delete(GuidFilePathOld);
+                }
+                
+                _appGuid = File.ReadAllBytes(GuidFilePath);
             }
 
             return _appGuid;
         }
     }
 
-    private static string CredFilePath
-    {
-        get
-        {
-            char separator = Environment.OSVersion.Platform == PlatformID.Win32NT ? '\\' : '/';
-            return $"{LocalLoggingService.AppDataPath}{separator}login.cred";
-        }
-    }
+    private static string CredFilePath => $"{LocalLoggingService.AppDataPath}{Path.DirectorySeparatorChar}.login.cred";
+    private static string CredFilePathOld => $"{LocalLoggingService.AppDataPathOld}{Path.DirectorySeparatorChar}login.cred";
 
     public static void DeleteSavedCredential()
     {
@@ -88,8 +89,14 @@ public record SavedCredential(
 
     public static async Task<SavedCredential?> GetSavedCredential()
     {
-        if (!File.Exists(CredFilePath))
+        if (!File.Exists(CredFilePath) && !File.Exists(CredFilePathOld))
             return null;
+
+        if(!File.Exists(CredFilePath))
+        {
+            File.Copy(CredFilePathOld, CredFilePath, true);
+            File.Delete(CredFilePathOld);
+        }
 
         byte[] outputBytes = await File.ReadAllBytesAsync(CredFilePath);
 

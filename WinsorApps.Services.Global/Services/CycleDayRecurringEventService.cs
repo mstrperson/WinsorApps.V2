@@ -17,6 +17,9 @@ namespace WinsorApps.Services.Global.Services
 
         public ImmutableArray<CycleDayRecurringEvent> RecurringEvents { get; private set; } = [];
 
+        public ImmutableArray<CycleDayRecurringEvent> OpenEventList =>
+            RecurringEvents.Where(evt => evt.ending > DateOnly.FromDateTime(DateTime.Today)).ToImmutableArray();
+
         public CycleDayRecurringEventService(ApiService api, LocalLoggingService logging)
         {
             _api = api;

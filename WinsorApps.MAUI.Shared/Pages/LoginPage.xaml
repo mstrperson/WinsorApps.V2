@@ -6,13 +6,21 @@
              x:DataType="vm:LoginViewModel"
              x:Class="WinsorApps.MAUI.Shared.Pages.LoginPage"
              Shell.NavBarIsVisible="False"
-             Shell.FlyoutBehavior="Disabled">
+             Shell.FlyoutBehavior="Disabled"
+             Shell.NavBarHasShadow="True">
     <Shell.BackButtonBehavior>
         <BackButtonBehavior IsEnabled="False" IconOverride="invisible.png"/>
     </Shell.BackButtonBehavior>
     <ContentPage.Content>
         <StackLayout>
             <Image StyleClass="wordmark_oneline"/>
+            <Label
+                StyleClass="H3"
+                Text="{Binding StatusMessage}"
+                IsVisible="{Binding Busy}" />
+            <Image 
+                StyleClass="loading_symbol"
+                IsVisible="{Binding Busy}" />
             <StackLayout
                 Orientation="Horizontal"
                 Spacing="20"

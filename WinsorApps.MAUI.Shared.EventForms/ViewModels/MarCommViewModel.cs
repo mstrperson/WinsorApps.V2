@@ -1,9 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.Controls;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.EventForms.Services;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.MAUI.Shared.EventForms.ViewModels;
@@ -24,10 +27,28 @@ public partial class MarCommEventViewModel :
     [ObservableProperty] bool digitalProgram;
     [ObservableProperty] bool needsMedia;
     [ObservableProperty] bool needPhotographer;
-    [ObservableProperty] ContactSearchViewModel inviteList = new ContactSearchViewModel() { SelectionMode = SelectionMode.Multiple };
+    [ObservableProperty] ObservableCollection<ContactViewModel> inviteList = [];
+    [ObservableProperty] ContactSearchViewModel contactSearch = new() { SelectionMode = SelectionMode.Single };
+    [ObservableProperty] private bool hasLoaded;
 
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "Working";
+
+    public MarCommEventViewModel()
+    {
+        ContactSearch.OnSingleResult += (_, con) =>
+        {
+            if (!InviteList.Any(c => c.Id == con.Id))
+            {
+                var contact = con.Clone();
+                contact.Selected += (_, _) => 
+                    InviteList.Remove(contact);
+                InviteList.Add(contact);
+            }
+            ContactSearch.ClearSelection();
+        };
+
+    }
 
     public MarCommRequest Model { get; private set; }
 
@@ -42,9 +63,11 @@ public partial class MarCommEventViewModel :
             vm.DigitalProgram,
             vm.NeedsMedia,
             vm.NeedPhotographer,
-            vm.InviteList.AllSelected.Select(con => con.Id).ToImmutableArray()
+            vm.InviteList.Select(con => con.Id).ToImmutableArray()
         );
 
+
+    [RelayCommand]
     public void Clear()
     {
         Id = "";
@@ -58,6 +81,7 @@ public partial class MarCommEventViewModel :
         DigitalProgram = false;
         NeedsMedia = false;
         NeedPhotographer = false;
+        InviteList = [];
     }
     public void Load(MarCommRequest model)
     {
@@ -78,15 +102,12 @@ public partial class MarCommEventViewModel :
         NeedsMedia = model.needCreatedMedia;
         NeedPhotographer = model.needPhotographer;
         Model = model;
-        
 
-        foreach(var contact in InviteList.Available)
-        {
-            contact.IsSelected = model.inviteList.Any(con => con.id == contact.Id);
-        }
 
-        InviteList.AllSelected = [..InviteList.Available.Where(con => con.IsSelected)];
-
+        InviteList = [..model.inviteList.Select(ContactViewModel.Get)];
+        foreach(var contact in InviteList)
+            contact.Selected += (_, _) => InviteList.Remove(contact);
+        HasLoaded = true;
     }
 
     public static MarCommEventViewModel Default => new();
@@ -96,15 +117,17 @@ public partial class MarCommEventViewModel :
     public event EventHandler<ErrorRecord>? OnError;
 
     private readonly EventFormsService _service = ServiceHelper.GetService<EventFormsService>();
+    private readonly ContactService  _contactService = ServiceHelper.GetService<ContactService>();
 
     [RelayCommand]
-    public async Task Continue()
+    public async Task Continue(bool template = false)
     {
         var result = await _service.PostMarComRequest(Id, this, OnError.DefaultBehavior(this));
         if (result.HasValue)
         {
             Model = result.Value;
-            ReadyToContinue?.Invoke(this, EventArgs.Empty);
+            if(!template)
+                ReadyToContinue?.Invoke(this, EventArgs.Empty);
         }
     }
 

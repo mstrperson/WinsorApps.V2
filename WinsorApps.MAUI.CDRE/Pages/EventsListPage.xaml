@@ -3,26 +3,27 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:WinsorApps.MAUI.CDRE.ViewModels"
              xmlns:styles="clr-namespace:WinsorApps.MAUI.CDRE.Resources.Styles"
-             xmlns:svm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels;assembly=WinsorApps.MAUI.Shared"
              x:DataType="vm:EventListViewModel"
              x:Class="WinsorApps.MAUI.CDRE.Pages.EventsListPage"
              Title="My Recurring Events"
              NavigatedTo="ContentPage_NavigatedTo">
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Refresh"
-                     IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=DarkGray,
-                     Glyph={x:Static styles:FontAwesomeSolid.SyncAlt}}"
-                     Command="{Binding LoadEventsCommand}"/>
+        <ToolbarItem 
+            Text="Refresh"
+            IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=DarkGray,
+            Glyph={x:Static styles:FontAwesomeSolid.SyncAlt}}"
+            Command="{Binding LoadEventsCommand}"/>
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <ScrollView>
             <VerticalStackLayout
             HorizontalOptions="Center">
             
-                <CollectionView x:Name="EventsListView"
-                      ItemsSource="{Binding Events}"
-                      VerticalOptions="FillAndExpand"
-                      BackgroundColor="Transparent">
+                <CollectionView 
+                    x:Name="EventsListView"
+                    ItemsSource="{Binding Events}"
+                    VerticalOptions="FillAndExpand"
+                    BackgroundColor="Transparent">
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="vm:RecurringEventViewModel">
                             <StackLayout> 
@@ -56,10 +57,7 @@
 
                                     </HorizontalStackLayout>
                                     <Label Text="{Binding Description}"
-                                               FontSize="Micro"
                                                HorizontalOptions="Start"/>  
-                                   
-            
                                     </VerticalStackLayout> 
                                 </Border>
                             </StackLayout>
@@ -78,7 +76,7 @@
                        LineBreakMode="NoWrap" 
                        MaxLines="1"
                        FontAttributes="Bold" 
-                       FontSize="Small"
+                       StyleClass="H3"
                        TextDecorations="Underline"/>
             </HorizontalStackLayout>
             

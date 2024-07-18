@@ -16,81 +16,87 @@
         </ResourceDictionary>
     </ContentView.Resources>
     <VerticalStackLayout>
-        <StackLayout
-            Orientation="Horizontal"
-            Spacing="30"
-            IsVisible="{Binding IsSelected, Converter={StaticResource Invert}}">
-            <SearchBar
-                Placeholder="Location Name"
-                HeightRequest="50"
-                WidthRequest="250"
-                Text="{Binding SearchText}"
-                SearchCommand="{Binding SearchCommand}" />
-            <Label
-                Text="➕"
-                FontSize="20"
-                IsVisible="{Binding CustomLocations}">
-                <Label.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding CreateCommand}" />
-                </Label.GestureRecognizers>
-            </Label>
-        </StackLayout>
-        <CollectionView
-            IsVisible="{Binding ShowOptions}"
-            ItemsSource="{Binding Options}">
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="vm:LocationViewModel">
-                    <StackLayout
-                        Orientation="Horizontal"
-                        Spacing="30">
-                        <StackLayout.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
-                        </StackLayout.GestureRecognizers>
-                        <Label Text="{Binding Label}" />
-                    </StackLayout>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
-        <StackLayout
-            Orientation="Horizontal"
-            Spacing="30"
-            IsVisible="{Binding IsSelected}">
-            <StackLayout.GestureRecognizers>
-                <TapGestureRecognizer Command="{Binding ClearSelectionCommand}" />
-            </StackLayout.GestureRecognizers>
+        <VerticalStackLayout
+            WidthRequest="800"
+            IsVisible="{Binding ShowCreate, Converter={StaticResource Invert}}">
+            <HorizontalStackLayout
+                Spacing="30"
+                IsVisible="{Binding IsSelected, Converter={StaticResource Invert}}">
+                <SearchBar
+                    Placeholder="Location Name"
+                    HeightRequest="40"
+                    WidthRequest="250"
+                    Text="{Binding SearchText}"
+                    SearchCommand="{Binding SearchCommand}" />
+                <Image
+                    StyleClass="AddButton"
+                    IsVisible="{Binding CustomLocations}">
+                    <Image.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding CreateCommand}" />
+                    </Image.GestureRecognizers>
+                </Image>
+            </HorizontalStackLayout>
+            <CollectionView
+                IsVisible="{Binding ShowOptions}"
+                ItemsSource="{Binding Options}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:LocationViewModel">
+                        <HorizontalStackLayout
+                            Spacing="30">
+                            <HorizontalStackLayout.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                            </HorizontalStackLayout.GestureRecognizers>
+                            <Label Text="{Binding Label}" />
+                        </HorizontalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            <HorizontalStackLayout
+                Spacing="30"
+                IsVisible="{Binding IsSelected}">
+                <HorizontalStackLayout.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ClearSelectionCommand}" />
+                </HorizontalStackLayout.GestureRecognizers>
             <Label Text="{Binding Selected.Label}" />
-        </StackLayout>
-        <StackLayout
-            Orientation="Horizontal"
+        </HorizontalStackLayout>
+        </VerticalStackLayout>
+        <HorizontalStackLayout
             Spacing="30"
             IsVisible="{Binding ShowCreate}">
             <Entry
                 Text="{Binding NewItem.Label}"
-                HeightRequest="30"
+                HeightRequest="40"
                 WidthRequest="250"
                 BackgroundColor="White"
                 TextColor="Black"
                 Placeholder="Location Name"/>
-            <Switch IsToggled="{Binding NewItem.IsPublic}"/>
+            <CheckBox IsChecked="{Binding NewItem.IsPublic}"/>
             <Label 
                 Text="Public"
-                TranslationX="-100"
-                IsVisible="{Binding NewItem.IsPublic}"/>
+                TranslationX="-45"
+                IsVisible="{Binding NewItem.IsPublic}"
+                WidthRequest="60"/>
             <Label
                 Text="Private"
-                TranslationX="-100"
-                IsVisible="{Binding NewItem.IsPublic, Converter={StaticResource Invert}}" />
-            <Label
-                Text="💾"
-                FontSize="20">
-                <Label.GestureRecognizers>
+                TranslationX="-45"
+                IsVisible="{Binding NewItem.IsPublic, Converter={StaticResource Invert}}"
+                WidthRequest="60" />
+            <Image
+                StyleClass="SaveButton"
+                TranslationX="-45">
+                <Image.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding NewItem.CreateCommand}" />
-                </Label.GestureRecognizers>
-            </Label>
-            <Button
+                </Image.GestureRecognizers>
+            </Image>
+            <Image
                 StyleClass="CancelButton"
-                Command="{Binding CancelCreateCommand}" />
-        </StackLayout>
+                TranslationX="-45">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer 
+                        Command="{Binding CancelCreateCommand}"/>
+                </Image.GestureRecognizers>
+            </Image>
+        </HorizontalStackLayout>
 
     </VerticalStackLayout>
 </ContentView>
