@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using AsyncAwaitBestPractices;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
@@ -109,6 +110,17 @@ public partial class MainPageViewModel : ObservableObject, IBusyViewModel, IErro
         OnCompleted?.Invoke(this, EventArgs.Empty);
         Ready = true;
         Busy = false;
+    }
+
+    [RelayCommand]
+    public void Logout()
+    {
+        Busy = true;
+        BusyMessage = "Logging out.";
+        _api.Logout();
+
+        Thread.Sleep(1000);
+        Application.Current?.Quit();
     }
 
 }

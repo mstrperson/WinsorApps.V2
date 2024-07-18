@@ -19,6 +19,9 @@
         <ToolbarItem
             IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=Gray,
             Glyph={x:Static styles:FontAwesomeSolid.Receipt}}"/>
+        <ToolbarItem
+            Text="Logout"
+            Command="{Binding LogoutCommand}" />
     </ContentPage.ToolbarItems>
     <ScrollView>
         <VerticalStackLayout

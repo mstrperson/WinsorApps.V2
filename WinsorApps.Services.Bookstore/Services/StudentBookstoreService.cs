@@ -126,11 +126,14 @@ public class StudentBookstoreService : IAsyncInitService
     /// <returns></returns>
     public async Task<ImmutableArray<StudentSectionBookOrder>> GetMyOrders(ErrorAction onError)
     {
-        var result = await _api.SendAsync<ImmutableArray<StudentSectionBookOrder>>(HttpMethod.Get,
+        var result = await _api.SendAsync<ImmutableArray<StudentSectionBookOrder>?>(HttpMethod.Get,
             $"api/book-orders/students/orders",
             onError: onError);
-        _myOrders = [..result];
-        return result;
+        if (!result.HasValue)
+            result = [];
+
+        _myOrders = [..result.Value];
+        return result.Value;
     }
 
     /// <summary>

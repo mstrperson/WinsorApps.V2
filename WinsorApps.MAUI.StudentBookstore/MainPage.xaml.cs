@@ -18,14 +18,16 @@ namespace WinsorApps.MAUI.StudentBookstore
             RegistrarService registrar,
             LocalLoggingService logging,
             StudentBookstoreService sbs,
-            BookService book)
+            BookService book,
+            AppService app,
+            ApiService api)
         {
             MainPageViewModel vm = new(
             [
               new(registrar, "Registrar Data"),
               new(book, "Book Service"),
               new(sbs, "Student Books")
-            ])
+            ], app, api)
             {
 
                 #region Service Post Init Tasks
@@ -35,10 +37,14 @@ namespace WinsorApps.MAUI.StudentBookstore
                     new(new(() =>
                     {
                         BookViewModel.Initialize(book, this.DefaultOnErrorAction()).SafeFireAndForget(e => e.LogException());
-                    }), "Loading Recurring Event Cache")
-                ]
-
+                    }), "Loading Books Cache"),
+                    new(new(() =>
+                    {
+                        ServiceHelper.GetService<StudentBookstoreViewModel>().Initialize(this.DefaultOnErrorAction()).SafeFireAndForget(e => e.LogException());
+                    }), "Student Bookstore")
+                ],
                 #endregion // Post Init Tasks
+                AppId = "lQObX9DZAzKM"
             };
 
             BindingContext = vm;

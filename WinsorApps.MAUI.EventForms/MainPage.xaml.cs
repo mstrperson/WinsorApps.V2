@@ -46,7 +46,8 @@ public partial class MainPage : ContentPage
                 new(new Task(async () => await ApprovalStatusViewModel.Initialize(eventForms, this.DefaultOnErrorAction())), "Approval Status Cache"),
                 new(new Task(async () => await CateringMenuCategoryViewModel.Initialize(cateringMenuService, this.DefaultOnErrorAction())), "Catering Menus"),
                 new(new Task(async () => await EventTypeViewModel.Initialize(eventForms, this.DefaultOnErrorAction())), "Event Types")
-            ]
+            ],
+            AppId = "vN5MXK96pJW7"
         };
 
         BindingContext = vm;

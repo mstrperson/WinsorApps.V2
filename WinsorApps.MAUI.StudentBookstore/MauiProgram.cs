@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿global using ErrorAction = System.Action<WinsorApps.Services.Global.Models.ErrorRecord>;
+using Microsoft.Extensions.Logging;
 using CommunityToolkit.Maui.Core;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.Bookstore;

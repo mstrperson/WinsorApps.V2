@@ -26,36 +26,40 @@ namespace WinsorApps.MAUI.StudentBookstore.ViewModels
         
         [ObservableProperty] bool busy;
         [ObservableProperty] string busyMessage = "Loading";
-
+        [ObservableProperty] bool ready;
         public event EventHandler<ErrorRecord>? OnError;
 
         [ObservableProperty] ObservableCollection<SectionRequiredBooksViewModel> sectionRequiredBooks = [];
 
         public StudentBookstoreViewModel()
         {
-            var regtask = _registrarService.WaitForInit(err => OnError?.Invoke(this, err));
-            var bookTask = _bookService.WaitForInit(err => OnError?.Invoke(this, err));
-            var wait = Task.WhenAll(regtask, bookTask);
+            
+        }
 
-            wait.WhenCompleted( async () =>
+        public async Task Initialize(ErrorAction onError)
+        {
+            Busy = true;
+            var regtask = _registrarService.WaitForInit(onError);
+            var bookTask = _bookService.WaitForInit(onError);
+            await Task.WhenAll(regtask, bookTask);
+           
+            var myScehdule = _registrarService.MyAcademicSchedule;
+            var requirements = await _bookService.GetSemesterBookList(DateTime.Today.Month < 11 && DateTime.Today.Month > 2, OnError.DefaultBehavior(this));
+
+            foreach (var section in myScehdule)
             {
-                var myScehdule = _registrarService.MyAcademicSchedule;
-                var requirements = await _bookService.GetSemesterBookList(DateTime.Today.Month < 11 && DateTime.Today.Month > 2, OnError.DefaultBehavior(this));
-
-                foreach (var section in myScehdule)
+                if (requirements.schedule.Any(s => s.sectionId == section.sectionId))
                 {
-                    if (requirements.schedule.Any(s => s.sectionId == section.sectionId))
-                    {
-                        var requiredBooks = requirements.schedule.First(s => s.sectionId == section.sectionId);
-                        SectionRequiredBooks.Add(new(section, requiredBooks));
-                    }
-                    else
-                    {
-                        SectionRequiredBooks.Add(new(section, new()));
-                    }
+                    var requiredBooks = requirements.schedule.First(s => s.sectionId == section.sectionId);
+                    SectionRequiredBooks.Add(new(section, requiredBooks));
                 }
-            });
-
+                else
+                {
+                    SectionRequiredBooks.Add(new(section, new()));
+                }
+            }
+            Busy = false;
+            Ready = true;
         }
     }
 
@@ -81,7 +85,7 @@ namespace WinsorApps.MAUI.StudentBookstore.ViewModels
         public OptionGroupViewModel(StudentSectionBookOptionGroup group) 
         {
             option = group.option;
-            books = [..group.isbns.Select(Isbn => IsbnViewModel.Get(Isbn))];
+            books = [.. group.isbns.Select(IsbnViewModel.Get)];
         }
     }
 

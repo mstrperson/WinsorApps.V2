@@ -37,9 +37,10 @@ namespace WinsorApps.MAUI.CDRE
                             RecurringEventViewModel.Initialize(cdres, this.DefaultOnErrorAction()).SafeFireAndForget(e => e.LogException());
                         };
                     }), "Loading Recurring Event Cache")
-                ]
+                ],
 
                 #endregion // Post Init Tasks
+                AppId = "al9q8gMZOyNw"
             };
 
             BindingContext = vm;

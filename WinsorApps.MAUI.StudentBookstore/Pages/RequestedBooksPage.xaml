@@ -37,7 +37,7 @@
                                             <Image Source="{FontImage FontFamily=FontAwesomeSolid, Color=White,
                                                                    Glyph={x:Static styles:FontAwesomeSolid.Book}}"
                                                    HorizontalOptions="Start"/>
-                                            <Label Text="{Binding Section}"
+                                            <Label Text="{Binding Section.DisplayName}"
                                                    FontAttributes="Bold"
                                                    FontSize="Medium"
                                                    HorizontalOptions="Start"
