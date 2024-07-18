@@ -136,13 +136,6 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
        
         public int Duration => (int)(EndTime - StartTime).TotalMinutes;
 
-        // TODO:  Add More Observable Properties for all the relevant
-        //        things for a CycleDayRecurringEvent
-
-        public RecurringEventViewModel()
-        {
-            
-        }
 
         public event EventHandler<RecurringEventViewModel>? OnCreated;
         public event EventHandler<RecurringEventViewModel>? OnUpdated;
@@ -202,8 +195,7 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         public void Select()
         {
             IsSelected = !IsSelected;
-            if (IsSelected)
-                Selected?.Invoke(this, this);
+            Selected?.Invoke(this, this);
         }
 
         #endregion // ISelectable
@@ -234,9 +226,6 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
                 Frequency = model.frequency,
                 IsPublic = model.isPublic,
                 ShowDelete = true
-
-
-                // TODO: Initialize the rest of the ObservableProperties you add.
             };
             vm.Attendees.AddEmails(model.attendees);
 
