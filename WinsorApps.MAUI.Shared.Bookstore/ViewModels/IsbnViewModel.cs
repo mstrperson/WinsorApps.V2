@@ -13,10 +13,12 @@ namespace WinsorApps.MAUI.Shared.Bookstore.ViewModels;
 public partial class IsbnViewModel : 
     ObservableObject,
     IDefaultValueViewModel<IsbnViewModel>,
-    ICachedViewModel<IsbnViewModel, ISBNInfo, BookService>
+    ICachedViewModel<IsbnViewModel, ISBNInfo, BookService>,
+    ISelectable<IsbnViewModel>
 {
     public event EventHandler<OdinDataViewModel>? OdinUpdateRequested;
     public event EventHandler<IsbnViewModel>? IsbnUpdateRequested;
+    public event EventHandler<IsbnViewModel>? Selected;
 
     [ObservableProperty] bool editable = true;
      
@@ -25,12 +27,14 @@ public partial class IsbnViewModel :
     [ObservableProperty] BookBindingViewModel binding = new("Hardcover");
 
     [ObservableProperty] bool available = true;
+    [ObservableProperty] bool isSelected;
 
     public string AvailableString => Available ? "Available" : "Not Available";
 
     public static ConcurrentBag<IsbnViewModel> ViewModelCache { get; private set; } = [];
 
     public static IsbnViewModel Default => throw new NotImplementedException();
+
 
     [ObservableProperty] string displayName = "";
 
@@ -212,6 +216,12 @@ public partial class IsbnViewModel :
     }
 
     public IsbnViewModel Clone() => (IsbnViewModel)MemberwiseClone();
+
+    public void Select()
+    {
+        IsSelected = !IsSelected;
+        Selected?.Invoke(this, this);
+    }
 }
 public partial class OdinDataViewModel : ObservableObject, IDefaultValueViewModel<OdinDataViewModel>
 {

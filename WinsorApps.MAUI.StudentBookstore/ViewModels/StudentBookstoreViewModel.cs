@@ -21,8 +21,8 @@ namespace WinsorApps.MAUI.StudentBookstore.ViewModels
         IErrorHandling,
         IBusyViewModel
     {
-        private readonly StudentBookstoreService _bookService = ServiceHelper.GetService<StudentBookstoreService>();
-        private readonly RegistrarService _registrarService = ServiceHelper.GetService<RegistrarService>();
+        private readonly StudentBookstoreService _bookService;
+        private readonly RegistrarService _registrarService;
         
         [ObservableProperty] bool busy;
         [ObservableProperty] string busyMessage = "Loading";
@@ -31,9 +31,10 @@ namespace WinsorApps.MAUI.StudentBookstore.ViewModels
 
         [ObservableProperty] ObservableCollection<SectionRequiredBooksViewModel> sectionRequiredBooks = [];
 
-        public StudentBookstoreViewModel()
+        public StudentBookstoreViewModel(StudentBookstoreService bookService, RegistrarService registrarService)
         {
-            
+            _bookService = bookService;
+            _registrarService = registrarService;
         }
 
         public async Task Initialize(ErrorAction onError)
@@ -68,6 +69,8 @@ namespace WinsorApps.MAUI.StudentBookstore.ViewModels
     {
         [ObservableProperty] SectionViewModel section = SectionViewModel.Default;
         [ObservableProperty] ObservableCollection<OptionGroupViewModel> requiredBooks = [];
+
+        private SectionRequiredBooksViewModel() { }
 
         public SectionRequiredBooksViewModel(SectionRecord section, StudentSectionBookRequirements books) 
         {

@@ -10,8 +10,8 @@ public class StudentBookstoreService : IAsyncInitService
     private readonly LocalLoggingService _logging;
     private readonly RegistrarService _registrar;
 
-    private StudentSemesterBookList? _fallBookList;
-    private StudentSemesterBookList? _springBookList;
+    public StudentSemesterBookList FallBookList { get; private set; } = new("fall", []);
+    public StudentSemesterBookList SpringBookList { get; private set; } = new("spring", []);
 
     public ImmutableArray<OrderStatus> OrderStatusOptions { get; private set; } = [];
 
@@ -40,10 +40,10 @@ public class StudentBookstoreService : IAsyncInitService
     /// <exception cref="ServiceNotReadyException">If the service is still being initialized.</exception>
     public StudentSemesterBookList MyBookList(bool fall = true)
     {
-        if (!Ready || !_fallBookList.HasValue || !_springBookList.HasValue)
+        if (!Ready)
             throw new ServiceNotReadyException(_logging, "Student Bookstore Service is not ready yet.");
 
-        return fall ? _fallBookList.Value : _springBookList.Value;
+        return fall ? FallBookList : SpringBookList;
     }
 
     public StudentBookstoreService(ApiService api, LocalLoggingService logging, RegistrarService registrar)
@@ -110,11 +110,11 @@ public class StudentBookstoreService : IAsyncInitService
         }
 
         if (fall)
-            _fallBookList = result;
+            FallBookList = result.Value;
         else
-            _springBookList = result;
+            SpringBookList = result.Value;
 
-        return result!.Value;
+        return result.Value;
     }
 
     /// <summary>

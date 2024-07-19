@@ -7,7 +7,7 @@ namespace WinsorApps.Services.Bookstore.Models;
 /// </summary>
 /// <param name="sectionId">section.id of a class on the student's schedule</param>
 /// <param name="selectedBooks">Books that the student has indicated that they intend to purchase from the school</param>
-public readonly record struct StudentSectionBookOrder(string sectionId, ImmutableArray<StudentBookRequestRecord> selectedBooks);
+public readonly record struct StudentSectionBookOrder(string sectionId, ImmutableArray<StudentBookRequest> selectedBooks);
 
 /// <summary>
 /// Option Groups indicate whether a Student is expected to purchase `All` or the books in this group, or 
@@ -37,4 +37,4 @@ public readonly record struct StudentSemesterBookList(string term, ImmutableArra
 /// <param name="submitted">Timestamp for when the student submitted the order.</param>
 /// <param name="status">current status of the order in the ordering process.</param>
 /// <param name="isbn">specific ISBN that has been indicated.</param>
-public readonly record struct StudentBookRequestRecord(DateTime submitted, string status, string isbn);
+public readonly record struct StudentBookRequest(DateTime submitted, string status, string isbn);
