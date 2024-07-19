@@ -35,6 +35,7 @@ namespace WinsorApps.MAUI.StudentBookstore
             builder.Services.AddSingleton<StudentBookstoreViewModel>();
             builder.Services.AddSingleton<SectionRequiredBooksViewModel>();
             builder.Services.AddSingleton<OptionGroupViewModel>();
+            builder.Services.AddSingleton<MyCartViewModel>();
             builder.Services.AddSingleton<RequestedBooksPage>();
 
 #if DEBUG
