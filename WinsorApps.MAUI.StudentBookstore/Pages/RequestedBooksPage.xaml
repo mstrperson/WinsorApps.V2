@@ -2,10 +2,17 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:WinsorApps.MAUI.StudentBookstore.ViewModels"
+             xmlns:bvm="clr-namespace:WinsorApps.MAUI.Shared.Bookstore.ViewModels;assembly=WinsorApps.MAUI.Shared.Bookstore"
              xmlns:styles="clr-namespace:WinsorApps.MAUI.StudentBookstore.Resources.Styles"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
              x:Class="WinsorApps.MAUI.StudentBookstore.Pages.RequestedBooksPage"
              x:DataType="vm:MyCartViewModel"
              Title="Requested Books">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
     <ContentPage.ToolbarItems>
         <ToolbarItem
         IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=Gray,
@@ -21,10 +28,12 @@
                 <CollectionView x:Name="ClassesListView"
                                 ItemsSource="{Binding MyCart}"
                                 VerticalOptions="FillAndExpand"
-                                BackgroundColor="Transparent">
+                                BackgroundColor="Transparent"
+                                IsVisible="{Binding ShowSelected, Converter={StaticResource Invert}}">
+                                <!-- Only Visible when You are not showing a particular Cart -->
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="vm:SectionCartViewModel">
-                            <StackLayout>
+                            <VerticalStackLayout>
                                 <Border
                                     StrokeThickness="3"
                                     Margin="5,10,10,0"
@@ -35,6 +44,7 @@
                                     <VerticalStackLayout>
                                         <HorizontalStackLayout>
                                             <HorizontalStackLayout.GestureRecognizers>
+                                                <!-- Select Command Here Loads this Class's Book Orders into the Selected Cart View -->
                                                 <TapGestureRecognizer Command="{Binding SelectCommand}" />
                                             </HorizontalStackLayout.GestureRecognizers>
                                             <Image Source="{FontImage FontFamily=FontAwesomeSolid, Color=White,
@@ -53,10 +63,162 @@
                                         </HorizontalStackLayout>
                                     </VerticalStackLayout>
                                 </Border>
-                            </StackLayout>
+                            </VerticalStackLayout>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
+                <!-- Selected Cart View -->
+                <VerticalStackLayout
+                    IsVisible="{Binding ShowSelected}">
+                    <ContentView
+                        x:DataType="vm:SectionCartViewModel"
+                        BindingContext="{Binding SelectedSection}">
+
+                        <Grid
+                            RowDefinitions="*,*"
+                            ColumnDefinitions="*,*">
+                            <HorizontalStackLayout
+                                Grid.Row="0"
+                                Grid.Column="0">
+
+                                <Label
+                                    StyleClass="Header"
+                                    Text="{Binding Section.DisplayName}" />
+                                <Label
+                                    StyleClass="NeutralSignifier"
+                                    IsVisible="{Binding HasChanges}" />
+                                <Label
+                                    StyleClass="Header"
+                                    Text="No Books" 
+                                    IsVisible="{Binding HasNoBooks}"/>
+                                <Label
+                                    StyleClass="PositiveSignifier"
+                                    IsVisible="{Binding HasChanges, Converter={StaticResource Invert}}" />
+                            </HorizontalStackLayout>
+                            <HorizontalStackLayout
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                HorizontalOptions="End">
+                                <Image
+                                    StyleClass="SaveButton">
+                                    <Image.GestureRecognizers>
+                                        <!-- SubmitOrder Command saves your book order for this Class -->
+                                        <TapGestureRecognizer Command="{Binding SubmitOrderCommand}" />
+                                    </Image.GestureRecognizers>
+                                </Image>
+                                <Image
+                                    StyleClass="BackButton">
+                                    <Image.GestureRecognizers>
+                                        <!-- Select Command Here De-selects this Class and returns you to the Section Selection view. -->
+                                        <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                    </Image.GestureRecognizers>
+                                </Image>
+                            </HorizontalStackLayout>
+                            <!-- Required Books Collection -->
+                            <CollectionView
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                ItemsSource="{Binding RequiredBooks}">
+                                <CollectionView.Header>
+                                    <Label
+                                        StyleClass="SubHeader"
+                                        Text="Required Books">
+                                    </Label>
+                                </CollectionView.Header>
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:OptionGroupViewModel">
+                                        <CollectionView
+                                            ItemsSource="{Binding Books}">
+                                            <CollectionView.Header>
+                                                <Label
+                                                    StyleClass="H3"
+                                                    Text="{Binding Option}" />
+                                            </CollectionView.Header>
+                                            <CollectionView.ItemTemplate>
+                                                <DataTemplate x:DataType="bvm:IsbnViewModel">
+                                                    <Grid
+                                                        RowDefinitions="*,*"
+                                                        ColumnDefinitions="*,50">
+                                                        <HorizontalStackLayout
+                                                            Grid.Row="0"
+                                                            Grid.Column="0">
+                                                            <Label
+                                                                Text="{Binding Isbn}" />
+                                                            <Label
+                                                                Text="{Binding Book.title}" />
+                                                            <Label
+                                                                Text="{Binding Binding.Binding}" />
+                                                        </HorizontalStackLayout>
+                                                        <HorizontalStackLayout
+                                                            Grid.Row="1"
+                                                            Grid.Column="0"
+                                                            IsVisible="{Binding HasOdinData}">
+                                                            <Label 
+                                                                Text="Winsor Cost:" />
+                                                            <Label
+                                                                Text="{Binding CurrentOdinData.CostString}" />
+                                                        </HorizontalStackLayout>
+                                                        <HorizontalStackLayout
+                                                            Grid.Row="1"
+                                                            Grid.Column="0"
+                                                            IsVisible="{Binding HasOdinData, Converter={StaticResource Invert}}">
+                                                            <Label
+                                                                Text="Winsor Cost:  Unknown" />
+                                                        </HorizontalStackLayout>
+                                                        <VerticalStackLayout
+                                                            Grid.Row="0"
+                                                            Grid.Column="1"
+                                                            Grid.RowSpan="2"
+                                                            VerticalOptions="Center">
+                                                            <Image
+                                                                StyleClass="SubmitButton">
+                                                                <Image.GestureRecognizers>
+                                                                    <!-- Select Command Here Adds this Book to your Cart -->
+                                                                    <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                                                </Image.GestureRecognizers>
+                                                            </Image>
+                                                        </VerticalStackLayout>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </CollectionView.ItemTemplate>
+                                        </CollectionView>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                            <!-- Selected Cart Items -->
+                            <CollectionView
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                ItemsSource="{Binding RequestedBooks}">
+                                <CollectionView.Header>
+                                    <Label
+                                        StyleClass="SubHeader"
+                                        Text="Cart" />
+                                </CollectionView.Header>
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:BookRequestViewModel">
+                                        <HorizontalStackLayout>
+                                            <Label 
+                                                Text="{Binding Isbn.Isbn}" />
+                                            <Label
+                                                Text="{Binding Isbn.Book.title}" />
+                                            <Label
+                                                Text="{Binding Isbn.Binding.Binding}" />
+                                            <Image
+                                                StyleClass="DeleteButton">
+                                                <Image.GestureRecognizers>
+                                                    <!-- Select Command Here Removes this book from the Cart -->
+                                                    <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                                </Image.GestureRecognizers>
+                                            </Image>
+                                        </HorizontalStackLayout>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </Grid>
+                    </ContentView>
+                </VerticalStackLayout>
+                <!-- End Selected Cart View -->        
             </VerticalStackLayout>
 
         </ScrollView>

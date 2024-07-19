@@ -11,6 +11,9 @@
             FontFamily=Serif,
             Glyph=➕,
             Size=18}" />
+        <Setter
+            Property="HeightRequest"
+            Value="40" />
     </Style>
     <Style
     TargetType="Image"
@@ -19,8 +22,11 @@
         Property="Source"
         Value="{FontImage 
             FontFamily=Serif,
-            Glyph=➕,
+            Glyph=⟳,
             Size=18}" />
+        <Setter
+            Property="HeightRequest"
+            Value="40" />
     </Style>
     <Style
         TargetType="Image"
@@ -31,6 +37,9 @@
                 FontFamily=Serif,
                 Glyph=✘,
                 Size=18}" />
+        <Setter
+            Property="HeightRequest"
+            Value="40" />
     </Style>
 
     <Style
@@ -42,6 +51,9 @@
                 FontFamily=Serif,
                 Glyph=💾,
                 Size=18}" />
+        <Setter
+            Property="HeightRequest"
+            Value="40" />
     </Style>
     <Style
         TargetType="Image"
@@ -52,6 +64,9 @@
                 FontFamily=Serif,
                 Glyph=🗑,
                 Size=18}" />
+        <Setter
+            Property="HeightRequest"
+            Value="40" />
     </Style>
     <Style
         TargetType="Image"
@@ -62,6 +77,9 @@
                 FontFamily=Serif,
                 Glyph=🖨,
                 Size=18}" />
+        <Setter
+            Property="HeightRequest"
+            Value="40" />
     </Style>
 
     <Style
@@ -73,7 +91,38 @@
                 FontFamily=Serif,
                 Glyph=✍,
                 Size=18}" />
+        <Setter
+            Property="HeightRequest"
+            Value="40" />
     </Style>
+
+    <Style
+        TargetType="Image"
+        Class="BackButton">
+        <Setter
+            Property="Source"
+            Value="{FontImage
+                FontFamily=Serif,
+                Glyph=↩,
+                Size=18}"/>
+        <Setter
+            Property="HeightRequest"
+            Value="40" />
+    </Style>
+    <Style
+        TargetType="Image"
+        Class="SubmitButton">
+        <Setter
+            Property="Source"
+            Value="{FontImage
+                FontFamily=Serif,
+                Glyph=➥,
+                Size=18}"/>
+        <Setter
+            Property="HeightRequest"
+            Value="40" />
+    </Style>
+        
         
     <!--
         This is for inserting a wordmark_oneline logo anywhere in the project.

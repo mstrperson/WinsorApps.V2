@@ -33,7 +33,7 @@ public partial class IsbnViewModel :
 
     public static ConcurrentBag<IsbnViewModel> ViewModelCache { get; private set; } = [];
 
-    public static IsbnViewModel Default => throw new NotImplementedException();
+    public static IsbnViewModel Default => new();
 
 
     [ObservableProperty] string displayName = "";
@@ -63,6 +63,39 @@ public partial class IsbnViewModel :
             FetchOdinData().SafeFireAndForget();
         BookService? bookService = ServiceHelper.GetService<BookService>();
         bindingOptions = bookService?.BookBindings.Select(b => $"{b}").ToImmutableArray() ?? [];
+        
+    }
+
+    private IsbnViewModel(string isbn)
+    {
+        editable = true;
+        Isbn = isbn;
+        binding = new("Hardcover");
+        available = true;
+        hasOdinData = false;
+        displayName = "";
+        currentOdinData = new();
+        CurrentOdinData.UpdateRequested += (sender, e) =>
+            OdinUpdateRequested?.Invoke(this, (OdinDataViewModel)sender!);
+        BookService? bookService = ServiceHelper.GetService<BookService>();
+        bindingOptions = bookService?.BookBindings.Select(b => $"{b}").ToImmutableArray() ?? [];
+
+        LoadBookDetails().SafeFireAndForget(e => e.LogException());
+    }
+
+    [RelayCommand]
+    public async Task LoadBookDetails()
+    {
+        var bookService = ServiceHelper.GetService<BookService>();
+        var logging = ServiceHelper.GetService<LocalLoggingService>();
+        var isbnDetail = await bookService.GetISBNDetails(Isbn, logging.LogError);
+        if (!isbnDetail.HasValue)
+            return;
+
+        Binding = new(isbnDetail.Value.binding);
+        DisplayName = $"{Isbn} [{Binding}]";
+
+        Book = isbnDetail.Value.bookInfo;
     }
 
     public IsbnViewModel()
@@ -185,7 +218,7 @@ public partial class IsbnViewModel :
         var vm = ViewModelCache.FirstOrDefault(i => i.Isbn == isbn);
         if (vm is null)
         {
-            return new() { Isbn = isbn };
+            vm = new(isbn);
         }
 
         return vm;
@@ -211,12 +244,17 @@ public partial class IsbnViewModel :
         {
             vm = new(model);
             ViewModelCache.Add(vm);
+
+            var bookService = ServiceHelper.GetService<BookService>();
+            var book = bookService.BooksCache.FirstOrDefault(bk=>bk.isbns.Any(isbn => isbn.isbn == model.isbn));
+            vm.Book = book;
         }
         return vm.Clone();
     }
 
     public IsbnViewModel Clone() => (IsbnViewModel)MemberwiseClone();
 
+    [RelayCommand]
     public void Select()
     {
         IsSelected = !IsSelected;
