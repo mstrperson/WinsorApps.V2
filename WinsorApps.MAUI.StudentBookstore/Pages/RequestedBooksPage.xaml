@@ -4,7 +4,7 @@
              xmlns:vm="clr-namespace:WinsorApps.MAUI.StudentBookstore.ViewModels"
              xmlns:styles="clr-namespace:WinsorApps.MAUI.StudentBookstore.Resources.Styles"
              x:Class="WinsorApps.MAUI.StudentBookstore.Pages.RequestedBooksPage"
-             x:DataType="vm:StudentBookstoreViewModel"
+             x:DataType="vm:MyCartViewModel"
              Title="Requested Books">
     <ContentPage.ToolbarItems>
         <ToolbarItem
@@ -19,11 +19,11 @@
             <VerticalStackLayout>
                 <Label Text="classes"/>
                 <CollectionView x:Name="ClassesListView"
-                                ItemsSource="{Binding SectionRequiredBooks}"
+                                ItemsSource="{Binding MyCart}"
                                 VerticalOptions="FillAndExpand"
                                 BackgroundColor="Transparent">
                     <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="vm:SectionRequiredBooksViewModel">
+                        <DataTemplate x:DataType="vm:SectionCartViewModel">
                             <StackLayout>
                                 <Border
                                     StrokeThickness="3"

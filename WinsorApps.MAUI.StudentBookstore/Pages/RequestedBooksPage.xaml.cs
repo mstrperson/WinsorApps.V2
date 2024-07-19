@@ -5,7 +5,7 @@ namespace WinsorApps.MAUI.StudentBookstore.Pages;
 
 public partial class RequestedBooksPage : ContentPage
 {
-	public RequestedBooksPage(StudentBookstoreViewModel vm)
+	public RequestedBooksPage(MyCartViewModel vm)
 	{
 		InitializeComponent();
 		BindingContext = vm;

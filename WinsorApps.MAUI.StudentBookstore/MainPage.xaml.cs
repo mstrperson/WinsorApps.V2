@@ -41,7 +41,11 @@ namespace WinsorApps.MAUI.StudentBookstore
                     new(new(() =>
                     {
                         ServiceHelper.GetService<StudentBookstoreViewModel>().Initialize(this.DefaultOnErrorAction()).SafeFireAndForget(e => e.LogException());
-                    }), "Student Bookstore")
+                    }), "Student Bookstore"),
+                    new(new(() =>
+                    {
+                        ServiceHelper.GetService<MyCartViewModel>().Initialize(this.DefaultOnErrorAction()).SafeFireAndForget(e => e.LogException());
+                    }), "My Cart")
                 ],
                 #endregion // Post Init Tasks
                 AppId = "lQObX9DZAzKM"

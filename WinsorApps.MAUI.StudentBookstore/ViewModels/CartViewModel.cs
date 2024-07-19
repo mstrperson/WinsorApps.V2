@@ -29,12 +29,12 @@ public partial class MyCartViewModel :
     {
         _bookstore = bookstore;
         _logging = logging;
-
-        Initialize(_logging.LogError).SafeFireAndForget(e => e.LogException());
         _registrar = registrar;
     }
 
     [ObservableProperty] ObservableCollection<SectionCartViewModel> myCart = [];
+    [ObservableProperty] SectionCartViewModel selectedSection = SectionCartViewModel.Default;
+    [ObservableProperty] bool showSelected;
 
     public async Task Initialize(ErrorAction onError)
     {
@@ -42,6 +42,25 @@ public partial class MyCartViewModel :
         _logging.LogMessage(LocalLoggingService.LogLevel.Information, "Initializing MyCart");
 
         MyCart = [.. _registrar.MyAcademicSchedule.Select(sec => new SectionCartViewModel(sec.sectionId))];
+
+        foreach(var cart in MyCart)
+        {
+            // What happens when you 
+            cart.Selected += (_, _) =>
+            {
+                // if you're Selecting this cart, then display it.
+                // if you're De-selecting it, hide everything.
+                SelectedSection = cart.IsSelected ? cart : SectionCartViewModel.Default;
+                ShowSelected = cart.IsSelected;
+                
+                // Only one cart may be selected at a time.
+                foreach(var c in MyCart)
+                {
+                    if (c.Section.Model.sectionId != cart.Section.Model.sectionId)
+                        c.IsSelected = false;
+                }
+            };
+        }
     }
 
     [RelayCommand]
@@ -57,7 +76,9 @@ public partial class MyCartViewModel :
 
 public partial class SectionCartViewModel :
     ObservableObject,
-    IErrorHandling
+    IErrorHandling,
+    ISelectable<SectionCartViewModel>,
+    IDefaultValueViewModel<SectionCartViewModel>
 {
     private readonly RegistrarService _registrar = ServiceHelper.GetService<RegistrarService>();
     private readonly StudentBookstoreService _bookstore = ServiceHelper.GetService<StudentBookstoreService>();
@@ -67,7 +88,11 @@ public partial class SectionCartViewModel :
     [ObservableProperty] ObservableCollection<OptionGroupViewModel> requiredBooks = [];
     [ObservableProperty] bool hasNoBooks;
     [ObservableProperty] bool hasChanges;
+    [ObservableProperty] bool isSelected;
 
+    public static SectionCartViewModel Default => new();
+
+    private SectionCartViewModel() { }
     public SectionCartViewModel(string sectionId, bool fall = true)
     {
         var sectionModel = _registrar.MyAcademicSchedule.FirstOrDefault(sec => sec.sectionId == sectionId);
@@ -123,6 +148,7 @@ public partial class SectionCartViewModel :
     }
 
     public event EventHandler<ErrorRecord>? OnError;
+    public event EventHandler<SectionCartViewModel>? Selected;
 
     /// <summary>
     /// Invoke this Command to submit the current changes to your cart 
@@ -138,6 +164,12 @@ public partial class SectionCartViewModel :
 
         LoadRequestedBooks(result.Value.selectedBooks);
         HasChanges = false;
+    }
+
+    public void Select()
+    {
+        IsSelected = !IsSelected;
+        Selected?.Invoke(this, this);
     }
 }
 
