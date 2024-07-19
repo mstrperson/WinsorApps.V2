@@ -166,6 +166,7 @@ public partial class SectionCartViewModel :
         HasChanges = false;
     }
 
+    [RelayCommand]
     public void Select()
     {
         IsSelected = !IsSelected;
@@ -204,6 +205,7 @@ public partial class BookRequestViewModel :
         Status = OrderStatusViewModel.Get(model.status)
     };
 
+    [RelayCommand]
     public void Select()
     {
         IsSelected = !IsSelected;

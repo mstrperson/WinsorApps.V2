@@ -34,6 +34,9 @@
                                     </Border.StrokeShape>
                                     <VerticalStackLayout>
                                         <HorizontalStackLayout>
+                                            <HorizontalStackLayout.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                            </HorizontalStackLayout.GestureRecognizers>
                                             <Image Source="{FontImage FontFamily=FontAwesomeSolid, Color=White,
                                                                    Glyph={x:Static styles:FontAwesomeSolid.Book}}"
                                                    HorizontalOptions="Start"/>
