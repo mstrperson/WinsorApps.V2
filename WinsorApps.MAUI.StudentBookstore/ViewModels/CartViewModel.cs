@@ -78,7 +78,8 @@ public partial class SectionCartViewModel :
     ObservableObject,
     IErrorHandling,
     ISelectable<SectionCartViewModel>,
-    IDefaultValueViewModel<SectionCartViewModel>
+    IDefaultValueViewModel<SectionCartViewModel>,
+    IBusyViewModel
 {
     private readonly RegistrarService _registrar = ServiceHelper.GetService<RegistrarService>();
     private readonly StudentBookstoreService _bookstore = ServiceHelper.GetService<StudentBookstoreService>();
@@ -89,6 +90,8 @@ public partial class SectionCartViewModel :
     [ObservableProperty] bool hasNoBooks;
     [ObservableProperty] bool hasChanges;
     [ObservableProperty] bool isSelected;
+    [ObservableProperty] bool busy;
+    [ObservableProperty] string busyMessage = "";
 
     public static SectionCartViewModel Default => new();
 
@@ -158,12 +161,16 @@ public partial class SectionCartViewModel :
     [RelayCommand]
     public async Task SubmitOrder()
     {
+        Busy = true;
         var result = await _bookstore.CreateOrUpdateBookOrder(Section.Model.sectionId, RequestedBooks.Select(request => request.Isbn.Isbn), OnError.DefaultBehavior(this));
         if (!result.HasValue)
+        {
+            Busy = false;
             return; // there was an error
+        }
 
-        LoadRequestedBooks(result.Value.selectedBooks);
         HasChanges = false;
+        Busy = false;
     }
 
     [RelayCommand]

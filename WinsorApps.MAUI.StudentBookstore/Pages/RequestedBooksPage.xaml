@@ -72,7 +72,8 @@
                     IsVisible="{Binding ShowSelected}">
                     <ContentView
                         x:DataType="vm:SectionCartViewModel"
-                        BindingContext="{Binding SelectedSection}">
+                        BindingContext="{Binding SelectedSection}"
+                        IsEnabled="{Binding Busy, Converter={StaticResource Invert}}">
 
                         <Grid
                             RowDefinitions="*,*"
@@ -143,11 +144,9 @@
                                                             Grid.Row="0"
                                                             Grid.Column="0">
                                                             <Label
-                                                                Text="{Binding Isbn}" />
+                                                                Text="{Binding Book.Title}" />
                                                             <Label
-                                                                Text="{Binding Book.title}" />
-                                                            <Label
-                                                                Text="{Binding Binding.Binding}" />
+                                                                Text="{Binding DisplayName}" />
                                                         </HorizontalStackLayout>
                                                         <HorizontalStackLayout
                                                             Grid.Row="1"
@@ -198,12 +197,10 @@
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate x:DataType="vm:BookRequestViewModel">
                                         <HorizontalStackLayout>
-                                            <Label 
-                                                Text="{Binding Isbn.Isbn}" />
                                             <Label
-                                                Text="{Binding Isbn.Book.title}" />
+                                                Text="{Binding Isbn.Book.Title}" />
                                             <Label
-                                                Text="{Binding Isbn.Binding.Binding}" />
+                                                Text="{Binding Isbn.DisplayName}" />
                                             <Image
                                                 StyleClass="DeleteButton">
                                                 <Image.GestureRecognizers>
