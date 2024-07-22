@@ -24,7 +24,18 @@
     <ContentPage.Content>
         <ScrollView>
             <VerticalStackLayout>
-                <Label Text="classes"/>
+                <HorizontalStackLayout>
+                    <Image
+                        StyleClass="BackButton"
+                        HeightRequest="15">
+                        <Image.GestureRecognizers x:DataType="vm:SectionCartViewModel">
+                            <!-- Select Command Here De-selects this Class and returns you to the Section Selection view. -->
+                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                        </Image.GestureRecognizers>
+                    </Image>
+                    <Label Text="My Classes"/>
+                </HorizontalStackLayout>
+                
                 <CollectionView x:Name="ClassesListView"
                                 ItemsSource="{Binding MyCart}"
                                 VerticalOptions="FillAndExpand"
@@ -87,31 +98,34 @@
                                     Text="{Binding Section.DisplayName}" />
                                 <Label
                                     StyleClass="NeutralSignifier"
-                                    IsVisible="{Binding HasChanges}" />
+                                    IsVisible="{Binding HasChanges}" 
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Start"/>
                                 <Label
                                     StyleClass="Header"
                                     Text="No Books" 
                                     IsVisible="{Binding HasNoBooks}"/>
                                 <Label
+                                    StyleClass="ActivityIndicator"
+                                    Text="Saving..."
+                                    IsVisible="{Binding Busy}"/>
+                                <Label
                                     StyleClass="PositiveSignifier"
-                                    IsVisible="{Binding HasChanges, Converter={StaticResource Invert}}" />
+                                    IsVisible="{Binding HasChanges, Converter={StaticResource Invert}}" 
+                                    VerticalOptions="Start"/>
                             </HorizontalStackLayout>
                             <HorizontalStackLayout
                                 Grid.Row="0"
                                 Grid.Column="1"
                                 HorizontalOptions="End">
                                 <Image
-                                    StyleClass="SaveButton">
+                                    StyleClass="SaveButton"
+                                    HeightRequest="20"
+                                    ToolTipProperties.Text="Save Cart"
+                                    Margin="0,0,20,0">
                                     <Image.GestureRecognizers>
                                         <!-- SubmitOrder Command saves your book order for this Class -->
                                         <TapGestureRecognizer Command="{Binding SubmitOrderCommand}" />
-                                    </Image.GestureRecognizers>
-                                </Image>
-                                <Image
-                                    StyleClass="BackButton">
-                                    <Image.GestureRecognizers>
-                                        <!-- Select Command Here De-selects this Class and returns you to the Section Selection view. -->
-                                        <TapGestureRecognizer Command="{Binding SelectCommand}" />
                                     </Image.GestureRecognizers>
                                 </Image>
                             </HorizontalStackLayout>
@@ -170,7 +184,9 @@
                                                             Grid.RowSpan="2"
                                                             VerticalOptions="Center">
                                                             <Image
-                                                                StyleClass="SubmitButton">
+                                                                StyleClass="SubmitButton"
+                                                                HeightRequest="20"
+                                                                ToolTipProperties.Text="Add to Cart">
                                                                 <Image.GestureRecognizers>
                                                                     <!-- Select Command Here Adds this Book to your Cart -->
                                                                     <TapGestureRecognizer Command="{Binding SelectCommand}" />
@@ -202,7 +218,10 @@
                                             <Label
                                                 Text="{Binding Isbn.DisplayName}" />
                                             <Image
-                                                StyleClass="DeleteButton">
+                                                StyleClass="DeleteButton"
+                                                HeightRequest="15"
+                                                WidthRequest="20"
+                                                ToolTipProperties.Text="Remove From Cart">
                                                 <Image.GestureRecognizers>
                                                     <!-- Select Command Here Removes this book from the Cart -->
                                                     <TapGestureRecognizer Command="{Binding SelectCommand}" />
