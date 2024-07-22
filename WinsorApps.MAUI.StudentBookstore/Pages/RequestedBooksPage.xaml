@@ -30,7 +30,7 @@
                         HeightRequest="15">
                         <Image.GestureRecognizers>
                             <!-- Select Command Here De-selects this Class and returns you to the Section Selection view. -->
-                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                            <TapGestureRecognizer Command="{Binding SelectedSection.SelectCommand}" />
                         </Image.GestureRecognizers>
                     </Image>
                     <Label Text="My Classes"/>
