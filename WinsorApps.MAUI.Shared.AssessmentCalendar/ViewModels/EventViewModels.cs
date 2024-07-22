@@ -20,7 +20,8 @@ namespace WinsorApps.MAUI.Shared.AssessmentCalendar.ViewModels;
 
 public partial class AssessmentCalendarEventViewModel :
     ObservableObject,
-    IModelCarrier<AssessmentCalendarEventViewModel, AssessmentCalendarEvent>
+    IModelCarrier<AssessmentCalendarEventViewModel, AssessmentCalendarEvent>,
+    ISelectable<AssessmentCalendarEventViewModel>
 {
     [ObservableProperty] string id = "";
     [ObservableProperty] AssessmentType type = AssessmentType.Assessment;
@@ -32,8 +33,12 @@ public partial class AssessmentCalendarEventViewModel :
     [ObservableProperty] ObservableCollection<StudentClassName> affectedClasses = [];
     [ObservableProperty] bool passUsed;
     [ObservableProperty] bool passAvailable;
+    [ObservableProperty] bool isSelected;
 
     public AssessmentCalendarEvent Model => new(Id, Type, Summary, Description, Start, End, AllDay, [.. AffectedClasses], PassUsed, PassAvailable);
+
+
+    public event EventHandler<AssessmentCalendarEventViewModel>? Selected;
 
     public static AssessmentCalendarEventViewModel Get(AssessmentCalendarEvent model) => new()
     {
@@ -48,6 +53,13 @@ public partial class AssessmentCalendarEventViewModel :
         PassUsed = model.passUsed ?? false,
         PassAvailable = model.passAvailable ?? false
     };
+
+    [RelayCommand]
+    public void Select()
+    {
+        IsSelected = !IsSelected;
+        Selected?.Invoke(this, this);
+    }
 }
 
 public partial class ApExamViewModel :

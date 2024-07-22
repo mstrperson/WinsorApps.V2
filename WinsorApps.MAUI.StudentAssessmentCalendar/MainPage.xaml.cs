@@ -1,25 +1,52 @@
-﻿namespace WinsorApps.MAUI.StudentAssessmentCalendar
+﻿using WinsorApps.MAUI.Shared;
+using WinsorApps.MAUI.Shared.Pages;
+using WinsorApps.MAUI.Shared.ViewModels;
+using WinsorApps.Services.AssessmentCalendar.Services;
+using WinsorApps.Services.Global.Services;
+
+namespace WinsorApps.MAUI.StudentAssessmentCalendar;
+
+public partial class MainPage : ContentPage
 {
-    public partial class MainPage : ContentPage
+    public MainPageViewModel ViewModel => (MainPageViewModel)BindingContext;
+
+    public MainPage(
+        ApiService api,
+        RegistrarService registrar,
+        AppService app,
+        LocalLoggingService logging,
+        StudentAssessmentService studentService,
+        CycleDayCollection cycleDays)
     {
-        int count = 0;
-
-        public MainPage()
+        MainPageViewModel vm = new(
+        [
+            new(registrar, "Registrar Data"),
+            new(studentService, "Assessments"),
+            new(cycleDays, "Cycle Days")
+        ], app, api)
         {
-            InitializeComponent();
-        }
+            AppId = "jKNAXlE8qzLx"
+        };
 
-        private void OnCounterClicked(object sender, EventArgs e)
+        BindingContext = vm;
+
+        vm.OnError += this.DefaultOnErrorHandler();
+        vm.OnCompleted += Vm_OnCompleted;
+        
+        LoginPage loginPage = new LoginPage(logging, vm.LoginVM);
+        loginPage.OnLoginComplete += (_, _) =>
         {
-            count++;
+            Navigation.PopAsync();
+            vm.UserVM = UserViewModel.Get(api.UserInfo!.Value);
+        };
+        Navigation.PushAsync(loginPage);
 
-            if (count == 1)
-                CounterBtn.Text = $"Clicked {count} time";
-            else
-                CounterBtn.Text = $"Clicked {count} times";
 
-            SemanticScreenReader.Announce(CounterBtn.Text);
-        }
+        InitializeComponent();
+    }
+
+    private void Vm_OnCompleted(object? sender, EventArgs e)
+    {
     }
 
 }

@@ -103,4 +103,27 @@
             Color=White,
             Glyph=🖨}" />
     </Style>
+
+    <Style
+    TargetType="ToolbarItem"
+    Class="RightArrow">
+        <Setter 
+        Property="IconImageSource"
+        Value="{FontImage 
+        FontFamily=Serif,
+        Color=White,
+        Glyph=→}" />
+    </Style>
+
+    <Style
+    TargetType="ToolbarItem"
+    Class="LeftArrow">
+        <Setter 
+        Property="IconImageSource"
+        Value="{FontImage 
+        FontFamily=Serif,
+        Color=White,
+        Glyph=←}" />
+    </Style>
+
 </ResourceDictionary>

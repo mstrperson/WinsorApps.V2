@@ -17,6 +17,7 @@ public readonly record struct StudentClassName
     public static readonly StudentClassName ClassVI     = new("Class VI");
     public static readonly StudentClassName ClassVII    = new("Class VII");
     public static readonly StudentClassName ClassVIII   = new("Class VIII");
+    public static readonly StudentClassName None        = new("None");
 
     public static ReadOnlySpan<StudentClassName> AllClasses => new(
     [
@@ -57,7 +58,7 @@ public readonly record struct StudentClassName
         "class VI" => ClassVI,
         "class VII" => ClassVII,
         "class VIII" => ClassVIII,
-        _ => throw new InvalidCastException($"{str} is not a valid class name")
+        _ => None
     };
 
     private readonly string _className;

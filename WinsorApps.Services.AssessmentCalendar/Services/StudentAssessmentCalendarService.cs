@@ -40,7 +40,7 @@ public partial class StudentAssessmentService :
         var result = await _api.SendAsync<ImmutableArray<AssessmentCalendarEvent>>(HttpMethod.Get, 
             $"api/assessment-calendar/my-calendar?date", onError: onError);
 
-        MyCalendar = [.. MyCalendar.Union(result).Distinct()];
+        MyCalendar = [.. MyCalendar.Merge(result, (a, b) => a.id == b.id && a.type == b.type)];
         if (result.Any())
             OnCacheRefreshed?.Invoke(this, StudentAssessmentCacheRefreshedEventArgs.CalendarRefreshed);
         return result;
@@ -62,7 +62,7 @@ public partial class StudentAssessmentService :
             $"api/assessment-calendar/my-calendar?start={start:yyyy-MM-dd}{param}",
             onError: onError);
 
-        MyCalendar = [.. MyCalendar.Union(result).Distinct()];
+        MyCalendar = [.. MyCalendar.Merge(result, (a, b) => a.id == b.id && a.type == b.type)];
 
         if (start < CacheStartDate)
             CacheStartDate = start;
@@ -81,7 +81,7 @@ public partial class StudentAssessmentService :
     public async Task<ImmutableArray<AssessmentPassDetail>> GetMyPasses(ErrorAction onError)
     {
         var result = await _api.SendAsync<ImmutableArray<AssessmentPassDetail>>(HttpMethod.Get, "api/assessment-calendar/students/passes", onError: onError);
-        MyLatePasses = [.. MyLatePasses.Union(result).Distinct()];
+        MyLatePasses = [.. MyLatePasses.Merge(result, (a, b) => a.assessment.assessmentId == b.assessment.assessmentId)];
         if(result.Any())
             OnCacheRefreshed?.Invoke(this, StudentAssessmentCacheRefreshedEventArgs.PassesRefreshed);
         return result;

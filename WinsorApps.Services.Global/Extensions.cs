@@ -355,6 +355,23 @@ public static partial class Extensions
         return list;
     }
 
+    public static ImmutableArray<T> Merge<T>(this ImmutableArray<T> list, IEnumerable<T> other, Func<T, T, bool>? replacementCriteria = null)
+    {
+        foreach (var item in other)
+        {
+            if (replacementCriteria is not null)
+            {
+                var existing = list.FirstOrDefault(it => replacementCriteria(it, item));
+                if (existing is not null && list.Contains(existing))
+                    list = list.Remove(existing);
+            }
+
+            list = list.Add(item);
+        }
+
+        return list;
+    }
+
     public static DateTime At(this DateOnly date, TimeOnly time) => new(date.Year, date.Month, date.Day, time.Hour, time.Minute, time.Second);
     public static DateTime At(this DateOnly date, TimeSpan time) => new(date.Year, date.Month, date.Day, time.Hours, time.Minutes, time.Seconds);
 

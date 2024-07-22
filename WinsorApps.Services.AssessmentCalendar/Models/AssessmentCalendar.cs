@@ -26,6 +26,8 @@ public readonly record struct AssessmentType
     public static readonly AssessmentType Assessment = new("assessment");
     public static readonly AssessmentType ApExam = new("ap-exam");
     public static readonly AssessmentType Note = new("note");
+    public static readonly AssessmentType AthleticsDismissal = new("athletics-dismissal");
+    public static readonly AssessmentType None = new("none");
 
     public static implicit operator string(AssessmentType type) => type._type;
     public static implicit operator AssessmentType(string str) => str.ToLowerInvariant() switch
@@ -33,7 +35,8 @@ public readonly record struct AssessmentType
         "assessment" => Assessment,
         "ap-exam" => ApExam,
         "note" => Note,
-        _ => throw new InvalidCastException($"{str} is not a valid assessment type.")
+        "athletics-dismissal" => AthleticsDismissal,
+        _ => None
     };
 
     private readonly string _type;

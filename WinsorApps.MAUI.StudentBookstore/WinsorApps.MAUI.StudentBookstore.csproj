@@ -21,10 +21,10 @@
 		<Nullable>enable</Nullable>
 
 		<!-- Display name -->
-		<ApplicationTitle>WinsorApps.MAUI.StudentBookstore</ApplicationTitle>
+		<ApplicationTitle>Student Bookstore</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.winsorapps.maui.studentbookstore</ApplicationId>
+		<ApplicationId>edu.winsor.student-bookstore</ApplicationId>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
