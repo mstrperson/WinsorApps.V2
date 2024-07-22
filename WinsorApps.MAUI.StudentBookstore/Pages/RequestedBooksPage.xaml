@@ -28,7 +28,7 @@
                     <Image
                         StyleClass="BackButton"
                         HeightRequest="15">
-                        <Image.GestureRecognizers x:DataType="vm:SectionCartViewModel">
+                        <Image.GestureRecognizers>
                             <!-- Select Command Here De-selects this Class and returns you to the Section Selection view. -->
                             <TapGestureRecognizer Command="{Binding SelectCommand}" />
                         </Image.GestureRecognizers>
