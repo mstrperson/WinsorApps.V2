@@ -25,9 +25,7 @@
 	</array>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/appicon.appiconset</string>
-	<key>CFBundleIconFile</key>
-	<string>icon.png</string>
-	<key>CFBundleIconName</key>
-	<string>icon.png</string>
+	<key>CFBundleDisplayName</key>
+	<string>Cycle Day Recurring Events</string>
 </dict>
 </plist>

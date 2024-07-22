@@ -19,5 +19,10 @@ public partial class Editor : ContentPage
 		{
 			Loading.Focus();
 		}
+
+		if(e.PropertyName == "StartTime")
+		{
+			ViewModel.EndTime = ViewModel.StartTime.Add(TimeSpan.FromMinutes(30));
+		}
     }
 }
