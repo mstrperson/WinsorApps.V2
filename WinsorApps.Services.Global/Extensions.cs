@@ -405,6 +405,8 @@ public static partial class Extensions
     }).Date;
 
 
+    public static DateTime MonthOf(this DateTime date) => new(date.Year, date.Month, 1);
+
     /// <summary>
     /// Get the first Monday before the given date,
     /// except Sunday goes forward 1 day.

@@ -177,11 +177,11 @@ namespace WinsorApps.Services.Global.Services
 
         }
 
-        
+
         /// <summary>
         /// Section Detail Cache.  Saves overhead on API Calls
         /// </summary>
-        private Dictionary<string, SectionDetailRecord?> _sectionDetailCache = new();
+        public Dictionary<string, SectionDetailRecord> SectionDetailCache { get; private set; } = [];
 
         /// <summary>
         /// Get Details for a section from the API.  First checks cached data, and calls API, if this data has not
@@ -192,12 +192,13 @@ namespace WinsorApps.Services.Global.Services
         /// <returns></returns>
         public async Task<SectionDetailRecord?> GetSectionDetailsAsync(string sectionId, ErrorAction onError)
         {
-            if(_sectionDetailCache.ContainsKey(sectionId))
-                return _sectionDetailCache[sectionId];
+            if(SectionDetailCache.ContainsKey(sectionId))
+                return SectionDetailCache[sectionId];
 
-            var result = await _api.SendAsync<SectionDetailRecord>(HttpMethod.Get, $"api/schedule/academics/{sectionId}", onError: onError);
+            var result = await _api.SendAsync<SectionDetailRecord?>(HttpMethod.Get, $"api/schedule/academics/{sectionId}", onError: onError);
 
-            _sectionDetailCache[sectionId] = result;
+            if(result.HasValue)
+                SectionDetailCache[sectionId] = result.Value;
             return result;
         }
 
