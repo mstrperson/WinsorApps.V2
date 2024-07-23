@@ -7,33 +7,29 @@
              xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
              x:Class="WinsorApps.MAUI.StudentBookstore.Pages.RequestedBooksPage"
              x:DataType="vm:MyCartViewModel"
-             Title="Requested Books">
+             Title="Order Books">
     <ContentPage.Resources>
         <ResourceDictionary>
             <conv:BoolInverter x:Key="Invert" />
         </ResourceDictionary>
     </ContentPage.Resources>
-    <ContentPage.ToolbarItems>
-        <ToolbarItem
-        IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=Gray,
-        Glyph={x:Static styles:FontAwesomeSolid.ShoppingCart}}"/>
-        <ToolbarItem
-        IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=Gray,
-        Glyph={x:Static styles:FontAwesomeSolid.Receipt}}"/>
-    </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <ScrollView>
             <VerticalStackLayout>
                 <HorizontalStackLayout>
                     <Image
                         StyleClass="BackButton"
-                        HeightRequest="15">
+                        HeightRequest="15"
+                        IsVisible="{Binding ShowSelected}">
                         <Image.GestureRecognizers>
                             <!-- Select Command Here De-selects this Class and returns you to the Section Selection view. -->
                             <TapGestureRecognizer Command="{Binding SelectedSection.SelectCommand}" />
                         </Image.GestureRecognizers>
                     </Image>
-                    <Label Text="My Classes"/>
+                    <Label Text="My Classes"
+                           IsVisible="{Binding ShowSelected, Converter={StaticResource Invert}}"
+                           FontSize="Medium"
+                           Margin="0,0,0,-15"/>
                 </HorizontalStackLayout>
                 
                 <CollectionView x:Name="ClassesListView"
@@ -59,17 +55,21 @@
                                                 <TapGestureRecognizer Command="{Binding SelectCommand}" />
                                             </HorizontalStackLayout.GestureRecognizers>
                                             <Image Source="{FontImage FontFamily=FontAwesomeSolid, Color=White,
-                                                                   Glyph={x:Static styles:FontAwesomeSolid.Book}}"
-                                                   HorizontalOptions="Start"/>
+                                                                   Glyph={x:Static styles:FontAwesomeSolid.ChalkboardTeacher}}"
+                                                   HorizontalOptions="Start"
+                                                   VerticalOptions="Start"/>
                                             <Label Text="{Binding Section.DisplayName}"
                                                    FontAttributes="Bold"
                                                    FontSize="Medium"
                                                    HorizontalOptions="Start"
-                                                   VerticalOptions="Center"/>
+                                                   VerticalOptions="Start"
+                                                   TranslationX="10"/>
                                             <Image Source="{FontImage FontFamily=FontAwesomeSolid, Color=White,
                                                            Glyph={x:Static styles:FontAwesomeSolid.Eye}}"
                                                    HorizontalOptions="End"
+                                                   HeightRequest="15"
                                                    VerticalOptions="Center"
+                                                   TranslationX="25"
                                                    ToolTipProperties.Text="Click to View Books For This Class"/>
                                         </HorizontalStackLayout>
                                     </VerticalStackLayout>
@@ -95,7 +95,8 @@
 
                                 <Label
                                     StyleClass="Header"
-                                    Text="{Binding Section.DisplayName}" />
+                                    Text="{Binding Section.DisplayName}" 
+                                    TextDecorations="Underline"/>
                                 <Label
                                     StyleClass="NeutralSignifier"
                                     IsVisible="{Binding HasChanges}" 
@@ -118,16 +119,19 @@
                                 Grid.Row="0"
                                 Grid.Column="1"
                                 HorizontalOptions="End">
-                                <Image
-                                    StyleClass="SaveButton"
+                                <Button
+                                    Text="Submit Order"
                                     HeightRequest="20"
-                                    ToolTipProperties.Text="Save Cart"
-                                    Margin="0,0,20,0">
-                                    <Image.GestureRecognizers>
+                                    ToolTipProperties.Text="Order Cart"
+                                    Margin="0,0,20,0"
+                                    BackgroundColor="Transparent"
+                                    BorderWidth="3"
+                                    BorderColor="LightSlateGrey">
+                                    <Button.GestureRecognizers>
                                         <!-- SubmitOrder Command saves your book order for this Class -->
                                         <TapGestureRecognizer Command="{Binding SubmitOrderCommand}" />
-                                    </Image.GestureRecognizers>
-                                </Image>
+                                    </Button.GestureRecognizers>
+                                </Button>
                             </HorizontalStackLayout>
                             <!-- Required Books Collection -->
                             <CollectionView
@@ -137,7 +141,8 @@
                                 <CollectionView.Header>
                                     <Label
                                         StyleClass="SubHeader"
-                                        Text="Required Books">
+                                        Text="Required Books"
+                                        FontAttributes="Bold">
                                     </Label>
                                 </CollectionView.Header>
                                 <CollectionView.ItemTemplate>
@@ -159,13 +164,14 @@
                                                             Grid.Column="0">
                                                             <Label
                                                                 Text="{Binding Book.Title}" />
-                                                            <Label
+                                                            <Label 
                                                                 Text="{Binding DisplayName}" />
                                                         </HorizontalStackLayout>
                                                         <HorizontalStackLayout
                                                             Grid.Row="1"
                                                             Grid.Column="0"
-                                                            IsVisible="{Binding HasOdinData}">
+                                                            IsVisible="{Binding HasOdinData}"
+                                                            Margin="10,0,0,0">
                                                             <Label 
                                                                 Text="Winsor Cost:" />
                                                             <Label
@@ -174,7 +180,8 @@
                                                         <HorizontalStackLayout
                                                             Grid.Row="1"
                                                             Grid.Column="0"
-                                                            IsVisible="{Binding HasOdinData, Converter={StaticResource Invert}}">
+                                                            IsVisible="{Binding HasOdinData, Converter={StaticResource Invert}}"
+                                                            Margin="10,0,0,0">
                                                             <Label
                                                                 Text="Winsor Cost:  Unknown" />
                                                         </HorizontalStackLayout>
@@ -186,7 +193,7 @@
                                                             <Image
                                                                 StyleClass="SubmitButton"
                                                                 HeightRequest="20"
-                                                                ToolTipProperties.Text="Add to Cart">
+                                                                ToolTipProperties.Text="Add to Order">
                                                                 <Image.GestureRecognizers>
                                                                     <!-- Select Command Here Adds this Book to your Cart -->
                                                                     <TapGestureRecognizer Command="{Binding SelectCommand}" />
@@ -208,7 +215,8 @@
                                 <CollectionView.Header>
                                     <Label
                                         StyleClass="SubHeader"
-                                        Text="Cart" />
+                                        Text="Order" 
+                                        FontAttributes="Bold"/>
                                 </CollectionView.Header>
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate x:DataType="vm:BookRequestViewModel">
