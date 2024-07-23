@@ -14,12 +14,6 @@
     </ContentPage.Resources>
     <ContentPage.ToolbarItems>
         <ToolbarItem
-            IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=Gray,
-            Glyph={x:Static styles:FontAwesomeSolid.ShoppingCart}}"/>
-        <ToolbarItem
-            IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=Gray,
-            Glyph={x:Static styles:FontAwesomeSolid.Receipt}}"/>
-        <ToolbarItem
             Text="Logout"
             Command="{Binding LogoutCommand}" />
     </ContentPage.ToolbarItems>

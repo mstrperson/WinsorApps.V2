@@ -171,7 +171,7 @@ public partial class SectionCartViewModel :
 
         HasChanges = false;
         Busy = false;
-    }
+    } 
 
     [RelayCommand]
     public void Select()
