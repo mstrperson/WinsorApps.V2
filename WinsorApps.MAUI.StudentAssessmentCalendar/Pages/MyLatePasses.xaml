@@ -21,7 +21,8 @@
     <ContentPage.Content>
         <VerticalStackLayout>
             <CollectionView
-                ItemsSource="{Binding AvailablePasses}">
+                ItemsSource="{Binding AvailablePasses}"
+                BackgroundColor="Transparent">
                 <CollectionView.Header>
                     <Label
                         Text="You have Late Passes Available for the following courses!" 
@@ -44,9 +45,10 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-            <BoxView StyleClass="Bar" />
+            <BoxView StyleClass="Bar" HeightRequest="3"/>
             <CollectionView
-                ItemsSource="{Binding MyLatePasses}">
+                ItemsSource="{Binding MyLatePasses}"
+                BackgroundColor="Transparent">
                 <CollectionView.Header>
                     <Label
                         Text="You have used the following Late Passes."
@@ -55,7 +57,9 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="cvm:LatePassViewModel">
                         <VerticalStackLayout
-                            ToolTipProperties.Text="{Binding Note}">
+                            ToolTipProperties.Text="{Binding Note}"
+                            Margin="0"
+                            Padding="0">
                             <VerticalStackLayout.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding LoadAssessmentCommand}" />
                             </VerticalStackLayout.GestureRecognizers>
@@ -63,7 +67,8 @@
                                 Spacing="30">
                                 <Label
                                     Text="{Binding CourseName}"
-                                    StyleClass="H3"/>
+                                    StyleClass="H3"
+                                    WidthRequest="300"/>
                                 <Label
                                     StyleClass="H3"
                                     Text="{Binding DateAndTime,StringFormat='{0:ddd dd MMMM}'}" />

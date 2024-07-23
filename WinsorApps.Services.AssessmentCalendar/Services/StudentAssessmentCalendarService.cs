@@ -3,6 +3,7 @@ using Microsoft.VisualBasic;
 using System.Collections.Immutable;
 using WinsorApps.Services.AssessmentCalendar.Models;
 using WinsorApps.Services.Global.Services;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WinsorApps.Services.AssessmentCalendar.Services;
 
@@ -40,6 +41,7 @@ public partial class StudentAssessmentService :
         var result = await _api.SendAsync<ImmutableArray<AssessmentCalendarEvent>?>(HttpMethod.Get, 
             $"api/assessment-calendar/students?date", onError: onError) ?? [];
 
+        _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Got My Calendar On {date:yyyy-mm-dd}", $"{result.Length} items returned");
         if (result.Any())
         {
             MyCalendar = [.. MyCalendar.Merge(result, (a, b) => a.id == b.id && a.type == b.type)];

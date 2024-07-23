@@ -37,7 +37,41 @@
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-maccatalyst|AnyCPU'">
+		<ApplicationTitle>Student Assessment Calendar</ApplicationTitle>
+		<ApplicationId>maccatalyst.edu.winsor.student-assessment-calendar</ApplicationId>
+		<ApplicationIdGuid>P8CLK55JUH</ApplicationIdGuid>
+		<MtouchLink>SdkOnly</MtouchLink>
+		<EnableCodeSigning>True</EnableCodeSigning>
+		<EnablePackageSigning>true</EnablePackageSigning>
+		<CreatePackage>true</CreatePackage>
+		<CodesignKey>Developer ID Application: Jason Cox (P8CLK55JUH)</CodesignKey>
+		<CodesignProvision>Student Assessment Calendar</CodesignProvision>
+		<CodesignEntitlements>Platforms\MacCatalyst\Entitlements.plist</CodesignEntitlements>
+		<PackageSigningKey>Developer ID Installer: Jason Cox (P8CLK55JUH)</PackageSigningKey>
+		<UseHardenedRuntime>true</UseHardenedRuntime>
+	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-maccatalyst|AnyCPU'">
+		<ApplicationTitle>Cycle Day Recurring Events</ApplicationTitle>
+		<ApplicationId>maccatalyst.edu.winsor.student-assessment-calendar</ApplicationId>
+		<ApplicationIdGuid>P8CLK55JUH</ApplicationIdGuid>
+		<MtouchLink>SdkOnly</MtouchLink>
+		<EnableCodeSigning>True</EnableCodeSigning>
+		<EnablePackageSigning>true</EnablePackageSigning>
+		<CreatePackage>true</CreatePackage>
+		<CodesignKey>Developer ID Application: Jason Cox (P8CLK55JUH)</CodesignKey>
+		<CodesignProvision>Student Assessment Calendar</CodesignProvision>
+		<CodesignEntitlements>Platforms\MacCatalyst\Entitlements.plist</CodesignEntitlements>
+		<PackageSigningKey>Developer ID Installer: Jason Cox (P8CLK55JUH)</PackageSigningKey>
+		<UseHardenedRuntime>true</UseHardenedRuntime>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-windows10.0.19041.0|AnyCPU'">
+		<ApplicationTitle>Student Assessment Calendar</ApplicationTitle>
+		<ApplicationId>edu.winsor.student-assessment-calendar</ApplicationId>
+		<ApplicationIdGuid>P8CLK55JUH</ApplicationIdGuid>
+	</PropertyGroup>
 	<ItemGroup>
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" Color="#FFFFFF" />
@@ -91,6 +125,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\MyLatePasses.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\WeeklyCalendar.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Resources\Styles\ButtonStyles.xaml">
