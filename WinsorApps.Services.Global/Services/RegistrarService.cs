@@ -95,6 +95,8 @@ namespace WinsorApps.Services.Global.Services
                 if (!_myAcademicSchedule.HasValue)
                 {
                     _myAcademicSchedule = await _api.SendAsync<ImmutableArray<SectionRecord>>(HttpMethod.Get, "api/schedule/academics?detailed=true");
+                    foreach (var section in _myAcademicSchedule)
+                        _ = await GetSectionDetailsAsync(section.sectionId, _logging.LogError);
                 }
             }
             catch (Exception ex)

@@ -23,10 +23,7 @@ public partial class CalendarDayViewModel :
 
     public CalendarDayViewModel()
     {
-        var cycleDays = ServiceHelper.GetService<CycleDayCollection>();
-        var cd = cycleDays[date];
-        if(cd.HasValue)
-            CycleDay = cd.Value.cycleDay;
+        
     }
 
     public static CalendarDayViewModel Get(DateTime date, IEnumerable<AssessmentCalendarEvent> events)
@@ -35,9 +32,14 @@ public partial class CalendarDayViewModel :
         {
             Date = date,
             Events = [.. events.Where(evt => evt.start.Date == date.Date).Select(AssessmentCalendarEventViewModel.Get)]
-        };
+        }; 
+        
+        var cycleDays = ServiceHelper.GetService<CycleDayCollection>();
+        var cd = cycleDays[date];
+        if (cd.HasValue)
+            vm.CycleDay = cd.Value.cycleDay;
 
-        foreach(var evt in vm.Events)
+        foreach (var evt in vm.Events)
         {
             evt.Selected += (_, e) => vm.EventSelected?.Invoke(vm, e);
         }

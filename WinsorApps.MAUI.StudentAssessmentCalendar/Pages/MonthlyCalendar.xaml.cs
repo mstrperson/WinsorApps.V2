@@ -16,6 +16,7 @@ public partial class MonthlyCalendar : ContentPage
 
     private void Vm_EventSelected(object? sender, AssessmentCalendarEventViewModel e)
     {
-
+		var page = new AssessmentPage(e);
+		Navigation.PushAsync(page);
     }
 }

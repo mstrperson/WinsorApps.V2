@@ -36,6 +36,8 @@ namespace WinsorApps.MAUI.StudentAssessmentCalendar
             builder.Services.AddSingleton<StudentAssessmentService>();
             builder.Services.AddSingleton<MonthlyViewModel>();
             builder.Services.AddSingleton<MonthlyCalendar>();
+            builder.Services.AddSingleton<LatePassCollectionViewModel>();
+            builder.Services.AddSingleton<MyLatePasses>();
 
 #if DEBUG
             builder.Logging.AddDebug();

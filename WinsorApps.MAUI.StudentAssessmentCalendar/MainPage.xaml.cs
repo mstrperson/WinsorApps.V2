@@ -1,6 +1,7 @@
 ﻿using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.Pages;
 using WinsorApps.MAUI.Shared.ViewModels;
+using WinsorApps.MAUI.StudentAssessmentCalendar.Pages;
 using WinsorApps.Services.AssessmentCalendar.Services;
 using WinsorApps.Services.Global.Services;
 
@@ -47,6 +48,8 @@ public partial class MainPage : ContentPage
 
     private void Vm_OnCompleted(object? sender, EventArgs e)
     {
+        var page = ServiceHelper.GetService<MonthlyCalendar>();
+        Navigation.PushAsync(page);
     }
 
 }

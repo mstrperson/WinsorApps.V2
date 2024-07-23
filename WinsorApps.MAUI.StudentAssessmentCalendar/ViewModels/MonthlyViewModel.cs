@@ -21,15 +21,17 @@ public partial class MonthlyViewModel :
 {
     private readonly StudentAssessmentService _service;
     private readonly LocalLoggingService _logging;
+    private readonly CycleDayCollection _cycleDays;
 
     [ObservableProperty] CalendarMonthViewModel calendar;
 
     public event EventHandler<AssessmentCalendarEventViewModel>? EventSelected;
 
-    public MonthlyViewModel(StudentAssessmentService service, LocalLoggingService logging)
+    public MonthlyViewModel(StudentAssessmentService service, LocalLoggingService logging, CycleDayCollection cycleDays)
     {
         _service = service;
         _logging = logging;
+        _cycleDays = cycleDays;
 
         calendar = CalendarMonthViewModel.Get(DateTime.Today.MonthOf(), _service.MyCalendar);
         Calendar.EventSelected += (_, e) => EventSelected?.Invoke(this, e);
@@ -41,8 +43,10 @@ public partial class MonthlyViewModel :
     public async Task IncrementMonth()
     {
         var nextMonth = Calendar.Month.AddMonths(1);
-        
-        _= await _service.GetMyCalendarInRange(OnError.DefaultBehavior(this), nextMonth, nextMonth.AddMonths(1));
+
+        _ = await _cycleDays.GetCycleDays(DateOnly.FromDateTime(nextMonth), DateOnly.FromDateTime(nextMonth).AddMonths(1), OnError.DefaultBehavior(this));
+
+        _ = await _service.GetMyCalendarInRange(OnError.DefaultBehavior(this), nextMonth, nextMonth.AddMonths(1));
 
         Calendar = CalendarMonthViewModel.Get(nextMonth, _service.MyCalendar);
         Calendar.EventSelected += (_, e) => EventSelected?.Invoke(this, e);
@@ -52,6 +56,9 @@ public partial class MonthlyViewModel :
     public async Task DecrementMonth()
     {
         var nextMonth = Calendar.Month.AddMonths(-1);
+
+        _ = await _cycleDays.GetCycleDays(DateOnly.FromDateTime(nextMonth),DateOnly.FromDateTime(nextMonth).AddMonths(1), OnError.DefaultBehavior(this));
+
         _ = await _service.GetMyCalendarInRange(OnError.DefaultBehavior(this), nextMonth, nextMonth.AddMonths(1));
 
         Calendar = CalendarMonthViewModel.Get(nextMonth, _service.MyCalendar);

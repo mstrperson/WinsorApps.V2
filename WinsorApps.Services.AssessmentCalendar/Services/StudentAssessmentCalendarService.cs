@@ -37,12 +37,28 @@ public partial class StudentAssessmentService :
 
     public async Task<ImmutableArray<AssessmentCalendarEvent>> GetMyCalendarOn(DateTime date, ErrorAction onError)
     {
-        var result = await _api.SendAsync<ImmutableArray<AssessmentCalendarEvent>>(HttpMethod.Get, 
-            $"api/assessment-calendar/my-calendar?date", onError: onError);
+        var result = await _api.SendAsync<ImmutableArray<AssessmentCalendarEvent>?>(HttpMethod.Get, 
+            $"api/assessment-calendar/students?date", onError: onError) ?? [];
 
-        MyCalendar = [.. MyCalendar.Merge(result, (a, b) => a.id == b.id && a.type == b.type)];
         if (result.Any())
+        {
+            MyCalendar = [.. MyCalendar.Merge(result, (a, b) => a.id == b.id && a.type == b.type)];
             OnCacheRefreshed?.Invoke(this, StudentAssessmentCacheRefreshedEventArgs.CalendarRefreshed);
+        }
+
+        return result;
+    }
+
+    public async Task<AssessmentEntryShort?> GetAssessmentDetails(string assessmentId, ErrorAction onError)
+    {
+        var result = await _api.SendAsync<AssessmentEntryShort?>(HttpMethod.Get, $"api/assessment-calendar/assessment/{assessmentId}", onError: onError);
+
+        return result;
+    }
+    public async Task<APExamDetail?> GetApExamDetails(string examId, ErrorAction onError)
+    {
+        var result = await _api.SendAsync<APExamDetail?>(HttpMethod.Get, $"api/assessment-calendar/assessment/{examId}", onError: onError);
+
         return result;
     }
 
@@ -56,10 +72,10 @@ public partial class StudentAssessmentService :
         if (start < CacheStartDate && end < CacheEndDate)
             end = CacheStartDate;
 
-        var param = end == default ? "" : $"&end={end:yyyy-MM-dd}";
+        var param = end == default ? "" : $"&toDate={end:yyyy-MM-dd}";
         
         var result = await _api.SendAsync<ImmutableArray<AssessmentCalendarEvent>>(HttpMethod.Get,
-            $"api/assessment-calendar/my-calendar?start={start:yyyy-MM-dd}{param}",
+            $"api/assessment-calendar/students?fromDate={start:yyyy-MM-dd}{param}",
             onError: onError);
 
         MyCalendar = [.. MyCalendar.Merge(result, (a, b) => a.id == b.id && a.type == b.type)];
@@ -80,8 +96,8 @@ public partial class StudentAssessmentService :
 
     public async Task<ImmutableArray<AssessmentPassDetail>> GetMyPasses(ErrorAction onError)
     {
-        var result = await _api.SendAsync<ImmutableArray<AssessmentPassDetail>>(HttpMethod.Get, "api/assessment-calendar/students/passes", onError: onError);
-        MyLatePasses = [.. MyLatePasses.Merge(result, (a, b) => a.assessment.assessmentId == b.assessment.assessmentId)];
+        var result = await _api.SendAsync<ImmutableArray<AssessmentPassDetail>>(HttpMethod.Get, "api/assessment-calendar/students/passes?showPast=true", onError: onError);
+        MyLatePasses = [.. MyLatePasses.Merge(result, (a, b) => a.assessment.id == b.assessment.id && a.assessment.type == b.assessment.type)];
         if(result.Any())
             OnCacheRefreshed?.Invoke(this, StudentAssessmentCacheRefreshedEventArgs.PassesRefreshed);
         return result;
@@ -98,7 +114,9 @@ public partial class StudentAssessmentService :
         
         if(success)
         {
-            MyLatePasses = MyLatePasses.Remove(MyLatePasses.FirstOrDefault(p => p.assessment.assessmentId == assessmentId));
+            MyLatePasses = MyLatePasses.Remove(MyLatePasses.FirstOrDefault(p => p.assessment.id == assessmentId));
+            var oldAssessment = MyCalendar.First(evt => evt.type == AssessmentType.Assessment && evt.id == assessmentId);
+            MyCalendar = MyCalendar.Replace(oldAssessment, oldAssessment with { passAvailable = true, passUsed = false });
             OnCacheRefreshed?.Invoke(this, StudentAssessmentCacheRefreshedEventArgs.PassesRefreshed);
         }
 
@@ -111,7 +129,12 @@ public partial class StudentAssessmentService :
             onError: onError);
 
         if (result.HasValue)
+        {
             await GetMyPasses(onError);
+            var oldAssessment = MyCalendar.First(evt => evt.type == AssessmentType.Assessment && evt.id == assessmentId);
+            MyCalendar = MyCalendar.Replace(oldAssessment, oldAssessment with { passAvailable = false, passUsed = true });
+            OnCacheRefreshed?.Invoke(this, StudentAssessmentCacheRefreshedEventArgs.PassesRefreshed);
+        }
 
         return result;
     }

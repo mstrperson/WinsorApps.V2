@@ -160,7 +160,8 @@ public class ReadonlyCalendarService :
 
 public class CycleDayCollection :
     IEnumerable<CycleDay>,
-    IAsyncInitService
+    IAsyncInitService,
+    ICacheService
 {
     private readonly ApiService _api;
     private readonly LocalLoggingService _logging;
@@ -173,6 +174,11 @@ public class CycleDayCollection :
     }
 
     private ImmutableArray<CycleDay> _cycleDays = [];
+
+    public event EventHandler? OnCacheRefreshed;
+
+    public DateOnly CacheStartDate { get; private set; } = DateOnly.FromDateTime(DateTime.Today);
+    public DateOnly CacheEndDate { get; private set; } = DateOnly.FromDateTime(DateTime.Today);
 
     public bool Ready { get; private set; } = false;
 
@@ -229,7 +235,7 @@ public class CycleDayCollection :
 
         SchoolYear = schoolYear.Value;
 
-        _cycleDays = await GetCycleDays(schoolYear.Value.startDate, schoolYear.Value.endDate, onError);
+        _ = await GetCycleDays(schoolYear.Value.startDate, schoolYear.Value.endDate, onError);
         Ready = true;
         return true;
     }
@@ -245,9 +251,26 @@ public class CycleDayCollection :
     }
 
 
-    private async Task<ImmutableArray<CycleDay>> GetCycleDays(DateOnly start, DateOnly end, ErrorAction onError) =>
-        await _api.SendAsync<ImmutableArray<CycleDay>>(HttpMethod.Get, $"api/schedule/cycle-day?start={start:yyyy-MM-dd}&end={end:yyyy-MM-dd}",
-            onError: onError);
+    public async Task<ImmutableArray<CycleDay>> GetCycleDays(DateOnly start, DateOnly end, ErrorAction onError)
+    {
+        if (start < CacheStartDate || end > CacheEndDate)
+        {
+            if (end < CacheStartDate)
+                end = CacheStartDate;
+
+            var result = await _api.SendAsync<ImmutableArray<CycleDay>>(HttpMethod.Get, $"api/schedule/cycle-day?start={start:yyyy-MM-dd}&end={end:yyyy-MM-dd}",
+                onError: onError);
+
+            _cycleDays = _cycleDays.Merge(result, (a, b) => a.date == b.date);
+
+            if (start < CacheStartDate)
+                CacheStartDate = start;
+            if(end > CacheEndDate)
+                CacheEndDate = end;
+        }
+
+        return [.._cycleDays.Where(cd => cd.date >= start && cd.date <= end)];
+    }
 
     async Task IAsyncInitService.Initialize(ErrorAction onError)
     {

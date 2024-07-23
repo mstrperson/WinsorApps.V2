@@ -15,6 +15,7 @@
     <ContentPage.ToolbarItems>
         <ToolbarItem 
             StyleClass="RefreshButton"
+            Text="Refresh"
             Command="{Binding RefreshCommand}"/>
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
@@ -25,7 +26,8 @@
                     HorizontalOptions="Center"
                     Spacing="75">
                     <Label
-                        StyleClass="LeftArrow">
+                        StyleClass="LeftArrow"
+                        FontSize="Large">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding DecrementMonthCommand}" />
                         </Label.GestureRecognizers>
@@ -33,50 +35,76 @@
 
                     <Label
                         Text="{Binding Calendar.Month, StringFormat='{0:MMMM yyyy}'}"
-                        StyleClass="Header" />
+                        StyleClass="Header"
+                        WidthRequest="500"
+                        HorizontalTextAlignment="Center"/>
 
                     <Label
-                        StyleClass="RightArrow">
+                        StyleClass="RightArrow"
+                        FontSize="Large">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding IncrementMonthCommand}" />
                         </Label.GestureRecognizers>
                     </Label>
                 </HorizontalStackLayout>
-                <VerticalStackLayout
+                <HorizontalStackLayout
                     HorizontalOptions="Center">
                     <CollectionView
                         ItemsSource="{Binding Calendar.Weeks}"
-                        WidthRequest="1525">
+                        BackgroundColor="Transparent">
                         <!--Week Day Headers-->
                         <CollectionView.Header>
                             <Grid
                                 RowDefinitions="*"
-                                ColumnDefinitions="300,300,300,300,300">
-                                <Label
-                                    Grid.Column="0"
-                                    Text="Monday"
-                                    StyleClass="H3"
-                                    HorizontalTextAlignment="Center" />
-                                <Label
+                                ColumnDefinitions="300,300,300,300,300"
+                                Margin="0">
+                                <Border
+                                    StrokeThickness="1"
+                                    BackgroundColor="{AppThemeBinding Light={DynamicResource WarmGrey}, Dark={DynamicResource SlateDark}}">
+                                    <Label
+                                        Grid.Column="0"
+                                        Text="Monday"
+                                        StyleClass="H3"
+                                        HorizontalTextAlignment="Center"
+                                        Margin="0,15,0,0" />
+                                </Border>
+                                <Border StrokeThickness="1"
                                     Grid.Column="1"
-                                    Text="Tuesday"
-                                    StyleClass="H3"
-                                    HorizontalTextAlignment="Center" />
-                                <Label
+                                    BackgroundColor="{AppThemeBinding Light={DynamicResource WarmGrey}, Dark={DynamicResource SlateDark}}">
+                                    <Label
+                                        Text="Tuesday"
+                                        StyleClass="H3"
+                                        HorizontalTextAlignment="Center"
+                                        Margin="0,15,0,0"  />
+                                </Border>
+                                <Border StrokeThickness="1"
                                     Grid.Column="2"
-                                    Text="Wednesday"
-                                    StyleClass="H3"
-                                    HorizontalTextAlignment="Center" />
-                                <Label
+                                    BackgroundColor="{AppThemeBinding Light={DynamicResource WarmGrey}, Dark={DynamicResource SlateDark}}">
+                                    <Label
+                                        Text="Wednesday"
+                                        StyleClass="H3"
+                                        HorizontalTextAlignment="Center"
+                                        Margin="0,15,0,0"  />
+                                </Border>
+                                <Border StrokeThickness="1"
                                     Grid.Column="3"
-                                    Text="Thursday"
-                                    StyleClass="H3"
-                                    HorizontalTextAlignment="Center" />
-                                <Label
+                                    BackgroundColor="{AppThemeBinding Light={DynamicResource WarmGrey}, Dark={DynamicResource SlateDark}}">
+                                    <Label
+                                        Text="Thursday"
+                                        StyleClass="H3"
+                                        HorizontalTextAlignment="Center" 
+                                        Margin="0,15,0,0" />
+                                </Border>
+                                <Border 
+                                    StrokeThickness="1"
                                     Grid.Column="4"
-                                    Text="Friday"
-                                    StyleClass="H3"
-                                    HorizontalTextAlignment="Center" />
+                                    BackgroundColor="{AppThemeBinding Light={DynamicResource WarmGrey}, Dark={DynamicResource SlateDark}}">
+                                    <Label
+                                        Text="Friday"
+                                        StyleClass="H3"
+                                        HorizontalTextAlignment="Center" 
+                                        Margin="0,15,0,0" />
+                                </Border>
                             </Grid>
                         </CollectionView.Header>
                         <CollectionView.ItemTemplate>
@@ -84,15 +112,21 @@
                                 <CollectionView
                                     ItemsSource="{Binding Days}"
                                     ItemsLayout="HorizontalGrid"
-                                    HeightRequest="200">
+                                    HeightRequest="200"
+                                    BackgroundColor="Transparent"
+                                    Margin="0">
                                     <CollectionView.ItemTemplate>
                                         <DataTemplate x:DataType="cvm:CalendarDayViewModel">
                                             <Border
-                                                StrokeThickness="1">
+                                                StrokeThickness="1"
+                                                BackgroundColor="{AppThemeBinding Light={DynamicResource WarmGrey}, Dark={DynamicResource SlateDark}}">
                                                 <VerticalStackLayout
                                                     WidthRequest="298">
                                                     <HorizontalStackLayout
-                                                        Spacing="30">
+                                                        Spacing="30"
+                                                        HeightRequest="40"
+                                                        Padding="0"
+                                                        Margin="-5">
                                                         <Label
                                                             FontSize="Micro"
                                                             Text="{Binding Date, StringFormat='{0:dd}'}" />
@@ -101,25 +135,43 @@
                                                             FontAttributes="Bold"
                                                             Text="{Binding CycleDay}"/>
                                                     </HorizontalStackLayout>
+                                                    <BoxView 
+                                                        StyleClass="Bar" 
+                                                        HeightRequest="1"
+                                                        WidthRequest="300"
+                                                        TranslationX="-5"
+                                                        Margin="0"/>
                                                     <ScrollView>
                                                         <CollectionView
-                                                            ItemsSource="{Binding Events}">
+                                                            ItemsSource="{Binding Events}"
+                                                            BackgroundColor="Transparent">
                                                             <CollectionView.ItemTemplate>
                                                                 <DataTemplate x:DataType="cvm:AssessmentCalendarEventViewModel">
-                                                                    <Grid
-                                                                        RowDefinitions="40"
-                                                                        ColumnDefinitions="80,220"
-                                                                        ToolTipProperties.Text="{Binding Description}">
-                                                                        <Grid.GestureRecognizers>
-                                                                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
-                                                                        </Grid.GestureRecognizers>
+                                                                    <VerticalStackLayout
+                                                                        Margin="0"
+                                                                        Padding="0">
+                                                                        <Grid
+                                                                            RowDefinitions="25"
+                                                                            ColumnDefinitions="80,220"
+                                                                            ToolTipProperties.Text="{Binding Description}"
+                                                                            IsVisible="{Binding AllDay, Converter={StaticResource Invert}}"
+                                                                            Margin="0"
+                                                                            Padding="0">
+                                                                            <Grid.GestureRecognizers>
+                                                                                <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                                                            </Grid.GestureRecognizers>
+                                                                            <Label
+                                                                                Grid.Column="0"
+                                                                                Text="{Binding Start,StringFormat='{0:hh:mm tt}'}" />
+                                                                            <Label
+                                                                                Grid.Column="1"
+                                                                                Text="{Binding Summary}" />
+                                                                        </Grid>
                                                                         <Label
-                                                                            Grid.Column="0"
-                                                                            Text="{Binding Start,StringFormat='{0:hh:mm tt}'}" />
-                                                                        <Label
-                                                                            Grid.Column="1"
-                                                                            Text="{Binding Summary}" />
-                                                                    </Grid>
+                                                                            Text="{Binding Summary}"
+                                                                            FontAttributes="Bold"
+                                                                            IsVisible="{Binding AllDay}" />
+                                                                    </VerticalStackLayout>
                                                                 </DataTemplate>
                                                             </CollectionView.ItemTemplate>
                                                         </CollectionView>
@@ -132,7 +184,7 @@
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
-                </VerticalStackLayout>
+                </HorizontalStackLayout>
             </VerticalStackLayout>
         </ScrollView>
     </ContentPage.Content>

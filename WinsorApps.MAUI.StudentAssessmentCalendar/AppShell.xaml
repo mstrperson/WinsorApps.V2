@@ -7,7 +7,7 @@
     xmlns:pages="clr-namespace:WinsorApps.MAUI.StudentAssessmentCalendar.Pages"
     xmlns:shared="clr-namespace:WinsorApps.MAUI.Shared.Pages;assembly=WinsorApps.MAUI.Shared"
     Shell.FlyoutBehavior="Flyout"
-    Title="WinsorApps.MAUI.StudentAssessmentCalendar">
+    Title="Assessment Calendar - Students">
 
     <ShellContent
         Title="Home"
@@ -18,6 +18,11 @@
         Title="Assessment Calendar"
         ContentTemplate="{DataTemplate pages:MonthlyCalendar}"
         Route="MonthlyCalendar" />
+
+    <ShellContent
+        Title="My Late Passes"
+        ContentTemplate="{DataTemplate pages:MyLatePasses}"
+        Route="MyLatePasses" />
 
     <ShellContent
         Title="Help"

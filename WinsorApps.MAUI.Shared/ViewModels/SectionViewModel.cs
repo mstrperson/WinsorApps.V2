@@ -188,8 +188,12 @@ public partial class SectionViewModel :
     public event EventHandler<UserViewModel>? StudentSelected;
 
     public event EventHandler<SectionViewModel>? Selected;
-    
-    public string DisplayName => Model.displayName;
+
+    [ObservableProperty] string displayName = "";
+    [ObservableProperty] string room = "";
+    [ObservableProperty] string block = "";
+    [ObservableProperty] string term = "";
+    [ObservableProperty] UserViewModel primaryTeacher = UserViewModel.Default;
 
     public static ConcurrentBag<SectionViewModel> ViewModelCache { get; private set; } = [];
 
@@ -232,6 +236,13 @@ public partial class SectionViewModel :
         
         foreach (var student in Students)
             student.Selected += (sender, stu) => StudentSelected?.Invoke(sender, stu);
+
+        DisplayName = section.displayName;
+        Block = section.block;
+        Room = section.room;
+        PrimaryTeacher = UserViewModel.Get(
+            registrar.TeacherList
+                .First(t => t.id == section.primaryTeacherId));
     }
 
     [RelayCommand]

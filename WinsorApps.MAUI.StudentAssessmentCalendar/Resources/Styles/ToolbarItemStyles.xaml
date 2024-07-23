@@ -125,5 +125,15 @@
         Color=White,
         Glyph=←}" />
     </Style>
+    <Style
+    TargetType="ToolbarItem"
+    Class="RefreshButton">
+        <Setter 
+        Property="IconImageSource"
+        Value="{FontImage 
+        FontFamily=Serif,
+        Color=White,
+        Glyph=⟳}" />
+    </Style>
 
 </ResourceDictionary>
