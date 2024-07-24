@@ -16,19 +16,76 @@
     <ContentPage.Content>
         <ScrollView>
             <VerticalStackLayout>
+                <Grid
+                    RowDefinitions="*"
+                    ColumnDefinitions="*,*"
+                    IsVisible="{Binding ShowSelected}">
+                    <HorizontalStackLayout
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Spacing="30">
+                        <Image
+                            VerticalOptions="Center"
+                            StyleClass="BackButton"
+                            HeightRequest="75">
+                            <Image.GestureRecognizers>
+                                <!-- Select Command Here De-selects this Class and returns you to the Section Selection view. -->
+                                <TapGestureRecognizer Command="{Binding SelectedSection.SelectCommand}" />
+                            </Image.GestureRecognizers>
+                        </Image>
+                        <Label
+                            VerticalTextAlignment="Center"
+                            StyleClass="Header"
+                            Text="{Binding SelectedSection.Section.DisplayName}" 
+                            TextDecorations="Underline">
+                            <Label.GestureRecognizers>
+                                <!-- Select Command Here De-selects this Class and returns you to the Section Selection view. -->
+                                <TapGestureRecognizer Command="{Binding SelectedSection.SelectCommand}" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <Label
+                            VerticalTextAlignment="Center"
+                            StyleClass="NeutralSignifier"
+                            IsVisible="{Binding SelectedSection.HasChanges}" 
+                            HorizontalOptions="Center"
+                            VerticalOptions="Start"/>
+                        <Label
+                            VerticalTextAlignment="Center"
+                            StyleClass="Header"
+                            Text="No Books" 
+                            IsVisible="{Binding SelectedSection.HasNoBooks}"/>
+                        <Label
+                            VerticalTextAlignment="Center"
+                            StyleClass="ActivityIndicator"
+                            Text="Saving..."
+                            IsVisible="{Binding SelectedSection.Busy}"/>
+                        <Label
+                            VerticalTextAlignment="Center"
+                            StyleClass="PositiveSignifier"
+                            IsVisible="{Binding SelectedSection.HasChanges, Converter={StaticResource Invert}}" 
+                            VerticalOptions="Start"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        HorizontalOptions="End">
+                        <Button
+                            Text="Submit Order"
+                            HeightRequest="20"
+                            ToolTipProperties.Text="Order Cart"
+                            Margin="0,0,20,0"
+                            BackgroundColor="Transparent"
+                            BorderWidth="3"
+                            BorderColor="LightSlateGrey"
+                            Command="{Binding SelectedSection.SubmitOrderCommand}"/>
+                        
+                    </HorizontalStackLayout>
+                </Grid>
                 <HorizontalStackLayout>
-                    <Image
-                        StyleClass="BackButton"
-                        HeightRequest="15"
-                        IsVisible="{Binding ShowSelected}">
-                        <Image.GestureRecognizers>
-                            <!-- Select Command Here De-selects this Class and returns you to the Section Selection view. -->
-                            <TapGestureRecognizer Command="{Binding SelectedSection.SelectCommand}" />
-                        </Image.GestureRecognizers>
-                    </Image>
+                    
                     <Label Text="My Classes"
+                           StyleClass="Header"
                            IsVisible="{Binding ShowSelected, Converter={StaticResource Invert}}"
-                           FontSize="Medium"
                            Margin="0,0,0,-15"/>
                 </HorizontalStackLayout>
                 
@@ -87,52 +144,12 @@
                         IsEnabled="{Binding Busy, Converter={StaticResource Invert}}">
 
                         <Grid
-                            RowDefinitions="*,*"
+                            RowDefinitions="*"
                             ColumnDefinitions="*,*">
-                            <HorizontalStackLayout
-                                Grid.Row="0"
-                                Grid.Column="0">
-
-                                <Label
-                                    StyleClass="Header"
-                                    Text="{Binding Section.DisplayName}" 
-                                    TextDecorations="Underline"/>
-                                <Label
-                                    StyleClass="NeutralSignifier"
-                                    IsVisible="{Binding HasChanges}" 
-                                    HorizontalOptions="Center"
-                                    VerticalOptions="Start"/>
-                                <Label
-                                    StyleClass="Header"
-                                    Text="No Books" 
-                                    IsVisible="{Binding HasNoBooks}"/>
-                                <Label
-                                    StyleClass="ActivityIndicator"
-                                    Text="Saving..."
-                                    IsVisible="{Binding Busy}"/>
-                                <Label
-                                    StyleClass="PositiveSignifier"
-                                    IsVisible="{Binding HasChanges, Converter={StaticResource Invert}}" 
-                                    VerticalOptions="Start"/>
-                            </HorizontalStackLayout>
-                            <HorizontalStackLayout
-                                Grid.Row="0"
-                                Grid.Column="1"
-                                HorizontalOptions="End">
-                                <Button
-                                    Text="Submit Order"
-                                    HeightRequest="20"
-                                    ToolTipProperties.Text="Order Cart"
-                                    Margin="0,0,20,0"
-                                    BackgroundColor="Transparent"
-                                    BorderWidth="3"
-                                    BorderColor="LightSlateGrey"
-                                    Command="{Binding SubmitOrderCommand}"/>
-                                
-                            </HorizontalStackLayout>
+                            
                             <!-- Required Books Collection -->
                             <CollectionView
-                                Grid.Row="1"
+                                Grid.Row="0"
                                 Grid.Column="0"
                                 HeightRequest="800"
                                 BackgroundColor="Transparent"
@@ -197,7 +214,7 @@
                                                                 VerticalOptions="Center">
                                                                 <Image
                                                                     StyleClass="SubmitButton"
-                                                                    HeightRequest="50"
+                                                                    HeightRequest="75"
                                                                     ToolTipProperties.Text="Add to Order">
                                                                     <Image.GestureRecognizers>
                                                                         <!-- Select Command Here Adds this Book to your Cart -->
