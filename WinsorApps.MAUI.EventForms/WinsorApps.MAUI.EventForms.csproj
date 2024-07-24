@@ -114,9 +114,9 @@
 
 	<ItemGroup>
 		<!-- App Icon -->
-		<MauiIcon Include="Resources\AppIcon\appicon.png" />
 		<MauiIcon Include="Resources\AppIcon\appicon.svg">
 		  <Color>#FFFFFF</Color>
+		  <ForegroundFile>Resources\AppIcon\appiconfg.svg</ForegroundFile>
 		</MauiIcon>
 
 		<!-- Splash Screen -->
@@ -146,14 +146,6 @@
 	  <ProjectReference Include="..\WinsorApps.MAUI.Shared\WinsorApps.MAUI.Shared.csproj" />
 	  <ProjectReference Include="..\WinsorApps.Services.EventForms\WinsorApps.Services.EventForms.csproj" />
 	  <ProjectReference Include="..\WinsorApps.Services.Global\WinsorApps.Services.Global.csproj" />
-	</ItemGroup>
-
-
-	<ItemGroup>
-	  <None Update="Resources\AppIcon\appicon.png">
-	    <Pack>True</Pack>
-	    <PackagePath>\</PackagePath>
-	  </None>
 	</ItemGroup>
 
 	<ItemGroup>
