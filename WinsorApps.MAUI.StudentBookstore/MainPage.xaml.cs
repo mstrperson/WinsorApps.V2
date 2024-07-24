@@ -58,9 +58,17 @@ namespace WinsorApps.MAUI.StudentBookstore
                 Navigation.PopAsync();
 
             Navigation.PushAsync(loginPage);
+            
+            vm.OnCompleted += Vm_OnCompleted;
 
             InitializeComponent();
 
+        }
+
+        private void Vm_OnCompleted(object? sender, EventArgs e)
+        {
+            var page = ServiceHelper.GetService<RequestedBooksPage>();
+            Navigation.PushAsync(page);
         }
 
         private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
