@@ -69,7 +69,9 @@
                     />
             </Border>
             
-            <CollectionView ItemsSource="{Binding PostLoginServices}">
+            <CollectionView 
+                ItemsSource="{Binding PostLoginServices}"
+                BackgroundColor="Transparent">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="vm:ServiceAwaiterViewModel">
                         <VerticalStackLayout IsVisible="{Binding Ready, Converter={StaticResource Invert}}">
@@ -86,7 +88,9 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-            <CollectionView ItemsSource="{Binding Completion}">
+            <CollectionView 
+                ItemsSource="{Binding Completion}"
+                BackgroundColor="Transparent">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="vm:TaskAwaiterViewModel">
                         <HorizontalStackLayout IsVisible="{Binding Ready, Converter={StaticResource Invert}}">
