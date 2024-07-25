@@ -107,13 +107,16 @@
                                     Text="No Books" 
                                     IsVisible="{Binding HasNoBooks}"/>
                                 <Label
-                                    StyleClass="ActivityIndicator"
-                                    Text="Saving..."
+                                    Text="Submitting Your Order..."
                                     IsVisible="{Binding Busy}"/>
                                 <Label
                                     StyleClass="PositiveSignifier"
                                     IsVisible="{Binding HasChanges, Converter={StaticResource Invert}}" 
                                     VerticalOptions="Start"/>
+                                <Label
+                                    Text="Order Submitted!"
+                                    Margin="-15,-3,0,0"
+                                    IsVisible="{Binding HasChanges, Converter={StaticResource Invert}}"/>
                             </HorizontalStackLayout>
                             <HorizontalStackLayout
                                 Grid.Row="0"
@@ -122,11 +125,24 @@
                                 <Button
                                     Text="Submit Order"
                                     HeightRequest="20"
-                                    ToolTipProperties.Text="Order Cart"
                                     Margin="0,0,20,0"
                                     BackgroundColor="Transparent"
                                     BorderWidth="3"
-                                    BorderColor="LightSlateGrey">
+                                    BorderColor="LightSlateGrey"
+                                    IsVisible="{Binding HasChanges}">
+                                    <Button.GestureRecognizers>
+                                        <!-- SubmitOrder Command saves your book order for this Class -->
+                                        <TapGestureRecognizer Command="{Binding SubmitOrderCommand}" />
+                                    </Button.GestureRecognizers>
+                                </Button>
+                                <Button
+                                    Text="Resubmit Order"
+                                    HeightRequest="20"
+                                    Margin="0,0,20,0"
+                                    BackgroundColor="Transparent"
+                                    BorderWidth="3"
+                                    BorderColor="LightSlateGrey"
+                                    IsVisible="{Binding HasChanges, Converter={StaticResource Invert}}">
                                     <Button.GestureRecognizers>
                                         <!-- SubmitOrder Command saves your book order for this Class -->
                                         <TapGestureRecognizer Command="{Binding SubmitOrderCommand}" />
