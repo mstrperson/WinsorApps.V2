@@ -48,12 +48,12 @@ public partial class EventFormsService
 
     public async Task UpdateCache(DateTime startDate, DateTime endDate, ErrorAction onError)
     {
-        var result = await _api.SendAsync<ImmutableArray<EventFormBase>>(HttpMethod.Get,
-                $"api/events/created?start={startDate:yyyy-MM-dd}&end={endDate:yyyy-MM-dd}", onError: onError);
+        var result = await _api.SendAsync<ImmutableArray<EventFormBase>?>(HttpMethod.Get,
+                $"api/events/created?start={startDate:yyyy-MM-dd}&end={endDate:yyyy-MM-dd}", onError: onError) ?? [];
 
         result = result
-            .Union(await _api.SendAsync<ImmutableArray<EventFormBase>>(HttpMethod.Get,
-                $"api/events/lead?start={startDate:yyyy-MM-dd}&end={endDate:yyyy-MM-dd}", onError: onError))
+            .Union(await _api.SendAsync<ImmutableArray<EventFormBase>?>(HttpMethod.Get,
+                $"api/events/lead?start={startDate:yyyy-MM-dd}&end={endDate:yyyy-MM-dd}", onError: onError) ?? [])
             .Distinct()
             .ToImmutableArray();
 

@@ -64,17 +64,17 @@ public class LocationService :
 
         Started = true;
 
-        var campusTask = _api.SendAsync<ImmutableArray<Location>>(HttpMethod.Get, "api/events/location", onError: onError);
+        var campusTask = _api.SendAsync<ImmutableArray<Location>?>(HttpMethod.Get, "api/events/location", onError: onError);
         campusTask.WhenCompleted(() =>
         {
-            OnCampusLocations = campusTask.Result;
+            OnCampusLocations = campusTask.Result ?? [];
             Progress += 0.5;
         });
 
-        var customTask = _api.SendAsync<ImmutableArray<Location>>(HttpMethod.Get, "api/events/location/custom", onError: onError);
+        var customTask = _api.SendAsync<ImmutableArray<Location>?>(HttpMethod.Get, "api/events/location/custom", onError: onError);
         customTask.WhenCompleted(() =>
         {
-            MyCustomLocations = customTask.Result;
+            MyCustomLocations = customTask.Result ?? [];
             Progress += 0.5;
         });
 
@@ -85,7 +85,7 @@ public class LocationService :
 
     public async Task Refresh(ErrorAction onError)
     {
-        MyCustomLocations = await _api.SendAsync<ImmutableArray<Location>>(HttpMethod.Get, "api/events/location/custom", onError: onError);
+        MyCustomLocations = await _api.SendAsync<ImmutableArray<Location>?>(HttpMethod.Get, "api/events/location/custom", onError: onError) ?? [];
         OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
     }
 

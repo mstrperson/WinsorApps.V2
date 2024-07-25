@@ -37,8 +37,8 @@ namespace WinsorApps.Services.EventForms.Services
 
             Started = true;
 
-            AvailableMenus = await _api.SendAsync<ImmutableArray<TheaterMenuCategory>>(HttpMethod.Get,
-                "api/events/theater/menu", onError: onError);
+            AvailableMenus = await _api.SendAsync<ImmutableArray<TheaterMenuCategory>?>(HttpMethod.Get,
+                "api/events/theater/menu", onError: onError) ?? [];
 
             Progress = 1;
             Ready = true;
@@ -47,8 +47,8 @@ namespace WinsorApps.Services.EventForms.Services
         public async Task Refresh(ErrorAction onError)
         {
 
-            AvailableMenus = await _api.SendAsync<ImmutableArray<TheaterMenuCategory>>(HttpMethod.Get,
-                "api/events/theater/menu", onError: onError);
+            AvailableMenus = await _api.SendAsync<ImmutableArray<TheaterMenuCategory>?>(HttpMethod.Get,
+                "api/events/theater/menu", onError: onError) ?? [];
         }
 
         public async Task WaitForInit(ErrorAction onError)

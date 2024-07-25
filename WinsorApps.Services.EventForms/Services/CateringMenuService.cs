@@ -43,7 +43,7 @@ namespace WinsorApps.Services.EventForms.Services
 
             Started = true;
 
-            MenuCategories = await _api.SendAsync<ImmutableArray<CateringMenuCategory>>(HttpMethod.Get, "api/events/catering/menu");
+            MenuCategories = await _api.SendAsync<ImmutableArray<CateringMenuCategory>?>(HttpMethod.Get, "api/events/catering/menu") ?? [];
             Progress = 1;
             Ready = true;
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
@@ -51,7 +51,7 @@ namespace WinsorApps.Services.EventForms.Services
 
         public async Task Refresh(ErrorAction onError)
         {
-            MenuCategories = await _api.SendAsync<ImmutableArray<CateringMenuCategory>>(HttpMethod.Get, "api/events/catering/menu");
+            MenuCategories = await _api.SendAsync<ImmutableArray<CateringMenuCategory>?>(HttpMethod.Get, "api/events/catering/menu") ?? [];
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
 

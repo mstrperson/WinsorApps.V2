@@ -32,11 +32,13 @@ public partial class MainPageViewModel : ObservableObject, IBusyViewModel, IErro
             apiTask.WhenCompleted( () =>
             {
                 var allowedTask = _appService.AmIAllowed(_appId, OnError.DefaultBehavior(this));
-                allowedTask.WhenCompleted(() =>
+                allowedTask.WhenCompleted(async () =>
                 {
                     if (!allowedTask.Result) // 
                     {
                         OnError?.Invoke(this, new("App Not Authorized", "You aren't authorized to use this particular app."));
+                        await Task.Delay(5000);
+                        Logout();
                     }
                 });
             });

@@ -59,38 +59,38 @@ namespace WinsorApps.Services.EventForms.Services
 
             double taskCount = 5;
 
-            var statusTask = _api.SendAsync<ImmutableArray<ApprovalStatus>>(HttpMethod.Get, "api/events/status-labels", onError: onError);
+            var statusTask = _api.SendAsync<ImmutableArray<ApprovalStatus>?>(HttpMethod.Get, "api/events/status-labels", onError: onError);
             statusTask.WhenCompleted(() =>
             {
-                StatusLabels = statusTask.Result;
+                StatusLabels = statusTask.Result ?? [];
                 Progress += 1 / taskCount;
             });
 
-            var typeTask = _api.SendAsync<ImmutableArray<string>>(HttpMethod.Get, "api/events/event-types", onError: onError);
+            var typeTask = _api.SendAsync<ImmutableArray<string>?>(HttpMethod.Get, "api/events/event-types", onError: onError);
             typeTask.WhenCompleted(() =>
             {
-                EventTypes = typeTask.Result;
+                EventTypes = typeTask.Result ?? [];
                 Progress += 1 / taskCount;
             });
 
-            var vehicleTask = _api.SendAsync<ImmutableArray<VehicleCategory>>(HttpMethod.Get, "api/events/transportation/vehicles", onError: onError);
+            var vehicleTask = _api.SendAsync<ImmutableArray<VehicleCategory>?>(HttpMethod.Get, "api/events/transportation/vehicles", onError: onError);
             vehicleTask.WhenCompleted(() =>
             {
-                VehicleCategories = vehicleTask.Result;
+                VehicleCategories = vehicleTask.Result ?? [];
                 Progress += 1 / taskCount;
             });
 
-            var createdTask = _api.SendAsync<ImmutableArray<EventFormBase>>(HttpMethod.Get, "api/events/created", onError: onError);
+            var createdTask = _api.SendAsync<ImmutableArray<EventFormBase>?>(HttpMethod.Get, "api/events/created", onError: onError);
             createdTask.WhenCompleted(() =>
             {
-                EventsCache = createdTask.Result;
+                EventsCache = createdTask.Result ?? [];
                 Progress += 1 / taskCount;
             });
 
-            var leadTask = _api.SendAsync<ImmutableArray<EventFormBase>>(HttpMethod.Get, "api/events/lead", onError: onError);
+            var leadTask = _api.SendAsync<ImmutableArray<EventFormBase>?>(HttpMethod.Get, "api/events/lead", onError: onError);
             leadTask.WhenCompleted(() =>
             {
-                LeadEvents = leadTask.Result;
+                LeadEvents = leadTask.Result ?? [];
                 Progress += 1 / taskCount;
             });
 

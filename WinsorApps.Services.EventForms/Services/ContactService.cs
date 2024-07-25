@@ -53,7 +53,7 @@ namespace WinsorApps.Services.EventForms.Services
                 return;
 
             Started = true;
-            MyContacts = await _api.SendAsync<ImmutableArray<Contact>>(HttpMethod.Get, "api/users/self/contacts", onError: onError);
+            MyContacts = await _api.SendAsync<ImmutableArray<Contact>?>(HttpMethod.Get, "api/users/self/contacts", onError: onError) ?? [];
 
             Progress = 1;
             Ready = true;
@@ -61,7 +61,7 @@ namespace WinsorApps.Services.EventForms.Services
 
         public async Task Refresh(ErrorAction onError)
         {
-            MyContacts = await _api.SendAsync<ImmutableArray<Contact>>(HttpMethod.Get, "api/users/self/contacts", onError: onError);
+            MyContacts = await _api.SendAsync<ImmutableArray<Contact>?>(HttpMethod.Get, "api/users/self/contacts", onError: onError) ?? [];
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
 

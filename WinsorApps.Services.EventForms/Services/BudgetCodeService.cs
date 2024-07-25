@@ -47,7 +47,7 @@ namespace WinsorApps.Services.EventForms.Services
             }
             Progress = 0;
 
-            BudgetCodes = await _api.SendAsync<ImmutableArray<BudgetCode>>(HttpMethod.Get, "api/budget-codes", onError: onError);
+            BudgetCodes = await _api.SendAsync<ImmutableArray<BudgetCode>?>(HttpMethod.Get, "api/budget-codes", onError: onError) ?? [];
             Progress = 1;
             Ready = true;
         }
