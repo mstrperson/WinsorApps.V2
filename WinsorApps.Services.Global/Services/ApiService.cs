@@ -200,7 +200,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
         {
             var response = await SendAsync(HttpMethod.Post, "api/auth/forgot",
                 JsonSerializer.Serialize(login), false, onError);
-            onCompleteAction(response);
+            onCompleteAction("Please Check your Email for your new Password.");
         }
         catch (Exception ae)
         {
