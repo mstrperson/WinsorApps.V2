@@ -84,7 +84,7 @@
                                     IsVisible="{Binding SelectedSection.HasChanges}">
                                 <Button.GestureRecognizers>
                                     <!-- SubmitOrder Command saves your book order for this Class -->
-                                    <TapGestureRecognizer Command="{Binding SubmitOrderCommand}" />
+                                    <TapGestureRecognizer Command="{Binding SelectedSection.SubmitOrderCommand}" />
                                 </Button.GestureRecognizers>
                             </Button>
                             <Button
@@ -97,7 +97,7 @@
                                     IsVisible="{Binding SelectedSection.HasChanges, Converter={StaticResource Invert}}">
                                 <Button.GestureRecognizers>
                                     <!-- SubmitOrder Command saves your book order for this Class -->
-                                    <TapGestureRecognizer Command="{Binding SubmitOrderCommand}" />
+                                    <TapGestureRecognizer Command="{Binding SelectedSection.SubmitOrderCommand}" />
                                 </Button.GestureRecognizers>
                             </Button>
                         </HorizontalStackLayout>
