@@ -55,30 +55,53 @@
                             Text="No Books" 
                             IsVisible="{Binding SelectedSection.HasNoBooks}"/>
                         <Label
-                            VerticalTextAlignment="Center"
-                            StyleClass="ActivityIndicator"
-                            Text="Saving..."
+                            Text="Submitting Your Order..."
                             IsVisible="{Binding SelectedSection.Busy}"/>
                         <Label
-                            VerticalTextAlignment="Center"
                             StyleClass="PositiveSignifier"
                             IsVisible="{Binding SelectedSection.HasChanges, Converter={StaticResource Invert}}" 
                             VerticalOptions="Start"/>
+                        <Label
+                            Text="Order Submitted!"
+                            Margin="-15,-3,0,0"
+                            IsVisible="{Binding SelectedSection.HasChanges, Converter={StaticResource Invert}}"/>
                     </HorizontalStackLayout>
                     <HorizontalStackLayout
                         Grid.Row="0"
                         Grid.Column="1"
                         HorizontalOptions="End">
-                        <Button
-                            Text="Submit Order"
-                            HeightRequest="20"
-                            ToolTipProperties.Text="Order Cart"
-                            Margin="0,0,20,0"
-                            BackgroundColor="Transparent"
-                            BorderWidth="3"
-                            BorderColor="LightSlateGrey"
-                            Command="{Binding SelectedSection.SubmitOrderCommand}"/>
-                        
+                        <HorizontalStackLayout
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                HorizontalOptions="End">
+                            <Button
+                                    Text="Submit Order"
+                                    HeightRequest="20"
+                                    Margin="0,0,20,0"
+                                    BackgroundColor="Transparent"
+                                    BorderWidth="3"
+                                    BorderColor="LightSlateGrey"
+                                    IsVisible="{Binding SelectedSection.HasChanges}">
+                                <Button.GestureRecognizers>
+                                    <!-- SubmitOrder Command saves your book order for this Class -->
+                                    <TapGestureRecognizer Command="{Binding SubmitOrderCommand}" />
+                                </Button.GestureRecognizers>
+                            </Button>
+                            <Button
+                                    Text="Resubmit Order"
+                                    HeightRequest="20"
+                                    Margin="0,0,20,0"
+                                    BackgroundColor="Transparent"
+                                    BorderWidth="3"
+                                    BorderColor="LightSlateGrey"
+                                    IsVisible="{Binding SelectedSection.HasChanges, Converter={StaticResource Invert}}">
+                                <Button.GestureRecognizers>
+                                    <!-- SubmitOrder Command saves your book order for this Class -->
+                                    <TapGestureRecognizer Command="{Binding SubmitOrderCommand}" />
+                                </Button.GestureRecognizers>
+                            </Button>
+                        </HorizontalStackLayout>
+
                     </HorizontalStackLayout>
                 </Grid>
                 <HorizontalStackLayout>
@@ -146,7 +169,6 @@
                         <Grid
                             RowDefinitions="*"
                             ColumnDefinitions="*,*">
-                            
                             <!-- Required Books Collection -->
                             <CollectionView
                                 Grid.Row="0"
