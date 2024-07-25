@@ -26,8 +26,9 @@ namespace WinsorApps.MAUI.StudentBookstore
             [
               new(registrar, "Registrar Data"),
               new(book, "Book Service"),
-              new(sbs, "Student Books")
-            ], app, api)
+              new(sbs, "Student Books"),
+              new(app, "Checking for Updates")
+            ], app, api, logging)
             {
 
                 #region Service Post Init Tasks

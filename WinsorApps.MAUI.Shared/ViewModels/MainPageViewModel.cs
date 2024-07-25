@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using AsyncAwaitBestPractices;
+using CommunityToolkit.Maui.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using WinsorApps.Services.Global;
@@ -19,39 +20,24 @@ public partial class MainPageViewModel : ObservableObject, IBusyViewModel, IErro
     [ObservableProperty] private bool ready;
     [ObservableProperty] private bool busy;
     [ObservableProperty] private string busyMessage = "Loading Data... Please Wait";
-
-    private string _appId = "";
-
+    [ObservableProperty] private bool updateAvailable;
+    [ObservableProperty] private string updateLink;
+    
     public string AppId
     {
-        get => _appId;
-        set
-        {
-            _appId = value;
-            var apiTask = _api.WaitForInit(OnError.DefaultBehavior(this));
-            apiTask.WhenCompleted( () =>
-            {
-                var allowedTask = _appService.AmIAllowed(_appId, OnError.DefaultBehavior(this));
-                allowedTask.WhenCompleted(async () =>
-                {
-                    if (!allowedTask.Result) // 
-                    {
-                        OnError?.Invoke(this, new("App Not Authorized", "You aren't authorized to use this particular app."));
-                        await Task.Delay(5000);
-                        Logout();
-                    }
-                });
-            });
-        }
+        get => _appService.AppId;
+        set => _appService.AppId = value;
     }
     
     private readonly AppService _appService;
     private readonly ApiService _api;
+    private readonly LocalLoggingService _logging;
+
     public event EventHandler<SplashPageViewModel>? OnSplashPageReady;
     public event EventHandler? OnCompleted;
     public event EventHandler<ErrorRecord>? OnError;
 
-    public MainPageViewModel(List<ServiceAwaiterViewModel> postLoginServices, AppService appService, ApiService api)
+    public MainPageViewModel(List<ServiceAwaiterViewModel> postLoginServices, AppService appService, ApiService api, LocalLoggingService logging)
     {
         userVM = UserViewModel.Default;
         loginVM = new();
@@ -62,6 +48,7 @@ public partial class MainPageViewModel : ObservableObject, IBusyViewModel, IErro
         this.postLoginServices = postLoginServices;
         _appService = appService;
         _api = api;
+        _logging = logging;
         foreach (var serv in PostLoginServices)
         {
             serv.OnCompletion += (_, _) => SplashPageVM.Messages =
@@ -100,8 +87,19 @@ public partial class MainPageViewModel : ObservableObject, IBusyViewModel, IErro
             await Task.Delay(250);
         }
 
+
         var api = ServiceHelper.GetService<ApiService>()!;
         UserVM = UserViewModel.Get(api.UserInfo!.Value);
+        if (!_appService.Allowed)
+        {
+            Busy = true;
+            BusyMessage = $"{UserVM.DisplayName} is not able to use this app.  You will now be logged out.";
+            await Task.Delay(5000);
+            Logout();
+        }
+
+        UpdateAvailable = _appService.UpdateAvailable;
+        UpdateLink = _appService.GetBrowserLinkForLatestVersion();
 
         foreach (var task in Completion)
             task.Start();
@@ -125,4 +123,38 @@ public partial class MainPageViewModel : ObservableObject, IBusyViewModel, IErro
         Application.Current?.Quit();
     }
 
+    [RelayCommand]
+    public async Task DownloadLatestVersion()
+    {
+        Busy = true;
+        if (string.IsNullOrEmpty(UpdateLink))
+        {
+            BusyMessage = "No Update Link Available...";
+            await Task.Delay(2000);
+            Busy = false;
+            return;
+        }
+
+        BusyMessage = $"Downloading the Latest App Version...";
+        var data = await _api.DownloadFile(UpdateLink, onError: OnError.DefaultBehavior(this));
+        var type = Environment.OSVersion.Platform switch
+        {
+            PlatformID.Win32NT => "exe",
+            _ => "pkg"
+        };
+
+        string fileName = $"{_appService.Group.appName}.{type}";
+
+        using MemoryStream ms = new(data);
+        var result = await FileSaver.SaveAsync(fileName, ms);
+        if(result.IsSuccessful)
+        {
+            _logging.LogMessage(LocalLoggingService.LogLevel.Information, "New Version Downloaded!");
+            _logging.LastVersionUpdated = DateTime.Now;
+            BusyMessage = "The App will now Exit so  you can install the new version!";
+            await Task.Delay(5000);
+
+            Application.Current?.Quit();
+        }
+    }
 }
