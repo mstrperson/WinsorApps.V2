@@ -14,6 +14,8 @@ namespace WinsorApps.MAUI.StudentBookstore
     public partial class MainPage : ContentPage
     {
 
+        public MainPageViewModel ViewModel => (MainPageViewModel)BindingContext;
+
         public MainPage(
             RegistrarService registrar,
             LocalLoggingService logging,
@@ -68,8 +70,11 @@ namespace WinsorApps.MAUI.StudentBookstore
 
         private void Vm_OnCompleted(object? sender, EventArgs e)
         {
-            var page = ServiceHelper.GetService<RequestedBooksPage>();
-            Navigation.PushAsync(page);
+            if (!ViewModel.UpdateAvailable)
+            {
+                var page = ServiceHelper.GetService<RequestedBooksPage>();
+                Navigation.PushAsync(page);
+            }
         }
 
         private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)

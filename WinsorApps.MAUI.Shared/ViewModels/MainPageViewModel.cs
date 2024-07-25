@@ -156,5 +156,12 @@ public partial class MainPageViewModel : ObservableObject, IBusyViewModel, IErro
 
             Application.Current?.Quit();
         }
+        else
+        {
+            _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"New Version Download returned {result.Exception?.Message ?? "unsuccessful"}");
+            BusyMessage = "Download was not saved.";
+            await Task.Delay(2000);
+            Busy = false;
+        }
     }
 }
