@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xaml-comp compile="true" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    <Style
+        TargetType="ToolbarItem"
+        Class="AddButton">
+        <Setter 
+            Property="IconImageSource"
+            Value="{FontImage 
+                FontFamily=Serif, 
+                Color=White,
+                Glyph=➕}" />
+    </Style>
+    <Style
+        TargetType="ToolbarItem"
+        Class="Separator">
+        <Setter
+            Property="IconImageSource"
+            Value="{FontImage 
+                FontFamily=Serif, 
+                Color=White,
+                Glyph=⎹}" />
+    </Style>
+    <Style TargetType="Shell" ApplyToDerivedTypes="True">
+        <Setter Property="Shell.BackgroundColor" Value="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource WarmGrey}}" />
+        <Setter 
+            Property="Shell.ForegroundColor" 
+            Value="{
+                OnPlatform 
+                    WinUI={StaticResource WinsorRed}, 
+                    Default={AppThemeBinding 
+                        Light={StaticResource White}, 
+                        Dark={StaticResource DarkBlue}}}" />
+        <Setter 
+            Property="Shell.TitleColor" 
+            Value="{AppThemeBinding 
+                Light={StaticResource White}, 
+                Dark={StaticResource DarkBlue}}" />
+        <Setter 
+            Property="Shell.DisabledColor" 
+            Value="{AppThemeBinding 
+                Light={StaticResource CoolGrey},
+                Dark={StaticResource WarmGrey}}" />
+        <Setter 
+            Property="Shell.UnselectedColor" 
+            Value="{AppThemeBinding 
+                Light={StaticResource CoolGrey}, 
+                Dark={StaticResource CoolGrey}}" />
+        <Setter 
+            Property="Shell.NavBarHasShadow" 
+            Value="True" />
+        <Setter 
+            Property="Shell.TabBarBackgroundColor" 
+            Value="{AppThemeBinding 
+                Light={StaticResource White}, 
+                Dark={StaticResource DarkBlue}}" />
+        <Setter 
+            Property="Shell.TabBarForegroundColor" 
+            Value="{AppThemeBinding 
+                Light={StaticResource WinsorRed}, 
+                Dark={StaticResource White}}" />
+        <Setter 
+            Property="Shell.TabBarTitleColor" 
+            Value="{AppThemeBinding 
+                Light={StaticResource WinsorRed}, 
+                Dark={StaticResource White}}" />
+        <Setter 
+            Property="Shell.TabBarUnselectedColor" 
+            Value="{AppThemeBinding 
+                Light={StaticResource Black}, 
+                Dark={StaticResource CoolGrey}}" />
+    </Style>
+    <Style
+        TargetType="ToolbarItem"
+        Class="SubmitButton">
+        <Setter 
+            Property="IconImageSource"
+            Value="{FontImage 
+                FontFamily=Serif, 
+                Color=White,
+                Glyph=➥}" />
+    </Style>
+
+    <Style
+        TargetType="ToolbarItem"
+        Class="DeleteButton">
+        <Setter 
+            Property="IconImageSource"
+            Value="{FontImage 
+                FontFamily=Serif, 
+                Color=White,
+                Glyph=🗑}" />
+    </Style>
+    
+    <Style
+        TargetType="ToolbarItem"
+        Class="PrintButton">
+        <Setter 
+            Property="IconImageSource"
+            Value="{FontImage 
+            FontFamily=Serif,
+            Color=White,
+            Glyph=🖨}" />
+    </Style>
+
+    <Style
+    TargetType="ToolbarItem"
+    Class="RightArrow">
+        <Setter 
+        Property="IconImageSource"
+        Value="{FontImage 
+        FontFamily=Serif,
+        Color=White,
+        Glyph=→}" />
+    </Style>
+
+    <Style
+    TargetType="ToolbarItem"
+    Class="LeftArrow">
+        <Setter 
+        Property="IconImageSource"
+        Value="{FontImage 
+        FontFamily=Serif,
+        Color=White,
+        Glyph=←}" />
+    </Style>
+    <Style
+    TargetType="ToolbarItem"
+    Class="RefreshButton">
+        <Setter 
+        Property="IconImageSource"
+        Value="{FontImage 
+        FontFamily=Serif,
+        Color=White,
+        Glyph=⟳}" />
+    </Style>
+
+</ResourceDictionary>
