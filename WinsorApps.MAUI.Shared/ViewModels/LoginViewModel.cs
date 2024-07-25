@@ -58,7 +58,7 @@ public partial class LoginViewModel :
         _api.OnLoginSuccess += _api_OnLoginSuccess;
         email = "";
         password = "";
-        statusMessage = _api.Ready ? "Login Successful" : busy ? "Waiting for Auto Login" : "Please Log In";
+        statusMessage = _api.Ready ? "Login Successful" : Busy ? "Waiting for Auto Login" : "Please Log In";
         isLoggedIn = _api.Ready;
         
     }
@@ -87,6 +87,8 @@ public partial class LoginViewModel :
     [RelayCommand]
     public async Task Login()
     {
+        Busy = true;
+        BusyMessage = "Logging in";
         await _api.Login(Email.ToLowerInvariant(), Password, 
             err =>
             {
@@ -94,6 +96,7 @@ public partial class LoginViewModel :
                 OnError?.Invoke(this, err);
             });
         IsLoggedIn = _api.Ready;
+        Busy = false;
     }
 
     /// <summary>
@@ -117,9 +120,19 @@ public partial class LoginViewModel :
     [RelayCommand]
     public async Task ForgotPassword()
     {
+        Busy = true;
+        StatusMessage = "Submitting Forgot Password Request";
+        bool success = true;
         await _api.ForgotPassword(Email, "", 
-            str => OnForgotPassword?.Invoke(this, "Email Sent"),
-            err => OnError?.Invoke(this, err));
+            str => OnForgotPassword?.Invoke(this, str),
+            err => { OnError?.Invoke(this, err); success = false; });
+
+        if(success)
+        {
+            StatusMessage = "Forgot Password accepted.  Please check your email and follow the instructions for your new password.";
+            await Task.Delay(5000);
+        }
+        Busy = false;
     }
 
 }

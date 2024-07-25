@@ -89,7 +89,9 @@
 	
 	<ItemGroup>
 		<!-- App Icon -->
-		<MauiIcon Include="Resources\AppIcon\appicon.svg" Color="#FFFFFF" />
+		<MauiIcon Include="Resources\AppIcon\appicon.svg" Color="#FFFFFF">
+		  <ForegroundFile>Resources\AppIcon\appiconfg.svg</ForegroundFile>
+		</MauiIcon>
 
 		<!-- Splash Screen -->
 		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
@@ -102,6 +104,10 @@
 
 		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <None Remove="Resources\AppIcon\appicon.svg" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -141,13 +147,6 @@
 	  <MauiXaml Update="Resources\Styles\ToolbarItemStyles.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	</ItemGroup>
-	
-	<ItemGroup>
-		<None Update="Resources\AppIcon\appicon.svg">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
 	</ItemGroup>
 	<!--
 	<Target Name="_SkipCodesignVerify" BeforeTargets="_CodesignVerify" AfterTargets="_CodesignAppBundle">

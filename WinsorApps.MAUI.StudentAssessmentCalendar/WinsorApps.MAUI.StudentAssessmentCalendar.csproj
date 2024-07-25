@@ -74,7 +74,9 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<!-- App Icon -->
-		<MauiIcon Include="Resources\AppIcon\appicon.svg" Color="#FFFFFF" />
+		<MauiIcon Include="Resources\AppIcon\appicon.svg" Color="#FFFFFF">
+		  <ForegroundFile>Resources\AppIcon\appiconfg.svg</ForegroundFile>
+		</MauiIcon>
 
 		<!-- Splash Screen -->
 		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
@@ -109,12 +111,6 @@
 	  <MauiAsset Update="Resources\Raw\AboutAssets.txt">
 	    <LogicalName>%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
 	  </MauiAsset>
-	</ItemGroup>
-	<ItemGroup>
-		<None Update="Resources\AppIcon\appicon.svg">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
 	</ItemGroup>
 
 	<ItemGroup>

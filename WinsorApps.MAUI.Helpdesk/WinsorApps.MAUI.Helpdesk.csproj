@@ -57,7 +57,9 @@
 
     <ItemGroup>
         <!-- App Icon -->
-        <MauiIcon Include="Resources\AppIcon\icon.png" />
+        <MauiIcon Include="Resources\AppIcon\appicon.svg">
+          <ForegroundFile>Resources\AppIcon\appiconfg.svg</ForegroundFile>
+        </MauiIcon>
 
         <!-- Splash Screen -->
         <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
@@ -149,13 +151,6 @@
       <MauiXaml Update="Views\ServiceCaseSearchFilter.xaml">
         <Generator>MSBuild:Compile</Generator>
       </MauiXaml>
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Update="Resources\AppIcon\icon.png">
-        <Pack>True</Pack>
-        <PackagePath>\</PackagePath>
-      </None>
     </ItemGroup>
 
 </Project>
