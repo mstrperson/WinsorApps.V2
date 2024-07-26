@@ -179,16 +179,25 @@ namespace WinsorApps.Services.Global.Services
 
             if(!success)
             {
-                var newVersionFileJson = JsonSerializer.Serialize(_versionList);
-                File.WriteAllText(VersionFilePath, newVersionFileJson);
+                _versionList.UpdateApp(AppId);
+                _versionList_SaveRequested(this, EventArgs.Empty);
             }
 
+            _versionList.SaveRequested += _versionList_SaveRequested;
+
+            _ = _versionList[AppId];
 
             Allowed = await AmIAllowed(onError);
             UpdateAvailable = await CheckForUpdates();
             Group = await CheckAppStatus() ?? AppInstallerGroup.Default;
             Progress = 1;
             Ready = true;
+        }
+
+        private void _versionList_SaveRequested(object? sender, EventArgs e)
+        {
+            var newVersionFileJson = JsonSerializer.Serialize(_versionList);
+            File.WriteAllText(VersionFilePath, newVersionFileJson);
         }
 
         public async Task WaitForInit(ErrorAction onError)
@@ -210,8 +219,6 @@ namespace WinsorApps.Services.Global.Services
             set
             {
                 _versionList.UpdateApp(AppId);
-                var newVersionFileJson = JsonSerializer.Serialize(_versionList);
-                File.WriteAllText(VersionFilePath, newVersionFileJson);
             }
         }
     }

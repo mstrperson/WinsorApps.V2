@@ -31,6 +31,29 @@
                     Text="{Binding UserVM.DisplayName}"
                     StyleClass="Header"/>
                 </VerticalStackLayout>
+
+                <Border
+                StrokeThickness="3"
+                Margin="5,10,10,0"
+                Padding="0"
+                WidthRequest="300"
+                HeightRequest="60"
+                BackgroundColor="Gray"
+                IsVisible="{Binding UpdateAvailable}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="25,25,25,25"/>
+                    </Border.StrokeShape>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding DownloadLatestVersionCommand}"/>
+                    </Border.GestureRecognizers>
+                    <Label
+                    Text="Download Updated App!"
+                    FontSize="Small"
+                    IsVisible="{Binding UpdateAvailable}"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center" />
+                </Border>
+
                 <CollectionView 
                 ItemsSource="{Binding PostLoginServices}"
                 IsVisible="{Binding Ready, Converter={StaticResource Invert}}"

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Text.Json.Serialization;
 
 namespace WinsorApps.Services.Global.Models;
 
@@ -19,22 +20,39 @@ public readonly record struct AppInstallerAvailableRoles(string id, string appNa
 
 public readonly record struct AppVersionInstallDate(string appId, DateTime installedOn);
 
-public class AppVersionList(ImmutableArray<AppVersionInstallDate> installedVersions)
+[JsonSerializable(typeof(AppVersionList))]
+public class AppVersionList
 {
+    [JsonPropertyName("installedVersions")]
+    public ImmutableArray<AppVersionInstallDate> InstalledVersions { get; private set; } = [];
+
+    [JsonConstructor]
+    public AppVersionList(ImmutableArray<AppVersionInstallDate> installedVersions)
+    {
+        InstalledVersions = installedVersions;
+    }
+
+    public event EventHandler? SaveRequested;
+
+    [JsonIgnore]
     public AppVersionInstallDate this[string appId]
     {
         get
         {
-            if (!installedVersions.Any(app => app.appId == appId))
-                installedVersions = installedVersions.Add(new(appId, DateTime.Now));  // This app wasn't in the list so it must be newly installed.
+            if (!InstalledVersions.Any(app => app.appId == appId))
+            {
+                InstalledVersions = InstalledVersions.Add(new(appId, DateTime.Now));  // This app wasn't in the list so it must be newly installed.
+                SaveRequested?.Invoke(this, EventArgs.Empty);
+            }
 
-            return installedVersions.First(app => app.appId == appId);
+            return InstalledVersions.First(app => app.appId == appId);
         }
     }
 
     public void UpdateApp(string appId)
     {
         var app = this[appId];
-        installedVersions = installedVersions.Replace(app, new(appId, DateTime.Now));
+        InstalledVersions = InstalledVersions.Replace(app, new(appId, DateTime.Now));
+        SaveRequested?.Invoke(this, EventArgs.Empty);
     }
 }

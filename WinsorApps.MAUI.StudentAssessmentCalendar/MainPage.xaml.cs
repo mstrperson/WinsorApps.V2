@@ -23,8 +23,9 @@ public partial class MainPage : ContentPage
         [
             new(registrar, "Registrar Data"),
             new(studentService, "Assessments"),
-            new(cycleDays, "Cycle Days")
-        ], app, api)
+            new(cycleDays, "Cycle Days"),
+            new(app, "Checking for Updates")
+        ], app, api, logging)
         {
             AppId = "jKNAXlE8qzLx"
         };
@@ -48,8 +49,11 @@ public partial class MainPage : ContentPage
 
     private void Vm_OnCompleted(object? sender, EventArgs e)
     {
-        var page = ServiceHelper.GetService<MonthlyCalendar>();
-        Navigation.PushAsync(page);
+        if (!ViewModel.UpdateAvailable)
+        {
+            var page = ServiceHelper.GetService<MonthlyCalendar>();
+            Navigation.PushAsync(page);
+        }
     }
 
 }
