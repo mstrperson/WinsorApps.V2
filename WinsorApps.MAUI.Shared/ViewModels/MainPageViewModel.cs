@@ -146,7 +146,7 @@ public partial class MainPageViewModel : ObservableObject, IBusyViewModel, IErro
         string fileName = $"{_appService.Group.appName}.{type}";
 
         using MemoryStream ms = new(data);
-        var result = await FileSaver.Default.SaveAsync(fileName, ms);
+        var result = await FileSaver.Default.SaveAsync(_logging.DownloadsDirectory, fileName, ms);
         if(result.IsSuccessful)
         {
             _logging.LogMessage(LocalLoggingService.LogLevel.Information, "New Version Downloaded!");
