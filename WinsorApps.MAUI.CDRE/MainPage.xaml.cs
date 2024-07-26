@@ -1,4 +1,5 @@
 ﻿using AsyncAwaitBestPractices;
+using WinsorApps.MAUI.CDRE.Pages;
 using WinsorApps.MAUI.CDRE.ViewModels;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.Pages;
@@ -20,8 +21,9 @@ namespace WinsorApps.MAUI.CDRE
             MainPageViewModel vm = new(
             [
               new(registrar, "Registrar Data"),
-              new(cdres, "Recurring Events")
-            ], app, api)
+              new(cdres, "Recurring Events"),
+              new(app, "Checking for Updates")
+            ], app, api, logging)
             {
 
                 #region Service Post Init Tasks
@@ -45,6 +47,7 @@ namespace WinsorApps.MAUI.CDRE
 
             BindingContext = vm;
             vm.OnError += this.DefaultOnErrorHandler();
+            vm.OnCompleted += Vm_OnCompleted;
             LoginPage loginPage = new LoginPage(logging, vm.LoginVM);
             loginPage.OnLoginComplete += (_, _) =>
                 Navigation.PopAsync();
@@ -55,7 +58,15 @@ namespace WinsorApps.MAUI.CDRE
 
         }
 
-
+        public MainPageViewModel ViewModel => (MainPageViewModel)BindingContext;
+        private void Vm_OnCompleted(object? sender, EventArgs e)
+        {
+            if (!ViewModel.UpdateAvailable)
+            {
+                var page = ServiceHelper.GetService<EventsListPage>();
+                Navigation.PushAsync(page);
+            }
+        }
     }
 
 }

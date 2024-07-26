@@ -1,4 +1,5 @@
-﻿using WinsorApps.MAUI.Shared;
+﻿using WinsorApps.MAUI.EventForms.Pages;
+using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.EventForms.ViewModels;
 using WinsorApps.MAUI.Shared.Pages;
 using WinsorApps.MAUI.Shared.ViewModels;
@@ -34,9 +35,10 @@ public partial class MainPage : ContentPage
             new(contactService, "Contacts"),
             new(locationService, "Locations"),
             new(cateringMenuService, "Catering Services"),
-            new(theaterService, "Theater Services")
+            new(theaterService, "Theater Services"),
+            new(app, "Checking for Updates")
 
-        ], app, api)
+        ], app, api, logging)
         {
             Completion = [
                 new(new Task(async () => await EventFormViewModel.Initialize(eventForms, this.DefaultOnErrorAction())), "Event Forms Cache"),
@@ -67,5 +69,10 @@ public partial class MainPage : ContentPage
 
     private void Vm_OnCompleted(object? sender, EventArgs e)
     {
+        if (!ViewModel.UpdateAvailable)
+        {
+            var page = ServiceHelper.GetService<MyEventsList>();
+            Navigation.PushAsync(page);
+        }
     }
 }
