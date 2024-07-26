@@ -1,5 +1,7 @@
 ﻿using System.Collections.Immutable;
+using System.Text.Json;
 using WinsorApps.Services.Global.Models;
+using static WinsorApps.Services.Global.Services.LocalLoggingService;
 
 namespace WinsorApps.Services.Global.Services
 {
@@ -24,6 +26,8 @@ namespace WinsorApps.Services.Global.Services
         public AppInstallerGroup Group { get; private set; }
 
         public event EventHandler? AppNotAuthorized;
+
+        private AppVersionList _versionList = new([]);
 
         public AppService(ApiService api, LocalLoggingService logging)
         {
@@ -64,14 +68,14 @@ namespace WinsorApps.Services.Global.Services
             if (app.Value.availableDownloads.Any(version =>
                 version.arch == _logging.ValidArchitecture &&
                 version.contentType == _logging.ValidExecutableType &&
-                version.uploaded > _logging.LastVersionUpdated))
+                version.uploaded > LastVersionUpdated))
             {
                 var version = app.Value.availableDownloads.First(v =>
                                 v.arch == _logging.ValidArchitecture &&
                                 v.contentType == _logging.ValidExecutableType &&
-                                v.uploaded > _logging.LastVersionUpdated);
-                _logging.LogMessage(LocalLoggingService.LogLevel.Debug,
-                    $"Found version update: {version.uploaded:yyyy-MM-dd hh:mm tt} > {_logging.LastVersionUpdated:yyyy-MM-dd hh:mm tt}");
+                                v.uploaded > LastVersionUpdated);
+                _logging.LogMessage(LogLevel.Debug,
+                    $"Found version update: {version.uploaded:yyyy-MM-dd hh:mm tt} > {LastVersionUpdated:yyyy-MM-dd hh:mm tt}");
                 return true;
             }
 
@@ -87,14 +91,14 @@ namespace WinsorApps.Services.Global.Services
             if (app.Value.availableDownloads.Any(version =>
                 version.arch == _logging.ValidArchitecture &&
                 version.contentType == _logging.ValidExecutableType &&
-                version.uploaded > _logging.LastVersionUpdated))
+                version.uploaded > LastVersionUpdated))
             {
                 var version = app.Value.availableDownloads.First(v =>
                                 v.arch == _logging.ValidArchitecture &&
                                 v.contentType == _logging.ValidExecutableType &&
-                                v.uploaded > _logging.LastVersionUpdated);
-                _logging.LogMessage(LocalLoggingService.LogLevel.Debug,
-                    $"Found version update: {version.uploaded:yyyy-MM-dd hh:mm tt} > {_logging.LastVersionUpdated:yyyy-MM-dd hh:mm tt}");
+                                v.uploaded > LastVersionUpdated);
+                _logging.LogMessage(LogLevel.Debug,
+                    $"Found version update: {version.uploaded:yyyy-MM-dd hh:mm tt} > {LastVersionUpdated:yyyy-MM-dd hh:mm tt}");
                 onNewVersionAvailable((await DownloadLatestVersion(onError))!);
             }
         }
@@ -148,10 +152,38 @@ namespace WinsorApps.Services.Global.Services
 
         public async Task Initialize(ErrorAction onError)
         {
+
             while (string.IsNullOrEmpty(AppId))
                 await Task.Delay(250);
 
             Started = true;
+
+            bool success = false;
+            if (File.Exists(VersionFilePath))
+            {
+                var versionFileJson = File.ReadAllText(VersionFilePath);
+                try
+                {
+                    var list = JsonSerializer.Deserialize<AppVersionList>(versionFileJson);
+                    if(list is not null)
+                    {
+                        _versionList = list;
+                        success = true;
+                    }
+                }
+                catch(Exception ex) 
+                {
+                    ex.LogException(_logging);
+                }
+            }
+
+            if(!success)
+            {
+                var newVersionFileJson = JsonSerializer.Serialize(_versionList);
+                File.WriteAllText(VersionFilePath, newVersionFileJson);
+            }
+
+
             Allowed = await AmIAllowed(onError);
             UpdateAvailable = await CheckForUpdates();
             Group = await CheckAppStatus() ?? AppInstallerGroup.Default;
@@ -166,5 +198,21 @@ namespace WinsorApps.Services.Global.Services
         }
 
         public Task Refresh(ErrorAction onError) => Task.CompletedTask;
+
+        private string VersionFilePath => $"{AppDataPath}{Path.DirectorySeparatorChar}appVersionInstallDates.json";
+        public DateTime LastVersionUpdated
+        {
+            get
+            {
+                var version = _versionList[AppId];
+                return version.installedOn;
+            }
+            set
+            {
+                _versionList.UpdateApp(AppId);
+                var newVersionFileJson = JsonSerializer.Serialize(_versionList);
+                File.WriteAllText(VersionFilePath, newVersionFileJson);
+            }
+        }
     }
 }

@@ -150,7 +150,7 @@ public partial class MainPageViewModel : ObservableObject, IBusyViewModel, IErro
         if(result.IsSuccessful)
         {
             _logging.LogMessage(LocalLoggingService.LogLevel.Information, "New Version Downloaded!");
-            _logging.LastVersionUpdated = DateTime.Now;
+            _appService.LastVersionUpdated = DateTime.Now;
             BusyMessage = "The App will now Exit so  you can install the new version!";
             await Task.Delay(5000);
 

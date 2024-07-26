@@ -72,9 +72,6 @@ namespace WinsorApps.Services.Global.Services
 
             if (!Directory.Exists(AppDataPath)) { Directory.CreateDirectory(AppDataPath); }
 
-            if (LastVersionUpdated == DateTime.MinValue)
-                LastVersionUpdated = DateTime.Now;
-
             if(LogFileNames is null)
                 LogFileNames = new Dictionary<LogLevel, string>()
                 {
@@ -90,38 +87,8 @@ namespace WinsorApps.Services.Global.Services
             System.Runtime.InteropServices.Architecture.Arm64 ? 
             "arm64" : "x86-64";
 
-        private string VersionFilePath => $"{AppDataPath}{separator}version";
-        public DateTime LastVersionUpdated
-        {
-            get
-            {
-                try
-                {
-                    if (!File.Exists(VersionFilePath))
-                    {
-                        LogMessage(LogLevel.Debug, "Version File does not exist...");
-                        LastVersionUpdated = DateTime.Now;
-                    }
-                    return File.GetLastWriteTime(VersionFilePath);
-                }
-                catch(Exception ex)
-                {
-                    ex.LogException(this);
-                    return DateTime.MaxValue;
-                }
-            }
-            set
-            {
-                try
-                {
-                    File.WriteAllText(VersionFilePath, $"{value:F}");
-                }
-                catch(Exception ex )
-                {
-                    ex.LogException(this);
-                }
-            }
-        }
+        
+        
 
         public string AppStoragePath => 
             $"{AppDataPath}{separator}";

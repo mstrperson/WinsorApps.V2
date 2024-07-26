@@ -10,14 +10,16 @@ namespace WinsorApps.MAUI.Shared.ViewModels
     {
         private readonly LocalLoggingService _logging;
         private readonly ApiService _api;
+        private readonly AppService _app;
 
         public event EventHandler<ErrorRecord>? OnError;
 
-        public HelpPageViewModel(LocalLoggingService logging, ApiService api)
+        public HelpPageViewModel(LocalLoggingService logging, ApiService api, AppService app)
         {
             _logging = logging;
             _api = api;
             api.OnLoginSuccess += Api_OnLoginSuccess;
+            _app = app;
         }
 
         private void Api_OnLoginSuccess(object? sender, EventArgs e)
@@ -31,7 +33,7 @@ namespace WinsorApps.MAUI.Shared.ViewModels
         [ObservableProperty] private UserViewModel loggedInUser = UserViewModel.Default;
 
         public string StoragePath => _logging.AppStoragePath;
-        public DateTime LastUpdated => _logging.LastVersionUpdated;
+        public DateTime LastUpdated => _app.LastVersionUpdated;
         public string Architecture => _logging.ValidArchitecture;
 
 
