@@ -3,6 +3,7 @@
 
 using AsyncAwaitBestPractices;
 using System.Net;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using WinsorApps.Services.Global.Models;
@@ -394,6 +395,34 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
         var message = await response.Content.ReadAsStringAsync();
 
         return message;
+    }
+
+    public async Task<DocumentHeader?> UploadDocument(string endpoint, DocumentHeader header, byte[] fileContent, ErrorAction onError, bool isReAuth = false)
+    {
+        using var request = await BuildRequest(HttpMethod.Post, endpoint);
+        using MemoryStream ms = new(fileContent);
+        var content = new MultipartFormDataContent
+        {
+            {
+                new StreamContent(ms),
+                "file",
+                header.fileName
+            }
+        };
+
+        var response = await client.SendAsync(request); 
+        
+        if (!response.IsSuccessStatusCode)
+        {
+            if (!isReAuth && response.StatusCode == System.Net.HttpStatusCode.Unauthorized &&
+                AuthorizedUser is not null)
+            {
+                await RenewTokenAsync(onError: onError);
+                return await UploadDocument(endpoint, header, fileContent, onError, true);
+            }
+        }
+
+        return await ProcessHttpResponse<DocumentHeader>(response, onError);
     }
 
     public async Task<Stream> DownloadStream(string endpoint, string jsonContent = "", bool authorize = true,

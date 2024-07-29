@@ -43,12 +43,50 @@ public partial class EventFormsService
         return success;
     }
 
+    public async Task<byte[]> DownloadAttachment(string documentId, ErrorAction onError)
+    {
+        var result = await _api.DownloadFile($"api/events/attachments/{documentId}", onError: onError);
+        _logging.LogMessage(Global.Services.LocalLoggingService.LogLevel.Information,
+            $"Downloading attachment {documentId} yielded {result.Length} bytes");
+        return result;
+    }
+
+    public async Task<bool> DeleteAttachment(string eventId, string documentId, ErrorAction onError)
+    {
+        bool success = true;
+
+        await _api.SendAsync(HttpMethod.Delete, $"api/events/{eventId}/attachments/{documentId}", onError: 
+            err =>
+            {
+                success = false; 
+                onError(err);
+            });
+
+        if (success)
+            _logging.LogMessage(Global.Services.LocalLoggingService.LogLevel.Information, $"Deleted Attachment {documentId} from event {eventId}.");
+
+        return success;
+    }
+
+    public async Task<DocumentHeader?> UploadAttachment(string eventId, DocumentHeader header, byte[] fileContent, ErrorAction onError)
+    {
+        var result = await _api.UploadDocument($"api/events/{eventId}/file-upload", header, fileContent, onError);
+
+        if(result.HasValue)
+        {
+            _logging.LogMessage(Global.Services.LocalLoggingService.LogLevel.Information,
+                $"Uploaded {header.fileName} to event {eventId}.");
+        }
+
+        return result;
+    }
+
     public async Task<byte[]> GetTheaterAttachement(string eventId, string documentId, ErrorAction onError) => await _api.DownloadFile($"api/events/{eventId}/theater/documents/{documentId}", onError: onError);
     
-    public async Task<bool> PostTheaterAttachment(string eventId, DocumentHeader header, byte[] fileContent, ErrorAction onError)
+    public async Task<DocumentHeader?> PostTheaterAttachment(string eventId, DocumentHeader header, byte[] fileContent, ErrorAction onError)
     {
         // TODO: fix the API Endpoint...
 
-        return false;
+        return new();
     }
 }

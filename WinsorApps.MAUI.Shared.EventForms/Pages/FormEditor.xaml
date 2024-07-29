@@ -318,6 +318,57 @@
                 <StackLayout
                     IsVisible="{Binding CanEditSubForms}"
                     Orientation="Vertical">
+                    <!-- Attachments -->
+                    <CollectionView
+                        ItemsSource="{Binding Attachments.Attachments}">
+                        <CollectionView.Header>
+                            <VerticalStackLayout>
+                                <HorizontalStackLayout
+                                    Spacing="30">
+                                    <Label 
+                                        StyleClass="SubHeader"
+                                        Text="Attachments" />
+                                    <Image
+                                        StyleClass="AddButton">
+                                        <Image.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Attachments.UploadAttachmentCommand}" />
+                                        </Image.GestureRecognizers>
+                                    </Image>
+                                </HorizontalStackLayout>
+                                <HorizontalStackLayout
+                                    IsVisible="{Binding Attachments.Busy}">
+                                    <Label 
+                                        StyleClass="H3"
+                                        Text="{Binding Attachments.BusyMessage}" />
+                                    <Image
+                                        StyleClass="loading_symbol" />
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </CollectionView.Header>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:AttachmentViewModel">
+                                <HorizontalStackLayout
+                                    Spacing="30">
+                                    <Label Text="{Binding FileName}">
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding DownloadCommand}" />
+                                        </Label.GestureRecognizers>
+                                    </Label>
+                                    <Image
+                                        StyleClass="DeleteButton">
+                                        <Image.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding DeleteCommand}" />
+                                        </Image.GestureRecognizers>
+                                    </Image>
+                                    <Label Text="{Binding BusyMessage}"
+                                           IsVisible="{Binding Busy}" />
+                                    <Image
+                                        StyleClass="loading_symbol"
+                                        IsVisible="{Binding Busy}" />
+                                </HorizontalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
                     <BoxView StyleClass="Bar" />
                     <Button
                         Text="Edit Field Trip Details"

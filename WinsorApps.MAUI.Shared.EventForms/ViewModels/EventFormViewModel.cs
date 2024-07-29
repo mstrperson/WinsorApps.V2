@@ -46,7 +46,7 @@ public partial class EventFormViewModel :
     [ObservableProperty] ObservableCollection<LocationViewModel> selectedCustomLocations = [];
     [ObservableProperty] LocationSearchViewModel customLocationSearch = new() { SelectionMode = SelectionMode.Single, CustomLocations=true };
 
-    [ObservableProperty] ImmutableArray<DocumentViewModel> attachments = [];
+    [ObservableProperty] AttachmentCollectionViewModel attachments = new();
     [ObservableProperty] FacilitesEventViewModel facilites = new();
     [ObservableProperty] bool hasFacilities;
     [ObservableProperty] TechEventViewModel tech = new();
@@ -269,6 +269,7 @@ public partial class EventFormViewModel :
             Id = result.Value.id;
             IsFieldTrip = result.Value.type.StartsWith("Field", StringComparison.InvariantCultureIgnoreCase);
             StatusSelection.Select(result.Value.status);
+            Attachments = new(result.Value);
         }
 
         Busy = false;
@@ -289,7 +290,6 @@ public partial class EventFormViewModel :
         };
         clone.PreapprovalDate = DateTime.Today;
         clone.AttendeeCount = AttendeeCount;
-        clone.Attachments = [];
         clone.Creator = Creator.Clone();
         clone.StartTime = StartTime;
         clone.EndTime = EndTime;
@@ -310,7 +310,7 @@ public partial class EventFormViewModel :
         clone.Model = new();
         clone.StatusSelection.Select("Draft");
         clone.HasLoadedOnce = false;
-        clone.StartDate = DateTime.Today.AddDays(21);
+        clone.StartDate = StartDate < DateTime.Today.AddMonths(-1) ? StartDate.AddYears(1) : StartDate.AddDays(7);
         clone.EndDate = clone.StartDate.Add(EndDate - StartDate).Date;
         clone.Leader = LeaderSearch.Selected;
         
@@ -739,7 +739,8 @@ public partial class EventFormViewModel :
 
         if (model.attachments.HasValue)
         {
-            vm.Attachments = model.attachments.Value.Select(header => new DocumentViewModel(header)).ToImmutableArray();
+            vm.Attachments = new(model);
+            vm.Attachments.OnError += (sender, e) => vm.OnError?.Invoke(sender, e);
         }
 
         return vm.Clone();
