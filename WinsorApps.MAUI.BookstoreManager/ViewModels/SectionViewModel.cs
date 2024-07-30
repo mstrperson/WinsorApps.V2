@@ -24,8 +24,8 @@ public partial class SectionViewModel :
 
     [ObservableProperty] string id = "";
     [ObservableProperty] string schoolYearId = "";
-    [ObservableProperty] CourseViewModel course = CourseViewModel.Default;
-    [ObservableProperty] UserViewModel teacher = UserViewModel.Default;
+    [ObservableProperty] CourseViewModel course = CourseViewModel.Empty;
+    [ObservableProperty] UserViewModel teacher = UserViewModel.Empty;
     [ObservableProperty] DateTime created;
     [ObservableProperty] ImmutableArray<BookRequestOptionGroupViewModel> requestGroups = [];
 
@@ -73,7 +73,7 @@ public partial class SectionViewModel :
 
     public static ConcurrentBag<SectionViewModel> ViewModelCache { get; private set; } = [];
 
-    public static SectionViewModel Default => new();
+    public static SectionViewModel Empty => new();
 
     public static SectionViewModel Get(SectionRecord model)
     {
@@ -148,7 +148,7 @@ public partial class SectionByTeacherCollectionViewModel :
         };
     }
 
-    [ObservableProperty] UserViewModel teacher = UserViewModel.Default;
+    [ObservableProperty] UserViewModel teacher = UserViewModel.Empty;
     [ObservableProperty] ImmutableArray<SectionViewModel> sections = [];
 
     public static ConcurrentBag<SectionByTeacherCollectionViewModel> ViewModelCache { get; private set; } = [];

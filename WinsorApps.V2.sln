@@ -48,9 +48,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinsorApps.MAUI.EventForms"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinsorApps.MAUI.StudentBookstore", "WinsorApps.MAUI.StudentBookstore\WinsorApps.MAUI.StudentBookstore.csproj", "{6CB19BCA-0CA7-4649-93BB-183298D8FC28}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinsorApps.MAUI.Shared.AssessmentCalendar", "WinsorApps.MAUI.Shared.AssessmentCalendar\WinsorApps.MAUI.Shared.AssessmentCalendar.csproj", "{7C0940B3-4AE9-48C5-A51F-19EA5A169732}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinsorApps.MAUI.Shared.AssessmentCalendar", "WinsorApps.MAUI.Shared.AssessmentCalendar\WinsorApps.MAUI.Shared.AssessmentCalendar.csproj", "{7C0940B3-4AE9-48C5-A51F-19EA5A169732}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinsorApps.MAUI.StudentAssessmentCalendar", "WinsorApps.MAUI.StudentAssessmentCalendar\WinsorApps.MAUI.StudentAssessmentCalendar.csproj", "{C6F5F881-0EC6-4385-96A7-8B1ED0F6BDD4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinsorApps.MAUI.StudentAssessmentCalendar", "WinsorApps.MAUI.StudentAssessmentCalendar\WinsorApps.MAUI.StudentAssessmentCalendar.csproj", "{C6F5F881-0EC6-4385-96A7-8B1ED0F6BDD4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinsorApps.MAUI.TeacherAssessmentCalendar", "WinsorApps.MAUI.TeacherAssessmentCalendar\WinsorApps.MAUI.TeacherAssessmentCalendar.csproj", "{FEFD19F2-5EE2-4750-8B92-3FFB5BBF8C09}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -140,6 +142,12 @@ Global
 		{C6F5F881-0EC6-4385-96A7-8B1ED0F6BDD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C6F5F881-0EC6-4385-96A7-8B1ED0F6BDD4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C6F5F881-0EC6-4385-96A7-8B1ED0F6BDD4}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{FEFD19F2-5EE2-4750-8B92-3FFB5BBF8C09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEFD19F2-5EE2-4750-8B92-3FFB5BBF8C09}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEFD19F2-5EE2-4750-8B92-3FFB5BBF8C09}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{FEFD19F2-5EE2-4750-8B92-3FFB5BBF8C09}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEFD19F2-5EE2-4750-8B92-3FFB5BBF8C09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FEFD19F2-5EE2-4750-8B92-3FFB5BBF8C09}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -164,6 +172,7 @@ Global
 		{6CB19BCA-0CA7-4649-93BB-183298D8FC28} = {FC3004BF-B329-4BCE-BDE9-ED055008E277}
 		{7C0940B3-4AE9-48C5-A51F-19EA5A169732} = {F1AE28A1-24F3-435A-80FB-66D3688D054B}
 		{C6F5F881-0EC6-4385-96A7-8B1ED0F6BDD4} = {FC3004BF-B329-4BCE-BDE9-ED055008E277}
+		{FEFD19F2-5EE2-4750-8B92-3FFB5BBF8C09} = {FC3004BF-B329-4BCE-BDE9-ED055008E277}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {93BB8C21-5802-4E69-B338-B7EA30A80BFD}

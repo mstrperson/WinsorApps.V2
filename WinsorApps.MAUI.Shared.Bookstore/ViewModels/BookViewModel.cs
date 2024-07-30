@@ -57,7 +57,7 @@ public partial class BookViewModel :
 
     public static ConcurrentBag<BookViewModel> ViewModelCache { get; private set; } = [];
 
-    public static BookViewModel Default => new();
+    public static BookViewModel Empty => new();
 
     public BookViewModel()
     {

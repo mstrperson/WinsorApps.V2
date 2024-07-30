@@ -6,7 +6,6 @@ using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Global.Services;
 using WinsorApps.Services.Bookstore.Services;
 using WinsorApps.MAUI.Shared.Bookstore.ViewModels;
-using System.Runtime.CompilerServices;
 using WinsorApps.MAUI.StudentBookstore.Pages;
 
 namespace WinsorApps.MAUI.StudentBookstore

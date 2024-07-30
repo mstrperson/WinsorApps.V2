@@ -4,7 +4,6 @@ using CommunityToolkit.Mvvm.Input;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Data;
-using System.Runtime.CompilerServices;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.EventForms.Services;
@@ -34,7 +33,7 @@ public partial class CateringEventViewModel :
     [ObservableProperty] string busyMessage = "Working";
     [ObservableProperty] private bool hasLoaded;
 
-    public static CateringEventViewModel Default => new();
+    public static CateringEventViewModel Empty => new();
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler? ReadyToContinue;
@@ -125,13 +124,13 @@ public partial class CateringMenuSelectionViewModel :
     ISelectable<CateringMenuSelectionViewModel>,
     IErrorHandling
 {
-    [ObservableProperty] CateringMenuItemViewModel item = CateringMenuItemViewModel.Default;
+    [ObservableProperty] CateringMenuItemViewModel item = CateringMenuItemViewModel.Empty;
     [ObservableProperty] int quantity;
     [ObservableProperty] double cost;
 
     [ObservableProperty] bool isSelected;
 
-    public static CateringMenuSelectionViewModel Default => new();
+    public static CateringMenuSelectionViewModel Empty => new();
 
     public event EventHandler<CateringMenuSelectionViewModel>? Selected;
     public event EventHandler<ErrorRecord>? OnError;
@@ -165,7 +164,7 @@ public partial class CateringMenuSelectionViewModel :
     {
         var item = CateringMenuItemViewModel.ViewModelCache.FirstOrDefault(item => item.Id == selection.itemId);
         if(item is null)
-            return CateringMenuSelectionViewModel.Default;
+            return CateringMenuSelectionViewModel.Empty;
 
         return new() { Item = item, Quantity = selection.quantity, Cost = selection.quantity * item.PricePerPerson };
     }
@@ -396,7 +395,7 @@ public partial class CateringMenuItemViewModel :
 
     public static ConcurrentBag<CateringMenuItemViewModel> ViewModelCache { get; protected set; } = [];
 
-    public static CateringMenuItemViewModel Default => new();
+    public static CateringMenuItemViewModel Empty => new();
 
     public static CateringMenuItemViewModel Get(CateringMenuItem model)
     {
@@ -462,7 +461,7 @@ public partial class CateringMenuCategoryViewModel :
 
     public static ConcurrentBag<CateringMenuCategoryViewModel> ViewModelCache { get; protected set; } = [];
 
-    public static CateringMenuCategoryViewModel Default => new();
+    public static CateringMenuCategoryViewModel Empty => new();
 
     public static CateringMenuCategoryViewModel Get(CateringMenuCategory model)
     {

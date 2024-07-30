@@ -55,13 +55,13 @@ public partial class BookOrderOptionViewModel :
 
     public static ConcurrentBag<BookOrderOptionViewModel> ViewModelCache { get; private set; } = [];
     private static BookService BookService => ServiceHelper.GetService<BookService>();
-    public static BookOrderOptionViewModel Default => Get(BookService.OrderOptions.First());
+    public static BookOrderOptionViewModel Empty => Get(BookService.OrderOptions.First());
 
     public static BookOrderOptionViewModel Get(string option)
     {
         var orderOption = BookService.OrderOptions.FirstOrDefault(opt => opt.label.Equals(option, StringComparison.InvariantCultureIgnoreCase));
         if (string.IsNullOrEmpty(orderOption.id))
-            return Default;
+            return Empty;
         return Get(orderOption);
     }
 

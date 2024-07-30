@@ -1,12 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Maui.Controls;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.EventForms.Services;
-using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.MAUI.Shared.EventForms.ViewModels;
@@ -110,7 +108,7 @@ public partial class MarCommEventViewModel :
         HasLoaded = true;
     }
 
-    public static MarCommEventViewModel Default => new();
+    public static MarCommEventViewModel Empty => new();
 
     public event EventHandler? ReadyToContinue;
     public event EventHandler? Deleted;

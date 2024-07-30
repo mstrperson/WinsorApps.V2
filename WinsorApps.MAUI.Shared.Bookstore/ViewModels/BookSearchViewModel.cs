@@ -36,7 +36,7 @@ public partial class BookSearchViewModel :
     [ObservableProperty]
     private ObservableCollection<BookViewModel> allSelected = [];
     [ObservableProperty]
-    private BookViewModel selected = BookViewModel.Default;
+    private BookViewModel selected = BookViewModel.Empty;
     [ObservableProperty]
     private SelectionMode selectionMode = SelectionMode.Multiple;
     [ObservableProperty]

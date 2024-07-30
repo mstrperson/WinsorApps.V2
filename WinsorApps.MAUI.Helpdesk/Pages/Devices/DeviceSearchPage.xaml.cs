@@ -22,7 +22,7 @@ public partial class DeviceSearchPage : ContentPage
 
     private void ViewModel_OnZeroResults(object? sender, EventArgs e)
     {
-		var vm = DeviceViewModel.Default;
+		var vm = DeviceViewModel.Empty;
 		vm.SerialNumber = ViewModel.SearchText;
 		vm.OnError += this.DefaultOnErrorHandler();
 		vm.Selected += ViewModel_OnSingleResult;

@@ -31,7 +31,7 @@ public partial class CourseViewModel :
 
     public static ConcurrentBag<CourseViewModel> ViewModelCache { get; protected set; } = [];
 
-    public static CourseViewModel Default => new();
+    public static CourseViewModel Empty => new();
 
     [ObservableProperty]
     public bool isSelected;
@@ -137,7 +137,7 @@ public partial class CourseListViewModel :
     private ObservableCollection<CourseViewModel> options = [];
 
     [ObservableProperty]
-    private CourseViewModel selected = CourseViewModel.Default;
+    private CourseViewModel selected = CourseViewModel.Empty;
     [ObservableProperty]
     private SelectionMode selectionMode = SelectionMode.Single;
     [ObservableProperty]
@@ -147,7 +147,7 @@ public partial class CourseListViewModel :
     [ObservableProperty]
     private bool showOptions;
 
-    public static CourseListViewModel Default => CourseListViewModel.Default;
+    public static CourseListViewModel Empty => new();
 
     public event EventHandler<ObservableCollection<CourseViewModel>>? OnMultipleResult;
     public event EventHandler<CourseViewModel>? OnSingleResult;
@@ -193,11 +193,11 @@ public partial class SectionViewModel :
     [ObservableProperty] string room = "";
     [ObservableProperty] string block = "";
     [ObservableProperty] string term = "";
-    [ObservableProperty] UserViewModel primaryTeacher = UserViewModel.Default;
+    [ObservableProperty] UserViewModel primaryTeacher = UserViewModel.Empty;
 
     public static ConcurrentBag<SectionViewModel> ViewModelCache { get; private set; } = [];
 
-    public static SectionViewModel Default => new();
+    public static SectionViewModel Empty => new();
 
     [ObservableProperty] private ImmutableArray<UserViewModel> teachers = [];
 

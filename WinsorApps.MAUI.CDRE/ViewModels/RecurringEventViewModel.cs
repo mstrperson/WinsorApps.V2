@@ -203,7 +203,7 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         #region ICachedViewModel stuff
         public static ConcurrentBag<RecurringEventViewModel> ViewModelCache { get; private set; } = [];
 
-        public static RecurringEventViewModel Default => new();
+        public static RecurringEventViewModel Empty => new();
 
         public static RecurringEventViewModel Get(CycleDayRecurringEvent model)
         {

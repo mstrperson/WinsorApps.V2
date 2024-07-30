@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.ViewModels;
@@ -16,7 +15,7 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         [ObservableProperty]
         private ObservableCollection<RecurringEventViewModel> options = [];
         [ObservableProperty]
-        private RecurringEventViewModel selected = RecurringEventViewModel.Default;
+        private RecurringEventViewModel selected = RecurringEventViewModel.Empty;
         [ObservableProperty]
         private SelectionMode selectionMode = SelectionMode.Single;
         [ObservableProperty]

@@ -23,7 +23,7 @@ public partial class DeviceViewModel :
     public override string ToString() => DisplayName;
     public static ConcurrentBag<DeviceViewModel> ViewModelCache { get; private set; } = [];
 
-    public static DeviceViewModel Default => new();
+    public static DeviceViewModel Empty => new();
 
     public DeviceViewModel Clone() => (DeviceViewModel)this.MemberwiseClone();
 
@@ -32,7 +32,7 @@ public partial class DeviceViewModel :
 
     [ObservableProperty] private string id;
     [ObservableProperty] private string serialNumber;
-    [ObservableProperty] private UserViewModel owner = UserViewModel.Default;
+    [ObservableProperty] private UserViewModel owner = UserViewModel.Empty;
     [ObservableProperty] private bool unicorn;
     [ObservableProperty] private DateTime firstSeen;
     [ObservableProperty] private bool isActive;

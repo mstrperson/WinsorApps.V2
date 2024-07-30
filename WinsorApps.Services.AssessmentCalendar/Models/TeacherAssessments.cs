@@ -60,5 +60,5 @@ public readonly record struct AssessmentConflictRecord(string studentId, Immutab
     /// <param name="id">Assessment Id (use this when requesting a pass)</param>
     /// <param name="note">Teacher note about the assessment.</param>
     /// <param name="assessments">Details for each section of the class doing this assessment.</param>
-    public readonly record struct AssessmentGroup(string id, string course, string note,
+    public readonly record struct AssessmentGroup(string id, string course, string courseId, string note,
         ImmutableArray<AssessmentEntryShort> assessments);

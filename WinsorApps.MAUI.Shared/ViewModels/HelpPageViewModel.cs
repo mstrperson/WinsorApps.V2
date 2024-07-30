@@ -30,7 +30,7 @@ namespace WinsorApps.MAUI.Shared.ViewModels
         [ObservableProperty] private ImmutableArray<ServiceAwaiterViewModel> services = [];
         [ObservableProperty] private DateTime logStart = DateTime.Today.AddDays(-14);
         [ObservableProperty] private DateTime logEnd = DateTime.Today.AddDays(1);
-        [ObservableProperty] private UserViewModel loggedInUser = UserViewModel.Default;
+        [ObservableProperty] private UserViewModel loggedInUser = UserViewModel.Empty;
 
         public string StoragePath => _logging.AppStoragePath;
         public DateTime LastUpdated => _app.LastVersionUpdated;

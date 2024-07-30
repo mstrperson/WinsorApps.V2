@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Concurrent;
-using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Models;
@@ -30,7 +29,7 @@ public partial class ContactViewModel :
     [ObservableProperty] string lastName = "";
     [ObservableProperty] string email = "";
     [ObservableProperty] string phone = "";
-    [ObservableProperty] UserViewModel associatedUser = UserViewModel.Default;
+    [ObservableProperty] UserViewModel associatedUser = UserViewModel.Empty;
     [ObservableProperty] bool isPublic;
     [ObservableProperty] bool isSelected;
 
@@ -52,7 +51,7 @@ public partial class ContactViewModel :
     
     public static ConcurrentBag<ContactViewModel> ViewModelCache { get; private set; } = [];
 
-    public static ContactViewModel Default => new();
+    public static ContactViewModel Empty => new();
 
     public Contact Model { get; private set; }
 
@@ -127,13 +126,13 @@ public partial class ContactSearchViewModel :
     [ObservableProperty] ObservableCollection<ContactViewModel> available = [];
     [ObservableProperty] ObservableCollection<ContactViewModel> allSelected = [];
     [ObservableProperty] ObservableCollection<ContactViewModel> options = [];
-    [ObservableProperty] ContactViewModel selected = ContactViewModel.Default;
+    [ObservableProperty] ContactViewModel selected = ContactViewModel.Empty;
     [ObservableProperty] SelectionMode selectionMode = SelectionMode.Single;
     [ObservableProperty] string searchText = "";
     [ObservableProperty] bool isSelected;
     [ObservableProperty] bool showOptions;
     [ObservableProperty] bool showCreate;
-    [ObservableProperty] ContactViewModel newItem = ContactViewModel.Default;
+    [ObservableProperty] ContactViewModel newItem = ContactViewModel.Empty;
 
     public event EventHandler<ObservableCollection<ContactViewModel>>? OnMultipleResult;
     public event EventHandler<ContactViewModel>? OnSingleResult;
@@ -205,7 +204,7 @@ public partial class ContactSearchViewModel :
                 if (Options.Count == 0)
                 {
                     ShowOptions = false;
-                    Selected = ContactViewModel.Default;
+                    Selected = ContactViewModel.Empty;
                     IsSelected = false;
                     return;
                 }
@@ -221,7 +220,7 @@ public partial class ContactSearchViewModel :
                 }
 
                 ShowOptions = true;
-                Selected = ContactViewModel.Default;
+                Selected = ContactViewModel.Empty;
                 IsSelected = false;
                 return;
             default: return;
@@ -232,7 +231,7 @@ public partial class ContactSearchViewModel :
     public void ClearSelection()
     {
         IsSelected = false;
-        Selected = ContactViewModel.Default;
+        Selected = ContactViewModel.Empty;
         AllSelected = [];
         Options = [];
         ShowOptions = false;
@@ -246,7 +245,7 @@ public partial class ContactSearchViewModel :
         switch (SelectionMode)
         {
             case SelectionMode.Single:
-                Selected = Available.FirstOrDefault(contact => contact.Id == e.Id) ?? ContactViewModel.Default;
+                Selected = Available.FirstOrDefault(contact => contact.Id == e.Id) ?? ContactViewModel.Empty;
                 IsSelected = string.IsNullOrEmpty(Selected.Id);
                 Options = [];
                 ShowOptions = false;

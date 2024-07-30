@@ -1,3 +1,4 @@
+using AsyncAwaitBestPractices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using WinsorApps.Services.Global.Models;
@@ -60,7 +61,7 @@ public partial class LoginViewModel :
         password = "";
         statusMessage = _api.Ready ? "Login Successful" : Busy ? "Waiting for Auto Login" : "Please Log In";
         isLoggedIn = _api.Ready;
-        
+        WaitForAutoLogin().SafeFireAndForget(e => e.LogException());
     }
 
     private async Task WaitForAutoLogin()

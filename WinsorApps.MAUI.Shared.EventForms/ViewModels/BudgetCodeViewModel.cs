@@ -33,7 +33,7 @@ public partial class BudgetCodeViewModel :
 
     public bool Refreshing => false;
 
-    public static BudgetCodeViewModel Default => new();
+    public static BudgetCodeViewModel Empty => new();
 
     
 
@@ -112,7 +112,7 @@ public partial class BudgetCodeSearchViewModel :
     [ObservableProperty]
     private ObservableCollection<BudgetCodeViewModel> options  = [];
     [ObservableProperty]
-    private BudgetCodeViewModel selected = BudgetCodeViewModel.Default;
+    private BudgetCodeViewModel selected = BudgetCodeViewModel.Empty;
     [ObservableProperty]
     private SelectionMode selectionMode = SelectionMode.Single;
     [ObservableProperty]
@@ -225,7 +225,7 @@ public partial class BudgetCodeSearchViewModel :
                     return;
                 }
 
-                Selected = BudgetCodeViewModel.Default;
+                Selected = BudgetCodeViewModel.Empty;
                 IsSelected = false;
 
                 if (possible.Length == 0)

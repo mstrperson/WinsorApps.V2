@@ -1,5 +1,4 @@
-﻿global using ErrorAction = System.Action<WinsorApps.Services.Global.Models.ErrorRecord>;
-using CommunityToolkit.Maui.Core;
+﻿using CommunityToolkit.Maui.Core;
 using Microsoft.Extensions.Logging;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.Services.Global.Services;

@@ -38,7 +38,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
 
         public static ConcurrentBag<CheckoutSearchResultViewModel> ViewModelCache { get; private set; } = [];
 
-        public static CheckoutSearchResultViewModel Default => new();
+        public static CheckoutSearchResultViewModel Empty => new();
 
         public event EventHandler<ErrorRecord>? OnError;
         public event EventHandler<CheckoutSearchResultViewModel>? OnSelected;
@@ -48,7 +48,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         {
             _searchResult = new();
             _cheqroom = ServiceHelper.GetService<CheqroomService>();
-            user = UserViewModel.Default;
+            user = UserViewModel.Empty;
             style = [];
             status = "";
         }

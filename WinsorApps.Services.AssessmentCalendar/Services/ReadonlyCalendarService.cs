@@ -7,7 +7,7 @@ using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.Services.AssessmentCalendar.Services;
 
-public class ReadonlyCalendarService :
+public partial class ReadonlyCalendarService :
     IAsyncInitService
 {
     private readonly ApiService _api;

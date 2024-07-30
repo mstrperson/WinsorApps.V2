@@ -1,5 +1,4 @@
 using WinsorApps.MAUI.StudentBookstore.ViewModels;
-using WinsorApps.MAUI.Shared;
 
 namespace WinsorApps.MAUI.StudentBookstore.Pages;
 

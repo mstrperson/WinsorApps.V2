@@ -65,7 +65,7 @@ public partial class UserViewModel :
     [ObservableProperty] private string displayName;
     public string Email => Model.email;
 
-    public static UserViewModel Default => new();
+    public static UserViewModel Empty => new();
 
     [ObservableProperty] private ImmutableArray<SectionViewModel> academicSchedule = [];
     [ObservableProperty] private bool showButton = false;

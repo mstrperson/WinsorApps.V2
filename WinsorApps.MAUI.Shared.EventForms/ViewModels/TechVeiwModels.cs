@@ -26,7 +26,7 @@ public partial class TechEventViewModel :
     [ObservableProperty] bool helpRequested;
     [ObservableProperty] string details = "";
     [ObservableProperty] bool isVirtual;
-    [ObservableProperty] VirtualEventViewModel virtualEvent = VirtualEventViewModel.Default;
+    [ObservableProperty] VirtualEventViewModel virtualEvent = VirtualEventViewModel.Empty;
     [ObservableProperty] private bool hasLoaded;
 
     [ObservableProperty] bool busy;
@@ -54,7 +54,7 @@ public partial class TechEventViewModel :
         VirtualEvent.Deleted += (_, _) =>
         {
             IsVirtual = false;
-            VirtualEvent = VirtualEventViewModel.Default;
+            VirtualEvent = VirtualEventViewModel.Empty;
         };
     }
     public void Clear()
@@ -100,7 +100,7 @@ public partial class TechEventViewModel :
             vm.IsVirtual ? (NewVirtualEvent)vm.VirtualEvent : null
         );
 
-    public static TechEventViewModel Default => new();
+    public static TechEventViewModel Empty => new();
 
     public event EventHandler? ReadyToContinue;
     public event EventHandler? Deleted;
@@ -150,7 +150,7 @@ public partial class VirtualEventViewModel :
     [ObservableProperty] bool getZoomLink;
     [ObservableProperty] bool qaSupport;
     [ObservableProperty] string qASupportPerson = "";
-    [ObservableProperty] ContactViewModel hostContact = ContactViewModel.Default;
+    [ObservableProperty] ContactViewModel hostContact = ContactViewModel.Empty;
     [ObservableProperty] bool showPanelits;
     [ObservableProperty] ContactSearchViewModel panelistSearch = new() { SelectionMode = SelectionMode.Single };
     [ObservableProperty] ObservableCollection<ContactViewModel> panelists = [];
@@ -276,7 +276,7 @@ public partial class VirtualEventViewModel :
             vm.HostContact.Id,
             vm.Panelists.Select(pan => pan.Id).ToImmutableArray()
         );
-    public static VirtualEventViewModel Default => new();
+    public static VirtualEventViewModel Empty => new();
 }
 
 

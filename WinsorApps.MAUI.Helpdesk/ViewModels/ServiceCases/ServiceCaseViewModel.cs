@@ -67,7 +67,7 @@ public partial class ServiceCaseViewModel :
         Owner.GetPhoto().SafeFireAndForget(e => e.LogException());
         this.Device = DeviceViewModel.Get(serviceCase.device);
         Loaner =
-            DeviceViewModel.Default;
+            DeviceViewModel.Empty;
         if(!string.IsNullOrEmpty(serviceCase.loaner))
         {
             var l = _deviceService.Loaners.FirstOrDefault(dev => dev.winsorDevice.HasValue && dev.winsorDevice.Value.assetTag == serviceCase.loaner);
@@ -92,9 +92,9 @@ public partial class ServiceCaseViewModel :
 
     [ObservableProperty] private string id = "";
 
-    [ObservableProperty] private DeviceViewModel device = DeviceViewModel.Default;
+    [ObservableProperty] private DeviceViewModel device = DeviceViewModel.Empty;
 
-    [ObservableProperty] private UserViewModel owner = UserViewModel.Default;
+    [ObservableProperty] private UserViewModel owner = UserViewModel.Empty;
 
     [ObservableProperty] private CommonIssueSelectionViewModel commonIssues = new();
     [ObservableProperty] private string intakeNotes = "";
@@ -104,7 +104,7 @@ public partial class ServiceCaseViewModel :
     [ObservableProperty] private ServiceStatusSearchViewModel statusSearch = new();
     [ObservableProperty] private ImmutableArray<DocumentViewModel> attachedDocuments = [];
     [ObservableProperty] private double repairCost = 0;
-    [ObservableProperty] private DeviceViewModel loaner = DeviceViewModel.Default;
+    [ObservableProperty] private DeviceViewModel loaner = DeviceViewModel.Empty;
     [ObservableProperty] private bool loanerSelected;
     [ObservableProperty] private bool isSelected;
     [ObservableProperty] private bool working;
@@ -123,7 +123,7 @@ public partial class ServiceCaseViewModel :
 
     public static ConcurrentBag<ServiceCaseViewModel> ViewModelCache { get; private set; } = [];
 
-    public static ServiceCaseViewModel Default => new();
+    public static ServiceCaseViewModel Empty => new();
 
     [RelayCommand]
     public void SetLoaner(DeviceViewModel loaner)
@@ -290,7 +290,7 @@ public partial class ServiceCaseSearchViewModel : ObservableObject, IAsyncSearch
 
     [ObservableProperty] private ImmutableArray<ServiceCaseViewModel> allSelected = [];
     [ObservableProperty] private ImmutableArray<ServiceCaseViewModel> options = [];
-    [ObservableProperty] private ServiceCaseViewModel selected = ServiceCaseViewModel.Default;
+    [ObservableProperty] private ServiceCaseViewModel selected = ServiceCaseViewModel.Empty;
     [ObservableProperty] private bool isSelected;
     [ObservableProperty] private bool showOptions;
     [ObservableProperty] private string searchText = "";
@@ -369,7 +369,7 @@ public partial class ServiceCaseSearchViewModel : ObservableObject, IAsyncSearch
                 if (Options.Length == 0)
                 {
                     ShowOptions = false;
-                    Selected = ServiceCaseViewModel.Default;
+                    Selected = ServiceCaseViewModel.Empty;
                     IsSelected = false;
                     OnZeroResults?.Invoke(this, EventArgs.Empty);
                     return;
@@ -385,7 +385,7 @@ public partial class ServiceCaseSearchViewModel : ObservableObject, IAsyncSearch
                 }
 
                 ShowOptions = true;
-                Selected = ServiceCaseViewModel.Default;
+                Selected = ServiceCaseViewModel.Empty;
                 IsSelected = false;
                 return;
             default: return;

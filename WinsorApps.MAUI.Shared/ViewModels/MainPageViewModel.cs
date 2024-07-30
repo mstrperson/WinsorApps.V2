@@ -1,10 +1,8 @@
 using System.Collections.Immutable;
-using System.Runtime.CompilerServices;
 using AsyncAwaitBestPractices;
 using CommunityToolkit.Maui.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 
@@ -39,7 +37,7 @@ public partial class MainPageViewModel : ObservableObject, IBusyViewModel, IErro
 
     public MainPageViewModel(List<ServiceAwaiterViewModel> postLoginServices, AppService appService, ApiService api, LocalLoggingService logging)
     {
-        userVM = UserViewModel.Default;
+        userVM = UserViewModel.Empty;
         loginVM = new();
         loginVM.OnLogin += LoginVMOnOnLogin;
         loginVM.OnError += (sender, e) => OnError?.Invoke(sender, e);

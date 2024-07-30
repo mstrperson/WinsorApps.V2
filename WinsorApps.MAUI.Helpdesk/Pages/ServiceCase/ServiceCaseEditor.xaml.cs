@@ -24,7 +24,7 @@ public partial class ServiceCaseEditor : ContentPage
 		};
 		LoanerSearch.ViewModel.OnZeroResults += (sender, e) =>
 		{
-			ViewModel.SetLoaner(DeviceViewModel.Default);
+			ViewModel.SetLoaner(DeviceViewModel.Empty);
 		};
 
         if (!string.IsNullOrEmpty(ViewModel.Loaner.SerialNumber))

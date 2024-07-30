@@ -79,7 +79,7 @@ public partial class TheaterEventViewModel :
 
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "Working";
-    public static TheaterEventViewModel Default => new();
+    public static TheaterEventViewModel Empty => new();
 
 
     public event EventHandler? ReadyToContinue;

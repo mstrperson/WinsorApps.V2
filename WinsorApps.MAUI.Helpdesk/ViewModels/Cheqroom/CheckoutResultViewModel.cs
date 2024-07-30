@@ -13,7 +13,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         public string ItemSummary => _result.itemSummary;
         public DateTime Due => _result.due;
 
-        public static CheckoutResultViewModel Default => new();
+        public static CheckoutResultViewModel Empty => new();
 
         public CheckoutResultViewModel() => _result = new();
 

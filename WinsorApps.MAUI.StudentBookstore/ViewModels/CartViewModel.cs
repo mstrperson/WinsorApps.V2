@@ -1,13 +1,7 @@
-﻿using AsyncAwaitBestPractices;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.Bookstore.ViewModels;
 using WinsorApps.MAUI.Shared.ViewModels;
@@ -33,7 +27,7 @@ public partial class MyCartViewModel :
     }
 
     [ObservableProperty] ObservableCollection<SectionCartViewModel> myCart = [];
-    [ObservableProperty] SectionCartViewModel selectedSection = SectionCartViewModel.Default;
+    [ObservableProperty] SectionCartViewModel selectedSection = SectionCartViewModel.Empty;
     [ObservableProperty] bool showSelected;
 
     public async Task Initialize(ErrorAction onError)
@@ -50,7 +44,7 @@ public partial class MyCartViewModel :
             {
                 // if you're Selecting this cart, then display it.
                 // if you're De-selecting it, hide everything.
-                SelectedSection = cart.IsSelected ? cart : SectionCartViewModel.Default;
+                SelectedSection = cart.IsSelected ? cart : SectionCartViewModel.Empty;
                 ShowSelected = cart.IsSelected;
                 
                 // Only one cart may be selected at a time.
@@ -84,7 +78,7 @@ public partial class SectionCartViewModel :
     private readonly RegistrarService _registrar = ServiceHelper.GetService<RegistrarService>();
     private readonly StudentBookstoreService _bookstore = ServiceHelper.GetService<StudentBookstoreService>();
     
-    [ObservableProperty] SectionViewModel section = SectionViewModel.Default;
+    [ObservableProperty] SectionViewModel section = SectionViewModel.Empty;
     [ObservableProperty] ObservableCollection<BookRequestViewModel> requestedBooks = [];
     [ObservableProperty] ObservableCollection<OptionGroupViewModel> requiredBooks = [];
     [ObservableProperty] bool hasNoBooks;
@@ -93,7 +87,7 @@ public partial class SectionCartViewModel :
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "";
 
-    public static SectionCartViewModel Default => new();
+    public static SectionCartViewModel Empty => new();
 
     private SectionCartViewModel() { }
     public SectionCartViewModel(string sectionId, bool fall = true)
@@ -188,7 +182,7 @@ public partial class BookRequestViewModel :
 {
     [ObservableProperty] DateTime submitted;
     [ObservableProperty] OrderStatusViewModel status = OrderStatusViewModel.Get("");
-    [ObservableProperty] IsbnViewModel isbn = IsbnViewModel.Default;
+    [ObservableProperty] IsbnViewModel isbn = IsbnViewModel.Empty;
     [ObservableProperty] bool isSelected;
 
     public event EventHandler<BookRequestViewModel>? Selected;

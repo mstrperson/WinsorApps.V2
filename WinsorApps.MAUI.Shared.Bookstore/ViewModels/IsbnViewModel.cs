@@ -33,14 +33,14 @@ public partial class IsbnViewModel :
 
     public static ConcurrentBag<IsbnViewModel> ViewModelCache { get; private set; } = [];
 
-    public static IsbnViewModel Default => new();
+    public static IsbnViewModel Empty => new();
 
 
     [ObservableProperty] string displayName = "";
 
     [ObservableProperty] bool hasOdinData = false;
 
-    [ObservableProperty] OdinDataViewModel currentOdinData = OdinDataViewModel.Default;
+    [ObservableProperty] OdinDataViewModel currentOdinData = OdinDataViewModel.Empty;
 
     [ObservableProperty] ImmutableArray<string> bindingOptions = [];
 
@@ -282,7 +282,7 @@ public partial class OdinDataViewModel : ObservableObject, IDefaultValueViewMode
         set => Cost = value.ConvertToCurrency();
     }
 
-    public static OdinDataViewModel Default => new();
+    public static OdinDataViewModel Empty => new();
 
     [ObservableProperty]
     bool isCurrent;

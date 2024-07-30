@@ -1,12 +1,9 @@
-﻿using AsyncAwaitBestPractices;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Concurrent;
-using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Services;
-using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using Location = WinsorApps.Services.EventForms.Models.Location;
 
@@ -74,7 +71,7 @@ public partial class LocationViewModel :
         await _service.DeleteCustomLocation(Id, OnError.DefaultBehavior(this));
     }
 
-    public static LocationViewModel Default => new();
+    public static LocationViewModel Empty => new();
 
     public static ConcurrentBag<LocationViewModel> ViewModelCache { get; private set; } = [];
 
@@ -201,7 +198,7 @@ public partial class LocationSearchViewModel :
     private ObservableCollection<LocationViewModel> options = [];
 
     [ObservableProperty]
-    public LocationViewModel selected = LocationViewModel.Default;
+    public LocationViewModel selected = LocationViewModel.Empty;
 
     [ObservableProperty]
     private SelectionMode selectionMode = SelectionMode.Single;
@@ -277,7 +274,7 @@ public partial class LocationSearchViewModel :
                 if (Options.Count == 0)
                 {
                     ShowOptions = false;
-                    Selected = LocationViewModel.Default;
+                    Selected = LocationViewModel.Empty;
                     IsSelected = false;
                     return;
                 }
@@ -293,7 +290,7 @@ public partial class LocationSearchViewModel :
                 }
 
                 ShowOptions = true;
-                Selected = LocationViewModel.Default; 
+                Selected = LocationViewModel.Empty; 
                 IsSelected = false;
                 return;
             default: return;
@@ -305,7 +302,7 @@ public partial class LocationSearchViewModel :
         switch (SelectionMode)
         {
             case SelectionMode.Single:
-                Selected = Available.FirstOrDefault(st => st.Id == item.Id && st.Type == item.Type) ?? LocationViewModel.Default;
+                Selected = Available.FirstOrDefault(st => st.Id == item.Id && st.Type == item.Type) ?? LocationViewModel.Empty;
                 IsSelected = string.IsNullOrEmpty(Selected.Id);
                 Options = [];
                 ShowOptions = false;

@@ -1,12 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.AssessmentCalendar.Models;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.Shared.AssessmentCalendar.ViewModels
@@ -19,12 +16,31 @@ namespace WinsorApps.MAUI.Shared.AssessmentCalendar.ViewModels
         [ObservableProperty] string note = "";
         [ObservableProperty] DateTime dateAndTime;
         [ObservableProperty] DateTime timestamp;
-        [ObservableProperty] UserViewModel student = UserViewModel.Default;
+        [ObservableProperty] UserViewModel student = UserViewModel.Empty;
         public AssessmentPassDetail Model { get; private set; }
 
         public event EventHandler<AssessmentPassDetail>? LoadAssessmentRequested;
 
         private LatePassViewModel() { }
+
+        public static ObservableCollection<LatePassViewModel> GetPasses(AssessmentEntryRecord assessment)
+        {
+            var registrar = ServiceHelper.GetService<RegistrarService>();
+            ObservableCollection<LatePassViewModel> passes = [];
+            foreach(var latePass in assessment.studentsUsingPasses)
+            {
+                var student = UserViewModel.Get(latePass.student.GetUserRecord(registrar));
+
+                passes.Add(new()
+                {
+                    Student = student,
+                    CourseName = assessment.section.displayName,
+                    Timestamp = latePass.timeStamp
+                });
+            }
+
+            return passes;
+        }
 
         public static LatePassViewModel Get(AssessmentPassDetail model)
         {

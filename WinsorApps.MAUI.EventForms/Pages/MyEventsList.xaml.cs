@@ -1,9 +1,7 @@
-using System.ComponentModel;
 using AsyncAwaitBestPractices;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.EventForms.Pages;
 using WinsorApps.MAUI.Shared.EventForms.ViewModels;
-using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.EventForms.Pages;
 

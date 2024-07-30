@@ -25,7 +25,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
 
         [ObservableProperty] private string assetTag = "";
         [ObservableProperty] private UserSearchViewModel userSearch = new();
-        [ObservableProperty] private CheckoutResultViewModel result = CheckoutResultViewModel.Default;
+        [ObservableProperty] private CheckoutResultViewModel result = CheckoutResultViewModel.Empty;
         [ObservableProperty] private bool displayResult;
         [ObservableProperty] private TimeSpan resultTimeout = TimeSpan.FromSeconds(15);
         [ObservableProperty] private bool working;
@@ -84,7 +84,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         {
             AssetTag = "";
             UserSearch.ClearSelection();
-            Result = CheckoutResultViewModel.Default;
+            Result = CheckoutResultViewModel.Empty;
             DisplayResult = false;
         }
     }

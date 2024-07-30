@@ -1,8 +1,4 @@
 using WinsorApps.MAUI.Shared.EventForms.ViewModels;
-using WinsorApps.MAUI.Shared.Pages;
-using WinsorApps.MAUI.Shared.ViewModels;
-using WinsorApps.Services.Global;
-using PropertyChangingEventArgs = System.ComponentModel.PropertyChangingEventArgs;
 
 namespace WinsorApps.MAUI.Shared.EventForms.Pages;
 

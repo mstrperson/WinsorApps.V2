@@ -1,7 +1,8 @@
-using System.Collections.Immutable;
 using System.Collections.ObjectModel;
+using AsyncAwaitBestPractices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 
@@ -12,7 +13,7 @@ public partial class UserSearchViewModel :
     ICachedSearchViewModel<UserViewModel>, 
     IErrorHandling
 {
-    [ObservableProperty] private ObservableCollection<UserViewModel> available;
+    [ObservableProperty] private ObservableCollection<UserViewModel> available = [];
     [ObservableProperty] private ObservableCollection<UserViewModel> allSelected = [];
     [ObservableProperty] private ObservableCollection<UserViewModel> options = [];
     [ObservableProperty] private SelectionMode selectionMode = SelectionMode.Single;
@@ -30,11 +31,16 @@ public partial class UserSearchViewModel :
     {
         var registrar = ServiceHelper.GetService<RegistrarService>();
         isSelected = false;
-        selected = UserViewModel.Default;
-        available = [..UserViewModel.GetClonedViewModels(registrar.AllUsers)];
-        foreach(var user in Available)
-            user.Selected += UserOnSelected;
+        selected = UserViewModel.Empty;
+        if (registrar.Ready)
+        {
+            Available = [.. UserViewModel.GetClonedViewModels(registrar.AllUsers)];
+            foreach (var user in Available)
+                user.Selected += UserOnSelected;
+        }
     }
+
+
 
     public void SetAvailableUsers(IEnumerable<UserRecord> users)
     {
@@ -49,7 +55,7 @@ public partial class UserSearchViewModel :
     {
         AllSelected = [];
         Options = [];
-        Selected = UserViewModel.Default;
+        Selected = UserViewModel.Empty;
         IsSelected = false;
         ShowOptions = false;
         SearchText = "";
@@ -65,7 +71,7 @@ public partial class UserSearchViewModel :
         switch (SelectionMode)
         {
             case SelectionMode.Single:
-                Selected = Available.FirstOrDefault(user => user.Id == selectedUser.Id) ?? UserViewModel.Default;
+                Selected = Available.FirstOrDefault(user => user.Id == selectedUser.Id) ?? UserViewModel.Empty;
                 if (Selected.Id != "")
                 {
                     foreach (var item in Available.Except([Selected]))
@@ -125,7 +131,7 @@ public partial class UserSearchViewModel :
                 if (Options.Count == 0)
                 {
                     ShowOptions = false;
-                    Selected = UserViewModel.Default;
+                    Selected = UserViewModel.Empty;
                     IsSelected = false;
                     return;
                 }
@@ -141,7 +147,7 @@ public partial class UserSearchViewModel :
                 }
 
                 ShowOptions = true;
-                Selected = UserViewModel.Default;
+                Selected = UserViewModel.Empty;
                 IsSelected = false;
                 return;
             default: return;

@@ -1,14 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WinsorApps.Services.AssessmentCalendar.Models;
 using WinsorApps.Services.AssessmentCalendar.Services;
 using WinsorApps.Services.Global;
-using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.Shared.AssessmentCalendar.ViewModels;
 

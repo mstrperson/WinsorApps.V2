@@ -1,9 +1,7 @@
 using AsyncAwaitBestPractices;
-using Microsoft.VisualBasic;
 using System.Collections.Immutable;
 using WinsorApps.Services.AssessmentCalendar.Models;
 using WinsorApps.Services.Global.Services;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WinsorApps.Services.AssessmentCalendar.Services;
 

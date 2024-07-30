@@ -58,7 +58,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
                 (_, _) => 
                 LoadCheckouts();
             searchMode = SearchModes[0];
-            selected = CheckoutSearchResultViewModel.Default;
+            selected = CheckoutSearchResultViewModel.Empty;
             LoadCheckouts();
         }
 
@@ -67,7 +67,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         {
             SearchText = "";
             Options = [];
-            Selected = CheckoutSearchResultViewModel.Default;
+            Selected = CheckoutSearchResultViewModel.Empty;
             AllSelected = [];
         }
 
@@ -115,7 +115,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
                     if (Options.Count == 0)
                     {
                         ShowOptions = false;
-                        Selected = CheckoutSearchResultViewModel.Default;
+                        Selected = CheckoutSearchResultViewModel.Empty;
                         IsSelected = false;
                         OnZeroResults?.Invoke(this, EventArgs.Empty);
                         return;
@@ -131,7 +131,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
                     }
 
                     ShowOptions = true;
-                    Selected = CheckoutSearchResultViewModel.Default;
+                    Selected = CheckoutSearchResultViewModel.Empty;
                     IsSelected = false;
                     return;
                 default: return;

@@ -78,11 +78,11 @@ public partial class JamfViewModel : ObservableObject, IDefaultValueViewModel<Ja
     [ObservableProperty] private string serialNumber = "";
     [ObservableProperty] private Department department;
     [ObservableProperty] private string model = "";
-    [ObservableProperty] private UserViewModel user = UserViewModel.Default;
+    [ObservableProperty] private UserViewModel user = UserViewModel.Empty;
     [ObservableProperty] private JamfDeviceType type = JamfDeviceType.Computer;
     [ObservableProperty] private bool isSelected;
 
-    public static JamfViewModel Default => new();
+    public static JamfViewModel Empty => new();
 
     [RelayCommand]
     public void Select()
@@ -116,13 +116,13 @@ public partial class InventoryPreloadViewModel : ObservableObject, IDefaultValue
 
     [ObservableProperty] private string id = "";
     [ObservableProperty] private string serialNumber = "";
-    [ObservableProperty] private UserViewModel owner = UserViewModel.Default;
+    [ObservableProperty] private UserViewModel owner = UserViewModel.Empty;
     [ObservableProperty] private string department = "";
     [ObservableProperty] private string assetTag = "";
     [ObservableProperty] private JamfDeviceType type = JamfDeviceType.Computer;
     [ObservableProperty] private bool isSelected;
 
-    public static InventoryPreloadViewModel Default => new();
+    public static InventoryPreloadViewModel Empty => new();
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<UserViewModel>? OnUserSelected;

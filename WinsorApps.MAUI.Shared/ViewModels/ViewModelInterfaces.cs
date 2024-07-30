@@ -12,7 +12,7 @@ public interface IBusyViewModel
 
 public interface IDefaultValueViewModel<T> where T: ObservableObject
 {
-    public static abstract T Default { get; }
+    public static abstract T Empty { get; }
 }
 public interface ISelectable<T> where T : ObservableObject
 {

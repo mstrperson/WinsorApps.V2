@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.TeacherAssessmentCalendar.ViewModels"
+             xmlns:svm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels;assembly=WinsorApps.MAUI.Shared"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             xmlns:shared="clr-namespace:WinsorApps.MAUI.Shared.Views;assembly=WinsorApps.MAUI.Shared"
+             x:DataType="vm:MyAssessmentsPageViewModel"
+             x:Class="WinsorApps.MAUI.TeacherAssessmentCalendar.Pages.MyAssessmentsPage"
+             Title="My Assessments">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem
+            StyleClass="RefreshButton"
+            Text="Refresh"
+            Command="{Binding RefreshCommand}" />
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <Grid
+            RowDefinitions="*"
+            ColumnDefinitions="750,750"
+            HorizontalOptions="Center">
+            <!-- Left column - My Assessments -->
+            <VerticalStackLayout
+                Grid.Column="0">
+                <!-- Course Selection -->
+                <VerticalStackLayout>
+                    <Label
+                        StyleClass="SubHeader"
+                        Text="Select a Course to Create a new Assessment" />
+                    <HorizontalStackLayout
+                        Spacing="30">
+                        <Border
+                            StrokeThickness="1"
+                            BackgroundColor="{AppThemeBinding Dark={DynamicResource SlateDark}, Light={DynamicResource WarmGrey}}">
+                            <HorizontalStackLayout>
+                                <Label
+                                    StyleClass="H3"
+                                    Text="{Binding SelectedCourse.DisplayName}"
+                                    WidthRequest="350">
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding ToggleShowCourseSelectionCommand}" />
+                                    </Label.GestureRecognizers>
+                                </Label>
+                                <Image
+                                    StyleClass="DownArrow">
+                                    <Image.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding ToggleShowCourseSelectionCommand}" />
+                                    </Image.GestureRecognizers>
+                                </Image>
+                            </HorizontalStackLayout>
+                        </Border>
+                        <Image
+                            StyleClass="AddButton"
+                            IsVisible="{Binding CourseSelected}">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding StartNewAssessmentCommand}" />
+                            </Image.GestureRecognizers>
+                        </Image>
+                    </HorizontalStackLayout>
+                    <CollectionView
+                        IsVisible="{Binding ShowCourseSelection}"
+                        ItemsSource="{Binding MyCourses}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="svm:CourseViewModel">
+                                <HorizontalStackLayout>
+                                    <HorizontalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                    </HorizontalStackLayout.GestureRecognizers>
+                                    <Label Text="{Binding DisplayName}" />
+                                </HorizontalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+                <!-- Assessment Editor -->
+                <VerticalStackLayout
+                    IsVisible="{Binding AssessmentCollection.ShowSelectedGroup}">
+                    <HorizontalStackLayout
+                        Spacing="30">
+                        <Label
+                            StyleClass="H3"
+                            Text="{Binding AssessmentCollection.SelectedAssessmentGroup.Course.DisplayName}" />
+                        <Image
+                            StyleClass="BackButton">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding AssessmentCollection.SelectedAssessmentGroup.SelectCommand}" />
+                            </Image.GestureRecognizers>
+                        </Image>
+                        <Image
+                            StyleClass="SaveButton">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding AssessmentCollection.SelectedAssessmentGroup.SaveCommand}" />
+                            </Image.GestureRecognizers>
+                        </Image>
+                        <Image
+                            StyleClass="DeleteButton">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding AssessmentCollection.SelectedAssessmentGroup.DeleteCommand}" />
+                            </Image.GestureRecognizers>
+                        </Image>
+                    </HorizontalStackLayout>
+                    <CollectionView
+                        ItemsSource="{Binding AssessmentCollection.SelectedAssessmentGroup.Assessments}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:AssessmentEditorViewModel">
+                                <VerticalStackLayout>
+                                    <HorizontalStackLayout
+                                        HeightRequest="50">
+                                        <CheckBox
+                                            IsChecked="{Binding IsSelected}" />
+                                        <Label 
+                                            Text="{Binding Section.Block}" />
+                                        <DatePicker
+                                            Date="{Binding Date}" />
+                                    </HorizontalStackLayout>
+                                    <BoxView StyleClass="Bar" />
+                                </VerticalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+                <!-- Existing Assessments -->
+                <CollectionView
+                    IsVisible="{Binding AssessmentCollection.ShowSelectedGroup, Converter={StaticResource Invert}}"
+                    ItemsSource="{Binding AssessmentCollection.MyAssessmentGroups}">
+                    <CollectionView.Header>
+                        <Label
+                            StyleClass="SubHeader"
+                            Text="Scheduled Assessments" />
+                    </CollectionView.Header>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:AssessmentGroupViewModel">
+                            <VerticalStackLayout>
+                                <HorizontalStackLayout>
+                                    <Label
+                                        StyleClass="H3"
+                                        Text="{Binding Course.DisplayName}">
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                        </Label.GestureRecognizers>
+                                    </Label>
+                                    <Image
+                                        StyleClass="DeleteButton">
+                                        <Image.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding DeleteCommand}" />
+                                        </Image.GestureRecognizers>
+                                    </Image>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+            <!-- Right column - My Advisees -->
+            <VerticalStackLayout
+                Grid.Column="1">
+                <!-- Student Selection -->
+                <HorizontalStackLayout>
+                    <shared:UserSearchBar
+                        BindingContext="{Binding MyAdvisees}" />
+                    <Button
+                        Text="View Assessment Calendar" />
+                </HorizontalStackLayout>
+                <BoxView StyleClass="Bar" />
+            </VerticalStackLayout>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

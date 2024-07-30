@@ -20,7 +20,7 @@ public partial class TeacherOrderViewModel :
 {
     private readonly BookstoreManagerService _managerService = ServiceHelper.GetService<BookstoreManagerService>();
 
-    [ObservableProperty] SectionViewModel section = SectionViewModel.Default;
+    [ObservableProperty] SectionViewModel section = SectionViewModel.Empty;
     [ObservableProperty] ImmutableArray<BookRequestViewModel> bookRequests = [];
 
     [ObservableProperty] bool busy;
@@ -48,7 +48,7 @@ public partial class TeacherOrderViewModel :
 
     public static ConcurrentBag<TeacherOrderViewModel> ViewModelCache { get; private set; } = [];
 
-    public static TeacherOrderViewModel Default => new();
+    public static TeacherOrderViewModel Empty => new();
 
     public static TeacherOrderViewModel Get(TeacherBookOrderDetail model)
     {
@@ -91,7 +91,7 @@ public partial class BookRequestOptionGroupViewModel :
     ICachedViewModel<BookRequestOptionGroupViewModel, TeacherBookOrderGroup, BookstoreManagerService>
 {
     [ObservableProperty] string groupId = "";
-    [ObservableProperty] BookOrderOptionViewModel option = BookOrderOptionViewModel.Default;
+    [ObservableProperty] BookOrderOptionViewModel option = BookOrderOptionViewModel.Empty;
     [ObservableProperty] ImmutableArray<BookRequestViewModel> requests = [];
 
     public static ConcurrentBag<BookRequestOptionGroupViewModel> ViewModelCache { get; private set; } = [];
@@ -134,7 +134,7 @@ public partial class BookRequestViewModel :
     ObservableObject,
     ISelectable<BookRequestViewModel>
 {
-    [ObservableProperty] IsbnViewModel isbn = IsbnViewModel.Default;
+    [ObservableProperty] IsbnViewModel isbn = IsbnViewModel.Empty;
     [ObservableProperty] DateTime submitted;
     [ObservableProperty] int quantity;
     [ObservableProperty] bool fallOrFullYear = true;

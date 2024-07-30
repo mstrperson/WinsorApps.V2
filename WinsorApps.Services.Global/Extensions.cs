@@ -602,4 +602,6 @@ public static partial class Extensions
         foreach (var task in tasks)
             task.SafeFireAndForget(errorHandler);
     }
+
+    public static UserRecord GetUserRecord(this StudentRecordShort student, RegistrarService registrar) => registrar.StudentList.FirstOrDefault(u => u.id == student.id);
 }

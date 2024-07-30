@@ -1,7 +1,4 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using System.Collections.Concurrent;
-using System.Collections.Immutable;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
@@ -10,9 +7,7 @@ using WinsorApps.Services.Bookstore.Services;
 using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared.Bookstore.ViewModels;
 using WinsorApps.Services.Bookstore.Models;
-using Microsoft.IdentityModel.Tokens;
 using SectionRecord = WinsorApps.Services.Global.Models.SectionRecord;
-using WinsorApps.Services.Global;
 
 namespace WinsorApps.MAUI.StudentBookstore.ViewModels
 {
@@ -67,7 +62,7 @@ namespace WinsorApps.MAUI.StudentBookstore.ViewModels
     public partial class SectionRequiredBooksViewModel :
         ObservableObject
     {
-        [ObservableProperty] SectionViewModel section = SectionViewModel.Default;
+        [ObservableProperty] SectionViewModel section = SectionViewModel.Empty;
         [ObservableProperty] ObservableCollection<OptionGroupViewModel> requiredBooks = [];
 
         private SectionRequiredBooksViewModel() { }

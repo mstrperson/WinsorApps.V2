@@ -404,11 +404,6 @@ namespace WinsorApps.Services.Global.Services
 
         public async Task WaitForInit(ErrorAction onError)
         {
-            if (Ready) return;
-
-            if (!this.Started)
-                await this.Initialize(onError);
-
             while (!this.Ready)
             {
                 await Task.Delay(250);
