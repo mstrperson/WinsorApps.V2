@@ -82,7 +82,7 @@ public partial class TeacherAssessmentService :
             _courseList = courseTask.Result;
             Progress += 0.25;
         });
-        var assessmentTask = GetMyAssessments(onError, DateTime.Today, _calendar.CycleDays.SchoolYear.endDate.ToDateTime(default));
+        var assessmentTask = GetMyAssessments(onError, DateTime.Today, DateTime.Today.AddYears(1));
         assessmentTask.WhenCompleted(() =>
         {
             _myAssessments = assessmentTask.Result.ToList();

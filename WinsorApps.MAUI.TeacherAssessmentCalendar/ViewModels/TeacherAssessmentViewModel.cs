@@ -148,13 +148,18 @@ public partial class StudentConflictViewModel :
 
     [ObservableProperty] UserViewModel student = UserViewModel.Empty;
     [ObservableProperty] int conflictCount;
+    [ObservableProperty] bool latePassUsed;
+    [ObservableProperty] bool redFlag;
+
     public StudentConflictCount Model { get; private set; }
 
     public StudentConflictViewModel(StudentConflictCount conflict)
     {
         Model = conflict;
         Student = UserViewModel.Get(conflict.student.GetUserRecord(_regsitrar));
-        ConflictCount = conflict.count;
+        ConflictCount = conflict.conflictCount;
+        LatePassUsed = conflict.latePass;
+        RedFlag = conflict.redFlag;
     }
 
     public static StudentConflictViewModel Get(StudentConflictCount model) => new(model);

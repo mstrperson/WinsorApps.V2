@@ -12,7 +12,8 @@ namespace WinsorApps.MAUI.TeacherAssessmentCalendar.ViewModels;
 
 public partial class MyAssessmentsPageViewModel :
     ObservableObject,
-    IErrorHandling
+    IErrorHandling,
+    IBusyViewModel
 {
     private readonly TeacherAssessmentService _service;
     private readonly RegistrarService _registrar;
@@ -25,6 +26,8 @@ public partial class MyAssessmentsPageViewModel :
     [ObservableProperty] CourseViewModel selectedCourse = CourseViewModel.Empty;
     [ObservableProperty] bool courseSelected;
     [ObservableProperty] bool showCourseSelection;
+    [ObservableProperty] bool busy;
+    [ObservableProperty] string busyMessage = "";
 
     public event EventHandler<UserViewModel>? StudentSelected;
     public event EventHandler<AssessmentEditorViewModel>? SectionAssessmentSelected;
@@ -68,12 +71,12 @@ public partial class MyAssessmentsPageViewModel :
     }
 
     [RelayCommand]
-    public void StartNewAssessment()
+    public async Task StartNewAssessment()
     {
         if (!CourseSelected || !SelectedCourse.IsSelected)
             return;
 
-        AssessmentCollection.AddGroupFor(SelectedCourse);
+        await AssessmentCollection.AddGroupFor(SelectedCourse);
 
         CourseSelected = false;
         SelectedCourse.IsSelected = false;
@@ -83,7 +86,10 @@ public partial class MyAssessmentsPageViewModel :
     [RelayCommand]
     public async Task Refresh()
     {
+        Busy = true;
+        BusyMessage = "Reloading my assessments.";
         await Initialize(OnError.DefaultBehavior(this));
         await AssessmentCollection.Refresh();
+        Busy = false;
     }
 }

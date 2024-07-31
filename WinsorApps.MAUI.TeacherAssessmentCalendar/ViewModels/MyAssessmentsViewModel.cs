@@ -25,6 +25,7 @@ public partial class AssessmentGroupViewModel :
     public event EventHandler? LoadCompleted;
     public event EventHandler? Deleted;
     public event EventHandler? Saved;
+    public event EventHandler? Created;
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<AssessmentGroupViewModel>? Selected;
     public event EventHandler<AssessmentDetailsViewModel>? SectionSelected;
@@ -38,18 +39,25 @@ public partial class AssessmentGroupViewModel :
     [ObservableProperty] string busyMessage = "";
     [ObservableProperty] bool isSelected;
     [ObservableProperty] bool isNew;
+    [ObservableProperty] string label = "";
 
     private AssessmentGroupViewModel() { }
 
-    public static AssessmentGroupViewModel CreateFor(CourseViewModel course) => new() { Course = course, IsSelected = true, IsNew = true };
+    public static async Task<AssessmentGroupViewModel> CreateFor(CourseViewModel course)
+    {
+        AssessmentGroupViewModel vm = new() { Course = course, IsSelected = true, IsNew = true };
+        await vm.Course.LoadSections();
+        vm.Assessments = [.. vm.Course.Sections.Select(AssessmentEditorViewModel.Create)];
+        return vm;
+    }
 
     public AssessmentGroupViewModel(AssessmentGroup group)
     {
         _group = group;
         var course = _assessmentService.CourseList.First(course => course.courseId == group.courseId);
         Course = CourseViewModel.Get(course);
-        Assessments = [.. Course.Sections.Select(AssessmentEditorViewModel.Create)];
         Note = _group.note;
+        Label = string.IsNullOrEmpty(Note) ? Course.DisplayName : $"{Course.DisplayName} - {Note}";
         LoadGroup().SafeFireAndForget(e => e.LogException());
     }
 
@@ -57,11 +65,12 @@ public partial class AssessmentGroupViewModel :
     private async Task LoadGroup()
     {
         Note = _group.note;
-        Assessments = [];
+        await Course.LoadSections();
+        Assessments = [.. Course.Sections.Select(AssessmentEditorViewModel.Create)];
 
         foreach (var entry in _group.assessments)
         {
-            var detail = await _assessmentService.GetAssessmentDetails(entry.assessmentId, err => { });
+            var detail = await _assessmentService.GetAssessmentDetails(entry.assessmentId, OnError.DefaultBehavior(this));
             if (detail.HasValue)
             {
                 var vm = Assessments.First(ent => ent.Section.Model.sectionId == detail.Value.section.sectionId);
@@ -79,7 +88,10 @@ public partial class AssessmentGroupViewModel :
     [RelayCommand]
     public async Task Refresh()
     {
-        await Task.WhenAll(Assessments.Select(async ent => await ent.Refresh()));
+        Busy = true;
+        BusyMessage = "Refreshing";
+        await LoadGroup();
+        Busy = false;
     }
 
     public async Task Create()
@@ -103,7 +115,9 @@ public partial class AssessmentGroupViewModel :
         {
             _group = result.Value;
             IsNew = false;
+            Label = string.IsNullOrEmpty(Note) ? Course.DisplayName : $"{Course.DisplayName} - {Note}";
             LoadGroup().SafeFireAndForget(e => e.LogException());
+            Created?.Invoke(this, EventArgs.Empty);
             Saved?.Invoke(this, EventArgs.Empty);
         }
 
@@ -144,6 +158,7 @@ public partial class AssessmentGroupViewModel :
         if (result.HasValue)
         {
             _group = result.Value;
+            Label = string.IsNullOrEmpty(Note) ? Course.DisplayName : $"{Course.DisplayName} - {Note}";
             LoadGroup().SafeFireAndForget(e => e.LogException());
             Saved?.Invoke(this, EventArgs.Empty);
         }
@@ -200,19 +215,6 @@ public partial class AssessmentEditorViewModel :
     public static AssessmentEditorViewModel Get(AssessmentEntryRecord model) => new(model);
 
     [RelayCommand]
-    public async Task Refresh()
-    {
-        Busy = true;
-        BusyMessage = "Refreshing";
-        var events = await _service.GetAssessmentCalendarOn(DateOnly.FromDateTime(Date), OnError.DefaultBehavior(this));
-
-        var model = events.First(ent => ent.id == Model.assessmentId && ent.type == AssessmentType.Assessment);
-        if (model.id == Model.assessmentId)
-            Details = AssessmentDetailsViewModel.Get(model);
-        Busy = false;
-    }
-
-    [RelayCommand]
     public void Select()
     {
         IsSelected = !IsSelected;
@@ -264,9 +266,9 @@ public partial class MyAssessmentsCollectionViewModel :
         }
     }
 
-    public void AddGroupFor(CourseViewModel course)
+    public async Task AddGroupFor(CourseViewModel course)
     {
-        var newGroup = AssessmentGroupViewModel.CreateFor(course);
+        var newGroup = await AssessmentGroupViewModel.CreateFor(course);
 
         newGroup.Deleted += (_, _) =>
         {
@@ -288,7 +290,9 @@ public partial class MyAssessmentsCollectionViewModel :
 
         newGroup.OnError += (sender, e) => OnError?.Invoke(sender, e);
 
-        MyAssessmentGroups.Add(newGroup);
+        newGroup.Created += (_, _) =>
+            MyAssessmentGroups.Add(newGroup);
+
         SelectedAssessmentGroup = newGroup;
         ShowSelectedGroup = true;
     }
@@ -299,7 +303,10 @@ public partial class MyAssessmentsCollectionViewModel :
         Busy = true;
         BusyMessage = "Refreshing";
         await Initialize(OnError.DefaultBehavior(this));
-        await Task.WhenAll(MyAssessmentGroups.Select(async group => await group.Refresh()));
+
+        foreach (var group in MyAssessmentGroups)
+            await group.Refresh();
+
         Busy = false;
     }
 }

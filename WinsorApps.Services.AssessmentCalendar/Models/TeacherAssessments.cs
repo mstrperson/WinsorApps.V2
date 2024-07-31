@@ -46,11 +46,11 @@ public readonly record struct AssessmentConflictRecord(string studentId, Immutab
                 assessment.section.students.Select(student =>
                     new StudentAssessmentRosterEntry(student,
                         assessment.studentsUsingPasses.Any(pass => pass.student.id == student.id),
-                        assessment.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.id).count)
+                        assessment.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.id).conflictCount)
                 ).ToImmutableArray());
     }
 
-    public readonly record struct StudentConflictCount(StudentRecordShort student, int count);
+    public readonly record struct StudentConflictCount(StudentRecordShort student, int conflictCount, bool latePass, bool redFlag);
 
     public readonly record struct AssessmentPassListItem(StudentRecordShort student, DateTime timeStamp);
 
@@ -61,4 +61,4 @@ public readonly record struct AssessmentConflictRecord(string studentId, Immutab
     /// <param name="note">Teacher note about the assessment.</param>
     /// <param name="assessments">Details for each section of the class doing this assessment.</param>
     public readonly record struct AssessmentGroup(string id, string course, string courseId, string note,
-        ImmutableArray<AssessmentEntryShort> assessments);
+        ImmutableArray<AssessmentEntryRecord> assessments);

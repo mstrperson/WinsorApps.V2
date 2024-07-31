@@ -104,8 +104,19 @@
                             </Image.GestureRecognizers>
                         </Image>
                     </HorizontalStackLayout>
+                    <HorizontalStackLayout>
+                        <Label 
+                            Text="Note:  " 
+                            VerticalTextAlignment="Center" />
+                        <Entry 
+                            Text="{Binding AssessmentCollection.SelectedAssessmentGroup.Note}"
+                            Placeholder="Assessment Description" 
+                            WidthRequest="300"
+                            VerticalTextAlignment="Center" />
+                    </HorizontalStackLayout>
                     <CollectionView
-                        ItemsSource="{Binding AssessmentCollection.SelectedAssessmentGroup.Assessments}">
+                        ItemsSource="{Binding AssessmentCollection.SelectedAssessmentGroup.Assessments}"
+                        BackgroundColor="Transparent">
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="vm:AssessmentEditorViewModel">
                                 <VerticalStackLayout>
@@ -116,18 +127,20 @@
                                         <Label 
                                             Text="{Binding Section.Block}" />
                                         <DatePicker
-                                            Date="{Binding Date}" />
+                                            Date="{Binding Date}" 
+                                            IsVisible="{Binding IsSelected}"/>
                                     </HorizontalStackLayout>
-                                    <BoxView StyleClass="Bar" />
                                 </VerticalStackLayout>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </VerticalStackLayout>
+                <BoxView StyleClass="Bar" />
                 <!-- Existing Assessments -->
                 <CollectionView
                     IsVisible="{Binding AssessmentCollection.ShowSelectedGroup, Converter={StaticResource Invert}}"
-                    ItemsSource="{Binding AssessmentCollection.MyAssessmentGroups}">
+                    ItemsSource="{Binding AssessmentCollection.MyAssessmentGroups}"
+                    BackgroundColor="Transparent">
                     <CollectionView.Header>
                         <Label
                             StyleClass="SubHeader"
@@ -135,11 +148,16 @@
                     </CollectionView.Header>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="vm:AssessmentGroupViewModel">
-                            <VerticalStackLayout>
-                                <HorizontalStackLayout>
+                            <VerticalStackLayout
+                                Margin="0"
+                                Padding="0">
+                                <HorizontalStackLayout
+                                    Margin="0"
+                                    Padding="0"
+                                    Spacing="30">
                                     <Label
                                         StyleClass="H3"
-                                        Text="{Binding Course.DisplayName}">
+                                        Text="{Binding Label}">
                                         <Label.GestureRecognizers>
                                             <TapGestureRecognizer Command="{Binding SelectCommand}" />
                                         </Label.GestureRecognizers>
@@ -151,6 +169,21 @@
                                         </Image.GestureRecognizers>
                                     </Image>
                                 </HorizontalStackLayout>
+                                <CollectionView
+                                    ItemsSource="{Binding Assessments}"
+                                    BackgroundColor="Transparent">
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:AssessmentEditorViewModel">
+                                            <HorizontalStackLayout
+                                                Margin="0"
+                                                Padding="0">
+                                                <Label Text="{Binding Section.Block}" />
+                                                <Label Text="{Binding Date, StringFormat='{0:ddd dd MMMM}'}" />
+                                            </HorizontalStackLayout>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
+                                <BoxView StyleClass="Bar" />
                             </VerticalStackLayout>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
