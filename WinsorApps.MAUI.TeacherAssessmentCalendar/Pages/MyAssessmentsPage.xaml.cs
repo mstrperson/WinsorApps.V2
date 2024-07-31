@@ -11,16 +11,11 @@ public partial class MyAssessmentsPage : ContentPage
 	public MyAssessmentsPage(MyAssessmentsPageViewModel vm)
 	{
 		vm.OnError += this.DefaultOnErrorHandler();
-        vm.StudentSelected += Vm_StudentSelected;
 
 		BindingContext = vm;
 		InitializeComponent();
 	}
 
-    private void Vm_StudentSelected(object? sender, UserViewModel e)
-    {
-
-    }
 
     private void Picker_SelectedIndexChanged(object sender, EventArgs e)
     {

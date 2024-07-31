@@ -30,6 +30,7 @@ public partial class AssessmentGroupViewModel :
     public event EventHandler<AssessmentGroupViewModel>? Selected;
     public event EventHandler<AssessmentDetailsViewModel>? SectionSelected;
     public event EventHandler<AssessmentDetailsViewModel>? ShowDetailsRequested;
+    public event EventHandler<StudentAssessmentRosterEntry>? StudentSelected;
 
     public static AssessmentGroupViewModel Empty = new AssessmentGroupViewModel();
 
@@ -52,6 +53,7 @@ public partial class AssessmentGroupViewModel :
         foreach(var entry in vm.Assessments)
         {
             entry.ShowDetailsRequested += (sender, details) => vm.ShowDetailsRequested?.Invoke(sender, details);
+            entry.StudentSelected += (sender, e) => vm.StudentSelected?.Invoke(vm, e);
         }
         return vm;
     }
@@ -73,17 +75,25 @@ public partial class AssessmentGroupViewModel :
         await Course.LoadSections();
         Assessments = [.. Course.Sections.Select(AssessmentEditorViewModel.Create)];
 
+        foreach (var entry in Assessments)
+        {
+            entry.ShowDetailsRequested += (sender, details) => ShowDetailsRequested?.Invoke(sender, details);
+            entry.StudentSelected += (sender, e) => StudentSelected?.Invoke(this, e);
+        }
+
         foreach (var entry in _group.assessments)
         {
             var detail = await _assessmentService.GetAssessmentDetails(entry.assessmentId, OnError.DefaultBehavior(this));
             if (detail.HasValue)
             {
-                var vm = Assessments.First(ent => ent.Section.Model.sectionId == detail.Value.section.sectionId);
-                var model = _service.AssessmentCalendar.FirstOrDefault(ent => ent.id == entry.assessmentId && ent.type == AssessmentType.Assessment);
-                if (model.id == entry.assessmentId)
-                    vm.Details = AssessmentDetailsViewModel.Get(model);
-                vm.IsSelected = true;
-                vm.Date = detail.Value.assessmentDateTime;
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    var vm = Assessments.First(ent => ent.Section.Model.sectionId == detail.Value.section.sectionId);
+                    vm.Model = detail.Value;
+                    vm.LoadDetails();
+                    vm.IsSelected = true;
+                    vm.Date = detail.Value.assessmentDateTime;
+                });
             }
         }
 
@@ -186,7 +196,7 @@ public partial class AssessmentEditorViewModel :
     IErrorHandling
 {
     public readonly ReadonlyCalendarService _service = ServiceHelper.GetService<ReadonlyCalendarService>();
-    public AssessmentEntryRecord Model { get; private set; }
+    public AssessmentEntryRecord Model { get; set; }
 
     [ObservableProperty] AssessmentDetailsViewModel details = new();
     [ObservableProperty] bool hasLatePasses;
@@ -205,13 +215,16 @@ public partial class AssessmentEditorViewModel :
 
     public event EventHandler<AssessmentDetailsViewModel>? Selected;
     public event EventHandler<AssessmentDetailsViewModel>? ShowDetailsRequested;
+    public event EventHandler<StudentAssessmentRosterEntry>? StudentSelected;
     public event EventHandler<ErrorRecord>? OnError;
     public AssessmentEditorViewModel(AssessmentEntryRecord entry)
     {
         Model = entry;
-        var model = _service.AssessmentCalendar.First(ent => ent.id == entry.assessmentId && ent.type == AssessmentType.Assessment);
-        if (model.id == entry.assessmentId)
-            Details = AssessmentDetailsViewModel.Get(model);
+        Details = AssessmentDetailsViewModel.Get(Model);
+        Details.StudentSelected += (sender, e) => StudentSelected?.Invoke(this, e);
+        HasConflicts = entry.studentConflicts.Any();
+        HasLatePasses = entry.studentsUsingPasses.Any();
+        HasRedFlags = entry.studentConflicts.Any(conflict => conflict.redFlag);
         Section = SectionViewModel.Get(entry.section);
         date = entry.assessmentDateTime;
     }
@@ -219,12 +232,24 @@ public partial class AssessmentEditorViewModel :
     private AssessmentEditorViewModel(SectionViewModel section) 
     {
         Section = section;
-        Model = new("", section.Model, default, [], []);
+        Model = new("", "", section.Model, default, [], []);
         Date = DateTime.Today;
     }
     public static AssessmentEditorViewModel Create(SectionViewModel section) => new AssessmentEditorViewModel(section);
 
     public static AssessmentEditorViewModel Get(AssessmentEntryRecord model) => new(model);
+
+    [RelayCommand]
+    public void LoadDetails()
+    {
+        if (string.IsNullOrEmpty(Model.assessmentId)) return;
+
+        HasConflicts = Model.studentConflicts.Any();
+        HasLatePasses = Model.studentsUsingPasses.Any();
+        HasRedFlags = Model.studentConflicts.Any(conflict => conflict.redFlag);
+        Details = AssessmentDetailsViewModel.Get(Model);
+        Details.StudentSelected += (sender, e) => StudentSelected?.Invoke(this, e);
+    }
 
     [RelayCommand]
     public void ShowDetails() => ShowDetailsRequested?.Invoke(this, Details);
@@ -253,11 +278,18 @@ public partial class MyAssessmentsCollectionViewModel :
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<AssessmentDetailsViewModel>? ShowDetailsRequested;
+    public event EventHandler<StudentAssessmentRosterEntry>? StudentSelected;
 
     public async Task Initialize(ErrorAction onError)
     {
         await _service.WaitForInit(onError);
-        MyAssessmentGroups = [.. _service.MyAssessments.Select(grp => new AssessmentGroupViewModel(grp))];
+        MyAssessmentGroups = 
+        [.. 
+            _service.MyAssessments
+            .OrderBy(grp => grp.assessments.Select(entry => entry.assessmentDateTime).Min())
+            .Select(grp => new AssessmentGroupViewModel(grp))
+        ];
+
         foreach(var group in MyAssessmentGroups)
         {
             group.Deleted += (_, _) =>
@@ -280,7 +312,8 @@ public partial class MyAssessmentsCollectionViewModel :
 
             group.OnError += (sender, e) => OnError?.Invoke(sender, e);
 
-            group.ShowDetailsRequested += (sender, e) => ShowDetailsRequested?.Invoke(sender, e);
+            group.ShowDetailsRequested += (sender, e) => ShowDetailsRequested?.Invoke(group, e);
+            group.StudentSelected += (sender, e) => StudentSelected?.Invoke(sender, e);
         }
     }
 
@@ -310,6 +343,10 @@ public partial class MyAssessmentsCollectionViewModel :
 
         newGroup.Created += (_, _) =>
             MyAssessmentGroups.Add(newGroup);
+
+        newGroup.ShowDetailsRequested += (sender, e) => ShowDetailsRequested?.Invoke(newGroup, e);
+
+        newGroup.StudentSelected += (sender, e) => StudentSelected?.Invoke(sender, e);
 
         SelectedAssessmentGroup = newGroup;
         ShowSelectedGroup = true;

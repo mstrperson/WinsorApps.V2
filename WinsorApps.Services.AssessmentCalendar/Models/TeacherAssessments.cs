@@ -30,7 +30,7 @@ public readonly record struct AssessmentConflictRecord(string studentId, Immutab
     /// <param name="studentConflicts">
     /// List of students with other assessments scheduled on the same day and how many assessments they have.
     /// </param>
-    public readonly record struct AssessmentEntryRecord(string assessmentId, SectionRecord section, DateTime assessmentDateTime,
+    public readonly record struct AssessmentEntryRecord(string groupId, string assessmentId, SectionRecord section, DateTime assessmentDateTime,
         ImmutableArray<AssessmentPassListItem> studentsUsingPasses, ImmutableArray<StudentConflictCount> studentConflicts);
 
     public readonly record struct StudentAssessmentRosterEntry(StudentRecordShort student, bool latePass, int conflictCount)

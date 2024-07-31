@@ -30,7 +30,6 @@ public partial class MyAssessmentsPageViewModel :
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "";
 
-    public event EventHandler<UserViewModel>? StudentSelected;
     public event EventHandler<AssessmentEditorViewModel>? SectionAssessmentSelected;
     public event EventHandler<ErrorRecord>? OnError;
 
@@ -43,6 +42,12 @@ public partial class MyAssessmentsPageViewModel :
             ShowDetails = true;
             SelectedDetails = details;
         };
+
+        AssessmentCollection.StudentSelected += (sender, e) =>
+        {
+
+        };
+
         _service = service;
         _registrar = registrar;
     }
