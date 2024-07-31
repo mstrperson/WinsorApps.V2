@@ -9,24 +9,24 @@
         Property="Source"
         Value="{FontImage 
             FontFamily=Serif,
-            Glyph=➕,
-            Size=18}" />
+            Glyph=+,
+            Size=32}" />
         <Setter
             Property="HeightRequest"
-            Value="40" />
+            Value="{OnPlatform MacCatalyst=40}" />
     </Style>
     <Style
-    TargetType="Image"
+        TargetType="Image"
         Class="RefreshButton">
         <Setter 
-        Property="Source"
-        Value="{FontImage 
-            FontFamily=Serif,
-            Glyph=⟳,
-            Size=18}" />
+            Property="Source"
+            Value="{FontImage 
+                FontFamily=Serif,
+                Glyph=🔄,
+                Size=18}" />
         <Setter
             Property="HeightRequest"
-            Value="40" />
+            Value="{OnPlatform MacCatalyst=40}" />
     </Style>
     <Style
         TargetType="Image"
@@ -39,7 +39,7 @@
                 Size=18}" />
         <Setter
             Property="HeightRequest"
-            Value="40" />
+            Value="{OnPlatform MacCatalyst=40}" />
     </Style>
 
     <Style
@@ -53,7 +53,7 @@
                 Size=18}" />
         <Setter
             Property="HeightRequest"
-            Value="40" />
+            Value="{OnPlatform MacCatalyst=40}" />
     </Style>
     <Style
         TargetType="Image"
@@ -66,7 +66,7 @@
                 Size=18}" />
         <Setter
             Property="HeightRequest"
-            Value="40" />
+            Value="{OnPlatform MacCatalyst=40}" />
     </Style>
     <Style
         TargetType="Image"
@@ -79,7 +79,7 @@
                 Size=18}" />
         <Setter
             Property="HeightRequest"
-            Value="40" />
+            Value="{OnPlatform MacCatalyst=40}" />
     </Style>
 
     <Style
@@ -89,11 +89,11 @@
             Property="Source"
             Value="{FontImage
                 FontFamily=Serif,
-                Glyph=✍,
+                Glyph=✏️,
                 Size=18}" />
         <Setter
             Property="HeightRequest"
-            Value="40" />
+            Value="{OnPlatform MacCatalyst=40}" />
     </Style>
 
     <Style
@@ -107,7 +107,7 @@
                 Size=18}"/>
         <Setter
             Property="HeightRequest"
-            Value="40" />
+            Value="{OnPlatform MacCatalyst=40}" />
     </Style>
     <Style
         TargetType="Image"
@@ -116,14 +116,109 @@
             Property="Source"
             Value="{FontImage
                 FontFamily=Serif,
-                Glyph=➥,
+                Glyph=📤,
                 Size=18}"/>
         <Setter
             Property="HeightRequest"
-            Value="40" />
+            Value="{OnPlatform MacCatalyst=40}" />
     </Style>
-        
-        
+
+    <Style
+        TargetType="Image"
+        Class="WarningSignifier">
+        <Setter
+            Property="Source"
+            Value="{FontImage
+                FontFamily=Serif,
+                Glyph=⚠,
+                Size=18}"/>
+        <Setter
+            Property="HeightRequest"
+            Value="{OnPlatform MacCatalyst=40}" />
+    </Style>
+
+
+    <Style
+        TargetType="Image"
+        Class="RedFlagSignifier">
+        <Setter
+            Property="Source"
+            Value="{FontImage
+                FontFamily=Serif,
+                Glyph=‼️,
+                Size=18}"/>
+        <Setter
+            Property="HeightRequest"
+            Value="{OnPlatform MacCatalyst=40}" />
+    </Style>
+    <Style
+        TargetType="Image"
+        Class="PassSignifier">
+        <Setter
+            Property="Source"
+            Value="{FontImage
+                FontFamily=Serif,
+                Glyph=📨,
+                Size=18}"/>
+        <Setter
+            Property="HeightRequest"
+            Value="{OnPlatform MacCatalyst=40}" />
+    </Style>
+
+
+    <Style
+        TargetType="Image"
+        Class="UpArrow">
+        <Setter
+            Property="Source"
+            Value="{FontImage
+                FontFamily=Serif,
+                Glyph=⬆️,
+                Size=18}"/>
+        <Setter
+            Property="HeightRequest"
+            Value="{OnPlatform MacCatalyst=40}" />
+    </Style>
+    <Style
+        TargetType="Image"
+        Class="DownArrow">
+        <Setter
+            Property="Source"
+            Value="{FontImage
+                FontFamily=Serif,
+                Glyph=⬇️,
+                Size=18}"/>
+        <Setter
+            Property="HeightRequest"
+            Value="{OnPlatform MacCatalyst=40}" />
+    </Style>
+    <Style
+        TargetType="Image"
+        Class="RightArrow">
+        <Setter
+            Property="Source"
+            Value="{FontImage
+                FontFamily=Serif,
+                Glyph=➡️,
+                Size=18}"/>
+        <Setter
+            Property="HeightRequest"
+            Value="{OnPlatform MacCatalyst=40}" />
+    </Style>
+    <Style
+        TargetType="Image"
+        Class="LeftArrow">
+        <Setter
+            Property="Source"
+            Value="{FontImage
+                FontFamily=Serif,
+                Glyph=⬅️,
+                Size=18}"/>
+        <Setter
+            Property="HeightRequest"
+            Value="{OnPlatform MacCatalyst=40}" />
+    </Style>
+
     <!--
         This is for inserting a wordmark_oneline logo anywhere in the project.
     -->

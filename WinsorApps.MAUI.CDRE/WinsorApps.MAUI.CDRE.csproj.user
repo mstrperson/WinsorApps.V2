@@ -16,24 +16,16 @@
     <MauiXaml Update="Pages\EventsListPage.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
-    <MauiXaml Update="Resources\Styles\ButtonStyles.xaml">
-      <SubType>Designer</SubType>
-    </MauiXaml>
+    <MauiXaml Update="Resources\Styles\ButtonStyles.xaml" />
     <MauiXaml Update="Resources\Styles\ImageStyles.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
-    <MauiXaml Update="Resources\Styles\LabelStyles.xaml">
-      <SubType>Designer</SubType>
-    </MauiXaml>
-    <MauiXaml Update="Resources\Styles\SignifierLabels.xaml">
-      <SubType>Designer</SubType>
-    </MauiXaml>
+    <MauiXaml Update="Resources\Styles\LabelStyles.xaml" />
+    <MauiXaml Update="Resources\Styles\SignifierLabels.xaml" />
     <MauiXaml Update="Resources\Styles\Styles.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
-    <MauiXaml Update="Resources\Styles\ToolbarItemStyles.xaml">
-      <SubType>Designer</SubType>
-    </MauiXaml>
+    <MauiXaml Update="Resources\Styles\ToolbarItemStyles.xaml" />
   </ItemGroup>
   <ItemGroup>
     <None Update="App.xaml">
