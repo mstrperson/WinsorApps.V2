@@ -29,6 +29,7 @@ public partial class AssessmentGroupViewModel :
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<AssessmentGroupViewModel>? Selected;
     public event EventHandler<AssessmentDetailsViewModel>? SectionSelected;
+    public event EventHandler<AssessmentDetailsViewModel>? ShowDetailsRequested;
 
     public static AssessmentGroupViewModel Empty = new AssessmentGroupViewModel();
 
@@ -48,6 +49,10 @@ public partial class AssessmentGroupViewModel :
         AssessmentGroupViewModel vm = new() { Course = course, IsSelected = true, IsNew = true };
         await vm.Course.LoadSections();
         vm.Assessments = [.. vm.Course.Sections.Select(AssessmentEditorViewModel.Create)];
+        foreach(var entry in vm.Assessments)
+        {
+            entry.ShowDetailsRequested += (sender, details) => vm.ShowDetailsRequested?.Invoke(sender, details);
+        }
         return vm;
     }
 
@@ -184,17 +189,23 @@ public partial class AssessmentEditorViewModel :
     public AssessmentEntryRecord Model { get; private set; }
 
     [ObservableProperty] AssessmentDetailsViewModel details = new();
+    [ObservableProperty] bool hasLatePasses;
+    [ObservableProperty] bool hasConflicts;
+    [ObservableProperty] bool hasRedFlags;
+
     [ObservableProperty] SectionViewModel section;
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "";
     [ObservableProperty] bool isSelected;
 
+
+
     [ObservableProperty]
     DateTime date;
 
     public event EventHandler<AssessmentDetailsViewModel>? Selected;
+    public event EventHandler<AssessmentDetailsViewModel>? ShowDetailsRequested;
     public event EventHandler<ErrorRecord>? OnError;
-
     public AssessmentEditorViewModel(AssessmentEntryRecord entry)
     {
         Model = entry;
@@ -204,6 +215,7 @@ public partial class AssessmentEditorViewModel :
         Section = SectionViewModel.Get(entry.section);
         date = entry.assessmentDateTime;
     }
+
     private AssessmentEditorViewModel(SectionViewModel section) 
     {
         Section = section;
@@ -213,6 +225,9 @@ public partial class AssessmentEditorViewModel :
     public static AssessmentEditorViewModel Create(SectionViewModel section) => new AssessmentEditorViewModel(section);
 
     public static AssessmentEditorViewModel Get(AssessmentEntryRecord model) => new(model);
+
+    [RelayCommand]
+    public void ShowDetails() => ShowDetailsRequested?.Invoke(this, Details);
 
     [RelayCommand]
     public void Select()
@@ -237,6 +252,7 @@ public partial class MyAssessmentsCollectionViewModel :
     [ObservableProperty] string busyMessage = "";
 
     public event EventHandler<ErrorRecord>? OnError;
+    public event EventHandler<AssessmentDetailsViewModel>? ShowDetailsRequested;
 
     public async Task Initialize(ErrorAction onError)
     {
@@ -263,6 +279,8 @@ public partial class MyAssessmentsCollectionViewModel :
             };
 
             group.OnError += (sender, e) => OnError?.Invoke(sender, e);
+
+            group.ShowDetailsRequested += (sender, e) => ShowDetailsRequested?.Invoke(sender, e);
         }
     }
 

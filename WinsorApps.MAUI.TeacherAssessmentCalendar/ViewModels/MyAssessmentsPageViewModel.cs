@@ -18,9 +18,10 @@ public partial class MyAssessmentsPageViewModel :
     private readonly TeacherAssessmentService _service;
     private readonly RegistrarService _registrar;
 
-    [ObservableProperty] UserSearchViewModel myAdvisees = new();
-
     [ObservableProperty] MyAssessmentsCollectionViewModel assessmentCollection;
+
+    [ObservableProperty] AssessmentDetailsViewModel selectedDetails = new();
+    [ObservableProperty] bool showDetails;
 
     [ObservableProperty] ObservableCollection<CourseViewModel> myCourses = [];
     [ObservableProperty] CourseViewModel selectedCourse = CourseViewModel.Empty;
@@ -37,9 +38,19 @@ public partial class MyAssessmentsPageViewModel :
     {
         AssessmentCollection = assessmentCollection;
         AssessmentCollection.OnError += (sender, e) => OnError?.Invoke(sender, e);
-
+        AssessmentCollection.ShowDetailsRequested += (sender, details) =>
+        {
+            ShowDetails = true;
+            SelectedDetails = details;
+        };
         _service = service;
         _registrar = registrar;
+    }
+
+    [RelayCommand]
+    public void HideDetails()
+    {
+        ShowDetails = false;
     }
 
     [RelayCommand]
@@ -64,10 +75,6 @@ public partial class MyAssessmentsPageViewModel :
                 SelectedCourse = CourseSelected ? course : CourseViewModel.Empty;
             };
         }
-
-        await _service.WaitForInit(onError);
-        MyAdvisees.SetAvailableUsers(_service.MyStudents.Select(stu => stu.GetUserRecord(_registrar)));
-        MyAdvisees.OnSingleResult += (_, student) => StudentSelected?.Invoke(this, student);
     }
 
     [RelayCommand]

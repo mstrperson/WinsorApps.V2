@@ -192,14 +192,7 @@
             <!-- Right column - My Advisees -->
             <VerticalStackLayout
                 Grid.Column="1">
-                <!-- Student Selection -->
-                <HorizontalStackLayout>
-                    <shared:UserSearchBar
-                        BindingContext="{Binding MyAdvisees}" />
-                    <Button
-                        Text="View Assessment Calendar" />
-                </HorizontalStackLayout>
-                <BoxView StyleClass="Bar" />
+                
             </VerticalStackLayout>
         </Grid>
     </ContentPage.Content>

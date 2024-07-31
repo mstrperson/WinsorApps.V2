@@ -20,7 +20,7 @@
         Route="MyAssessmentsPage" />
 
     <ShellContent
-        Title="My Assessments"
+        Title="Help"
         ContentTemplate="{DataTemplate shared:HelpPage}"
         Route="HelpPage" />
 

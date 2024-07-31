@@ -10,23 +10,23 @@
         Value="{FontImage 
             FontFamily=Serif,
             Glyph=+,
-            Size=18}" />
+            Size=32}" />
         <Setter
             Property="HeightRequest"
-            Value="40" />
+            Value="{OnPlatform MacCatalyst=40}" />
     </Style>
     <Style
-    TargetType="Image"
+        TargetType="Image"
         Class="RefreshButton">
         <Setter 
-        Property="Source"
-        Value="{FontImage 
-            FontFamily=Serif,
-            Glyph=🔄,
-            Size=18}" />
+            Property="Source"
+            Value="{FontImage 
+                FontFamily=Serif,
+                Glyph=🔄,
+                Size=18}" />
         <Setter
             Property="HeightRequest"
-            Value="40" />
+            Value="{OnPlatform MacCatalyst=40}" />
     </Style>
     <Style
         TargetType="Image"
@@ -39,7 +39,7 @@
                 Size=18}" />
         <Setter
             Property="HeightRequest"
-            Value="40" />
+            Value="{OnPlatform MacCatalyst=40}" />
     </Style>
 
     <Style
@@ -53,7 +53,7 @@
                 Size=18}" />
         <Setter
             Property="HeightRequest"
-            Value="40" />
+            Value="{OnPlatform MacCatalyst=40}" />
     </Style>
     <Style
         TargetType="Image"
@@ -66,7 +66,7 @@
                 Size=18}" />
         <Setter
             Property="HeightRequest"
-            Value="40" />
+            Value="{OnPlatform MacCatalyst=40}" />
     </Style>
     <Style
         TargetType="Image"
@@ -79,7 +79,7 @@
                 Size=18}" />
         <Setter
             Property="HeightRequest"
-            Value="40" />
+            Value="{OnPlatform MacCatalyst=40}" />
     </Style>
 
     <Style
@@ -93,7 +93,7 @@
                 Size=18}" />
         <Setter
             Property="HeightRequest"
-            Value="40" />
+            Value="{OnPlatform MacCatalyst=40}" />
     </Style>
 
     <Style
@@ -107,7 +107,7 @@
                 Size=18}"/>
         <Setter
             Property="HeightRequest"
-            Value="40" />
+            Value="{OnPlatform MacCatalyst=40}" />
     </Style>
     <Style
         TargetType="Image"
@@ -120,7 +120,7 @@
                 Size=18}"/>
         <Setter
             Property="HeightRequest"
-            Value="40" />
+            Value="{OnPlatform MacCatalyst=40}" />
     </Style>
         
         
