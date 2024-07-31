@@ -217,7 +217,8 @@
             <VerticalStackLayout
                 Grid.Column="1">
                 <VerticalStackLayout
-                    IsVisible="{Binding ShowDetails}">
+                    IsVisible="{Binding ShowDetails}"
+                    WidthRequest="750">
                     <HorizontalStackLayout
                         Margin="0"
                         Padding="0">
@@ -249,7 +250,8 @@
                         </CollectionView.Header>
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="vm:StudentAssessmentRosterEntry">
-                                <HorizontalStackLayout>
+                                <HorizontalStackLayout
+                                    WidthRequest="750">
                                     <Label
                                         Text="{Binding Student.DisplayName}"
                                         WidthRequest="400"/>
