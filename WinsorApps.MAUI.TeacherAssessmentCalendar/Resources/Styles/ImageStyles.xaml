@@ -9,7 +9,7 @@
         Property="Source"
         Value="{FontImage 
             FontFamily=Serif,
-            Glyph=➕,
+            Glyph=+,
             Size=18}" />
         <Setter
             Property="HeightRequest"
@@ -22,7 +22,7 @@
         Property="Source"
         Value="{FontImage 
             FontFamily=Serif,
-            Glyph=⟳,
+            Glyph=🔄,
             Size=18}" />
         <Setter
             Property="HeightRequest"
@@ -89,7 +89,7 @@
             Property="Source"
             Value="{FontImage
                 FontFamily=Serif,
-                Glyph=✍,
+                Glyph=✏️,
                 Size=18}" />
         <Setter
             Property="HeightRequest"
@@ -116,7 +116,7 @@
             Property="Source"
             Value="{FontImage
                 FontFamily=Serif,
-                Glyph=➥,
+                Glyph=📤,
                 Size=18}"/>
         <Setter
             Property="HeightRequest"
