@@ -12,6 +12,27 @@ using WinsorApps.MAUI.Shared;
 
 namespace WinsorApps.MAUI.TeacherAssessmentCalendar.ViewModels;
 
+public partial class StudentAssessmentRosterEntry :
+    ObservableObject,
+    ISelectable<StudentAssessmentRosterEntry>
+{
+    [ObservableProperty] UserViewModel student = UserViewModel.Empty;
+    [ObservableProperty] bool latePassUsed;
+    [ObservableProperty] DateTime latePassTimeStamp;
+    [ObservableProperty] bool hasConflicts;
+    [ObservableProperty] int conflictCount;
+    [ObservableProperty] bool redFlag;
+    [ObservableProperty] bool isSelected;
+
+    public event EventHandler<StudentAssessmentRosterEntry>? Selected;
+
+    public void Select()
+    {
+        IsSelected = !IsSelected;
+        Selected?.Invoke(this, this);
+    }
+}
+
 public partial class AssessmentDetailsViewModel : 
     ObservableObject,
     IModelCarrier<AssessmentDetailsViewModel, AssessmentCalendarEvent>,
@@ -19,6 +40,7 @@ public partial class AssessmentDetailsViewModel :
 {
     public event EventHandler? LoadComplete;
     public event EventHandler<ErrorRecord>? OnError;
+    public event EventHandler<StudentAssessmentRosterEntry>? StudentSelected;
 
     public AssessmentCalendarEvent Model { get; private set; }
     private readonly TeacherAssessmentService _assessmentService = ServiceHelper.GetService<TeacherAssessmentService>();
@@ -41,13 +63,17 @@ public partial class AssessmentDetailsViewModel :
     ObservableCollection<string> classList = [];
 
     [ObservableProperty]
-    ObservableCollection<UserViewModel> students = [];
-
+    ObservableCollection<StudentAssessmentRosterEntry> students = [];
+    
     [ObservableProperty]
     ObservableCollection<StudentConflictViewModel> conflicts = [];
 
     [ObservableProperty]
     ObservableCollection<LatePassViewModel> passess = [];
+
+    [ObservableProperty] bool hasLatePasses;
+    [ObservableProperty] bool hasConflicts;
+    [ObservableProperty] bool hasRedFlags;
 
     public AssessmentDetailsViewModel() { }
 
@@ -92,11 +118,19 @@ public partial class AssessmentDetailsViewModel :
             DateLabel = $"{exam.startDateTime:ddd dd MMM hh:mm tt} - {exam.endDateTime:hh:mm tt}";
 
             ListLabel = "Students";
-            Students = [ .. 
+            Students =
+            [ ..
                 UserViewModel.GetClonedViewModels(
                     _registrarService.StudentList
                     .Where(student => exam.studentIds.Contains(student.id)))
-                ];
+                    .Select(student => new StudentAssessmentRosterEntry()
+                    {
+                        Student = student
+                    })
+            ];
+
+            foreach (var student in Students)
+                student.Selected += (_, selected) => StudentSelected?.Invoke(this, selected);
 
             LoadComplete?.Invoke(this, EventArgs.Empty);
         });
@@ -120,20 +154,75 @@ public partial class AssessmentDetailsViewModel :
                     .Select(t => $"{t}")
                     .Aggregate((a, b) => $"{a}, {b}")}]";
             ListLabel = "Students";
-        Students = [.. 
-                    UserViewModel.GetClonedViewModels(
-                        _registrarService.StudentList
-                        .Where(student => details.section.students.Any(stu => stu.id == student.id)))
-                ];
-            details.section.students
-                .ToImmutableArray();
+            Students =
+            [..
+                UserViewModel.GetClonedViewModels(
+                    _registrarService.StudentList
+                    .Where(student => details.section.students.Any(stu => stu.id == student.id)))
+                    .Select(student => new StudentAssessmentRosterEntry()
+                    {
+                        Student = student,
+                        LatePassUsed = details.studentsUsingPasses.Any(pass => pass.student.id == student.Id),
+                        LatePassTimeStamp = details.studentsUsingPasses.FirstOrDefault(pass => pass.student.id == student.Id).timeStamp,
+                        HasConflicts = details.studentConflicts.Any(conflict => conflict.student.id == student.Id),
+                        ConflictCount = details.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.Id).conflictCount,
+                        RedFlag = details.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.Id).redFlag
+                    })
+            ];
+
+            foreach (var student in Students)
+                student.Selected += (_, selected) => StudentSelected?.Invoke(this, selected);
 
             Passess = LatePassViewModel.GetPasses(details);
+            HasLatePasses = Passess.Any();
 
             Conflicts = [.. details.studentConflicts.Select(StudentConflictViewModel.Get)];
 
+            HasConflicts = Conflicts.Any();
+            HasRedFlags = Conflicts.Any(conflict => conflict.RedFlag);
+
             LoadComplete?.Invoke(this, EventArgs.Empty);
         });
+    }
+
+    public static AssessmentDetailsViewModel Get(AssessmentEntryRecord details)
+    {
+        var registrarService = ServiceHelper.GetService<RegistrarService>();
+        var service = ServiceHelper.GetService<TeacherAssessmentService>();
+        
+        var vm = new AssessmentDetailsViewModel();
+
+        var group = service.MyAssessments.FirstOrDefault(grp => grp.id == details.groupId);
+
+        vm.Title = string.IsNullOrEmpty(group.note) ? group.course : group.note;
+        vm.Subtitle = $"{details.section.displayName} [{details.section.teachers
+                .Select(t => $"{t}")
+                .Aggregate((a, b) => $"{a}, {b}")}]";
+        vm.ListLabel = "Students";
+        vm.Students =
+        [..
+                UserViewModel.GetClonedViewModels(
+                    registrarService.StudentList
+                    .Where(student => details.section.students.Any(stu => stu.id == student.id)))
+                    .Select(student => new StudentAssessmentRosterEntry()
+                    {
+                        Student = student,
+                        LatePassUsed = details.studentsUsingPasses.Any(pass => pass.student.id == student.Id),
+                        LatePassTimeStamp = details.studentsUsingPasses.FirstOrDefault(pass => pass.student.id == student.Id).timeStamp,
+                        HasConflicts = details.studentConflicts.Any(conflict => conflict.student.id == student.Id),
+                        ConflictCount = details.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.Id).conflictCount,
+                        RedFlag = details.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.Id).redFlag
+                    })
+        ];
+
+        vm.Passess = LatePassViewModel.GetPasses(details);
+        vm.HasLatePasses = vm.Passess.Any();
+
+        vm.Conflicts = [.. details.studentConflicts.Select(StudentConflictViewModel.Get)];
+
+        vm.HasConflicts = vm.Conflicts.Any();
+        vm.HasRedFlags = vm.Conflicts.Any(conflict => conflict.RedFlag);
+        return vm;
     }
 
     public static AssessmentDetailsViewModel Get(AssessmentCalendarEvent model) => new(model);
