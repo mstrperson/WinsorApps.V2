@@ -104,15 +104,20 @@ public partial class AllMyStudentsViewModel :
     public readonly TeacherAssessmentService _service = ServiceHelper.GetService<TeacherAssessmentService>();
 
     [ObservableProperty] ObservableCollection<StudentViewModel> myStudents = [];
+    [ObservableProperty] private int studentCount;
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "";
 
     public StudentViewModel? this[string id] => MyStudents.FirstOrDefault(stu => stu.Model.id == id);
 
+    private readonly RegistrarService _registrar = ServiceHelper.GetService<RegistrarService>();
+    
     public async Task Initialize(ErrorAction onError)
     {
         await _service.WaitForInit(onError);
 
+        await _registrar.WaitForUniqueNames();
+        
         var students = _service.MyStudents;
 
         MyStudents = [.. 
@@ -130,6 +135,8 @@ public partial class AllMyStudentsViewModel :
             };
             student.UserInfo.GetUniqueDisplayName();
         }
+
+        StudentCount = MyStudents.Count;
     }
 }
 

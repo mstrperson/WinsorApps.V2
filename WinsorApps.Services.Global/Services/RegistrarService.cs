@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections.Concurrent;
+using System.Collections.Immutable;
 using AsyncAwaitBestPractices;
 using WinsorApps.Services.Global.Models;
 
@@ -14,12 +15,12 @@ namespace WinsorApps.Services.Global.Services
         /// </summary>
         public UserRecord Me => _api.UserInfo!.Value;
 
-        private Dictionary<string, ImmutableArray<SectionDetailRecord>> _sectionsByCourse;
+        private Dictionary<string, ConcurrentBag<SectionDetailRecord>> _sectionsByCourse;
 
         /// <summary>
         /// School Year data cache
         /// </summary>
-        public ImmutableArray<SchoolYear> SchoolYears { get; private set; } = [];
+        public ConcurrentBag<SchoolYear> SchoolYears { get; private set; } = [];
 
         public RegistrarService(ApiService api, LocalLoggingService logging)
         {
@@ -41,9 +42,15 @@ namespace WinsorApps.Services.Global.Services
         /// <param name="onError"></param>
         private async Task DownloadSectionsByCourseAsync(ErrorAction onError)
         {
-            _sectionsByCourse = await 
+            var result = await 
                 _api.SendAsync<Dictionary<string, ImmutableArray<SectionDetailRecord>>>(
                     HttpMethod.Get, "api/registrar/course/sections-by-course", onError: onError) ?? [];
+
+            _sectionsByCourse = new();
+            foreach (var key in result.Keys)
+            {
+                _sectionsByCourse.Add(key, [.. result[key]]);
+            }
         }
 
 
@@ -51,50 +58,50 @@ namespace WinsorApps.Services.Global.Services
         /// <summary>
         /// My Schedule Cache.
         /// </summary>
-        private ImmutableArray<ScheduleEntry>? _mySchedule { get; set; }
+        private ConcurrentBag<ScheduleEntry> _mySchedule { get; set; } = [];
 
         /// <summary>
         /// Access the MySchedule cache.
         /// </summary>
-        public ImmutableArray<ScheduleEntry> MySchedule => _mySchedule ?? [];
+        public ConcurrentBag<ScheduleEntry> MySchedule => _mySchedule ?? [];
         /// <summary>
         /// Get My Schedule from the API.  Stores it in Cache.
         /// </summary>
         /// <returns></returns>
-        public async Task<ImmutableArray<ScheduleEntry>> GetMyScheduleAsync()
+        public async Task<ConcurrentBag<ScheduleEntry>> GetMyScheduleAsync()
         {
             try
             {
-                if (!_mySchedule.HasValue)
+                if (_mySchedule.IsEmpty)
                 {
-                    _mySchedule = await _api.SendAsync<ImmutableArray<ScheduleEntry>>(HttpMethod.Get, "api/schedule");
+                    _mySchedule = [..await _api.SendAsync<ImmutableArray<ScheduleEntry>>(HttpMethod.Get, "api/schedule")];
                 }
             }
             catch (Exception ex)
             {
                 _logging.LogMessage(LocalLoggingService.LogLevel.Error, "Failed to get My Schedule", ex.Message, ex.StackTrace);
-                _mySchedule = Array.Empty<ScheduleEntry>().ToImmutableArray();
+                _mySchedule = [];
             }
-            return _mySchedule!.Value;
+            return _mySchedule;
         }
 
         /// <summary>
         /// My Academic Schedule Cache.
         /// </summary>
-        private ImmutableArray<SectionRecord>? _myAcademicSchedule;
+        private ConcurrentBag<SectionRecord> _myAcademicSchedule = [];
 
         /// <summary>
         /// Access My Academic Schedule cache.
         /// </summary>
-        public ImmutableArray<SectionRecord> MyAcademicSchedule => _myAcademicSchedule ?? [];
+        public ConcurrentBag<SectionRecord> MyAcademicSchedule => _myAcademicSchedule ?? [];
         
-        public async Task<ImmutableArray<SectionRecord>> GetMyAcademicScheduleAsync()
+        public async Task<ConcurrentBag<SectionRecord>> GetMyAcademicScheduleAsync()
         {
             try
             {
-                if (!_myAcademicSchedule.HasValue)
+                if (_myAcademicSchedule.IsEmpty)
                 {
-                    _myAcademicSchedule = await _api.SendAsync<ImmutableArray<SectionRecord>>(HttpMethod.Get, "api/schedule/academics?detailed=true");
+                    _myAcademicSchedule = [..await _api.SendAsync<ImmutableArray<SectionRecord>>(HttpMethod.Get, "api/schedule/academics?detailed=true")];
                     foreach (var section in _myAcademicSchedule)
                         _ = await GetSectionDetailsAsync(section.sectionId, _logging.LogError);
                 }
@@ -102,28 +109,28 @@ namespace WinsorApps.Services.Global.Services
             catch (Exception ex)
             {
                 _logging.LogMessage(LocalLoggingService.LogLevel.Error, "Failed to get My Schedule", ex.Message, ex.StackTrace);
-                _myAcademicSchedule = Array.Empty<SectionRecord>().ToImmutableArray();
+                _myAcademicSchedule = [];
             }
-            return _myAcademicSchedule!.Value;
+            return _myAcademicSchedule;
         }
 
         /// <summary>
         /// Course Data Cache.
         /// </summary>
-        private ImmutableArray<CourseRecord>? _courses;
+        private ConcurrentBag<CourseRecord> _courses = [];
 
         /// <summary>
         /// Access the Course Data Cache.  Throws an exception if the service is not yet initalized.
         /// </summary>
         /// <exception cref="ServiceNotReadyException"></exception>
-        public ImmutableArray<CourseRecord> CourseList
+        public ConcurrentBag<CourseRecord> CourseList
         {
             get
             {
-                if (!Ready || !_courses.HasValue)
+                if (!Ready)
                     throw new ServiceNotReadyException(_logging, "Course list is not ready.");
 
-                return _courses!.Value;
+                return _courses;
             }
         }
 
@@ -134,14 +141,14 @@ namespace WinsorApps.Services.Global.Services
         /// <param name="onError"></param>
         /// <param name="noCache"></param>
         /// <returns></returns>
-        public async Task<ImmutableArray<SectionDetailRecord>> GetSectionsOfAsync(CourseRecord course, ErrorAction onError, bool noCache = false)
+        public async Task<ConcurrentBag<SectionDetailRecord>> GetSectionsOfAsync(CourseRecord course, ErrorAction onError, bool noCache = false)
         {
-            if (!noCache && _sectionsByCourse.ContainsKey(course.courseId))
-                return _sectionsByCourse[course.courseId];
+            if (!noCache && _sectionsByCourse.TryGetValue(course.courseId, out var async))
+                return async;
 
             var result = await GetSectionsOfFromAPIAsync(course.courseId, onError);
-            _sectionsByCourse[course.courseId] = result;
-            return result;
+            _sectionsByCourse[course.courseId] = [..result];
+            return [..result];
         }
 
         /// <summary>
@@ -151,31 +158,31 @@ namespace WinsorApps.Services.Global.Services
         /// <param name="courseId"></param>
         /// <param name="onError"></param>
         /// <returns></returns>
-        private async Task<ImmutableArray<SectionDetailRecord>> GetSectionsOfFromAPIAsync(string courseId, ErrorAction onError) =>
-            await _api.SendAsync<ImmutableArray<SectionDetailRecord>>(
+        private async Task<ConcurrentBag<SectionDetailRecord>> GetSectionsOfFromAPIAsync(string courseId, ErrorAction onError) =>
+            [..await _api.SendAsync<ImmutableArray<SectionDetailRecord>>(
                 HttpMethod.Get, $"api/registrar/course/{courseId}/sections", 
-                onError: onError);
+                onError: onError)];
 
         /// <summary>
         /// Get Course Data from the API.  Only used during init.
         /// </summary>
         /// <returns></returns>
-        private async Task<ImmutableArray<CourseRecord>> GetCoursesAsync()
+        private async Task<ConcurrentBag<CourseRecord>> GetCoursesAsync()
         {
             try
             {
                 if (_courses is null)
                 {
-                    _courses = await _api.SendAsync<ImmutableArray<CourseRecord>>(HttpMethod.Get, "api/registrar/course?getsBooks=true");
+                    _courses = [..await _api.SendAsync<ImmutableArray<CourseRecord>>(HttpMethod.Get, "api/registrar/course?getsBooks=true")];
                 }
             }
             catch (Exception ex)
             {
                 _logging.LogMessage(LocalLoggingService.LogLevel.Error, "Failed to get course list", ex.Message, ex.StackTrace ?? "");
-                _courses = Array.Empty<CourseRecord>().ToImmutableArray();
+                _courses = [];
             }
 
-            return _courses!.Value;
+            return _courses;
 
         }
 
@@ -207,20 +214,20 @@ namespace WinsorApps.Services.Global.Services
         /// <summary>
         /// Teacher Data Cache
         /// </summary>
-        private ImmutableArray<UserRecord>? _teachers;
+        private ConcurrentBag<UserRecord> _teachers = [];
 
         /// <summary>
         /// get Teacher user data Cache.  Throws an exception if accessed before init has completed.
         /// </summary>
         /// <exception cref="ServiceNotReadyException"></exception>
-        public ImmutableArray<UserRecord> TeacherList
+        public ConcurrentBag<UserRecord> TeacherList
         {
             get
             {
-                if (!Ready || !_teachers.HasValue)
+                if (!Ready)
                     throw new ServiceNotReadyException(_logging, "GetTeachersAsync list is not yet ready.");
 
-                return _teachers.Value.ToImmutableArray();
+                return _teachers;
             }
         }
 
@@ -228,22 +235,22 @@ namespace WinsorApps.Services.Global.Services
         /// Get all Teacher data from API.  Only used during Init.
         /// </summary>
         /// <returns></returns>
-        private async Task<ImmutableArray<UserRecord>> GetTeachersAsync()
+        private async Task<ConcurrentBag<UserRecord>> GetTeachersAsync()
         {
             try
             {
-                if (_teachers is null || !_teachers.Value.Any())
+                if (_teachers.IsEmpty)
                 {
-                    _teachers = await _api.SendAsync<ImmutableArray<UserRecord>>(HttpMethod.Get, "api/users/teachers");
+                    _teachers = [..await _api.SendAsync<ImmutableArray<UserRecord>>(HttpMethod.Get, "api/users/teachers")];
                 }
             }
             catch (Exception ex)
             {
                 _logging.LogMessage(LocalLoggingService.LogLevel.Error, "Failed to get teacher list", ex.Message, ex.StackTrace);
-                _teachers = Enumerable.Empty<UserRecord>().ToImmutableArray();
+                _teachers = [];
             }
 
-            return _teachers.Value;
+            return _teachers;
 
         }
         
@@ -272,20 +279,20 @@ namespace WinsorApps.Services.Global.Services
         /// <summary>
         /// Employee Data Cache.
         /// </summary>
-        private IEnumerable<UserRecord>? _employees;
+        private ConcurrentBag<UserRecord> _employees = [];
         
         /// <summary>
         /// Access the Employee Data cache.  throws an exception if initialization has not completed.
         /// </summary>
         /// <exception cref="ServiceNotReadyException"></exception>
-        public ImmutableArray<UserRecord> EmployeeList
+        public ConcurrentBag<UserRecord> EmployeeList
         {
             get
             {
-                if (!Ready || _employees is null)
+                if (!Ready)
                     throw new ServiceNotReadyException(_logging, "Employee list is not yet ready.");
 
-                return _employees.ToImmutableArray();
+                return _employees;
             }
         }
         
@@ -297,37 +304,37 @@ namespace WinsorApps.Services.Global.Services
         {
             try
             {
-                if (_employees is null || !_employees.Any())
+                if (_employees.IsEmpty)
                 {
-                    _employees = await _api.SendAsync<ImmutableArray<UserRecord>>(HttpMethod.Get, "api/users/employees");
+                    _employees = [..await _api.SendAsync<ImmutableArray<UserRecord>>(HttpMethod.Get, "api/users/employees")];
                 }
             }
             catch (Exception ex)
             {
                 _logging.LogMessage(LocalLoggingService.LogLevel.Error, "Failed to get employee list", ex.Message, ex.StackTrace);
-                _employees = Enumerable.Empty<UserRecord>();
+                _employees = [];
             }
 
-            return _employees!;
+            return _employees;
         }
 
         /// <summary>
         /// Student data cache.
         /// </summary>
-        private IEnumerable<UserRecord>? _students;
+        private ConcurrentBag<UserRecord> _students = [];
         
         /// <summary>
         /// Get the Student list Cache, throws an exception if the service is not ready yet.
         /// </summary>
         /// <exception cref="ServiceNotReadyException"></exception>
-        public ImmutableArray<UserRecord> StudentList
+        public ConcurrentBag<UserRecord> StudentList
         {
             get
             {
-                if (!Ready || _students is null)
+                if (!Ready)
                     throw new ServiceNotReadyException(_logging, "GetStudentsAsync list is not yet ready.");
 
-                return _students.ToImmutableArray();
+                return _students;
             }
         }
         
@@ -339,31 +346,25 @@ namespace WinsorApps.Services.Global.Services
         {
             try
             {
-                if (_students is null || !_students.Any())
+                if (_students.IsEmpty)
                 {
-                    _students = await _api.SendAsync<ImmutableArray<UserRecord>>(HttpMethod.Get, "api/users/students");
+                    _students = [..await _api.SendAsync<ImmutableArray<UserRecord>>(HttpMethod.Get, "api/users/students")];
                 }
             }
             catch (Exception ex)
             {
                 _logging.LogMessage(LocalLoggingService.LogLevel.Error, "Failed to get student list", ex.Message, ex.StackTrace);
-                _students = Enumerable.Empty<UserRecord>();
+                _students = [];
             }
 
-            return _students!;
+            return _students;
 
         }
 
         /// <summary>
         /// Get Department List synchronously from the CourseList Cache
         /// </summary>
-        public ImmutableArray<string> DepartmentList => CourseList.Select(c => c.department).Distinct().ToImmutableArray();
-
-        /// <summary>
-        /// Get Departments directly from API (requires an API Call)
-        /// </summary>
-        /// <returns></returns>
-        public async Task<ImmutableArray<string>> GetDepartmentsAsync() => (await GetCoursesAsync()).Select(c => c.department).Distinct().ToImmutableArray();
+        public ImmutableArray<string> DepartmentList => [..CourseList.Select(c => c.department).Distinct()];
 
         /// <summary>
         /// Get the list of all Courses in a given department.
@@ -371,19 +372,18 @@ namespace WinsorApps.Services.Global.Services
         /// <param name="department"></param>
         /// <returns></returns>
         public ImmutableArray<CourseRecord> GetDeptCourses(string department) =>
-            CourseList.Where(c => c.department == department).ToImmutableArray();
+            [..CourseList.Where(c => c.department == department)];
 
         /// <summary>
         /// Get All Users from the Application Cache by means of appending all different lists together.
         /// </summary>
-        public ImmutableArray<UserRecord> AllUsers =>
-            StudentList
+        public ConcurrentBag<UserRecord> AllUsers =>
+            [..StudentList
             .Union(TeacherList)
             .Union(EmployeeList)
             .Distinct()
             .OrderBy(u => u.lastName)
-            .ThenBy(u => u.firstName)
-            .ToImmutableArray();
+            .ThenBy(u => u.firstName)];
 
         
         /// <summary>
@@ -440,7 +440,7 @@ namespace WinsorApps.Services.Global.Services
 
             getSchoolYearTask.WhenCompleted(() =>
             {
-                SchoolYears = getSchoolYearTask.Result;
+                SchoolYears = [..getSchoolYearTask.Result];
             });
             var sbc = DownloadSectionsByCourseAsync(onError);
             var mySched = GetMyScheduleAsync();
@@ -475,10 +475,19 @@ namespace WinsorApps.Services.Global.Services
             GetUniqueNames().SafeFireAndForget(e => e.LogException(_logging));
         }
 
+        public bool UniqueNamesReady { get; private set; } = false;
+
+        public async Task WaitForUniqueNames()
+        {
+            while (!UniqueNamesReady)
+                await Task.Delay(100);
+        }
         private async Task GetUniqueNames() => await Task.Run(() =>
         {
             foreach (var user in AllUsers)
                 GetUniqueDisplayNameFor(user);
+
+            UniqueNamesReady = true;
         });
         
         

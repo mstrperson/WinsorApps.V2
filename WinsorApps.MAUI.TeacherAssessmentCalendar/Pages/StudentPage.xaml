@@ -27,12 +27,18 @@
                         StyleClass="SubHeader"
                         Text="Select a Student" />
                     <HorizontalStackLayout
-                        Spacing="30">
+                        Spacing="30"
+                        WidthRequest="1000">
                         <SearchBar
-                            WidthRequest="300"
+                            WidthRequest="600"
                             Placeholder="Student Name"
                             Text="{Binding SearchText}"
                             SearchCommand="{Binding SearchStudentsCommand}"/>
+                        <Label
+                            StyleClass="H3"
+                            Text="{
+                                Binding MyStudents.StudentCount, 
+                                StringFormat='Students: {0}'}" />
                     </HorizontalStackLayout>
                     <VerticalStackLayout
                         IsVisible="{Binding ShowStudentSelection}"

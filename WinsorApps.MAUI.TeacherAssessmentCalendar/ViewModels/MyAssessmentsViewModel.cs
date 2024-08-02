@@ -283,6 +283,9 @@ public partial class MyAssessmentsCollectionViewModel :
     public async Task Initialize(ErrorAction onError)
     {
         await _service.WaitForInit(onError);
+
+        await Task.Delay(1000);
+        
         MyAssessmentGroups = 
         [.. 
             _service.MyAssessments
