@@ -520,7 +520,7 @@ namespace WinsorApps.Services.Global.Services
         public async Task<ImmutableArray<SectionRecord>> GetAcademicScheduleFor(string userId, ErrorAction onError)
         {
             var result = await _api.SendAsync<ImmutableArray<SectionRecord>?>(HttpMethod.Get,
-                $"api/schedule/academics/for/{userId}", onError: onError);
+                $"api/schedule/academics/for/{userId}?detailed=true", onError: onError);
 
             return result ?? [];
         }

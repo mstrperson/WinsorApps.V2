@@ -28,34 +28,18 @@
                         Text="Select a Student" />
                     <HorizontalStackLayout
                         Spacing="30">
-                        <Border
-                            StrokeThickness="1"
-                            BackgroundColor="{AppThemeBinding Dark={DynamicResource SlateDark}, Light={DynamicResource WarmGrey}}">
-                            <HorizontalStackLayout>
-                                <Label
-                                    StyleClass="H3"
-                                    Text="{Binding SelectedStudent.UserInfo.DisplayName}"
-                                    WidthRequest="350">
-                                    <Label.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding ToggleShowStudentSelectionCommand}" />
-                                    </Label.GestureRecognizers>
-                                </Label>
-                                <Image
-                                    StyleClass="DownArrow"
-                                    Margin="0,0,15,10">
-                                    <Image.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding ToggleShowStudentSelectionCommand}" />
-                                    </Image.GestureRecognizers>
-                                </Image>
-                            </HorizontalStackLayout>
-                        </Border>
+                        <SearchBar
+                            WidthRequest="300"
+                            Placeholder="Student Name"
+                            Text="{Binding SearchText}"
+                            SearchCommand="{Binding SearchStudentsCommand}"/>
                     </HorizontalStackLayout>
                     <VerticalStackLayout
                         IsVisible="{Binding ShowStudentSelection}"
                         Margin="0"
                         Padding="0">
                         <CollectionView
-                            ItemsSource="{Binding MyStudents.MyStudents}"
+                            ItemsSource="{Binding SearchResults}"
                             HeightRequest="800">
                             <CollectionView.Header>
                                 <Label 
@@ -78,6 +62,14 @@
                         </CollectionView>
                     </VerticalStackLayout>
                 </VerticalStackLayout>
+                <HorizontalStackLayout
+                    IsVisible="{Binding Busy}">
+                    <Label 
+                        StyleClass="Header"
+                        Text="{Binding BusyMessage}" />
+                    <Image
+                        StyleClass="loading_symbol" />
+                </HorizontalStackLayout>
                 <VerticalStackLayout
                     IsVisible="{Binding ShowStudent}"
                     HorizontalOptions="Center">
@@ -301,10 +293,205 @@
                                     StyleClass="Header" 
                                     Text="Late Passes"/>
                             </HorizontalStackLayout>
+                            <CollectionView
+                                BackgroundColor="Transparent"
+                                ItemsSource="{Binding LatePassCollection.LatePasses}">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:TeacherLatePassViewModel">
+                                        <VerticalStackLayout
+                                            Margin="0"
+                                            Padding="0">
+                                            <BoxView StyleClass="Bar" />
+                                            <HorizontalStackLayout
+                                                Margin="0"
+                                                Padding="0">
+                                                <Label 
+                                                    StyleClass="H3"
+                                                    WidthRequest="300"
+                                                    Text="{Binding LatePass.CourseName}" />
+                                                <Image
+                                                    StyleClass="DeleteButton">
+                                                    <Image.GestureRecognizers>
+                                                        <TapGestureRecognizer Command="{Binding WithdrawPassCommand}" />
+                                                    </Image.GestureRecognizers>
+                                                </Image>
+                                            </HorizontalStackLayout>
+                                            <HorizontalStackLayout
+                                                Margin="0"
+                                                Padding="0"
+                                                Spacing ="30">
+                                                <Label
+                                                    Text="{Binding LatePass.Note, StringFormat='Note:  {0}'}" />
+                                                <Label
+                                                    Text="{Binding LatePass.DateAndTime, StringFormat='{0:dddd dd MMMM hh:mm tt}'}" />
+                                            </HorizontalStackLayout>
+                                        </VerticalStackLayout>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
                         </VerticalStackLayout>
                         <!-- End Late Passes -->
                         <!-- Schedule -->
-
+                        <VerticalStackLayout
+                            IsVisible="{Binding ShowSchedule}">
+                            <Label
+                                StyleClass="Header"
+                                Text="Academic Schedule" />
+                            <Grid
+                                RowDefinitions="*"
+                                ColumnDefinitions="750,750">
+                                <!-- Academic Schedule - Left Column -->
+                                <CollectionView
+                                    Grid.Column="0"
+                                    BackgroundColor="Transparent"
+                                    ItemsSource="{Binding AcademicSchedule.Sections}">
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:SectionAssessmentCalendarViewModel">
+                                            <VerticalStackLayout
+                                                Margin="0"
+                                                Padding="0">
+                                                <BoxView StyleClass="Bar" />
+                                                <HorizontalStackLayout
+                                                    Margin="0"
+                                                    Padding="0"
+                                                    Spacing="30">
+                                                    <HorizontalStackLayout.GestureRecognizers>
+                                                        <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                                    </HorizontalStackLayout.GestureRecognizers>
+                                                    <Label
+                                                        StyleClass="SubHeader"
+                                                        Text="{Binding Section.DisplayName}" />
+                                                </HorizontalStackLayout>
+                                            </VerticalStackLayout>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
+                                <!-- Right Column -->
+                                <VerticalStackLayout
+                                    Grid.Column="1"
+                                    Margin="100,0,0,0"
+                                    Padding="0">
+                                    <!-- Selected Section -->
+                                    <VerticalStackLayout
+                                        Margin="0"
+                                        Padding="0"
+                                        IsVisible="{Binding ShowSelectedSection}">
+                                        <Label
+                                            StyleClass="Header"
+                                            Text="{Binding SelectedSection.Section.DisplayName}" />
+                                        <HorizontalStackLayout
+                                            Margin="0"
+                                            Padding="0"
+                                            Spacing="30">
+                                            <Label
+                                                StyleClass="SubHeader"
+                                                Text="{Binding SelectedSection.Section.PrimaryTeacher.DisplayName}" />
+                                            <Button
+                                                Text="Show All"
+                                                Command="{Binding SelectedSection.ToggleShowPastAssessmentsCommand}"
+                                                IsVisible="{Binding SelectedSection.ShowPastAssessments, Converter={StaticResource Invert}}" />
+                                            <Button
+                                                Text="Up Comming Only"
+                                                Command="{Binding SelectedSection.ToggleShowPastAssessmentsCommand}"
+                                                IsVisible="{Binding SelectedSection.ShowPastAssessments}" />
+                                        </HorizontalStackLayout>
+                                        <!-- Displayed Assessment List -->
+                                        <CollectionView
+                                            BackgroundColor="Transparent"
+                                            ItemsSource="{Binding SelectedSection.DisplayedAssessments}">
+                                            <CollectionView.Header>
+                                                <HorizontalStackLayout
+                                                    Margin="0"
+                                                    Padding="0">
+                                                    <Label
+                                                        StyleClass="SubHeader"
+                                                        Text="No Assessments Scheduled"
+                                                        IsVisible="{Binding SelectedSection.HasAssessments, Converter={StaticResource Invert}}" />
+                                                    <Label
+                                                        StyleClass="SubHeader"
+                                                        Text="Scheduled Assessments"
+                                                        IsVisible="{Binding SelectedSection.HasAssessments}" />
+                                                </HorizontalStackLayout>
+                                            </CollectionView.Header>
+                                            <CollectionView.ItemTemplate>
+                                                <DataTemplate x:DataType="vm:AssessmentDetailsViewModel">
+                                                    <VerticalStackLayout
+                                                        Padding="0"
+                                                        Margin="0">
+                                                        <BoxView StyleClass="Bar" />
+                                                        <HorizontalStackLayout
+                                                            Margin="0"
+                                                            Padding="0"
+                                                            Spacing="30">
+                                                            <HorizontalStackLayout.GestureRecognizers>
+                                                                <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                                            </HorizontalStackLayout.GestureRecognizers>
+                                                            <Label 
+                                                                StyleClass="H3"
+                                                                Text="{Binding DateLabel}" />
+                                                            <Label
+                                                                StyleClass="H3"
+                                                                Text="{Binding Title}" />
+                                                        </HorizontalStackLayout>
+                                                    </VerticalStackLayout>
+                                                </DataTemplate>
+                                            </CollectionView.ItemTemplate>
+                                        </CollectionView>
+                                        <!-- Selected Assessment -->
+                                        <VerticalStackLayout
+                                            Margin="0"
+                                            Padding="0"
+                                            IsVisible="{Binding AcademicSchedule.ShowAssessment}">
+                                            <BoxView StyleClass="Bar" />
+                                            <HorizontalStackLayout
+                                                Margin="0"
+                                                Padding="0">
+                                                <Label
+                                                    StyleClass="Header"
+                                                    Text="{Binding AcademicSchedule.SelectedAssessment.Title}" />
+                                                <Button
+                                                    Text="Use Late Pass"
+                                                    IsVisible="{Binding AcademicSchedule.SelectedAssessment.SelectedStudent.PassAvailable}"
+                                                    Command="{Binding RequestLatePassCommand}" />
+                                            </HorizontalStackLayout>
+                                            <Label
+                                                StyleClass="SubHeader"
+                                                Text="{Binding AcademicSchedule.SelectedAssessment.Subtitle}" />
+                                            <CollectionView
+                                                BackgroundColor="Transparent"
+                                                ItemsSource="{Binding AcademicSchedule.SelectedAssessment.Students}">
+                                                <CollectionView.Header>
+                                                    <Label
+                                                        StyleClass="SubHeader"
+                                                        Text="Students" />
+                                                </CollectionView.Header>
+                                                <CollectionView.ItemTemplate>
+                                                    <DataTemplate x:DataType="vm:StudentAssessmentRosterEntry">
+                                                        <HorizontalStackLayout
+                                                                WidthRequest="750">
+                                                            <Label
+                                                                Text="{Binding Student.DisplayName}"
+                                                                WidthRequest="400"/>
+                                                            <Image
+                                                                StyleClass="PassSignifier"
+                                                                ToolTipProperties.Text="{Binding LatePassTimeStamp, StringFormat='{0:ddd dd MMMM - hh:mm tt}'}" 
+                                                                IsVisible="{Binding LatePassUsed}"/>
+                                                            <Image
+                                                                StyleClass="WarningSignifier"
+                                                                ToolTipProperties.Text="{Binding ConflictCount}"
+                                                                IsVisible="{Binding HasConflicts}" />
+                                                            <Image
+                                                                StyleClass="RedFlagSignifier"
+                                                                IsVisible="{Binding RedFlag}" />
+                                                        </HorizontalStackLayout>
+                                                    </DataTemplate>
+                                                </CollectionView.ItemTemplate>
+                                            </CollectionView>
+                                        </VerticalStackLayout>
+                                    </VerticalStackLayout>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </VerticalStackLayout>
                         <!-- End Schedule -->
                     </VerticalStackLayout>
                 </VerticalStackLayout>

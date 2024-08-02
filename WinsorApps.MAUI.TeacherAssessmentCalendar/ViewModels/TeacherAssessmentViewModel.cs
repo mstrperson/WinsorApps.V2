@@ -9,6 +9,7 @@ using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 using WinsorApps.Services.Global;
 using WinsorApps.MAUI.Shared;
+using CommunityToolkit.Mvvm.Input;
 
 namespace WinsorApps.MAUI.TeacherAssessmentCalendar.ViewModels;
 
@@ -23,6 +24,7 @@ public partial class StudentAssessmentRosterEntry :
     [ObservableProperty] int conflictCount;
     [ObservableProperty] bool redFlag;
     [ObservableProperty] bool isSelected;
+    [ObservableProperty] bool passAvailable;
 
     public event EventHandler<StudentAssessmentRosterEntry>? Selected;
 
@@ -36,11 +38,13 @@ public partial class StudentAssessmentRosterEntry :
 public partial class AssessmentDetailsViewModel : 
     ObservableObject,
     IModelCarrier<AssessmentDetailsViewModel, AssessmentCalendarEvent>,
-    IErrorHandling
+    IErrorHandling,
+    ISelectable<AssessmentDetailsViewModel>
 {
     public event EventHandler? LoadComplete;
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<StudentAssessmentRosterEntry>? StudentSelected;
+    public event EventHandler<AssessmentDetailsViewModel>? Selected;
 
     public AssessmentCalendarEvent Model { get; private set; }
     private readonly TeacherAssessmentService _assessmentService = ServiceHelper.GetService<TeacherAssessmentService>();
@@ -74,8 +78,18 @@ public partial class AssessmentDetailsViewModel :
     [ObservableProperty] bool hasLatePasses;
     [ObservableProperty] bool hasConflicts;
     [ObservableProperty] bool hasRedFlags;
+    [ObservableProperty] bool isSelected;
+
+    [ObservableProperty] StudentAssessmentRosterEntry selectedStudent = new();
 
     public AssessmentDetailsViewModel() { }
+
+    public void SelectStudent(string studentId)
+    {
+        var result = Students.FirstOrDefault(student => student.Student.Model.id == studentId);
+        if (result is not null)
+            SelectedStudent = result;
+    }
 
     public AssessmentDetailsViewModel(AssessmentCalendarEvent @event)
     {
@@ -166,7 +180,8 @@ public partial class AssessmentDetailsViewModel :
                         LatePassTimeStamp = details.studentsUsingPasses.FirstOrDefault(pass => pass.student.id == student.Id).timeStamp,
                         HasConflicts = details.studentConflicts.Any(conflict => conflict.student.id == student.Id),
                         ConflictCount = details.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.Id).conflictCount,
-                        RedFlag = details.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.Id).redFlag
+                        RedFlag = details.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.Id).redFlag,
+                        PassAvailable = details.studentsWithPassAvailable.Any(stu => stu.id == student.Id)
                     })
             ];
 
@@ -194,6 +209,11 @@ public partial class AssessmentDetailsViewModel :
 
         var group = service.MyAssessments.FirstOrDefault(grp => grp.id == details.groupId);
 
+        vm.Model = new(details.assessmentId, AssessmentType.Assessment, group.course, group.note, details.assessmentDateTime, details.assessmentDateTime.AddMinutes(75), false,
+            []);
+
+        vm.DateLabel = $"{details.assessmentDateTime:dddd dd MMMM hh:mm tt}";
+
         vm.Title = string.IsNullOrEmpty(group.note) ? group.course : group.note;
         vm.Subtitle = $"{details.section.displayName} [{details.section.teachers
                 .Select(t => $"{t}")
@@ -211,7 +231,8 @@ public partial class AssessmentDetailsViewModel :
                         LatePassTimeStamp = details.studentsUsingPasses.FirstOrDefault(pass => pass.student.id == student.Id).timeStamp,
                         HasConflicts = details.studentConflicts.Any(conflict => conflict.student.id == student.Id),
                         ConflictCount = details.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.Id).conflictCount,
-                        RedFlag = details.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.Id).redFlag
+                        RedFlag = details.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.Id).redFlag,
+                        PassAvailable = details.studentsWithPassAvailable.Any(stu => stu.id == student.Id)
                     })
         ];
 
@@ -226,6 +247,13 @@ public partial class AssessmentDetailsViewModel :
     }
 
     public static AssessmentDetailsViewModel Get(AssessmentCalendarEvent model) => new(model);
+
+    [RelayCommand]
+    public void Select()
+    {
+        IsSelected = !IsSelected;
+        Selected?.Invoke(this, this);
+    }
 }
 
 

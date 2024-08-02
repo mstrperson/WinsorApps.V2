@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using WinsorApps.MAUI.Shared;
@@ -25,6 +26,8 @@ public partial class StudentPageViewModel :
     IBusyViewModel
 {
     [ObservableProperty] AllMyStudentsViewModel myStudents;
+    [ObservableProperty] string searchText = "";
+    [ObservableProperty] ObservableCollection<StudentViewModel> searchResults = [];
     [ObservableProperty] StudentViewModel selectedStudent = new();
     [ObservableProperty] bool showStudent;
     [ObservableProperty] bool showStudentSelection;
@@ -44,9 +47,36 @@ public partial class StudentPageViewModel :
             ShowStudentSelection = false;
             Busy = false;
         };
+
+        MyStudents.PropertyChanged += ((IBusyViewModel)this).BusyChangedCascade;
     }
 
+
     public event EventHandler<ErrorRecord>? OnError;
+
+    [RelayCommand]
+    public async Task SearchStudents()
+    {
+        Busy = true;
+        BusyMessage = "Searching Students...";
+
+        SearchResults = [.. MyStudents.MyStudents.Where(student => student.UserInfo.DisplayName.Contains(SearchText, StringComparison.InvariantCultureIgnoreCase))];
+        if(SearchResults.Count == 0)
+        {
+            BusyMessage = "No results.";
+            await Task.Delay(2000);
+        }
+
+        ShowStudentSelection = SearchResults.Count > 1;
+
+        if (SearchResults.Count == 1)
+        {
+            SearchResults[0].Select();
+        }
+
+
+        Busy = false;
+    }
 
     [RelayCommand]
     public void ReturnToStudentSelection()
@@ -54,6 +84,8 @@ public partial class StudentPageViewModel :
         ShowStudent = false;
         ShowStudentSelection = false;
         SelectedStudent = new();
+        SearchText = "";
+        SearchResults = [];
     }
 
     [RelayCommand]
@@ -63,7 +95,8 @@ public partial class StudentPageViewModel :
 
 public partial class AllMyStudentsViewModel :
     ObservableObject,
-    IErrorHandling
+    IErrorHandling,
+    IBusyViewModel
 {
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<StudentViewModel>? StudentSelected;
@@ -71,6 +104,8 @@ public partial class AllMyStudentsViewModel :
     public readonly TeacherAssessmentService _service = ServiceHelper.GetService<TeacherAssessmentService>();
 
     [ObservableProperty] ObservableCollection<StudentViewModel> myStudents = [];
+    [ObservableProperty] bool busy;
+    [ObservableProperty] string busyMessage = "";
 
     public StudentViewModel? this[string id] => MyStudents.FirstOrDefault(stu => stu.Model.id == id);
 
@@ -87,6 +122,7 @@ public partial class AllMyStudentsViewModel :
             .ThenBy(student => student.UserInfo.Model.lastName)];
         foreach (var student in MyStudents)
         {
+            student.PropertyChanged += ((IBusyViewModel)this).BusyChangedCascade;
             student.Selected += async (_, _) =>
             {
                 await student.UserInfo.GetPhoto();
@@ -120,8 +156,11 @@ public partial class StudentViewModel :
     [ObservableProperty] StudentLatePassCollectionViewModel latePassCollection = new(UserViewModel.Empty);
     [ObservableProperty] bool showLatePasses;
 
-    [ObservableProperty] ObservableCollection<SectionViewModel> academicSchedule = [];
+    [ObservableProperty] ScheduleViewModel academicSchedule = new();
     [ObservableProperty] bool showSchedule;
+
+    [ObservableProperty] SectionAssessmentCalendarViewModel selectedSection = new(new());
+    [ObservableProperty] bool showSelectedSection;
 
     [ObservableProperty] bool isSelected;
 
@@ -154,8 +193,24 @@ public partial class StudentViewModel :
             GradYear = model.gradYear,
             LatePassCollection = new(uvm)
         };
-
+        vm.LatePassCollection.PropertyChanged += ((IBusyViewModel)vm).BusyChangedCascade;
+        vm.AcademicSchedule.PropertyChanged += ((IBusyViewModel)vm).BusyChangedCascade;
+        vm.AcademicSchedule.SectionSelected += async (sender, section) =>
+        {
+            vm.SelectedSection = section;
+            await section.LoadAssessments();
+            vm.ShowSelectedSection = true;
+        };
         return vm;
+    }
+
+    [RelayCommand]
+    public async Task RequestLatePass()
+    {
+        if (!ShowSelectedSection || !AcademicSchedule.ShowAssessment)
+            return;
+
+        await LatePassCollection.RequestNewPassFor(AcademicSchedule.SelectedAssessment.Model);
     }
 
     [RelayCommand]
@@ -194,13 +249,10 @@ public partial class StudentViewModel :
         ShowSchedule = !ShowSchedule;
         if(ShowSchedule)
         {
-            if (!AcademicSchedule.Any())
-            {    
-                Busy = true;
-                BusyMessage = "Loading Assessment Calendar";
-                await LoadSchedule();
-                Busy = false;
-            }
+            Busy = true;
+            BusyMessage = "Loading Academic Schedule";
+            await LoadSchedule();
+            Busy = false;
             ShowCalendar = false;
             ShowLatePasses = false;
         }
@@ -209,8 +261,7 @@ public partial class StudentViewModel :
     [RelayCommand]
     public async Task LoadSchedule()
     {
-        var sections = await _registrar.GetAcademicScheduleFor(UserInfo.Id, OnError.DefaultBehavior(this));
-        AcademicSchedule = [..SectionViewModel.GetClonedViewModels(sections)];
+        await AcademicSchedule.GetScheduleFor(UserInfo);
     }
 
     [RelayCommand]
@@ -231,7 +282,8 @@ public partial class StudentViewModel :
         AssessmentCalendar =
             await CalendarMonthViewModel.Get(month,
             _service.GetStudentCalendar(OnError.DefaultBehavior(this),
-             UserInfo.Id, DateOnly.FromDateTime(month), DateOnly.FromDateTime(month.AddMonths(1))));
+             UserInfo.Id, DateOnly.FromDateTime(month), DateOnly.FromDateTime(month.AddMonths(1)))); 
+        AssessmentCalendar.PropertyChanged += ((IBusyViewModel)this).BusyChangedCascade;
     }
 
     [RelayCommand]

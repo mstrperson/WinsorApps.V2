@@ -232,7 +232,7 @@ public partial class AssessmentEditorViewModel :
     private AssessmentEditorViewModel(SectionViewModel section) 
     {
         Section = section;
-        Model = new("", "", section.Model, default, [], []);
+        Model = new("", "", section.Model, default, [], [], []);
         Date = DateTime.Today;
     }
     public static AssessmentEditorViewModel Create(SectionViewModel section) => new AssessmentEditorViewModel(section);

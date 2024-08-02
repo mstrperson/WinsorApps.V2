@@ -47,7 +47,7 @@ namespace WinsorApps.MAUI.Shared.AssessmentCalendar.ViewModels
             var registrar = ServiceHelper.GetService<RegistrarService>();
             var vm = new LatePassViewModel()
             {
-                CourseName = registrar.CourseList.First(course => course.courseCode == model.assessment.summary).displayName,
+                CourseName = registrar.CourseList.FirstOrDefault(course => course.courseCode == model.assessment.summary).displayName,
                 Note = model.assessment.description,
                 DateAndTime = model.assessment.start,
                 Timestamp = model.timeStamp,

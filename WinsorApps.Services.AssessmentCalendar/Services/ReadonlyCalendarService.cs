@@ -62,6 +62,14 @@ public partial class ReadonlyCalendarService :
 
     }
 
+    public async Task<ImmutableArray<AssessmentEntryRecord>> GetAssessmentsFor(string sectionId, ErrorAction onError)
+    {
+        var result = await _api.SendAsync<ImmutableArray<AssessmentEntryRecord>?>(HttpMethod.Get,
+            $"api/assessment-calendar/section/{sectionId}", onError: onError);
+
+        return result ?? [];
+    }
+
     private async Task RefreshYearCache(ErrorAction onError)
     {
         Progress = 0;

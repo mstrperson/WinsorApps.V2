@@ -13,7 +13,8 @@ namespace WinsorApps.MAUI.TeacherAssessmentCalendar.ViewModels;
 
 public partial class StudentLatePassCollectionViewModel :
     ObservableObject,
-    IErrorHandling
+    IErrorHandling,
+    IBusyViewModel
 {
     private readonly TeacherAssessmentService _service = ServiceHelper.GetService<TeacherAssessmentService>();
 
@@ -27,6 +28,8 @@ public partial class StudentLatePassCollectionViewModel :
     }
 
     [ObservableProperty] ObservableCollection<TeacherLatePassViewModel> latePasses = [];
+    [ObservableProperty] bool busy;
+    [ObservableProperty] string busyMessage = "";
 
     [RelayCommand]
     public async Task LoadPasses()
@@ -36,6 +39,7 @@ public partial class StudentLatePassCollectionViewModel :
         foreach(var pass in LatePasses)
         {
             pass.Withdrawn += (_, _) => LatePasses.Remove(pass);
+            pass.PropertyChanged += ((IBusyViewModel)this).BusyChangedCascade;
         }
     }
 
@@ -76,6 +80,8 @@ public partial class TeacherLatePassViewModel :
     [RelayCommand]
     public async Task WithdrawPass()
     {
+        Busy = true;
+        BusyMessage = $"Withdrawing late pass for {LatePass.CourseName} - {LatePass.Note} on behalf of {LatePass.Student.DisplayName}";
         var success = true;
         await _service.WithdrawLatePassForStudent(LatePass.Student.Id, LatePass.Model.assessment.id, err =>
         {
@@ -85,5 +91,7 @@ public partial class TeacherLatePassViewModel :
 
         if(success)
             Withdrawn?.Invoke(this, EventArgs.Empty);
+
+        Busy = false;
     }
 }
