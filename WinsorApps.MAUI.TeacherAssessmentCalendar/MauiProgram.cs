@@ -43,6 +43,10 @@ namespace WinsorApps.MAUI.TeacherAssessmentCalendar
             builder.Services.AddSingleton<MyAssessmentsPageViewModel>();
             builder.Services.AddSingleton<MyAssessmentsPage>();
 
+            builder.Services.AddSingleton<AllMyStudentsViewModel>();
+            builder.Services.AddSingleton<StudentPageViewModel>();
+            builder.Services.AddSingleton<StudentPage>();
+
 
 
 #if DEBUG

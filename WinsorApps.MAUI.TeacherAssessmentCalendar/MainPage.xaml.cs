@@ -22,7 +22,8 @@ namespace WinsorApps.MAUI.TeacherAssessmentCalendar
             ReadonlyCalendarService calendarService,
             TeacherAssessmentService teacherAssessmentService,
             MyAssessmentsCollectionViewModel myAssessmentsCollectionViewModel,
-            MyAssessmentsPageViewModel myAssessmentsPageViewModel)
+            MyAssessmentsPageViewModel myAssessmentsPageViewModel,
+            AllMyStudentsViewModel allMyStudents)
         {
             MainPageViewModel vm = new(
             [
@@ -36,7 +37,8 @@ namespace WinsorApps.MAUI.TeacherAssessmentCalendar
             {
                 Completion = [
                     new(myAssessmentsCollectionViewModel.Initialize(this.DefaultOnErrorAction()), "My Assessments"),
-                    new(myAssessmentsPageViewModel.Initialize(this.DefaultOnErrorAction()), "Assessments Page")
+                    new(myAssessmentsPageViewModel.Initialize(this.DefaultOnErrorAction()), "Assessments Page"),
+                    new(allMyStudents.Initialize(this.DefaultOnErrorAction()), "My Students")
                 ],
                 AppId = "V71r6vDXOgD2"
             };

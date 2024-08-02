@@ -9,6 +9,9 @@
     <MauiXaml Update="Pages\MyAssessmentsPage.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
+    <MauiXaml Update="Pages\StudentPage.xaml">
+      <SubType>Designer</SubType>
+    </MauiXaml>
     <MauiXaml Update="Resources\Styles\ImageStyles.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>

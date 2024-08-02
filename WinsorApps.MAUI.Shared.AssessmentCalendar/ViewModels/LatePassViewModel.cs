@@ -21,7 +21,7 @@ namespace WinsorApps.MAUI.Shared.AssessmentCalendar.ViewModels
 
         public event EventHandler<AssessmentPassDetail>? LoadAssessmentRequested;
 
-        private LatePassViewModel() { }
+        protected LatePassViewModel() { }
 
         public static ObservableCollection<LatePassViewModel> GetPasses(AssessmentEntryRecord assessment)
         {

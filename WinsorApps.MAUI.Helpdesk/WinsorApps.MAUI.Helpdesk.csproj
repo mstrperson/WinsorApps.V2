@@ -130,6 +130,24 @@
       <MauiXaml Update="Pages\ServiceCase\ServiceCaseSearchPage.xaml">
         <Generator>MSBuild:Compile</Generator>
       </MauiXaml>
+      <MauiXaml Update="Resources\Styles\ButtonStyles.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Resources\Styles\ImageStyles.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Resources\Styles\LabelStyles.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Resources\Styles\SignifierLabels.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Resources\Styles\Styles.xaml">
+        <SubType>Designer</SubType>
+      </MauiXaml>
+      <MauiXaml Update="Resources\Styles\ToolbarItemStyles.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
       <MauiXaml Update="Views\CommonIssueCheckListView.xaml">
         <Generator>MSBuild:Compile</Generator>
       </MauiXaml>

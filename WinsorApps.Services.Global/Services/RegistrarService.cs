@@ -517,6 +517,14 @@ namespace WinsorApps.Services.Global.Services
         public async Task<FileContentResult?> GetUserPhotoAsync(string userId, ErrorAction onError) =>
             await _api.SendAsync<FileContentResult?>(HttpMethod.Get, $"api/users/{userId}/photo", onError: onError);
 
+        public async Task<ImmutableArray<SectionRecord>> GetAcademicScheduleFor(string userId, ErrorAction onError)
+        {
+            var result = await _api.SendAsync<ImmutableArray<SectionRecord>?>(HttpMethod.Get,
+                $"api/schedule/academics/for/{userId}", onError: onError);
+
+            return result ?? [];
+        }
     }
+
 
 }
