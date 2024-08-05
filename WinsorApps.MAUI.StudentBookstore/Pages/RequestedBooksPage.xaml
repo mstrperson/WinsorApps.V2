@@ -43,8 +43,8 @@
                                 <TapGestureRecognizer Command="{Binding SelectedSection.SelectCommand}" />
                             </Label.GestureRecognizers>
                         </Label>
-                        <Label
-                            VerticalTextAlignment="Center"
+                        <Image
+                            Margin="{OnPlatform MacCatalyst='0,15,0,0'}"
                             StyleClass="NeutralSignifier"
                             IsVisible="{Binding SelectedSection.HasChanges}" 
                             HorizontalOptions="Center"
@@ -57,8 +57,9 @@
                         <Label
                             Text="Submitting Your Order..."
                             IsVisible="{Binding SelectedSection.Busy}"/>
-                        <Label
+                        <Image
                             StyleClass="PositiveSignifier"
+                            Margin="{OnPlatform MacCatalyst='0,15,0,0'}"
                             IsVisible="{Binding SelectedSection.HasChanges, Converter={StaticResource Invert}}" 
                             VerticalOptions="Start"/>
                         <Label
@@ -74,32 +75,36 @@
                                 Grid.Row="0"
                                 Grid.Column="1"
                                 HorizontalOptions="End">
-                            <Button
-                                    Text="Submit Order"
-                                    HeightRequest="20"
-                                    Margin="0,0,20,0"
-                                    BackgroundColor="Transparent"
-                                    BorderWidth="3"
-                                    BorderColor="LightSlateGrey"
-                                    IsVisible="{Binding SelectedSection.HasChanges}">
-                                <Button.GestureRecognizers>
-                                    <!-- SubmitOrder Command saves your book order for this Class -->
-                                    <TapGestureRecognizer Command="{Binding SelectedSection.SubmitOrderCommand}" />
-                                </Button.GestureRecognizers>
-                            </Button>
-                            <Button
-                                    Text="Resubmit Order"
-                                    HeightRequest="20"
-                                    Margin="0,0,20,0"
-                                    BackgroundColor="Transparent"
-                                    BorderWidth="3"
-                                    BorderColor="LightSlateGrey"
-                                    IsVisible="{Binding SelectedSection.HasChanges, Converter={StaticResource Invert}}">
-                                <Button.GestureRecognizers>
-                                    <!-- SubmitOrder Command saves your book order for this Class -->
-                                    <TapGestureRecognizer Command="{Binding SelectedSection.SubmitOrderCommand}" />
-                                </Button.GestureRecognizers>
-                            </Button>
+                            <Border
+                                StrokeThickness="3"
+                                Stroke="{DynamicResource SlateLight}">
+                                <HorizontalStackLayout>
+                                    <Label
+                                        HorizontalTextAlignment="Center"
+                                        Text="Submit Order"
+                                        HeightRequest="20"
+                                        Margin="0,0,20,0"
+                                        BackgroundColor="Transparent"
+                                        IsVisible="{Binding SelectedSection.HasChanges}">
+                                        <Label.GestureRecognizers>
+                                            <!-- SubmitOrder Command saves your book order for this Class -->
+                                            <TapGestureRecognizer Command="{Binding SelectedSection.SubmitOrderCommand}" />
+                                        </Label.GestureRecognizers>
+                                    </Label>
+                                    <Label
+                                        Text="Resubmit Order"
+                                        HorizontalTextAlignment="Center"
+                                        HeightRequest="20"
+                                        Margin="0,0,20,0"
+                                        IsVisible="{Binding SelectedSection.HasChanges, Converter={StaticResource Invert}}">
+                                        <Label.GestureRecognizers>
+                                            <!-- SubmitOrder Command saves your book order for this Class -->
+                                            <TapGestureRecognizer Command="{Binding SelectedSection.SubmitOrderCommand}" />
+                                        </Label.GestureRecognizers>
+                                    </Label>
+                                </HorizontalStackLayout>
+                            </Border>
+                            
                         </HorizontalStackLayout>
 
                     </HorizontalStackLayout>
