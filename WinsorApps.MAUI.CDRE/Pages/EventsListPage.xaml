@@ -17,8 +17,7 @@
     <ContentPage.Content>
         <ScrollView>
             <VerticalStackLayout
-            HorizontalOptions="Center">
-            
+                HorizontalOptions="Center">
                 <CollectionView 
                     x:Name="EventsListView"
                     ItemsSource="{Binding Events}"
