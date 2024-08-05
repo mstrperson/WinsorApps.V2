@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.ViewModels;
+using WinsorApps.MAUI.TeacherAssessmentCalendar.Pages;
 using WinsorApps.Services.AssessmentCalendar.Services;
 using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
@@ -30,6 +31,8 @@ public partial class MyAssessmentsPageViewModel :
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "";
 
+    public event EventHandler<ContentPage>? PageRequested;
+
     public event EventHandler<AssessmentEditorViewModel>? SectionAssessmentSelected;
     public event EventHandler<ErrorRecord>? OnError;
 
@@ -43,9 +46,12 @@ public partial class MyAssessmentsPageViewModel :
             SelectedDetails = details;
         };
 
-        AssessmentCollection.StudentSelected += (sender, e) =>
+        AssessmentCollection.StudentSelected += async (sender, e) =>
         {
-
+            var studentPage = ServiceHelper.GetService<StudentPage>();
+            studentPage.ViewModel.SearchText = e.Student.DisplayName;
+            await studentPage.ViewModel.SearchStudents();
+            PageRequested?.Invoke(this, studentPage);
         };
 
         _service = service;

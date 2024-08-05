@@ -20,7 +20,9 @@
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <ScrollView>
-            <VerticalStackLayout>
+            <VerticalStackLayout
+                HorizontalOptions="Center"
+                WidthRequest="1500">
                 <VerticalStackLayout
                     IsVisible="{Binding ShowStudent, Converter={StaticResource Invert}}">
                     <Label
@@ -126,6 +128,7 @@
                         
                         <!-- Calendar -->
                         <VerticalStackLayout
+                            WidthRequest="1500"
                             HorizontalOptions="Center"
                             IsVisible="{Binding ShowCalendar}">
                             <HorizontalStackLayout
@@ -154,6 +157,7 @@
                             <HorizontalStackLayout
                                     HorizontalOptions="Center">
                                 <CollectionView
+                                    WidthRequest="1500"
                                         ItemsSource="{Binding AssessmentCalendar.Weeks}"
                                         BackgroundColor="Transparent">
                                     <!--Week Day Headers-->
@@ -293,6 +297,7 @@
                         <!-- End Calendar -->
                         <!-- Late Passes -->
                         <VerticalStackLayout
+                            WidthRequest="750"
                             IsVisible="{Binding ShowLatePasses}">
                             <HorizontalStackLayout>
                                 <Label
@@ -300,13 +305,15 @@
                                     Text="Late Passes"/>
                             </HorizontalStackLayout>
                             <CollectionView
+                                WidthRequest="750"
                                 BackgroundColor="Transparent"
                                 ItemsSource="{Binding LatePassCollection.LatePasses}">
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate x:DataType="vm:TeacherLatePassViewModel">
                                         <VerticalStackLayout
                                             Margin="0"
-                                            Padding="0">
+                                            Padding="0"
+                                            WidthRequest="750">
                                             <BoxView StyleClass="Bar" />
                                             <HorizontalStackLayout
                                                 Margin="0"
@@ -376,11 +383,13 @@
                                 <VerticalStackLayout
                                     Grid.Column="1"
                                     Margin="100,0,0,0"
-                                    Padding="0">
+                                    Padding="0"
+                                    WidthRequest="750">
                                     <!-- Selected Section -->
                                     <VerticalStackLayout
                                         Margin="0"
                                         Padding="0"
+                                        WidthRequest="750"
                                         IsVisible="{Binding ShowSelectedSection}">
                                         <Label
                                             StyleClass="Header"
@@ -404,6 +413,8 @@
                                         <!-- Displayed Assessment List -->
                                         <CollectionView
                                             BackgroundColor="Transparent"
+                                            WidthRequest="750"
+                                            HeightRequest="800"
                                             ItemsSource="{Binding SelectedSection.DisplayedAssessments}">
                                             <CollectionView.Header>
                                                 <HorizontalStackLayout

@@ -171,7 +171,7 @@ namespace WinsorApps.Services.Global.Services
         {
             try
             {
-                if (_courses is null)
+                if (_courses.IsEmpty)
                 {
                     _courses = [..await _api.SendAsync<ImmutableArray<CourseRecord>>(HttpMethod.Get, "api/registrar/course?getsBooks=true")];
                 }
