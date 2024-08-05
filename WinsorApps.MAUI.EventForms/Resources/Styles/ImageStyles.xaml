@@ -7,10 +7,22 @@
     Class="AddButton">
         <Setter 
             Property="Source"
-            Value="{FontImage 
+            Value="{AppThemeBinding
+            Light=
+            { 
+                FontImage 
                 FontFamily=Serif,
                 Glyph=+,
-                Size=32}" />
+                Color=Black,
+                Size=32
+            },
+            Dark=
+            { 
+                FontImage 
+                FontFamily=Serif,
+                Glyph=+,
+                Size=32
+            }}" />
         <Setter
             Property="HeightRequest"
             Value="{OnPlatform MacCatalyst=40}" />
