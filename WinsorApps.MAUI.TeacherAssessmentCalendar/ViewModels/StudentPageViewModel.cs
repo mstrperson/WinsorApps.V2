@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -123,6 +124,7 @@ public partial class AllMyStudentsViewModel :
         MyStudents = [.. 
             students
             .Select(StudentViewModel.Get)
+            .Where(student => student.ClassName.StartsWith("Class V"))
             .OrderBy(student => student.ClassName)
             .ThenBy(student => student.UserInfo.Model.lastName)];
         foreach (var student in MyStudents)
@@ -190,6 +192,12 @@ public partial class StudentViewModel :
         var registrar = ServiceHelper.GetService<RegistrarService>();
         var user = model.GetUserRecord(registrar);
         var uvm = UserViewModel.Get(user);
+        if (string.IsNullOrWhiteSpace(uvm.DisplayName))
+        {
+            Debug.WriteLine("wtf");
+        }
+        uvm.GetUniqueDisplayName();
+
 
         var vm = new StudentViewModel()
         {
