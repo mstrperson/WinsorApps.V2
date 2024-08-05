@@ -6,11 +6,11 @@
     TargetType="Image"
     Class="AddButton">
         <Setter 
-        Property="Source"
-        Value="{FontImage 
-            FontFamily=Serif,
-            Glyph=+,
-            Size=32}" />
+            Property="Source"
+            Value="{FontImage 
+                FontFamily=Serif,
+                Glyph=+,
+                Size=32}" />
         <Setter
             Property="HeightRequest"
             Value="{OnPlatform MacCatalyst=40}" />
@@ -30,12 +30,38 @@
     </Style>
     <Style
         TargetType="Image"
+        Class="PositiveSignifier">
+        <Setter 
+            Property="Source"
+            Value="{FontImage 
+                FontFamily=Serif,
+                Glyph=✅,
+                Size=18}" />
+        <Setter
+            Property="HeightRequest"
+            Value="{OnPlatform MacCatalyst=40}" />
+    </Style>
+    <Style
+        TargetType="Image"
+        Class="NeutralSignifier">
+        <Setter 
+            Property="Source"
+            Value="{FontImage 
+                FontFamily=Serif,
+                Glyph=🔘,
+                Size=18}" />
+        <Setter
+            Property="HeightRequest"
+            Value="{OnPlatform MacCatalyst=40}" />
+    </Style>
+    <Style
+        TargetType="Image"
         Class="CancelButton">
         <Setter 
             Property="Source"
             Value="{FontImage 
                 FontFamily=Serif,
-                Glyph=✘,
+                Glyph=🚫,
                 Size=18}" />
         <Setter
             Property="HeightRequest"
@@ -103,7 +129,7 @@
             Property="Source"
             Value="{FontImage
                 FontFamily=Serif,
-                Glyph=↩,
+                Glyph=↩️,
                 Size=18}"/>
         <Setter
             Property="HeightRequest"
@@ -130,7 +156,7 @@
             Property="Source"
             Value="{FontImage
                 FontFamily=Serif,
-                Glyph=⚠,
+                Glyph=⚠️,
                 Size=18}"/>
         <Setter
             Property="HeightRequest"
@@ -173,7 +199,7 @@
             Property="Source"
             Value="{FontImage
                 FontFamily=Serif,
-                Glyph=⬆️,
+                Glyph=🔼,
                 Size=18}"/>
         <Setter
             Property="HeightRequest"
@@ -186,7 +212,7 @@
             Property="Source"
             Value="{FontImage
                 FontFamily=Serif,
-                Glyph=⬇️,
+                Glyph=🔽,
                 Size=18}"/>
         <Setter
             Property="HeightRequest"
@@ -199,7 +225,7 @@
             Property="Source"
             Value="{FontImage
                 FontFamily=Serif,
-                Glyph=➡️,
+                Glyph=▶️,
                 Size=18}"/>
         <Setter
             Property="HeightRequest"
@@ -212,7 +238,7 @@
             Property="Source"
             Value="{FontImage
                 FontFamily=Serif,
-                Glyph=⬅️,
+                Glyph=◀️,
                 Size=18}"/>
         <Setter
             Property="HeightRequest"
