@@ -32,15 +32,18 @@
                                     Margin="5,10,10,0"
                                     Padding="0,0,0,0">
                                     <Border.StrokeShape>
-                                        <RoundRectangle CornerRadius="25,25,25,25"/>
+                                        <RoundRectangle CornerRadius="25"/>
                                     </Border.StrokeShape>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectCommand}"/>
+                                    </Border.GestureRecognizers>
                                     <VerticalStackLayout>
                                         <HorizontalStackLayout>
-                                        <HorizontalStackLayout.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding SelectCommand}"/>
-                                        </HorizontalStackLayout.GestureRecognizers>
-                                        <Image Source="{FontImage FontFamily=FontAwesomeSolid, Color=White,
-                                                                   Glyph={x:Static styles:FontAwesomeSolid.CalendarAlt}}"
+                                        <Image Source="{AppThemeBinding
+                                        Light={FontImage FontFamily=FontAwesomeSolid, Color=IndianRed,
+                                                                   Glyph={x:Static styles:FontAwesomeSolid.CalendarAlt}},
+                                                Dark={FontImage FontFamily=FontAwesomeSolid, Color=White,
+                                                                   Glyph={x:Static styles:FontAwesomeSolid.CalendarAlt}}}"
                                                                     HorizontalOptions="Start"/>
 
                                         <Label Text="{Binding Summary}"
@@ -50,14 +53,17 @@
                                                ToolTipProperties.Text="Edit"/>
 
 
-                                        <Image Source="{FontImage FontFamily=FontAwesomeSolid, Color=White,
-                                                            Glyph={x:Static styles:FontAwesomeSolid.PencilAlt}}"
+                                        <Image Source="{AppThemeBinding
+                                        Light={FontImage FontFamily=FontAwesomeSolid, Color=IndianRed,
+                                                                   Glyph={x:Static styles:FontAwesomeSolid.PencilAlt}},
+                                                Dark={FontImage FontFamily=FontAwesomeSolid, Color=White,
+                                                                   Glyph={x:Static styles:FontAwesomeSolid.CalendarAlt}}}"
                                                             WidthRequest="15"
                                                             ToolTipProperties.Text="Edit"/>
 
                                     </HorizontalStackLayout>
                                     <Label Text="{Binding Description}"
-                                               HorizontalOptions="Start"/>  
+                                            HorizontalOptions="Start"/>  
                                     </VerticalStackLayout> 
                                 </Border>
                             </StackLayout>
