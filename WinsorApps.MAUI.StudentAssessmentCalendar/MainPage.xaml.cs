@@ -2,6 +2,7 @@
 using WinsorApps.MAUI.Shared.Pages;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.MAUI.StudentAssessmentCalendar.Pages;
+using WinsorApps.MAUI.StudentAssessmentCalendar.ViewModels;
 using WinsorApps.Services.AssessmentCalendar.Services;
 using WinsorApps.Services.Global.Services;
 
@@ -17,7 +18,8 @@ public partial class MainPage : ContentPage
         AppService app,
         LocalLoggingService logging,
         StudentAssessmentService studentService,
-        CycleDayCollection cycleDays)
+        CycleDayCollection cycleDays,
+        WeeklyViewModel weeklyViewModel)
     {
         MainPageViewModel vm = new(
         [
@@ -27,13 +29,15 @@ public partial class MainPage : ContentPage
             new(app, "Checking for Updates")
         ], app, api, logging)
         {
-            AppId = "jKNAXlE8qzLx"
+            AppId = "jKNAXlE8qzLx",
+            Completion = [
+                new (weeklyViewModel.Initialize(this.DefaultOnErrorAction()), "Weekly View")
+            ]
         };
 
         BindingContext = vm;
 
         vm.OnError += this.DefaultOnErrorHandler();
-        vm.OnCompleted += Vm_OnCompleted;
         
         LoginPage loginPage = new LoginPage(logging, vm.LoginVM);
         loginPage.OnLoginComplete += (_, _) =>
@@ -45,15 +49,6 @@ public partial class MainPage : ContentPage
 
 
         InitializeComponent();
-    }
-
-    private void Vm_OnCompleted(object? sender, EventArgs e)
-    {
-        if (!ViewModel.UpdateAvailable)
-        {
-            var page = ServiceHelper.GetService<MonthlyCalendar>();
-            Navigation.PushAsync(page);
-        }
     }
 
 }
