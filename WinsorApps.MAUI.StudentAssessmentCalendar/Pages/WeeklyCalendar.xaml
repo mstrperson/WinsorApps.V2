@@ -46,83 +46,78 @@
                     </Label.GestureRecognizers>
                 </Label>
             </HorizontalStackLayout>
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="cvm:CalendarWeekViewModel">
-                    <CollectionView
-                        ItemsSource="{Binding Days}"
+            <CollectionView
+                        ItemsSource="{Binding Calendar.Days}"
                         ItemsLayout="HorizontalGrid"
-                        HeightRequest="200"
                         BackgroundColor="Transparent"
                         Margin="0">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="cvm:CalendarDayViewModel">
-                                <Border
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="cvm:CalendarDayViewModel">
+                        <Border
                                     StrokeThickness="1"
                                     BackgroundColor="{AppThemeBinding Light={DynamicResource WarmGrey}, Dark={DynamicResource SlateDark}}">
-                                    <VerticalStackLayout
+                            <VerticalStackLayout
                                         WidthRequest="298">
-                                        <HorizontalStackLayout
+                                <HorizontalStackLayout
                                             Spacing="30"
                                             HeightRequest="40"
                                             Padding="0"
                                             Margin="-5">
-                                            <Label
+                                    <Label
                                                 FontSize="Micro"
-                                                Text="{Binding Date, StringFormat='{0:dd}'}" />
-                                            <Label
+                                                Text="{Binding Date, StringFormat='{0:dddd} the {0:dd}th'}" />
+                                    <Label
                                                 FontSize="Micro"
                                                 FontAttributes="Bold"
                                                 Text="{Binding CycleDay}"/>
-                                        </HorizontalStackLayout>
-                                        <BoxView 
+                                </HorizontalStackLayout>
+                                <BoxView 
                                             StyleClass="Bar" 
                                             HeightRequest="1"
                                             WidthRequest="300"
                                             TranslationX="-5"
                                             Margin="0"/>
-                                        <ScrollView>
-                                            <CollectionView
+                                <ScrollView>
+                                    <CollectionView
                                                 ItemsSource="{Binding Events}"
                                                 BackgroundColor="Transparent"
                                                 VerticalScrollBarVisibility="Never">
-                                                <CollectionView.ItemTemplate>
-                                                    <DataTemplate x:DataType="cvm:AssessmentCalendarEventViewModel">
-                                                        <VerticalStackLayout
+                                        <CollectionView.ItemTemplate>
+                                            <DataTemplate x:DataType="cvm:AssessmentCalendarEventViewModel">
+                                                <VerticalStackLayout
                                                             Margin="0"
                                                             Padding="0">
-                                                            <Grid
+                                                    <Grid
                                                                 RowDefinitions="25"
                                                                 ColumnDefinitions="80,220"
                                                                 ToolTipProperties.Text="{Binding Description}"
                                                                 IsVisible="{Binding AllDay, Converter={StaticResource Invert}}"
                                                                 Margin="0"
                                                                 Padding="0">
-                                                                <Grid.GestureRecognizers>
-                                                                    <TapGestureRecognizer Command="{Binding SelectCommand}" />
-                                                                </Grid.GestureRecognizers>
-                                                                <Label
+                                                        <Grid.GestureRecognizers>
+                                                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                                        </Grid.GestureRecognizers>
+                                                        <Label
                                                                     Grid.Column="0"
                                                                     Text="{Binding Start,StringFormat='{0:hh:mm tt}'}" />
-                                                                <Label
+                                                        <Label
                                                                     Grid.Column="1"
                                                                     Text="{Binding Summary}" />
-                                                            </Grid>
-                                                            <Label
+                                                    </Grid>
+                                                    <Label
                                                                 Text="{Binding Summary}"
                                                                 FontAttributes="Bold"
                                                                 IsVisible="{Binding AllDay}" />
-                                                        </VerticalStackLayout>
-                                                    </DataTemplate>
-                                                </CollectionView.ItemTemplate>
-                                            </CollectionView>
-                                        </ScrollView>
-                                    </VerticalStackLayout>
-                                </Border>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
+                                                </VerticalStackLayout>
+                                            </DataTemplate>
+                                        </CollectionView.ItemTemplate>
+                                    </CollectionView>
+                                </ScrollView>
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
         </VerticalStackLayout>
     </ScrollView>
     
