@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.AssessmentCalendar.ViewModels;
 using WinsorApps.MAUI.Shared.ViewModels;
+using WinsorApps.Services.AssessmentCalendar.Models;
 using WinsorApps.Services.AssessmentCalendar.Services;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
@@ -39,7 +40,7 @@ public partial class ScheduleViewModel :
     {
         var registrar = ServiceHelper.GetService<RegistrarService>();
         var logging = ServiceHelper.GetService<LocalLoggingService>();
-        var sections = await registrar.GetAcademicScheduleFor(student.Model.id, OnError.DefaultBehavior(this));
+        var sections = await registrar.GetAcademicScheduleFor(student.Model.Reduce(UserRecord.Empty).id, OnError.DefaultBehavior(this));
         Student = student;
         Sections = [.. SectionViewModel.GetClonedViewModels(sections)];
         foreach (var section in Sections)
@@ -99,13 +100,13 @@ public partial class SectionAssessmentCalendarViewModel :
     [RelayCommand]
     public async Task LoadAssessments()
     {
-        var result = await _calendar.GetAssessmentsFor(Section.Model.sectionId, OnError.DefaultBehavior(this));
+        var result = await _calendar.GetAssessmentsFor(Section.Model.Reduce(SectionRecord.Empty).sectionId, OnError.DefaultBehavior(this));
         Assessments = [.. result.Select(AssessmentDetailsViewModel.Get)];
         foreach(var assessment in Assessments)
         {
             assessment.Selected += (_, _) => AssessmentSelected?.Invoke(this, assessment);
         }
-        DisplayedAssessments = ShowPastAssessments ? Assessments : [.. Assessments.Where(assessment => assessment.Model.start >= DateTime.Today)];
+        DisplayedAssessments = ShowPastAssessments ? Assessments : [.. Assessments.Where(assessment => assessment.Model.Reduce(AssessmentCalendarEvent.Empty).start >= DateTime.Today)];
         HasAssessments = DisplayedAssessments.Count > 0;
     }
 
@@ -113,7 +114,7 @@ public partial class SectionAssessmentCalendarViewModel :
     public void ToggleShowPastAssessments()
     {
         ShowPastAssessments = !ShowPastAssessments;
-        DisplayedAssessments = ShowPastAssessments ? Assessments : [.. Assessments.Where(assessment => assessment.Model.start >= DateTime.Today)];
+        DisplayedAssessments = ShowPastAssessments ? Assessments : [.. Assessments.Where(assessment => assessment.Model.Reduce(AssessmentCalendarEvent.Empty).start >= DateTime.Today)];
         HasAssessments = DisplayedAssessments.Count > 0;
     }
 

@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.AssessmentCalendar.Models;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 
@@ -27,7 +28,7 @@ public partial class AssessmentCalendarEventViewModel :
     [ObservableProperty] bool passAvailable;
     [ObservableProperty] bool isSelected;
 
-    public AssessmentCalendarEvent Model => new(Id, Type, Summary, Description, Start, End, AllDay, [.. AffectedClasses], PassUsed, PassAvailable);
+    public OptionalStruct<AssessmentCalendarEvent> Model { get; private set; } = OptionalStruct<AssessmentCalendarEvent>.None();
 
 
     public event EventHandler<AssessmentCalendarEventViewModel>? Selected;
@@ -43,7 +44,8 @@ public partial class AssessmentCalendarEventViewModel :
         AllDay = model.allDay,
         AffectedClasses = [.. model.affectedClasses],
         PassUsed = model.passUsed ?? false,
-        PassAvailable = model.passAvailable ?? false
+        PassAvailable = model.passAvailable ?? false,
+        Model = OptionalStruct<AssessmentCalendarEvent>.Some(model)
     };
 
     [RelayCommand]
@@ -65,9 +67,9 @@ public partial class ApExamViewModel :
     [ObservableProperty] ObservableCollection<SectionViewModel> sections = [];
     [ObservableProperty] ObservableCollection<UserViewModel> students = [];
 
-    public APExamDetail Model { get; private set; }
+    public OptionalStruct<APExamDetail> Model { get; private set; } = OptionalStruct<APExamDetail>.None();
 
-    public CreateAPExam ToCreateRecord() => new(CourseName, Start, End, [.. Sections.Select(sec => sec.Model.sectionId)], [.. Students.Select(stu => stu.Id)]);
+    public CreateAPExam ToCreateRecord() => new(CourseName, Start, End, [.. Sections.Select(sec => sec.Model.Reduce(SectionRecord.Empty).sectionId)], [.. Students.Select(stu => stu.Id)]);
 
     public static ApExamViewModel Get(APExamDetail model)
     {
@@ -81,7 +83,7 @@ public partial class ApExamViewModel :
             End = model.endDateTime,
             Sections = [.. model.sectionIds.Select(id => SectionViewModel.Get(registrar.SectionDetailCache[id]))],
             Students = [.. model.studentIds.Select(id => UserViewModel.Get(registrar.StudentList.FirstOrDefault(u => u.id == id)))],
-            Model = model
+            Model = OptionalStruct<APExamDetail>.Some(model)
         };
 
         return item;
@@ -97,14 +99,15 @@ public partial class DayNoteViewModel :
     [ObservableProperty] string note = "";
     [ObservableProperty] ImmutableArray<StudentClassName> affectedClasses = [];
 
-    public DayNote Model => new(Id, Date, Note, [.. AffectedClasses]);
+    public OptionalStruct<DayNote> Model { get; private set; } = OptionalStruct<DayNote>.None();
 
     public static DayNoteViewModel Get(DayNote model) => new()
     {
         Id = model.id,
         Date = model.date,
         Note = model.note,
-        AffectedClasses = [.. model.affectedClasses]
+        AffectedClasses = [.. model.affectedClasses],
+        Model = OptionalStruct<DayNote>.Some(model)
     };
 }
 

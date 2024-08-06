@@ -88,8 +88,8 @@ public partial class AssessmentGroupViewModel :
             {
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    var vm = Assessments.First(ent => ent.Section.Model.sectionId == detail.Value.section.sectionId);
-                    vm.Model = detail.Value;
+                    var vm = Assessments.First(ent => ent.Section.Model.Reduce(SectionRecord.Empty).sectionId == detail.Value.section.sectionId);
+                    vm.Model = OptionalStruct<AssessmentEntryRecord>.Some(detail.Value);
                     vm.LoadDetails();
                     vm.IsSelected = true;
                     vm.Date = detail.Value.assessmentDateTime;
@@ -121,7 +121,7 @@ public partial class AssessmentGroupViewModel :
         var update = new CreateAssessmentRecord(
             Assessments
             .Where(ent => ent.IsSelected)
-            .Select(ent => new AssessmentDateRecord(ent.Model.section.sectionId, ent.Date))
+            .Select(ent => new AssessmentDateRecord(ent.Model.Reduce(AssessmentEntryRecord.Empty).section.sectionId, ent.Date))
             .ToImmutableArray(), Note);
 
         var result = await _assessmentService.CreateNewAssessment(update, OnError.DefaultBehavior(this));
@@ -165,7 +165,7 @@ public partial class AssessmentGroupViewModel :
         var update = new CreateAssessmentRecord(
             Assessments
             .Where(ent => ent.IsSelected)
-            .Select(ent => new AssessmentDateRecord(ent.Model.section.sectionId, ent.Date))
+            .Select(ent => new AssessmentDateRecord(ent.Model.Reduce(AssessmentEntryRecord.Empty).section.sectionId, ent.Date))
             .ToImmutableArray(), Note);
 
         var result = await _assessmentService.UpdateAssessment(_group.id, update, OnError.DefaultBehavior(this));
@@ -196,7 +196,7 @@ public partial class AssessmentEditorViewModel :
     IErrorHandling
 {
     public readonly ReadonlyCalendarService _service = ServiceHelper.GetService<ReadonlyCalendarService>();
-    public AssessmentEntryRecord Model { get; set; }
+    public OptionalStruct<AssessmentEntryRecord> Model { get; set; } = OptionalStruct<AssessmentEntryRecord>.None();
 
     [ObservableProperty] AssessmentDetailsViewModel details = new();
     [ObservableProperty] bool hasLatePasses;
@@ -219,8 +219,8 @@ public partial class AssessmentEditorViewModel :
     public event EventHandler<ErrorRecord>? OnError;
     public AssessmentEditorViewModel(AssessmentEntryRecord entry)
     {
-        Model = entry;
-        Details = AssessmentDetailsViewModel.Get(Model);
+        Model = OptionalStruct<AssessmentEntryRecord>.Some(entry);
+        Details = AssessmentDetailsViewModel.Get(entry);
         Details.StudentSelected += (sender, e) => StudentSelected?.Invoke(this, e);
         HasConflicts = entry.studentConflicts.Any();
         HasLatePasses = entry.studentsUsingPasses.Any();
@@ -232,7 +232,6 @@ public partial class AssessmentEditorViewModel :
     private AssessmentEditorViewModel(SectionViewModel section) 
     {
         Section = section;
-        Model = new("", "", section.Model, default, [], [], []);
         Date = DateTime.Today;
     }
     public static AssessmentEditorViewModel Create(SectionViewModel section) => new AssessmentEditorViewModel(section);
@@ -242,12 +241,12 @@ public partial class AssessmentEditorViewModel :
     [RelayCommand]
     public void LoadDetails()
     {
-        if (string.IsNullOrEmpty(Model.assessmentId)) return;
+        if (string.IsNullOrEmpty(Model.Reduce(AssessmentEntryRecord.Empty).assessmentId)) return;
 
-        HasConflicts = Model.studentConflicts.Any();
-        HasLatePasses = Model.studentsUsingPasses.Any();
-        HasRedFlags = Model.studentConflicts.Any(conflict => conflict.redFlag);
-        Details = AssessmentDetailsViewModel.Get(Model);
+        HasConflicts = Model.Reduce(AssessmentEntryRecord.Empty).studentConflicts.Any();
+        HasLatePasses = Model.Reduce(AssessmentEntryRecord.Empty).studentsUsingPasses.Any();
+        HasRedFlags = Model.Reduce(AssessmentEntryRecord.Empty).studentConflicts.Any(conflict => conflict.redFlag);
+        Details = AssessmentDetailsViewModel.Get(Model.Reduce(AssessmentEntryRecord.Empty));
         Details.StudentSelected += (sender, e) => StudentSelected?.Invoke(this, e);
     }
 

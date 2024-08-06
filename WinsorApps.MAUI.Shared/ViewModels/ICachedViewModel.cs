@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.Concurrent;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.Shared.ViewModels;
@@ -22,9 +23,9 @@ public interface ICachedViewModel<TViewModel, TModel, TService>
 }
 public interface IModelCarrier<T, TModel> 
     where T : ObservableObject
-    where TModel : notnull
+    where TModel : struct
 {
-    public TModel Model { get; }
+    public OptionalStruct<TModel> Model { get; }
 
     abstract public static T Get(TModel model);
 }

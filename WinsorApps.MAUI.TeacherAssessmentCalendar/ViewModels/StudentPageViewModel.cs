@@ -109,7 +109,7 @@ public partial class AllMyStudentsViewModel :
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "";
 
-    public StudentViewModel? this[string id] => MyStudents.FirstOrDefault(stu => stu.Model.id == id);
+    public StudentViewModel? this[string id] => MyStudents.FirstOrDefault(stu => stu.Model.Reduce(UserRecord.Empty).id == id);
 
     private readonly RegistrarService _registrar = ServiceHelper.GetService<RegistrarService>();
     
@@ -126,7 +126,7 @@ public partial class AllMyStudentsViewModel :
             .Select(StudentViewModel.Get)
             .Where(student => student.ClassName.StartsWith("Class V"))
             .OrderBy(student => student.ClassName)
-            .ThenBy(student => student.UserInfo.Model.lastName)];
+            .ThenBy(student => student.UserInfo.Model.Reduce(UserRecord.Empty).lastName)];
         foreach (var student in MyStudents)
         {
             student.PropertyChanged += ((IBusyViewModel)this).BusyChangedCascade;
@@ -178,11 +178,11 @@ public partial class StudentViewModel :
 
     private async Task<ImmutableArray<AssessmentCalendarEvent>> GetStudentCalendar() =>
         await _service.GetStudentCalendar(
-            OnError.DefaultBehavior(this), Model.id, 
+            OnError.DefaultBehavior(this), Model.Reduce(UserRecord.Empty).id, 
             DateOnly.FromDateTime(AssessmentCalendar.Month.AddMonths(-1)), 
             DateOnly.FromDateTime(AssessmentCalendar.Month.AddMonths(2)));
 
-    public StudentRecordShort Model { get; set; }
+    public OptionalStruct<StudentRecordShort> Model { get; set; } = OptionalStruct<StudentRecordShort>.None();
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<StudentViewModel>? Selected;
@@ -203,7 +203,7 @@ public partial class StudentViewModel :
         {
             UserInfo = uvm,
             AdvisorName = model.advisorName,
-            Model = model,
+            Model = OptionalStruct<StudentRecordShort>.Some(model),
             ClassName = model.className,
             GradYear = model.gradYear,
             LatePassCollection = new(uvm)
@@ -225,7 +225,7 @@ public partial class StudentViewModel :
         if (!ShowSelectedSection || !AcademicSchedule.ShowAssessment)
             return;
 
-        await LatePassCollection.RequestNewPassFor(AcademicSchedule.SelectedAssessment.Model);
+        await LatePassCollection.RequestNewPassFor(AcademicSchedule.SelectedAssessment.Model.Reduce(AssessmentCalendarEvent.Empty));
     }
 
     [RelayCommand]
