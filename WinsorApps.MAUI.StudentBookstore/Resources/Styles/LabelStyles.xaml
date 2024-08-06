@@ -70,7 +70,7 @@
     <Style TargetType="Label" Class="H3">
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource WarmGrey}}"/>
         <Setter Property="FontFamily" Value="Serif"/>
-        <Setter Property="FontAttributes" Value="Bold"/>
+        <Setter Property="FontAttributes" Value="Italic"/>
         <Setter Property="FontSize" Value="20" />
     </Style>
     <Style TargetType="Label" Class="wordmark">

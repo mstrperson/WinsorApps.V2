@@ -27,7 +27,8 @@
                         <Image
                             VerticalOptions="Center"
                             StyleClass="BackButton"
-                            HeightRequest="75">
+                            HeightRequest="75"
+                            ToolTipProperties.Text="Go Back To My Classes">
                             <Image.GestureRecognizers>
                                 <!-- Select Command Here De-selects this Class and returns you to the Section Selection view. -->
                                 <TapGestureRecognizer Command="{Binding SelectedSection.SelectCommand}" />
@@ -36,8 +37,8 @@
                         <Label
                             VerticalTextAlignment="Center"
                             StyleClass="Header"
-                            Text="{Binding SelectedSection.Section.DisplayName}" 
-                            TextDecorations="Underline">
+                            Text="{Binding SelectedSection.Section.DisplayName}"
+                            TextDecorations="Underline" >
                             <Label.GestureRecognizers>
                                 <!-- Select Command Here De-selects this Class and returns you to the Section Selection view. -->
                                 <TapGestureRecognizer Command="{Binding SelectedSection.SelectCommand}" />
@@ -139,8 +140,9 @@
                                                 <!-- Select Command Here Loads this Class's Book Orders into the Selected Cart View -->
                                                 <TapGestureRecognizer Command="{Binding SelectCommand}" />
                                             </HorizontalStackLayout.GestureRecognizers>
-                                            <Image Source="{FontImage FontFamily=FontAwesomeSolid, Color=White,
-                                                                   Glyph={x:Static styles:FontAwesomeSolid.ChalkboardTeacher}}"
+                                            <Image Source="{AppThemeBinding Dark={FontImage FontFamily=FontAwesomeSolid, Color=White,
+                                                                   Glyph={x:Static styles:FontAwesomeSolid.ChalkboardTeacher}}, Light={FontImage FontFamily=FontAwesomeSolid, Color=DarkRed,
+                                                                   Glyph={x:Static styles:FontAwesomeSolid.ChalkboardTeacher}}}"
                                                    HorizontalOptions="Start"
                                                    VerticalOptions="Start"/>
                                             <Label Text="{Binding Section.DisplayName}"
@@ -149,8 +151,9 @@
                                                    HorizontalOptions="Start"
                                                    VerticalOptions="Start"
                                                    TranslationX="10"/>
-                                            <Image Source="{FontImage FontFamily=FontAwesomeSolid, Color=White,
-                                                           Glyph={x:Static styles:FontAwesomeSolid.Eye}}"
+                                            <Image Source="{AppThemeBinding Dark={FontImage FontFamily=FontAwesomeSolid, Color=White,
+                                                           Glyph={x:Static styles:FontAwesomeSolid.Eye}}, Light={FontImage FontFamily=FontAwesomeSolid, Color=DarkRed,
+                                                           Glyph={x:Static styles:FontAwesomeSolid.Eye}}}"
                                                    HorizontalOptions="End"
                                                    HeightRequest="15"
                                                    VerticalOptions="Center"
@@ -170,7 +173,6 @@
                         x:DataType="vm:SectionCartViewModel"
                         BindingContext="{Binding SelectedSection}"
                         IsEnabled="{Binding Busy, Converter={StaticResource Invert}}">
-
                         <Grid
                             RowDefinitions="*"
                             ColumnDefinitions="*,*">
@@ -192,7 +194,7 @@
                                     <DataTemplate x:DataType="vm:OptionGroupViewModel">
                                         <VerticalStackLayout>
                                             <CollectionView
-                                                HeightRequest="250"
+                                                HeightRequest="800"
                                                 BackgroundColor="Transparent"
                                                 ItemsSource="{Binding Books}">
                                                 <CollectionView.Header>
@@ -200,7 +202,7 @@
                                                         HeightRequest="50">
                                                         <Label
                                                             StyleClass="H3"
-                                                            Text="{Binding Option}" />
+                                                            Text="{Binding Option,StringFormat='{0}*'}"/>
                                                     </HorizontalStackLayout>
                                                 </CollectionView.Header>
                                                 <CollectionView.ItemTemplate>
@@ -212,6 +214,7 @@
                                                                 Grid.Row="0"
                                                                 Grid.Column="0">
                                                                 <Label
+                                                                    MaximumWidthRequest="600"
                                                                     Text="{Binding Book.Title}" />
                                                                 <Label 
                                                                     Text="{Binding DisplayName}" />
@@ -259,43 +262,45 @@
                                 </CollectionView.ItemTemplate>
                             </CollectionView>
                             <!-- Selected Cart Items -->
-                            <CollectionView
+                            <Border 
                                 Grid.Row="1"
-                                Grid.Column="1"
-                                HeightRequest="800"
-                                BackgroundColor="Transparent"
-                                ItemsSource="{Binding RequestedBooks}">
-                                <CollectionView.Header>
-                                    <HorizontalStackLayout
-                                        HeightRequest="50">
-                                        <Label
-                                            StyleClass="SubHeader"
-                                            Text="Order" 
-                                            FontAttributes="Bold"/>
-                                    </HorizontalStackLayout>
-                                </CollectionView.Header>
-                                <CollectionView.ItemTemplate>
-                                    <DataTemplate x:DataType="vm:BookRequestViewModel">
+                                Grid.Column="1">
+                                <CollectionView
+                                    HeightRequest="800"
+                                    BackgroundColor="Transparent"
+                                    ItemsSource="{Binding RequestedBooks}">
+                                    <CollectionView.Header>
                                         <HorizontalStackLayout
                                             HeightRequest="50">
                                             <Label
-                                                Text="{Binding Isbn.Book.Title}" />
-                                            <Label
-                                                Text="{Binding Isbn.DisplayName}" />
-                                            <Image
-                                                StyleClass="DeleteButton"
-                                                HeightRequest="50"
-                                                WidthRequest="50"
-                                                ToolTipProperties.Text="Remove From Cart">
-                                                <Image.GestureRecognizers>
-                                                    <!-- Select Command Here Removes this book from the Cart -->
-                                                    <TapGestureRecognizer Command="{Binding SelectCommand}" />
-                                                </Image.GestureRecognizers>
-                                            </Image>
+                                                StyleClass="SubHeader"
+                                                Text="Order" 
+                                                FontAttributes="Bold"/>
                                         </HorizontalStackLayout>
-                                    </DataTemplate>
-                                </CollectionView.ItemTemplate>
-                            </CollectionView>
+                                    </CollectionView.Header>
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:BookRequestViewModel">
+                                            <HorizontalStackLayout
+                                                HeightRequest="50">
+                                                <Label
+                                                    Text="{Binding Isbn.Book.Title}" />
+                                                <Label
+                                                    Text="{Binding Isbn.DisplayName}" />
+                                                <Image
+                                                    StyleClass="DeleteButton"
+                                                    HeightRequest="20"
+                                                    WidthRequest="50"
+                                                    ToolTipProperties.Text="Remove From Cart">
+                                                    <Image.GestureRecognizers>
+                                                        <!-- Select Command Here Removes this book from the Cart -->
+                                                        <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                                    </Image.GestureRecognizers>
+                                                </Image>
+                                           </HorizontalStackLayout>
+                                       </DataTemplate>
+                                   </CollectionView.ItemTemplate>
+                                </CollectionView>
+                            </Border>
                         </Grid>
                     </ContentView>
                 </VerticalStackLayout>

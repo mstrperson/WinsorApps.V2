@@ -1,4 +1,6 @@
-﻿using CommunityToolkit.Maui.Core;
+﻿global using ErrorAction = System.Action<WinsorApps.Services.Global.Models.ErrorRecord>;
+
+using CommunityToolkit.Maui.Core;
 using Microsoft.Extensions.Logging;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.Services.Global.Services;
@@ -37,6 +39,9 @@ namespace WinsorApps.MAUI.StudentAssessmentCalendar
             builder.Services.AddSingleton<MonthlyCalendar>();
             builder.Services.AddSingleton<LatePassCollectionViewModel>();
             builder.Services.AddSingleton<MyLatePasses>();
+
+            builder.Services.AddSingleton<WeeklyViewModel>();
+            builder.Services.AddSingleton<WeeklyCalendar>();
 
 #if DEBUG
             builder.Logging.AddDebug();

@@ -6,7 +6,7 @@
              xmlns:cvm="clr-namespace:WinsorApps.MAUI.Shared.AssessmentCalendar.ViewModels;assembly=WinsorApps.MAUI.Shared.AssessmentCalendar"
              x:Class="WinsorApps.MAUI.StudentAssessmentCalendar.Pages.MonthlyCalendar"
              x:DataType="vm:MonthlyViewModel"
-             Title="My Assessments">
+             Title="Monthly Calendar">
     <ContentPage.Resources>
         <ResourceDictionary>
             <conv:BoolInverter x:Key="Invert" />
@@ -51,7 +51,8 @@
                     HorizontalOptions="Center">
                     <CollectionView
                         ItemsSource="{Binding Calendar.Weeks}"
-                        BackgroundColor="Transparent">
+                        BackgroundColor="Transparent"
+                        VerticalScrollBarVisibility="Never">
                         <!--Week Day Headers-->
                         <CollectionView.Header>
                             <Grid
@@ -144,7 +145,8 @@
                                                     <ScrollView>
                                                         <CollectionView
                                                             ItemsSource="{Binding Events}"
-                                                            BackgroundColor="Transparent">
+                                                            BackgroundColor="Transparent"
+                                                            VerticalScrollBarVisibility="Never">
                                                             <CollectionView.ItemTemplate>
                                                                 <DataTemplate x:DataType="cvm:AssessmentCalendarEventViewModel">
                                                                     <VerticalStackLayout

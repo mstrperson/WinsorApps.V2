@@ -15,9 +15,14 @@
         Route="MainPage" />
     
     <ShellContent
-        Title="Assessment Calendar"
+        Title="Month View"
         ContentTemplate="{DataTemplate pages:MonthlyCalendar}"
         Route="MonthlyCalendar" />
+    
+    <ShellContent
+        Title="Week View"
+        ContentTemplate="{DataTemplate pages:WeeklyCalendar}"
+        Route="WeeklyCalendar"/>
 
     <ShellContent
         Title="My Late Passes"
