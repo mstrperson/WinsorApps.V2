@@ -11,7 +11,7 @@ public partial class WeeklyCalendar : ContentPage
 	public WeeklyCalendar(WeeklyViewModel vm)
 	{
 		BindingContext = vm;
-		vm.Calendar.Monday = DateTime.Today.MondayOf();
+		vm.Calendar.Week.Monday = DateTime.Today.MondayOf();
 		vm.OnError += this.DefaultOnErrorHandler();
 		vm.EventSelected += Vm_EventSelected;
 		InitializeComponent();
