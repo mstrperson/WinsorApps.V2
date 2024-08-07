@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using WinsorApps.MAUI.Shared;
@@ -18,7 +19,8 @@ using WinsorApps.Services.Global.Services;
 namespace WinsorApps.MAUI.TeacherAssessmentCalendar.ViewModels;
 
 public partial class LateWorkPageViewModel :
-    ObservableObject
+    ObservableObject,
+    IBusyViewModel
 {
     private readonly TeacherAssessmentService _service;
     private readonly RegistrarService _registrar;
@@ -26,6 +28,8 @@ public partial class LateWorkPageViewModel :
     [ObservableProperty] ObservableCollection<SectionLateWorkCollection> sections = [];
     [ObservableProperty] SectionLateWorkCollection selectedSection = new();
     [ObservableProperty] bool showSelectedSection;
+    [ObservableProperty] bool busy;
+    [ObservableProperty] string busyMessage = "";
 
     public LateWorkPageViewModel(TeacherAssessmentService service, RegistrarService registrar)
     {
@@ -51,6 +55,8 @@ public partial class LateWorkPageViewModel :
                 }
                 SelectedSection = section.IsSelected ? section : new();
             };
+
+            section.PropertyChanged += ((IBusyViewModel)(this)).BusyChangedCascade;
         }
     }
 }
@@ -128,7 +134,8 @@ public partial class StudentLateWorkCollectionViewModel :
 public partial class SectionLateWorkCollection :
     ObservableObject,
     IErrorHandling,
-    ISelectable<SectionLateWorkCollection>
+    ISelectable<SectionLateWorkCollection>,
+    IBusyViewModel
 {
     private readonly TeacherAssessmentService _service = ServiceHelper.GetService<TeacherAssessmentService>();
 
@@ -139,6 +146,13 @@ public partial class SectionLateWorkCollection :
     [ObservableProperty] ObservableCollection<StudentLateWorkCollectionViewModel> lateWorkByStudent = [];
     [ObservableProperty] bool showResolved;
     [ObservableProperty] bool isSelected;
+    [ObservableProperty] bool busy;
+    [ObservableProperty] string busyMessage = "";
+
+    [ObservableProperty] ObservableCollection<AssessmentDetailsViewModel> assessments;
+    [ObservableProperty] bool showAssessments;
+    [ObservableProperty] bool assessmentSelected;
+    [ObservableProperty] 
 
     public SectionLateWorkCollection() { }
 
@@ -149,14 +163,58 @@ public partial class SectionLateWorkCollection :
     }
 
     [RelayCommand]
+    public async Task ToggleShowResolved()
+    {
+        ShowResolved = !ShowResolved;
+        await LoadLateWork();
+    }
+
+    [RelayCommand]
     public async Task LoadLateWork()
     {
         if (string.IsNullOrEmpty(Section.Model.Reduce(SectionRecord.Empty).sectionId))
             return;
+        Busy = true;
+        BusyMessage = "Loading Late Work...";
         var latework = await _service.GetLateWorkBySection(OnError.DefaultBehavior(this), Section.Model.Reduce(SectionRecord.Empty).sectionId, ShowResolved);
         LateWorkByStudent = [.. latework.Select(lwc => new StudentLateWorkCollectionViewModel(lwc))];
+        Busy = false;
     }
 
+    [RelayCommand]
+    public void Select()
+    {
+        IsSelected = !IsSelected;
+        Selected?.Invoke(this, this);
+    }
+}
+
+public partial class CreateLateAssessmentViewModel :
+    ObservableObject,
+    IErrorHandling,
+    IBusyViewModel,
+    ISelectable<CreateLateAssessmentViewModel>
+{
+    public event EventHandler<ErrorRecord>? OnError;
+    public event EventHandler<CreateLateAssessmentViewModel>? Selected;
+
+    [ObservableProperty] AssessmentEditorViewModel assessment;
+    [ObservableProperty] bool busy;
+    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] bool isSelected;
+
+    [ObservableProperty] string details = "";
+    [ObservableProperty] ObservableCollection<StudentViewModel> students = [];
+
+    public static implicit operator CreateLateAssessmentViewModel(AssessmentEditorViewModel assessment) => new CreateLateAssessmentViewModel(assessment);
+
+    public CreateLateAssessmentViewModel(AssessmentEditorViewModel assessment)
+    {
+        this.assessment = assessment;
+
+    }
+
+    [RelayCommand]
     public void Select()
     {
         IsSelected = !IsSelected;
