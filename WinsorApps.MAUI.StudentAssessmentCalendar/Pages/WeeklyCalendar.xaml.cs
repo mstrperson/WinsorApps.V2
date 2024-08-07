@@ -17,7 +17,7 @@ public partial class WeeklyCalendar : ContentPage
 		InitializeComponent();
 	}
 
-	private void Vm_EventSelected(object? sender, AssessmentCalendarEventViewModel e)
+	private void Vm_EventSelected(object? sender, StudentAssessmentViewModel e)
 	{
 		var page = new AssessmentPage(e);
 		Navigation.PushAsync(page);
