@@ -7,8 +7,10 @@ using WinsorApps.MAUI.Shared.Bookstore.ViewModels;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Bookstore.Models;
 using WinsorApps.Services.Bookstore.Services;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
+using SectionRecord = WinsorApps.Services.Global.Models.SectionRecord;
 
 namespace WinsorApps.MAUI.StudentBookstore.ViewModels;
 
@@ -50,7 +52,7 @@ public partial class MyCartViewModel :
                 // Only one cart may be selected at a time.
                 foreach(var c in MyCart)
                 {
-                    if (c.Section.Model.sectionId != cart.Section.Model.sectionId)
+                    if (c.Section.Model.Reduce(SectionRecord.Empty).sectionId != cart.Section.Model.Reduce(SectionRecord.Empty).sectionId)
                         c.IsSelected = false;
                 }
             };
@@ -156,7 +158,7 @@ public partial class SectionCartViewModel :
     public async Task SubmitOrder()
     {
         Busy = true;
-        var result = await _bookstore.CreateOrUpdateBookOrder(Section.Model.sectionId, RequestedBooks.Select(request => request.Isbn.Isbn), OnError.DefaultBehavior(this));
+        var result = await _bookstore.CreateOrUpdateBookOrder(Section.Model.Reduce(SectionRecord.Empty).sectionId, RequestedBooks.Select(request => request.Isbn.Isbn), OnError.DefaultBehavior(this));
         if (!result.HasValue)
         {
             Busy = false;
@@ -187,20 +189,21 @@ public partial class BookRequestViewModel :
 
     public event EventHandler<BookRequestViewModel>? Selected;
 
-    public StudentBookRequest Model { get; private set; }
+    
+    public OptionalStruct<StudentBookRequest> Model { get; private set; } = OptionalStruct<StudentBookRequest>.None();
 
     private BookRequestViewModel() { }
 
     public static BookRequestViewModel Create(IsbnViewModel isbn) => new()
     {
-        Model = new(DateTime.Now, "", isbn.Isbn),
+        Model = OptionalStruct<StudentBookRequest>.Some(new(DateTime.Now, "", isbn.Isbn)),
         Submitted = DateTime.Now,
         Isbn = isbn
     };
 
     public static BookRequestViewModel Get(StudentBookRequest model) => new()
     {
-        Model = model,
+        Model = OptionalStruct<StudentBookRequest>.Some(model),
         Isbn = IsbnViewModel.Get(model.isbn),
         Submitted = model.submitted,
         Status = OrderStatusViewModel.Get(model.status)

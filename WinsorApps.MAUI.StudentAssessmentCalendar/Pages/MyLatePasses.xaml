@@ -19,14 +19,21 @@
             Command="{Binding RefreshCommand}" />
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
-        <VerticalStackLayout>
+        <Grid
+            RowDefinitions="*"
+            ColumnDefinitions="900,900"
+            HorizontalOptions="Center">
             <CollectionView
                 ItemsSource="{Binding AvailablePasses}"
-                BackgroundColor="Transparent">
+                BackgroundColor="Transparent"
+                Grid.Column="0">
                 <CollectionView.Header>
-                    <Label
-                        Text="You have Late Passes Available for the following courses!" 
-                        StyleClass="Header"/>
+                    <StackLayout>
+                        <Label
+                            Text="Available Late Passes:" 
+                            StyleClass="Header"
+                            TextDecorations="Underline"/>
+                    </StackLayout>
                 </CollectionView.Header>
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="svm:SectionViewModel">
@@ -48,11 +55,15 @@
             <BoxView StyleClass="Bar" HeightRequest="3"/>
             <CollectionView
                 ItemsSource="{Binding MyLatePasses}"
-                BackgroundColor="Transparent">
+                BackgroundColor="Transparent"
+                Grid.Column="1">
                 <CollectionView.Header>
-                    <Label
-                        Text="You have used the following Late Passes."
-                        StyleClass="Header"/>
+                    <StackLayout>
+                        <Label
+                            Text="Submitted Late Passes:"
+                            StyleClass="Header"
+                            TextDecorations="Underline"/>
+                    </StackLayout>
                 </CollectionView.Header>
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="cvm:LatePassViewModel">
@@ -73,8 +84,13 @@
                                     StyleClass="H3"
                                     Text="{Binding DateAndTime,StringFormat='{0:ddd dd MMMM}'}" />
                             </HorizontalStackLayout>
+                            <Label
+                                StyleClass="H3"
+                                Text="{Binding Note}"
+                                Margin="5,-10,0,0"/>
                             <HorizontalStackLayout
-                                Spacing="30">
+                                Spacing="30"
+                                HorizontalOptions="End">
                                 <Label
                                     Text="Submitted:" 
                                     StyleClass="H3"/>
@@ -87,6 +103,6 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-        </VerticalStackLayout>
+        </Grid>
     </ContentPage.Content>
 </ContentPage>

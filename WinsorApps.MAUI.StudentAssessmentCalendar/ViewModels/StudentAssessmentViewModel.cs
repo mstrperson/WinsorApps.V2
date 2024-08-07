@@ -36,7 +36,7 @@ public partial class StudentAssessmentViewModel :
 
     public StudentAssessmentViewModel(AssessmentCalendarEventViewModel @event)
     {
-        if (string.IsNullOrEmpty(@event.Model.id))
+        if (string.IsNullOrEmpty(@event.Model.Reduce(AssessmentCalendarEvent.Empty).id))
         {
             Event = @event;
             return;
