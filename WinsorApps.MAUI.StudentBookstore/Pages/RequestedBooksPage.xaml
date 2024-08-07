@@ -16,6 +16,21 @@
     <ContentPage.Content>
         <ScrollView>
             <VerticalStackLayout>
+                <HorizontalStackLayout
+                    IsVisible="{Binding ShowSelected}">
+                    <Image
+                        VerticalOptions="Center"
+                        StyleClass="BackButton"
+                        HeightRequest="75"
+                        ToolTipProperties.Text="Go Back To My Classes">
+                        <Image.GestureRecognizers>
+                            <!-- Select Command Here De-selects this Class and returns you to the Section Selection view. -->
+                            <TapGestureRecognizer Command="{Binding SelectedSection.SelectCommand}" />
+                        </Image.GestureRecognizers>
+                    </Image>
+                    <Label
+                        Text="Go Back to My Classes"/>
+                </HorizontalStackLayout>
                 <Grid
                     RowDefinitions="*"
                     ColumnDefinitions="*,*"
@@ -24,16 +39,6 @@
                         Grid.Row="0"
                         Grid.Column="0"
                         Spacing="30">
-                        <Image
-                            VerticalOptions="Center"
-                            StyleClass="BackButton"
-                            HeightRequest="75"
-                            ToolTipProperties.Text="Go Back To My Classes">
-                            <Image.GestureRecognizers>
-                                <!-- Select Command Here De-selects this Class and returns you to the Section Selection view. -->
-                                <TapGestureRecognizer Command="{Binding SelectedSection.SelectCommand}" />
-                            </Image.GestureRecognizers>
-                        </Image>
                         <Label
                             VerticalTextAlignment="Center"
                             StyleClass="Header"
@@ -44,29 +49,38 @@
                                 <TapGestureRecognizer Command="{Binding SelectedSection.SelectCommand}" />
                             </Label.GestureRecognizers>
                         </Label>
-                        <Image
-                            Margin="{OnPlatform MacCatalyst='0,15,0,0'}"
-                            StyleClass="NeutralSignifier"
-                            IsVisible="{Binding SelectedSection.HasChanges}" 
-                            HorizontalOptions="Center"
-                            VerticalOptions="Start"/>
-                        <Label
-                            VerticalTextAlignment="Center"
-                            StyleClass="Header"
-                            Text="No Books" 
-                            IsVisible="{Binding SelectedSection.HasNoBooks}"/>
-                        <Label
-                            Text="Submitting Your Order..."
-                            IsVisible="{Binding SelectedSection.Busy}"/>
-                        <Image
-                            StyleClass="PositiveSignifier"
-                            Margin="{OnPlatform MacCatalyst='0,15,0,0'}"
-                            IsVisible="{Binding SelectedSection.HasChanges, Converter={StaticResource Invert}}" 
-                            VerticalOptions="Start"/>
-                        <Label
-                            Text="Order Submitted!"
-                            Margin="-15,-3,0,0"
-                            IsVisible="{Binding SelectedSection.HasChanges, Converter={StaticResource Invert}}"/>
+                        <HorizontalStackLayout 
+                            IsVisible="{Binding SelectedSection.Busy, Converter={StaticResource Invert}}"
+                            Margin="0">
+                            <Image
+                                Margin="{OnPlatform MacCatalyst='0,15,0,0'}"
+                                StyleClass="NeutralSignifier"
+                                IsVisible="{Binding SelectedSection.HasChanges}" 
+                                HorizontalOptions="Center"
+                                VerticalOptions="Start"/>
+                            <Label
+                                VerticalTextAlignment="Center"
+                                StyleClass="Header"
+                                Text="No Books" 
+                                IsVisible="{Binding SelectedSection.HasNoBooks}"/>
+                            <Image
+                                StyleClass="PositiveSignifier"
+                                Margin="{OnPlatform MacCatalyst='0,15,0,0'}"
+                                IsVisible="{Binding SelectedSection.HasChanges, Converter={StaticResource Invert}}" 
+                                VerticalOptions="Start"/>
+                            <Label
+                                Text="Order Submitted!"
+                                IsVisible="{Binding SelectedSection.HasChanges, Converter={StaticResource Invert}}"
+                                Margin="0,0,0,-12"/>
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout 
+                            IsVisible="{Binding SelectedSection.Busy}"
+                            Margin="0">
+                            <Label
+                                Text="Submitting Your Order..."/>
+                            <Image
+                                StyleClass="loading_symbol"/>
+                        </HorizontalStackLayout>
                     </HorizontalStackLayout>
                     <HorizontalStackLayout
                         Grid.Row="0"
@@ -150,14 +164,7 @@
                                                    FontSize="Medium"
                                                    HorizontalOptions="Start"
                                                    VerticalOptions="Start"
-                                                   TranslationX="10"/>
-                                            <Image Source="{AppThemeBinding Dark={FontImage FontFamily=FontAwesomeSolid, Color=White,
-                                                           Glyph={x:Static styles:FontAwesomeSolid.Eye}}, Light={FontImage FontFamily=FontAwesomeSolid, Color=DarkRed,
-                                                           Glyph={x:Static styles:FontAwesomeSolid.Eye}}}"
-                                                   HorizontalOptions="End"
-                                                   HeightRequest="15"
-                                                   VerticalOptions="Center"
-                                                   TranslationX="25"
+                                                   TranslationX="10"
                                                    ToolTipProperties.Text="Click to View Books For This Class"/>
                                         </HorizontalStackLayout>
                                     </VerticalStackLayout>
@@ -290,7 +297,7 @@
                                                     StyleClass="DeleteButton"
                                                     HeightRequest="20"
                                                     WidthRequest="50"
-                                                    ToolTipProperties.Text="Remove From Cart">
+                                                    ToolTipProperties.Text="Remove From Order">
                                                     <Image.GestureRecognizers>
                                                         <!-- Select Command Here Removes this book from the Cart -->
                                                         <TapGestureRecognizer Command="{Binding SelectCommand}" />

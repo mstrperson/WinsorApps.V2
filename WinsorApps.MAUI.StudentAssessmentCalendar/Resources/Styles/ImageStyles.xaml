@@ -23,13 +23,13 @@
             Property="Source"
             Value="{AppThemeBinding 
                     Dark={  FontImage FontFamily=FontAwesomeSolid,
-                            Glyph={x:Static styles:FontAwesomeSolid.ArrowAltCircleRight},
+                            Glyph={x:Static styles:FontAwesomeSolid.UndoAlt},
                             Size=18,
-                            Color=DarkBlue}, 
+                            Color=White}, 
                     Light={ FontImage FontFamily=FontAwesomeSolid,
-                            Glyph={x:Static styles:FontAwesomeSolid.ArrowAltCircleRight},
+                            Glyph={x:Static styles:FontAwesomeSolid.UndoAlt},
                             Size=18,
-                            Color=White}}"/>
+                            Color=DarkRed}}"/>
         <Setter
             Property="HeightRequest"
             Value="{OnPlatform MacCatalyst=40}" />
@@ -39,10 +39,15 @@
         Class="PositiveSignifier">
         <Setter 
             Property="Source"
-            Value="{FontImage 
-                FontFamily=Serif,
-                Glyph=✅,
-                Size=18}" />
+            Value="{AppThemeBinding 
+                    Dark={  FontImage FontFamily=FontAwesomeSolid,
+                            Glyph={x:Static styles:FontAwesomeSolid.Check},
+                            Size=18,
+                            Color=White}, 
+                    Light={ FontImage FontFamily=FontAwesomeSolid,
+                            Glyph={x:Static styles:FontAwesomeSolid.Check},
+                            Size=18,
+                            Color=DarkRed}}"/>
         <Setter
             Property="HeightRequest"
             Value="{OnPlatform MacCatalyst=40}" />
@@ -92,10 +97,15 @@
         Class="DeleteButton">
         <Setter 
             Property="Source"
-            Value="{FontImage 
-                FontFamily=Serif,
-                Glyph=🗑,
-                Size=18}" />
+            Value="{AppThemeBinding 
+                    Dark={  FontImage FontFamily=FontAwesomeSolid,
+                            Glyph={x:Static styles:FontAwesomeSolid.TrashAlt},
+                            Size=18,
+                            Color=White}, 
+                    Light={ FontImage FontFamily=FontAwesomeSolid,
+                            Glyph={x:Static styles:FontAwesomeSolid.TrashAlt},
+                            Size=18,
+                            Color=DarkRed}}"/>
         <Setter
             Property="HeightRequest"
             Value="{OnPlatform MacCatalyst=40}" />
@@ -119,10 +129,15 @@
         Class="EditButton">
         <Setter 
             Property="Source"
-            Value="{FontImage
-                FontFamily=Serif,
-                Glyph=✏️,
-                Size=18}" />
+            Value="{AppThemeBinding 
+                    Dark={  FontImage FontFamily=FontAwesomeSolid,
+                            Glyph={x:Static styles:FontAwesomeSolid.Edit},
+                            Size=18,
+                            Color=White}, 
+                    Light={ FontImage FontFamily=FontAwesomeSolid,
+                            Glyph={x:Static styles:FontAwesomeSolid.Edit},
+                            Size=18,
+                            Color=DarkRed}}"/>
         <Setter
             Property="HeightRequest"
             Value="{OnPlatform MacCatalyst=40}" />

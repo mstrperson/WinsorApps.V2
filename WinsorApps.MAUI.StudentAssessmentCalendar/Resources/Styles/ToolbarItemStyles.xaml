@@ -88,10 +88,15 @@
         Class="DeleteButton">
         <Setter 
             Property="IconImageSource"
-            Value="{FontImage 
-                FontFamily=Serif, 
-                Color=White,
-                Glyph=🗑}" />
+            Value="{AppThemeBinding 
+                    Dark={  FontImage FontFamily=FontAwesomeSolid,
+                            Glyph={x:Static styles:FontAwesomeSolid.TrashAlt},
+                            Size=18,
+                            Color=DarkBlue}, 
+                    Light={ FontImage FontFamily=FontAwesomeSolid,
+                            Glyph={x:Static styles:FontAwesomeSolid.TrashAlt},
+                            Size=18,
+                            Color=White}}"/>
     </Style>
     
     <Style
@@ -99,10 +104,15 @@
         Class="PrintButton">
         <Setter 
             Property="IconImageSource"
-            Value="{FontImage 
-            FontFamily=Serif,
-            Color=White,
-            Glyph=🖨}" />
+            Value="{AppThemeBinding 
+                    Dark={  FontImage FontFamily=FontAwesomeSolid,
+                            Glyph={x:Static styles:FontAwesomeSolid.Print},
+                            Size=18,
+                            Color=DarkBlue}, 
+                    Light={ FontImage FontFamily=FontAwesomeSolid,
+                            Glyph={x:Static styles:FontAwesomeSolid.Print},
+                            Size=18,
+                            Color=White}}"/>
     </Style>
     
     <Style
@@ -112,11 +122,11 @@
             Property="IconImageSource"
             Value="{AppThemeBinding 
                     Dark={  FontImage FontFamily=FontAwesomeSolid,
-                            Glyph={x:Static styles:FontAwesomeSolid.ArrowsAltH},
+                            Glyph={x:Static styles:FontAwesomeSolid.UndoAlt},
                             Size=18,
                             Color=DarkBlue}, 
                     Light={ FontImage FontFamily=FontAwesomeSolid,
-                            Glyph={x:Static styles:FontAwesomeSolid.ArrowsAltH},
+                            Glyph={x:Static styles:FontAwesomeSolid.UndoAlt},
                             Size=18,
                             Color=White}}"/>
     </Style>

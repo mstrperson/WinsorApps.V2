@@ -52,7 +52,8 @@
                 Padding="0"
                 WidthRequest="300"
                 HeightRequest="60"
-                BackgroundColor="Gray"
+                Stroke="{AppThemeBinding Dark={DynamicResource WarmGrey}, Light={DynamicResource SlateDark}}"
+                BackgroundColor="{AppThemeBinding Dark={DynamicResource SlateDark}, Light={DynamicResource WarmGrey}}"
                 IsVisible="{Binding Ready}">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="25,25,25,25"/>
@@ -74,7 +75,8 @@
                 Padding="0"
                 WidthRequest="300"
                 HeightRequest="60"
-                BackgroundColor="Gray"
+                Stroke="{AppThemeBinding Dark={DynamicResource WarmGrey}, Light={DynamicResource SlateDark}}"
+                BackgroundColor="{AppThemeBinding Dark={DynamicResource SlateDark}, Light={DynamicResource WarmGrey}}"
                 IsVisible="{Binding UpdateAvailable}">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="25,25,25,25"/>
