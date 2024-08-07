@@ -18,8 +18,7 @@ public partial class MainPage : ContentPage
         AppService app,
         LocalLoggingService logging,
         StudentAssessmentService studentService,
-        CycleDayCollection cycleDays,
-        WeeklyViewModel weeklyViewModel)
+        CycleDayCollection cycleDays)
     {
         MainPageViewModel vm = new(
         [
@@ -30,9 +29,6 @@ public partial class MainPage : ContentPage
         ], app, api, logging)
         {
             AppId = "jKNAXlE8qzLx",
-            Completion = [
-                new (weeklyViewModel.Initialize(this.DefaultOnErrorAction()), "Weekly View")
-            ]
         };
 
         BindingContext = vm;

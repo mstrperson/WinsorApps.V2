@@ -131,7 +131,6 @@
 	  </MauiXaml>
 	  <MauiXaml Update="Resources\Styles\ImageStyles.xaml">
 	    <Generator>MSBuild:Compile</Generator>
-	    <SubType>Designer</SubType>
 	  </MauiXaml>
 	  <MauiXaml Update="Resources\Styles\LabelStyles.xaml">
 	    <Generator>MSBuild:Compile</Generator>
@@ -140,7 +139,7 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Resources\Styles\Styles.xaml">
-	    <SubType>Designer</SubType>
+		  <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Resources\Styles\ToolbarItemStyles.xaml">
 	    <Generator>MSBuild:Compile</Generator>

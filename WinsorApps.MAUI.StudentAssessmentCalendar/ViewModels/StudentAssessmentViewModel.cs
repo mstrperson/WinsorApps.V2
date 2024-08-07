@@ -36,6 +36,11 @@ public partial class StudentAssessmentViewModel :
 
     public StudentAssessmentViewModel(AssessmentCalendarEventViewModel @event)
     {
+        if (string.IsNullOrEmpty(@event.Model.id))
+        {
+            Event = @event;
+            return;
+        }
         this.@event = AssessmentCalendarEventViewModel.Get(_service.MyCalendar.First(evt => evt.type == @event.Type && evt.id == @event.Id));
         if(@event.Type != AssessmentType.Note)
             LoadDetails().SafeFireAndForget(e => e.LogException());

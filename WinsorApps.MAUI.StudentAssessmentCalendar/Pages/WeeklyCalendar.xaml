@@ -55,73 +55,81 @@
                     StyleClass="loading_symbol" />
             </HorizontalStackLayout>
             <CollectionView
-                        ItemsSource="{Binding Calendar.Days}"
-                        ItemsLayout="VerticalGrid"
-                        BackgroundColor="Transparent"
-                        Margin="0">
+                ItemsSource="{Binding Calendar.Days}"
+                BackgroundColor="Transparent"
+                WidthRequest="750"
+                Margin="0">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="vm:StudentDayViewModel">
                         <Border
                             StrokeThickness="1"
                             BackgroundColor="{AppThemeBinding Light={DynamicResource WarmGrey}, Dark={DynamicResource SlateDark}}">
                             <VerticalStackLayout
-                                WidthRequest="750">
-                                <HorizontalStackLayout
-                                    Spacing="30"
-                                    HeightRequest="40"
-                                    Padding="0"
-                                    Margin="-5">
+                                WidthRequest="748">
+                                <Grid
+                                    RowDefinitions="*"
+                                    ColumnDefinitions="*,*">
                                     <Label
+                                        Grid.Column="0"
                                         StyleClass="SubHeader"
                                         Text="{Binding Day.Date, StringFormat='{0:dddd} {0:d MMMM}'}" />
                                     <Label
+                                        Grid.Column="1"
+                                        HorizontalOptions="End"
+                                        Margin="0,0,15,0"
                                         StyleClass="SubHeader"
                                         FontAttributes="Bold"
                                         Text="{Binding Day.CycleDay}"/>
-                                </HorizontalStackLayout>
+                                </Grid>
                                 <BoxView 
                                     StyleClass="Bar" 
                                     HeightRequest="1"
                                     TranslationX="-5"
                                     Margin="0"/>
-                                <ScrollView>
-                                    <CollectionView
-                                        ItemsSource="{Binding Assessments}"
-                                        BackgroundColor="Transparent"
-                                        VerticalScrollBarVisibility="Never">
-                                        <CollectionView.ItemTemplate>
-                                            <DataTemplate x:DataType="vm:StudentAssessmentViewModel">
-                                                <VerticalStackLayout
+                                <CollectionView
+                                    ItemsSource="{Binding Assessments}"
+                                    BackgroundColor="Transparent"
+                                    MinimumHeightRequest="100">
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:StudentAssessmentViewModel">
+                                            <VerticalStackLayout
                                                     Margin="0"
                                                     Padding="0">
-                                                    <Grid
-                                                        RowDefinitions="25"
-                                                        ColumnDefinitions="150,600"
+                                                <Grid
+                                                        RowDefinitions="*"
+                                                        ColumnDefinitions="150,450,150"
                                                         ToolTipProperties.Text="{Binding ClassName}"
                                                         IsVisible="{Binding Event.AllDay, Converter={StaticResource Invert}}"
                                                         Margin="0"
                                                         Padding="0">
-                                                        <Grid.GestureRecognizers>
-                                                            <TapGestureRecognizer Command="{Binding Event.SelectCommand}" />
-                                                        </Grid.GestureRecognizers>
-                                                        <Label
+                                                    <Grid.GestureRecognizers>
+                                                        <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                                    </Grid.GestureRecognizers>
+                                                    <Label
                                                             Grid.Column="0"
                                                             StyleClass="H3"
                                                             Text="{Binding Event.Start,StringFormat='{0:hh:mm tt}'}" />
-                                                        <Label
+                                                    <Label
                                                             Grid.Column="1"
                                                             StyleClass="H3"
                                                             Text="{Binding Event.Description}" />
-                                                    </Grid>
-                                                    <Label
+                                                    <HorizontalStackLayout
+                                                        Grid.Column="2"
+                                                        HorizontalOptions="End"
+                                                        Margin="0,0,15,0"
+                                                        Padding="0">
+                                                        <!-- Put Late Pass Related info here~ -->
+                                                        
+                                                    </HorizontalStackLayout>
+                                                </Grid>
+                                                <Label
                                                         Text="{Binding Event.Summary}"
                                                         FontAttributes="Bold"
                                                         IsVisible="{Binding Event.AllDay}" />
-                                                </VerticalStackLayout>
-                                            </DataTemplate>
-                                        </CollectionView.ItemTemplate>
-                                    </CollectionView>
-                                </ScrollView>
+                                            </VerticalStackLayout>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
                             </VerticalStackLayout>
                         </Border>
                     </DataTemplate>

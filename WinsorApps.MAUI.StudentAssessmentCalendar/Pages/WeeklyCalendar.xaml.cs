@@ -15,6 +15,7 @@ public partial class WeeklyCalendar : ContentPage
 		vm.OnError += this.DefaultOnErrorHandler();
 		vm.EventSelected += Vm_EventSelected;
 		InitializeComponent();
+		vm.Initialize(this.DefaultOnErrorAction()).SafeFireAndForget(e => e.LogException());
 	}
 
 	private void Vm_EventSelected(object? sender, StudentAssessmentViewModel e)

@@ -38,7 +38,6 @@ public partial class WeeklyViewModel :
         _service = service;
         _logging = logging;
         _cycleDays = cycleDays;
-
     }
 
     public event EventHandler<ErrorRecord>? OnError;
