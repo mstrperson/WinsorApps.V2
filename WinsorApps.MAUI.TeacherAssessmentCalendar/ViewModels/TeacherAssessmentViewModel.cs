@@ -46,7 +46,7 @@ public partial class AssessmentDetailsViewModel :
     public event EventHandler<StudentAssessmentRosterEntry>? StudentSelected;
     public event EventHandler<AssessmentDetailsViewModel>? Selected;
 
-    public AssessmentCalendarEvent Model { get; private set; }
+    public OptionalStruct<AssessmentCalendarEvent> Model { get; private set; } = OptionalStruct<AssessmentCalendarEvent>.None();
     private readonly TeacherAssessmentService _assessmentService = ServiceHelper.GetService<TeacherAssessmentService>();
     private readonly ReadonlyCalendarService _calendarService = ServiceHelper.GetService<ReadonlyCalendarService>();
     private readonly RegistrarService _registrarService = ServiceHelper.GetService<RegistrarService>();
@@ -86,26 +86,26 @@ public partial class AssessmentDetailsViewModel :
 
     public void SelectStudent(string studentId)
     {
-        var result = Students.FirstOrDefault(student => student.Student.Model.id == studentId);
+        var result = Students.FirstOrDefault(student => student.Student.Model.Reduce(UserRecord.Empty).id == studentId);
         if (result is not null)
             SelectedStudent = result;
     }
 
     public AssessmentDetailsViewModel(AssessmentCalendarEvent @event)
     {
-        Model = @event;
-        title = Model.summary;
+        Model = OptionalStruct<AssessmentCalendarEvent>.Some(@event);
+        title = @event.summary;
         subtitle = "";
-        dateLabel = Model.allDay ? $"{Model.start:dddd, dd MMMM}" : $"{Model.start:dddd, dd MMM h:mm tt}";
+        dateLabel = @event.allDay ? $"{@event.start:dddd, dd MMMM}" : $"{@event.start:dddd, dd MMM h:mm tt}";
 
-        switch (Model.type)
+        switch (@event.type)
         {
             case "assessment":
                 LoadAssessmentDetails();
                 break;
             case "note":
                 listLabel = "Classes";
-                classList = [.. Model.description.Split(';')];
+                classList = [.. @event.description.Split(';')];
                 LoadComplete?.Invoke(this, EventArgs.Empty);
                 break;
             case "ap-exam":
@@ -117,7 +117,7 @@ public partial class AssessmentDetailsViewModel :
 
     private void LoadAPExam()
     {
-        var getTask = _calendarService.GetAPExamDetails(Model.id, OnError.DefaultBehavior(this));
+        var getTask = _calendarService.GetAPExamDetails(Model.Reduce(AssessmentCalendarEvent.Empty).id, OnError.DefaultBehavior(this));
         getTask.WhenCompleted(() =>
         {
             var result = getTask.Result;
@@ -152,7 +152,7 @@ public partial class AssessmentDetailsViewModel :
 
     private void LoadAssessmentDetails()
     {
-        var getTask = _assessmentService.GetAssessmentDetails(Model.id, OnError.DefaultBehavior(this));
+        var getTask = _assessmentService.GetAssessmentDetails(Model.Reduce(AssessmentCalendarEvent.Empty).id, OnError.DefaultBehavior(this));
         getTask.WhenCompleted(() =>
         {
             var result = getTask.Result;
@@ -163,7 +163,9 @@ public partial class AssessmentDetailsViewModel :
             }
 
             var details = result.Value;
-            Title = string.IsNullOrEmpty(Model.description) ? Model.summary : Model.description;
+            Title = string.IsNullOrEmpty(Model.Reduce(AssessmentCalendarEvent.Empty).description) ? 
+                Model.Reduce(AssessmentCalendarEvent.Empty).summary : 
+                Model.Reduce(AssessmentCalendarEvent.Empty).description;
             Subtitle = $"{details.section.displayName} [{details.section.teachers
                     .Select(t => $"{t}")
                     .Aggregate((a, b) => $"{a}, {b}")}]";
@@ -209,8 +211,7 @@ public partial class AssessmentDetailsViewModel :
 
         var group = service.MyAssessments.FirstOrDefault(grp => grp.id == details.groupId);
 
-        vm.Model = new(details.assessmentId, AssessmentType.Assessment, group.course, group.note, details.assessmentDateTime, details.assessmentDateTime.AddMinutes(75), false,
-            []);
+        vm.Model = OptionalStruct<AssessmentCalendarEvent>.Some(details.ToCalendarEvent(group));
 
         vm.DateLabel = $"{details.assessmentDateTime:dddd dd MMMM hh:mm tt}";
 
@@ -268,11 +269,11 @@ public partial class StudentConflictViewModel :
     [ObservableProperty] bool latePassUsed;
     [ObservableProperty] bool redFlag;
 
-    public StudentConflictCount Model { get; private set; }
+    public OptionalStruct<StudentConflictCount> Model { get; private set; } = OptionalStruct<StudentConflictCount>.None();
 
     public StudentConflictViewModel(StudentConflictCount conflict)
     {
-        Model = conflict;
+        Model = OptionalStruct<StudentConflictCount>.Some(conflict);
         Student = UserViewModel.Get(conflict.student.GetUserRecord(_regsitrar));
         ConflictCount = conflict.conflictCount;
         LatePassUsed = conflict.latePass;

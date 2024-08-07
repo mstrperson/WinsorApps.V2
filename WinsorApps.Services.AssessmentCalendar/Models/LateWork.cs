@@ -13,17 +13,17 @@ public readonly record struct NewLateWork(string details, string[] studentIds);
         string details, DateOnly markedDate, bool isResolved, DateTime? resolvedDate, bool isAssessment,
         string sectionId, string? assessmentId = null);
 
-    public readonly record struct StudentLateWorkCollection(StudentRecordShort student, ImmutableArray<LateWorkRecord> lateWork)
-    {
-        public static implicit operator StudentLateWorkCollection(KeyValuePair<UserRecord, IEnumerable<LateWorkRecord>> kvp)
-            => new(kvp.Key, kvp.Value.ToImmutableArray());
+public readonly record struct StudentLateWorkCollection(StudentRecordShort student, ImmutableArray<LateWorkRecord> lateWork)
+{
+    public static implicit operator StudentLateWorkCollection(KeyValuePair<UserRecord, IEnumerable<LateWorkRecord>> kvp)
+        => new(kvp.Key, kvp.Value.ToImmutableArray());
 
-        public void Split(out StudentLateWorkCollection assessments, out StudentLateWorkCollection patterns)
-        {
-            assessments = new(student, lateWork.Where(lw => lw.isAssessment).ToImmutableArray());
-            patterns = new(student, lateWork.Where(lw => !lw.isAssessment).ToImmutableArray());
-        }
+    public void Split(out StudentLateWorkCollection assessments, out StudentLateWorkCollection patterns)
+    {
+        assessments = new(student, lateWork.Where(lw => lw.isAssessment).ToImmutableArray());
+        patterns = new(student, lateWork.Where(lw => !lw.isAssessment).ToImmutableArray());
     }
+}
 
     public readonly record struct LateWorkByStudentCollection(ImmutableArray<StudentLateWorkCollection> lateWorkByStudent)
     {

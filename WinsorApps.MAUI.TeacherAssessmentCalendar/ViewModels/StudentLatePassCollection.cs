@@ -49,7 +49,7 @@ public partial class StudentLatePassCollectionViewModel :
         var pass = await _service.RequestPassForStudent(Student.Id, assessment.id, OnError.DefaultBehavior(this));
         if(pass.HasValue)
         {
-            var detail = new AssessmentPassDetail(assessment, Student.Model, pass.Value.timeStamp);
+            var detail = new AssessmentPassDetail(assessment, Student.Model.Reduce(UserRecord.Empty), pass.Value.timeStamp);
             TeacherLatePassViewModel vm = LatePassViewModel.Get(detail);
             vm.Withdrawn += (_, _) => LatePasses.Remove(vm);
             LatePasses.Add(vm);
@@ -83,7 +83,7 @@ public partial class TeacherLatePassViewModel :
         Busy = true;
         BusyMessage = $"Withdrawing late pass for {LatePass.CourseName} - {LatePass.Note} on behalf of {LatePass.Student.DisplayName}";
         var success = true;
-        await _service.WithdrawLatePassForStudent(LatePass.Student.Id, LatePass.Model.assessment.id, err =>
+        await _service.WithdrawLatePassForStudent(LatePass.Student.Id, LatePass.Model.Reduce(AssessmentPassDetail.Empty).assessment.id, err =>
         {
             success = false;
             OnError.DefaultBehavior(this)(err);

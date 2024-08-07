@@ -87,7 +87,7 @@ public partial class EventFormViewModel :
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "Working";
 
-    public EventFormBase Model { get; private set; }
+    public OptionalStruct<EventFormBase> Model { get; private set; } = OptionalStruct<EventFormBase>.None();
 
     public EventFormViewModel()
     {
@@ -261,7 +261,7 @@ public partial class EventFormViewModel :
         var result = await _service.StartNewForm(this, OnError.DefaultBehavior(this));
         if(result.HasValue)
         {
-            Model = result.Value;
+            Model = OptionalStruct<EventFormBase>.Some(result.Value);
             CanEditBase = true;
             CanEditSubForms = true;
             IsCreating = true;
@@ -325,8 +325,8 @@ public partial class EventFormViewModel :
             _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Failed to start template of {Summary}");
             return;
         }
-        clone.HasCatering = Model.hasCatering;
-        if (Model.hasCatering)
+        clone.HasCatering = Model.Reduce(EventFormBase.Empty).hasCatering;
+        if (Model.Reduce(EventFormBase.Empty).hasCatering)
         {
             var stuff = await _service.GetCateringEvent(Id, OnError.DefaultBehavior(this));
             if (stuff.HasValue)
@@ -337,8 +337,8 @@ public partial class EventFormViewModel :
             }
         }
 
-        clone.HasFacilities = Model.hasFacilitiesInfo;
-        if (Model.hasFacilitiesInfo)
+        clone.HasFacilities = Model.Reduce(EventFormBase.Empty).hasFacilitiesInfo;
+        if (Model.Reduce(EventFormBase.Empty).hasFacilitiesInfo)
         {
             var stuff = await _service.GetFacilitiesEvent(Id, OnError.DefaultBehavior(this));
             if (stuff.HasValue)
@@ -348,8 +348,8 @@ public partial class EventFormViewModel :
                 await clone.Facilites.Continue(true);
             }
         }
-        clone.HasTech = Model.hasTechRequest;
-        if (Model.hasTechRequest)
+        clone.HasTech = Model.Reduce(EventFormBase.Empty).hasTechRequest;
+        if (Model.Reduce(EventFormBase.Empty).hasTechRequest)
         {
             var stuff = await _service.GetTechDetails(Id, OnError.DefaultBehavior(this));
             if (stuff.HasValue)
@@ -359,8 +359,8 @@ public partial class EventFormViewModel :
                 await clone.Tech.Continue(true);
             }
         }
-        clone.HasTheater = Model.hasTheaterRequest;
-        if (Model.hasTheaterRequest)
+        clone.HasTheater = Model.Reduce(EventFormBase.Empty).hasTheaterRequest;
+        if (Model.Reduce(EventFormBase.Empty).hasTheaterRequest)
         {
             var stuff = await _service.GetTheaterDetails(Id, OnError.DefaultBehavior(this));
             if (stuff.HasValue)
@@ -370,8 +370,8 @@ public partial class EventFormViewModel :
                 await clone.Theater.Continue(true);
             }
         }
-        clone.HasMarComm = Model.hasMarCom;
-        if (Model.hasMarCom)
+        clone.HasMarComm = Model.Reduce(EventFormBase.Empty).hasMarCom;
+        if (Model.Reduce(EventFormBase.Empty).hasMarCom)
         {
             var stuff = await _service.GetMarCommRequest(Id, OnError.DefaultBehavior(this));
             if (stuff.HasValue)
@@ -381,8 +381,8 @@ public partial class EventFormViewModel :
                 await clone.MarComm.Continue(true);
             }
         }
-        clone.IsFieldTrip = Model.hasFieldTripInfo;
-        if (Model.hasFieldTripInfo)
+        clone.IsFieldTrip = Model.Reduce(EventFormBase.Empty).hasFieldTripInfo;
+        if (Model.Reduce(EventFormBase.Empty).hasFieldTripInfo)
         {
             var stuff = await _service.GetFieldTripDetails(Id, OnError.DefaultBehavior(this));
             if (stuff.HasValue)
@@ -410,7 +410,7 @@ public partial class EventFormViewModel :
         var result = await _service.UpdateEvent(Id, this, OnError.DefaultBehavior(this));
         if(result.HasValue)
         {
-            Model = result.Value;
+            Model = OptionalStruct<EventFormBase>.Some(result.Value);
             StatusSelection.Select(result.Value.status);
             CanEditBase = true;
             CanEditSubForms = true;
@@ -436,12 +436,12 @@ public partial class EventFormViewModel :
             return;
         }
 
-        Model = updatedBase.Value;
+        Model = OptionalStruct<EventFormBase>.Some(updatedBase.Value);
 
         var result = await _service.CompleteSubmission(Id, OnError.DefaultBehavior(this));
         if(result.HasValue)
         {
-            Model = result.Value;
+            Model = OptionalStruct<EventFormBase>.Some(result.Value);
             CanEditBase = false;
             CanEditSubForms = false;
             CanEditCatering = false;
@@ -470,12 +470,12 @@ public partial class EventFormViewModel :
             return;
         }
 
-        Model = updatedBase.Value;
+        Model = OptionalStruct<EventFormBase>.Some(updatedBase.Value);
 
         var result = await _service.CompleteUpdate(Id, OnError.DefaultBehavior(this));
         if (result.HasValue)
         {
-            Model = result.Value;
+            Model = OptionalStruct<EventFormBase>.Some(result.Value);
             CanEditBase = false;
             CanEditSubForms = false;
             CanEditCatering = false;
@@ -710,7 +710,7 @@ public partial class EventFormViewModel :
             IsCreating = model.status.Equals("creating", StringComparison.InvariantCultureIgnoreCase),
             IsUpdating = model.status.Equals("updating", StringComparison.InvariantCultureIgnoreCase),
             CanEditCatering = model.start > DateTime.Today.AddDays(14),
-            Model = model
+            Model = OptionalStruct<EventFormBase>.Some(model)
         };
 
         vm.CanEditBase = vm.IsCreating || vm.IsUpdating;

@@ -17,7 +17,7 @@ namespace WinsorApps.MAUI.Shared.AssessmentCalendar.ViewModels
         [ObservableProperty] DateTime dateAndTime;
         [ObservableProperty] DateTime timestamp;
         [ObservableProperty] UserViewModel student = UserViewModel.Empty;
-        public AssessmentPassDetail Model { get; private set; }
+        public OptionalStruct<AssessmentPassDetail> Model { get; private set; } = OptionalStruct<AssessmentPassDetail>.None();
 
         public event EventHandler<AssessmentPassDetail>? LoadAssessmentRequested;
 
@@ -52,13 +52,13 @@ namespace WinsorApps.MAUI.Shared.AssessmentCalendar.ViewModels
                 DateAndTime = model.assessment.start,
                 Timestamp = model.timeStamp,
                 Student = UserViewModel.Get(model.student),
-                Model = model
+                Model = OptionalStruct<AssessmentPassDetail>.Some(model)
             };
 
             return vm;
         }
 
         [RelayCommand]
-        public void LoadAssessment() => LoadAssessmentRequested?.Invoke(this, Model);
+        public void LoadAssessment() => LoadAssessmentRequested?.Invoke(this, Model.Reduce(AssessmentPassDetail.Empty));
     }
 }

@@ -6,6 +6,7 @@ using System.IO.Compression;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.EventForms.Services;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 
@@ -27,7 +28,7 @@ public partial class AttachmentViewModel :
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "Downloading...";
 
-    public DocumentHeader Model { get; private set; }
+    public OptionalStruct<DocumentHeader> Model { get; private set; } = OptionalStruct<DocumentHeader>.None();
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<AttachmentViewModel>? DeleteRequested;
@@ -38,7 +39,7 @@ public partial class AttachmentViewModel :
         FileName = model.fileName,
         MimeType = model.mimeType,
         Location = model.location,
-        Model = model
+        Model = OptionalStruct<DocumentHeader>.Some(model)
     };
 
     [RelayCommand]

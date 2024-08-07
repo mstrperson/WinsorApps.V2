@@ -10,8 +10,7 @@ public sealed class Optional<T> where T : class
 {
     private T? _object = null;
 
-    public static Optional<T> Maybe(T? obj, T @default) => new() { _object = obj ?? @default };
-    public static Optional<T> Some(T obj) => new() { _object = obj };
+    public static Optional<T> Some(T? obj) => new() { _object = obj };
     public static Optional<T> None() => new();
 
     public Optional<TResult> Map<TResult>(Func<T, TResult> map) where TResult : class =>
@@ -24,7 +23,7 @@ public sealed class Optional<T> where T : class
 
 public struct OptionalStruct<T> where T : struct
 {
-    private T? _value = default;
+    private T? _value = null;
 
     public OptionalStruct() { }
 

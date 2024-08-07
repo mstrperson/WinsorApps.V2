@@ -38,7 +38,7 @@ public partial class UserViewModel :
     }
     public static UserViewModel Get(UserRecord user)
     {
-        var vm = ViewModelCache.FirstOrDefault(cvm => cvm.Model.id == user.id);
+        var vm = ViewModelCache.FirstOrDefault(cvm => cvm.Model.Reduce(UserRecord.Empty).id == user.id);
         if (vm is null)
         {
             vm = new(user);
@@ -57,13 +57,13 @@ public partial class UserViewModel :
     };
 
     private readonly RegistrarService _registrar;
-    public UserRecord Model { get; private set; }
+    public OptionalStruct<UserRecord> Model { get; private set; } = OptionalStruct<UserRecord>.None();
 
-    public string BlackbaudId => $"{Model.blackbaudId}";
-    public string Id => Model.id ?? "";
+    public string BlackbaudId => $"{Model.Reduce(UserRecord.Empty).blackbaudId}";
+    public string Id => Model.Reduce(UserRecord.Empty).id ?? "";
     
     [ObservableProperty] private string displayName;
-    public string Email => Model.email;
+    public string Email => Model.Reduce(UserRecord.Empty).email;
 
     public static UserViewModel Empty => new();
 
@@ -86,7 +86,7 @@ public partial class UserViewModel :
     }
     private UserViewModel(UserRecord user)
     {
-        Model = user;
+        Model = OptionalStruct<UserRecord>.Some(user);
         displayName = $"{user.firstName} {user.lastName}";
         _registrar = ServiceHelper.GetService<RegistrarService>()!;
         ImageSource = ImageSource.FromUri(new("https://bbk12e1-cdn.myschoolcdn.com/ftpimages/1082/logo/2019-masterlogo-white.png"));
@@ -110,7 +110,7 @@ public partial class UserViewModel :
     {
         try
         {
-            DisplayName = _registrar.GetUniqueDisplayNameFor(Model);
+            DisplayName = _registrar.GetUniqueDisplayNameFor(Model.Reduce(UserRecord.Empty));
         }
         catch (ServiceNotReadyException)
         {

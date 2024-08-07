@@ -51,7 +51,10 @@ namespace WinsorApps.Services.AssessmentCalendar.Models;
     /// <param name="timeStamp">when you submitted this pass</param>
     public readonly record struct AssessmentPass(string assessmentId, string studentId, DateTime timeStamp);
 
-    public readonly record struct AssessmentPassDetail(AssessmentCalendarEvent assessment, UserRecord student, DateTime timeStamp);
+public readonly record struct AssessmentPassDetail(AssessmentCalendarEvent assessment, UserRecord student, DateTime timeStamp)
+{
+    public static readonly AssessmentPassDetail Empty = new(AssessmentCalendarEvent.Empty, UserRecord.Empty, DateTime.Now);
+}
 
     /// <summary>
     /// Display an AP Exam

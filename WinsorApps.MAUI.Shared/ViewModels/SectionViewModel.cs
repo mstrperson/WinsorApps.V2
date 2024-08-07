@@ -27,7 +27,7 @@ public partial class CourseViewModel :
     [ObservableProperty] string courseCode = "";
     [ObservableProperty] ImmutableArray<SectionViewModel> sections = [];
 
-    public CourseRecord Model { get; init; } = default;
+    public OptionalStruct<CourseRecord> Model { get; init; } = OptionalStruct<CourseRecord>.None();
 
     public static ConcurrentBag<CourseViewModel> ViewModelCache { get; protected set; } = [];
 
@@ -42,7 +42,7 @@ public partial class CourseViewModel :
     public async Task LoadSections()
     {
         bool success = true;
-        var sections = await _registrar.GetSectionsOfAsync(Model, err =>
+        var sections = await _registrar.GetSectionsOfAsync(Model.Reduce(CourseRecord.Empty), err =>
         {
             _logging.LogError(err);
             success = false;
@@ -76,7 +76,7 @@ public partial class CourseViewModel :
             LengthInTerms = model.lengthInTerms,
             CourseCode = model.courseCode,
             DisplayName = model.displayName,
-            Model = model
+            Model = OptionalStruct<CourseRecord>.Some(model)
         };
         ViewModelCache.Add(vm);
         return vm.Clone();
@@ -182,7 +182,7 @@ public partial class SectionViewModel :
     ICachedViewModel<SectionViewModel, SectionRecord, RegistrarService>,
     IModelCarrier<SectionViewModel, SectionRecord>
 {
-    public SectionRecord Model { get; private set; }
+    public OptionalStruct<SectionRecord> Model { get; private set; } = OptionalStruct<SectionRecord>.None();
 
     public event EventHandler<UserViewModel>? TeacherSelected;
     public event EventHandler<UserViewModel>? StudentSelected;
@@ -212,7 +212,7 @@ public partial class SectionViewModel :
 
     private SectionViewModel(SectionRecord section)
     {
-        Model = section;
+        Model = OptionalStruct<SectionRecord>.Some(section);
         // Get the RegistrarService from the service helper...
         var registrar = ServiceHelper.GetService<RegistrarService>()!;
         
@@ -221,7 +221,7 @@ public partial class SectionViewModel :
         teachers = UserViewModel
             .GetClonedViewModels(
                 registrar.TeacherList
-                .Where(t => Model.teachers.Any(tch => t.id == tch.id)))
+                .Where(t => Model.Reduce(SectionRecord.Empty).teachers.Any(tch => t.id == tch.id)))
             .ToImmutableArray();
         
         // 
@@ -231,7 +231,7 @@ public partial class SectionViewModel :
         students = UserViewModel
             .GetClonedViewModels(
                 registrar.StudentList
-                .Where(s => Model.students.Any(stu => stu.id == s.id)))
+                .Where(s => Model.Reduce(SectionRecord.Empty).students.Any(stu => stu.id == s.id)))
             .ToImmutableArray();
         
         foreach (var student in Students)
@@ -268,7 +268,7 @@ public partial class SectionViewModel :
 
     public static SectionViewModel Get(SectionRecord model)
     {
-        var vm = ViewModelCache.FirstOrDefault(sec => sec.Model.sectionId == model.sectionId);
+        var vm = ViewModelCache.FirstOrDefault(sec => sec.Model.Reduce(SectionRecord.Empty).sectionId == model.sectionId);
         if (vm is not null)
             return vm.Clone();
 

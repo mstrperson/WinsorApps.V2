@@ -167,7 +167,7 @@ public partial class VirtualEventViewModel :
             if (Panelists.Any(con => con.Id == e.Id))
                 return;
 
-            var contact = ContactViewModel.Get(e.Model);
+            var contact = ContactViewModel.Get(e.Model.Reduce(Services.EventForms.Models.Contact.Empty));
             contact.OnError += (sender, err) => OnError?.Invoke(sender, err);
             contact.Selected += (_, _) =>
             {

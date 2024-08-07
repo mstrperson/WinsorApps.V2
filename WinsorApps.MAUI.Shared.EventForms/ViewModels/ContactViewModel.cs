@@ -53,7 +53,7 @@ public partial class ContactViewModel :
 
     public static ContactViewModel Empty => new();
 
-    public Contact Model { get; private set; }
+    public OptionalStruct<Contact> Model { get; private set; } = OptionalStruct<Contact>.None();
 
     public static ContactViewModel Get(Contact model)
     {
@@ -68,7 +68,8 @@ public partial class ContactViewModel :
             FullName = model.FullName,
             Email = model.email,
             Phone = model.phone,
-            IsPublic = model.isPublic
+            IsPublic = model.isPublic,
+            Model = OptionalStruct<Contact>.Some(model)
         };
 
         if (!string.IsNullOrEmpty(model.associatedUserId))
