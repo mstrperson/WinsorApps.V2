@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Runtime.CompilerServices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using WinsorApps.MAUI.Shared;
@@ -14,7 +15,8 @@ namespace WinsorApps.MAUI.StudentAssessmentCalendar.ViewModels;
 
 public partial class WeeklyViewModel :
     ObservableObject,
-    IErrorHandling
+    IErrorHandling,
+    IBusyViewModel
 {
     private readonly StudentAssessmentService _service;
     private readonly LocalLoggingService _logging;
@@ -22,7 +24,14 @@ public partial class WeeklyViewModel :
 
     [ObservableProperty] StudentWeekViewModel calendar =new();
 
-    public event EventHandler<AssessmentCalendarEventViewModel>? EventSelected;
+    // I forgot why we wanted this? but here it is? lol
+    [ObservableProperty] StudentAssessmentViewModel selectedAssessment = new(new());
+    [ObservableProperty] bool showSelectedAssessment;
+
+    [ObservableProperty] bool busy;
+    [ObservableProperty] string busyMessage = "";
+
+    public event EventHandler<StudentAssessmentViewModel>? EventSelected;
 
     public WeeklyViewModel(StudentAssessmentService service, LocalLoggingService logging, CycleDayCollection cycleDays)
     {
@@ -38,36 +47,42 @@ public partial class WeeklyViewModel :
     public async Task IncrementWeek()
     {
         var nextWeek = Calendar.Week.Monday.AddDays(7);
+        await UpdateCalendar(nextWeek);
+    }
 
-        _ = await _cycleDays.GetCycleDays(DateOnly.FromDateTime(nextWeek), DateOnly.FromDateTime(nextWeek).AddDays(1), OnError.DefaultBehavior(this));
+    private async Task UpdateCalendar(DateTime nextWeek)
+    {
+        _ = await _cycleDays.GetCycleDays(DateOnly.FromDateTime(nextWeek), DateOnly.FromDateTime(nextWeek).AddDays(7), OnError.DefaultBehavior(this));
 
-        _ = await _service.GetMyCalendarInRange(OnError.DefaultBehavior(this), nextWeek, nextWeek.AddDays(1));
+        _ = await _service.GetMyCalendarInRange(OnError.DefaultBehavior(this), nextWeek, nextWeek.AddDays(7));
 
         Calendar = CalendarWeekViewModel.Get(nextWeek, _service.MyCalendar);
+
+        Calendar.PropertyChanged += ((IBusyViewModel)this).BusyChangedCascade;
         Calendar.Week.EventSelected += (_, e) => EventSelected?.Invoke(this, e);
+        Calendar.AssessmentSelected += (_, assessment) =>
+        {
+            ShowSelectedAssessment = assessment.IsSelected;
+            SelectedAssessment = assessment;
+            // Reset all other assessment selections.
+            foreach (var asmt in Calendar.Days.SelectMany(day => day.Assessments))
+            {
+                asmt.IsSelected = assessment.Event.Model.id == asmt.Event.Model.id && assessment.IsSelected;
+            }
+        };
     }
 
     [RelayCommand]
     public async Task DecrementWeek()
     {
         var nextWeek = Calendar.Week.Monday.AddDays(-7);
-
-        _ = await _cycleDays.GetCycleDays(DateOnly.FromDateTime(nextWeek),DateOnly.FromDateTime(nextWeek).AddDays(7), OnError.DefaultBehavior(this));
-
-        _ = await _service.GetMyCalendarInRange(OnError.DefaultBehavior(this), nextWeek, nextWeek.AddDays(7));
-
-        Calendar = CalendarWeekViewModel.Get(nextWeek, _service.MyCalendar);
-        Calendar.Week.EventSelected += (_, e) => EventSelected?.Invoke(this, e);
+        await UpdateCalendar(nextWeek);
     }
 
     [RelayCommand]
     public async Task Refresh()
     {
-
-        _ = await _service.GetMyCalendarInRange(OnError.DefaultBehavior(this), Calendar.Week.Monday, Calendar.Week.Monday.AddDays(7));
-
-        Calendar = CalendarWeekViewModel.Get(Calendar.Week.Monday, _service.MyCalendar);
-        Calendar.Week.EventSelected += (_, e) => EventSelected?.Invoke(this, e);
+        await UpdateCalendar(Calendar.Week.Monday);
     }
 
     public async Task Initialize(ErrorAction onError)
@@ -78,19 +93,69 @@ public partial class WeeklyViewModel :
     }
 }
 
-public partial class StudentDayViewModel : ObservableObject
+public partial class StudentDayViewModel : 
+    ObservableObject,
+    IErrorHandling,
+    IBusyViewModel
 {
     [ObservableProperty] private ObservableCollection<StudentAssessmentViewModel> assessments = [];
     [ObservableProperty] private CalendarDayViewModel day = new();
 
+    [ObservableProperty] bool busy;
+    [ObservableProperty] string busyMessage = "";
+
+    public event EventHandler<ErrorRecord>? OnError;
+    public event EventHandler<StudentAssessmentViewModel>? AssessmentSelected;
+
     public static implicit operator StudentDayViewModel(CalendarDayViewModel day)
-        => new() {Day = day, Assessments = [..day.Events.Where(e => e.Model.type == AssessmentType.Assessment)]};
+    {
+        var vm = new StudentDayViewModel()
+        {
+            Day = day,
+            Assessments = [.. day.Events.Where(e => e.Model.type == AssessmentType.Assessment)]
+        };
+
+        foreach(var assessment in vm.Assessments)
+        {
+            assessment.OnError += (sender, e) => vm.OnError?.Invoke(sender, e);
+            assessment.Selected += (_, _) => vm.AssessmentSelected?.Invoke(vm, assessment);
+            assessment.PropertyChanged += ((IBusyViewModel)vm).BusyChangedCascade;
+        }
+
+        return vm;
+    }
 }
-public partial class StudentWeekViewModel: ObservableObject
+public partial class StudentWeekViewModel : 
+    ObservableObject,
+    IErrorHandling,
+    IBusyViewModel
 {
     [ObservableProperty] private ObservableCollection<StudentDayViewModel> days = [];
     [ObservableProperty] private CalendarWeekViewModel week = new();
 
+    [ObservableProperty] bool busy;
+    [ObservableProperty] string busyMessage = "";
+
+    public event EventHandler<ErrorRecord>? OnError;
+    public event EventHandler<StudentAssessmentViewModel>? AssessmentSelected;
+
+
     public static implicit operator StudentWeekViewModel(CalendarWeekViewModel week)
-        => new() {Week = week, Days = [..week.Days]};
+    {
+        var vm = new StudentWeekViewModel()
+        {
+            Week = week,
+            Days = [.. week.Days]
+        };
+
+        foreach(var day in vm.Days)
+        {
+            day.OnError += (sender, e) => vm.OnError?.Invoke(sender, e);
+            day.AssessmentSelected += (_, assessment) => vm.AssessmentSelected?.Invoke(vm, assessment);
+            day.PropertyChanged += ((IBusyViewModel)vm).BusyChangedCascade;
+        }
+
+        return vm;
+    }
+        
 }

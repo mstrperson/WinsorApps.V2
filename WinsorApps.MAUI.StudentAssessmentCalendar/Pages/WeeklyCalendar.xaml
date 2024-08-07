@@ -46,68 +46,77 @@
                     </Label.GestureRecognizers>
                 </Label>
             </HorizontalStackLayout>
+            <HorizontalStackLayout
+                IsVisible="{Binding Busy}">
+                <Label
+                    StyleClass="Header"
+                    Text="{Binding BusyMessage}" />
+                <Image
+                    StyleClass="loading_symbol" />
+            </HorizontalStackLayout>
             <CollectionView
                         ItemsSource="{Binding Calendar.Days}"
-                        ItemsLayout="HorizontalGrid"
+                        ItemsLayout="VerticalGrid"
                         BackgroundColor="Transparent"
                         Margin="0">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="vm:StudentDayViewModel">
                         <Border
-                                    StrokeThickness="1"
-                                    BackgroundColor="{AppThemeBinding Light={DynamicResource WarmGrey}, Dark={DynamicResource SlateDark}}">
+                            StrokeThickness="1"
+                            BackgroundColor="{AppThemeBinding Light={DynamicResource WarmGrey}, Dark={DynamicResource SlateDark}}">
                             <VerticalStackLayout
-                                        WidthRequest="298">
+                                WidthRequest="750">
                                 <HorizontalStackLayout
-                                            Spacing="30"
-                                            HeightRequest="40"
-                                            Padding="0"
-                                            Margin="-5">
+                                    Spacing="30"
+                                    HeightRequest="40"
+                                    Padding="0"
+                                    Margin="-5">
                                     <Label
-                                                FontSize="Micro"
-                                                Text="{Binding Day.Date, StringFormat='{0:dddd} the {0:dd}th'}" />
+                                        StyleClass="SubHeader"
+                                        Text="{Binding Day.Date, StringFormat='{0:dddd} {0:d MMMM}'}" />
                                     <Label
-                                                FontSize="Micro"
-                                                FontAttributes="Bold"
-                                                Text="{Binding Day.CycleDay}"/>
+                                        StyleClass="SubHeader"
+                                        FontAttributes="Bold"
+                                        Text="{Binding Day.CycleDay}"/>
                                 </HorizontalStackLayout>
                                 <BoxView 
-                                            StyleClass="Bar" 
-                                            HeightRequest="1"
-                                            WidthRequest="300"
-                                            TranslationX="-5"
-                                            Margin="0"/>
+                                    StyleClass="Bar" 
+                                    HeightRequest="1"
+                                    TranslationX="-5"
+                                    Margin="0"/>
                                 <ScrollView>
                                     <CollectionView
-                                                ItemsSource="{Binding Assessments}"
-                                                BackgroundColor="Transparent"
-                                                VerticalScrollBarVisibility="Never">
+                                        ItemsSource="{Binding Assessments}"
+                                        BackgroundColor="Transparent"
+                                        VerticalScrollBarVisibility="Never">
                                         <CollectionView.ItemTemplate>
                                             <DataTemplate x:DataType="vm:StudentAssessmentViewModel">
                                                 <VerticalStackLayout
-                                                            Margin="0"
-                                                            Padding="0">
+                                                    Margin="0"
+                                                    Padding="0">
                                                     <Grid
-                                                                RowDefinitions="25"
-                                                                ColumnDefinitions="80,220"
-                                                                ToolTipProperties.Text="{Binding ClassName}"
-                                                                IsVisible="{Binding Event.AllDay, Converter={StaticResource Invert}}"
-                                                                Margin="0"
-                                                                Padding="0">
+                                                        RowDefinitions="25"
+                                                        ColumnDefinitions="150,600"
+                                                        ToolTipProperties.Text="{Binding ClassName}"
+                                                        IsVisible="{Binding Event.AllDay, Converter={StaticResource Invert}}"
+                                                        Margin="0"
+                                                        Padding="0">
                                                         <Grid.GestureRecognizers>
                                                             <TapGestureRecognizer Command="{Binding Event.SelectCommand}" />
                                                         </Grid.GestureRecognizers>
                                                         <Label
-                                                                    Grid.Column="0"
-                                                                    Text="{Binding Event.Start,StringFormat='{0:hh:mm tt}'}" />
+                                                            Grid.Column="0"
+                                                            StyleClass="H3"
+                                                            Text="{Binding Event.Start,StringFormat='{0:hh:mm tt}'}" />
                                                         <Label
-                                                                    Grid.Column="1"
-                                                                    Text="{Binding Event.Description}" />
+                                                            Grid.Column="1"
+                                                            StyleClass="H3"
+                                                            Text="{Binding Event.Description}" />
                                                     </Grid>
                                                     <Label
-                                                                Text="{Binding Event.Summary}"
-                                                                FontAttributes="Bold"
-                                                                IsVisible="{Binding Event.AllDay}" />
+                                                        Text="{Binding Event.Summary}"
+                                                        FontAttributes="Bold"
+                                                        IsVisible="{Binding Event.AllDay}" />
                                                 </VerticalStackLayout>
                                             </DataTemplate>
                                         </CollectionView.ItemTemplate>
@@ -120,5 +129,4 @@
             </CollectionView>
         </VerticalStackLayout>
     </ScrollView>
-    
 </ContentPage>

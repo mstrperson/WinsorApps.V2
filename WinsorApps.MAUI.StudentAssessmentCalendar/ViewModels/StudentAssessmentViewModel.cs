@@ -15,10 +15,12 @@ namespace WinsorApps.MAUI.StudentAssessmentCalendar.ViewModels;
 public partial class StudentAssessmentViewModel :
     ObservableObject,
     IErrorHandling,
-    IBusyViewModel
+    IBusyViewModel,
+    ISelectable<StudentAssessmentViewModel>
 {
     private readonly StudentAssessmentService _service = ServiceHelper.GetService<StudentAssessmentService>();
     public event EventHandler<ErrorRecord>? OnError;
+    public event EventHandler<StudentAssessmentViewModel>? Selected;
 
     [ObservableProperty] AssessmentCalendarEventViewModel @event;
     [ObservableProperty] bool busy;
@@ -28,7 +30,7 @@ public partial class StudentAssessmentViewModel :
     [ObservableProperty] bool cannotLatePass;
     [ObservableProperty] string latePassMessage = "";
     [ObservableProperty] bool isAssessment;
-
+    [ObservableProperty] bool isSelected;
 
     public static implicit operator StudentAssessmentViewModel(AssessmentCalendarEventViewModel evt) => new(evt);
 
@@ -111,6 +113,13 @@ public partial class StudentAssessmentViewModel :
             Event.PassUsed = false;
         }
         Busy = false;
+    }
+
+    [RelayCommand]
+    public void Select()
+    {
+        IsSelected = !IsSelected;
+        Selected?.Invoke(this, this);
     }
 }
 
