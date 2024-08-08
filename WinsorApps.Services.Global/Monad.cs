@@ -39,5 +39,19 @@ public struct OptionalStruct<T> where T : struct
 
 public static class MonadExtensions
 {
+    public static Optional<T> FirstOrNone<T>(this IEnumerable<T> values, Func<T, bool> predicate) where T : class
+    {
+        var result = values.FirstOrDefault(predicate);
+        return result is null ? Optional<T>.None() : Optional<T>.Some(result);
+    }
 
+    public static OptionalStruct<T> FirstStructOrNone<T>(this IEnumerable<T> values, Func<T, bool> predicate) where T : struct
+    {
+        return values.Any(predicate) ? OptionalStruct<T>.None() : OptionalStruct<T>.Some(values.First(predicate));
+    }
+    public static T FirstOrDefault<T>(this IEnumerable<T> values, Func<T, bool> predicate, T @default) where T : class
+        => values.FirstOrNone(predicate).Reduce(@default);
+
+    public static T FirstStructOrDefault<T>(this IEnumerable<T> values, Func<T, bool> predicate, T @default) where T : struct
+        => values.FirstStructOrNone(predicate).Reduce(@default);
 }
