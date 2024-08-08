@@ -27,5 +27,9 @@
 	<string>Assets.xcassets/appicon.appiconset</string>
 	<key>CFBundleDisplayName</key>
 	<string>Cycle Day Recurring Events</string>
+	<key>CFBundleName</key>
+	<string>Cycle Day Recurring Events</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>Copyright © 2024 Jason Cox; Susan Zuo</string>
 </dict>
 </plist>

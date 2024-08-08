@@ -29,5 +29,7 @@
 	<string>Student Bookstore</string>
 	<key>CFBundleName</key>
 	<string>Student Bookstore</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>Copyright © 2024 Jason Cox; Susan Zuo</string>
 </dict>
 </plist>
