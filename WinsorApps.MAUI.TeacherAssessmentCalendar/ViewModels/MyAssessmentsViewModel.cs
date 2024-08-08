@@ -203,7 +203,7 @@ public partial class AssessmentEditorViewModel :
     [ObservableProperty] bool hasConflicts;
     [ObservableProperty] bool hasRedFlags;
 
-    [ObservableProperty] SectionViewModel section;
+    [ObservableProperty] SectionViewModel section = SectionViewModel.Empty;
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "";
     [ObservableProperty] bool isSelected;
@@ -219,6 +219,8 @@ public partial class AssessmentEditorViewModel :
     public event EventHandler<ErrorRecord>? OnError;
     public AssessmentEditorViewModel(AssessmentEntryRecord entry)
     {
+        if (string.IsNullOrEmpty(entry.assessmentId))
+            return;
         Model = OptionalStruct<AssessmentEntryRecord>.Some(entry);
         Details = AssessmentDetailsViewModel.Get(entry);
         Details.StudentSelected += (sender, e) => StudentSelected?.Invoke(this, e);

@@ -101,7 +101,7 @@ public partial class TeacherAssessmentService :
         Ready = true;
     }
 
-    public async Task<ImmutableArray<AssessmentCalendarEvent>> GetAssessmentsFor(ErrorAction onError, string sectionId, DateTime start = default, DateTime end = default)
+    public async Task<ImmutableArray<AssessmentEntryRecord>> GetAssessmentsFor(ErrorAction onError, string sectionId, DateTime start = default, DateTime end = default)
     {
         var query = "";
         if (start != default)
@@ -110,10 +110,10 @@ public partial class TeacherAssessmentService :
             if (end != default)
                 query += $"&end={end:yyyy-MM-dd}";
         }
-        var result = await _api.SendAsync<ImmutableArray<AssessmentCalendarEvent>>(HttpMethod.Get,
+        var result = await _api.SendAsync<ImmutableArray<AssessmentEntryRecord>>(HttpMethod.Get,
             $"api/assessment-calendar/teachers/sections/{sectionId}{query}",
             onError: onError);
-        _calendar.MergeNewAssessments(result);
+
         return result;
     }
 

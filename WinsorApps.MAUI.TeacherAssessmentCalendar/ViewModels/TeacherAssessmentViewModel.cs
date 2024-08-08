@@ -61,6 +61,9 @@ public partial class AssessmentDetailsViewModel :
     string dateLabel = "";
 
     [ObservableProperty]
+    DateTime date;
+
+    [ObservableProperty]
     string listLabel = "";
 
     [ObservableProperty]
@@ -96,6 +99,7 @@ public partial class AssessmentDetailsViewModel :
         Model = OptionalStruct<AssessmentCalendarEvent>.Some(@event);
         title = @event.summary;
         subtitle = "";
+        date = @event.start;
         dateLabel = @event.allDay ? $"{@event.start:dddd, dd MMMM}" : $"{@event.start:dddd, dd MMM h:mm tt}";
 
         switch (@event.type)
@@ -214,7 +218,7 @@ public partial class AssessmentDetailsViewModel :
         vm.Model = OptionalStruct<AssessmentCalendarEvent>.Some(details.ToCalendarEvent(group));
 
         vm.DateLabel = $"{details.assessmentDateTime:dddd dd MMMM hh:mm tt}";
-
+        vm.Date = details.assessmentDateTime;
         vm.Title = string.IsNullOrEmpty(group.note) ? group.course : group.note;
         vm.Subtitle = $"{details.section.displayName} [{details.section.teachers
                 .Select(t => $"{t}")

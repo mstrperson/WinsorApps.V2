@@ -134,6 +134,7 @@ public partial class UserViewModel :
     [RelayCommand]
     public void Select()
     {
+        IsSelected = !IsSelected;
         Selected?.Invoke(this, this);
     }
 }

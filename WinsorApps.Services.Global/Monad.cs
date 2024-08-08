@@ -36,3 +36,8 @@ public struct OptionalStruct<T> where T : struct
 
     public readonly T Reduce(T @default) => _value ?? @default;
 }
+
+public static class MonadExtensions
+{
+
+}

@@ -64,6 +64,9 @@
                 Glyph=🚫,
                 Size=18}" />
         <Setter
+            Property="ToolTipProperties.Text"
+            Value="Cancel" />
+        <Setter
             Property="HeightRequest"
             Value="{OnPlatform MacCatalyst=40}" />
     </Style>

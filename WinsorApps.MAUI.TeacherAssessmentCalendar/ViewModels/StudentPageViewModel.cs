@@ -168,8 +168,12 @@ public partial class StudentViewModel :
     [ObservableProperty] ScheduleViewModel academicSchedule = new();
     [ObservableProperty] bool showSchedule;
 
-    [ObservableProperty] SectionAssessmentCalendarViewModel selectedSection = new(new());
+    [ObservableProperty] SectionAssessmentCalendarViewModel selectedSection;
     [ObservableProperty] bool showSelectedSection;
+
+    [ObservableProperty] ObservableCollection<LateWorkViewModel> lateWork = [];
+    [ObservableProperty] bool showLateWork; 
+    [ObservableProperty] bool includeResolvedLateWork;
 
     [ObservableProperty] bool isSelected;
 
@@ -220,6 +224,41 @@ public partial class StudentViewModel :
     }
 
     [RelayCommand]
+    public async Task ToggleShowLateWork()
+    {
+        ShowLateWork = !ShowLateWork;
+        if (ShowLateWork)
+        {
+            await LoadLateWork();
+            ShowCalendar = false;
+            ShowLatePasses = false;
+            ShowSchedule = false;
+        }
+    }
+
+    [RelayCommand]
+    public async Task ToggleShowResolved()
+    {
+        IncludeResolvedLateWork = !IncludeResolvedLateWork;
+        await LoadLateWork();
+    }
+
+    [RelayCommand]
+    public async Task LoadLateWork()
+    {
+        Busy = true;
+        BusyMessage = "Loading Late Work";
+        var result = await _service.GetStudentLateWork(OnError.DefaultBehavior(this), UserInfo.Id, IncludeResolvedLateWork);
+        
+        if(result.HasValue)
+        {
+            LateWork = [..result.Value.Select(LateWorkViewModel.Get)];
+        }
+
+        Busy = false;
+    }
+
+    [RelayCommand]
     public async Task RequestLatePass()
     {
         if (!ShowSelectedSection || !AcademicSchedule.ShowAssessment)
@@ -239,6 +278,7 @@ public partial class StudentViewModel :
             await LoadAssessmentCalendar();
             ShowLatePasses = false;
             ShowSchedule = false;
+            ShowLateWork = false;
             Busy = false;
         }
     }
@@ -254,6 +294,7 @@ public partial class StudentViewModel :
             await LatePassCollection.LoadPasses();
             ShowCalendar = false;
             ShowSchedule = false;
+            ShowLateWork = false;
             Busy = false;
         }
     }
@@ -270,6 +311,7 @@ public partial class StudentViewModel :
             Busy = false;
             ShowCalendar = false;
             ShowLatePasses = false;
+            ShowLateWork = false;
         }
     }
 
