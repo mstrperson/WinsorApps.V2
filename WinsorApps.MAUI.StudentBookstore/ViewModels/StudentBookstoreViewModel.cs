@@ -77,13 +77,16 @@ namespace WinsorApps.MAUI.StudentBookstore.ViewModels
     public partial class OptionGroupViewModel :
         ObservableObject
     {
+        private static double heightPerBook = 100;
         [ObservableProperty] string option = "";
         [ObservableProperty] ObservableCollection<IsbnViewModel> books = [];
+        [ObservableProperty] private double heightRequest;
 
         public OptionGroupViewModel(StudentSectionBookOptionGroup group) 
         {
             option = group.option;
             books = [.. group.isbns.Select(IsbnViewModel.Get)];
+            HeightRequest = heightPerBook * Books.Count + 50;
         }
     }
 
