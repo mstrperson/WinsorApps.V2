@@ -180,7 +180,8 @@ public partial class SectionViewModel :
     IDefaultValueViewModel<SectionViewModel>,
     ISelectable<SectionViewModel>,
     ICachedViewModel<SectionViewModel, SectionRecord, RegistrarService>,
-    IModelCarrier<SectionViewModel, SectionRecord>
+    IModelCarrier<SectionViewModel, SectionRecord>,
+    IErrorHandling
 {
     public OptionalStruct<SectionRecord> Model { get; private set; } = OptionalStruct<SectionRecord>.None();
 
@@ -188,6 +189,7 @@ public partial class SectionViewModel :
     public event EventHandler<UserViewModel>? StudentSelected;
 
     public event EventHandler<SectionViewModel>? Selected;
+    public event EventHandler<ErrorRecord>? OnError;
 
     [ObservableProperty] string displayName = "";
     [ObservableProperty] string room = "";
@@ -208,6 +210,46 @@ public partial class SectionViewModel :
     public SectionViewModel()
     {
         Model = new();
+    }
+
+    private SectionViewModel(SectionMinimalRecord section)
+    {
+        Model = OptionalStruct<SectionRecord>.Some(new(section.sectionId, section.courseId, section.primaryTeacherId, [], [], section.termId, section.room, section.block, section.displayName));
+
+        var registrar = ServiceHelper.GetService<RegistrarService>()!;
+
+        var detailsTask = registrar.GetSectionDetailsAsync(section.sectionId, OnError.DefaultBehavior(this));
+        detailsTask.WhenCompleted(() =>
+        {
+            var result = detailsTask.Result;
+            if (result.HasValue)
+                Model = OptionalStruct<SectionRecord>.Some(result.Value);
+        });
+
+        teachers = UserViewModel
+            .GetClonedViewModels(
+                registrar.TeacherList
+                .Where(t => section.teachers.Any(tch => t.id == tch)))
+            .ToImmutableArray();
+
+        foreach (var teacher in Teachers)
+            teacher.Selected += (sender, tch) => TeacherSelected?.Invoke(sender, tch);
+
+        students = UserViewModel
+            .GetClonedViewModels(
+                registrar.StudentList
+                .Where(s => section.students.Any(stu => stu == s.id)))
+            .ToImmutableArray();
+
+        foreach (var student in Students)
+            student.Selected += (sender, stu) => StudentSelected?.Invoke(sender, stu);
+
+        DisplayName = section.displayName;
+        Block = section.block;
+        Room = section.room;
+        PrimaryTeacher = UserViewModel.Get(
+            registrar.TeacherList
+                .First(t => t.id == section.primaryTeacherId));
     }
 
     private SectionViewModel(SectionRecord section)
@@ -240,9 +282,9 @@ public partial class SectionViewModel :
         DisplayName = section.displayName;
         Block = section.block;
         Room = section.room;
-        PrimaryTeacher = UserViewModel.Get(
-            registrar.TeacherList
-                .First(t => t.id == section.primaryTeacherId));
+        var tch = registrar.TeacherList
+                .FirstOrDefault(t => t.id == section.primaryTeacherId);
+        PrimaryTeacher = string.IsNullOrEmpty(tch.id) ? UserViewModel.Empty : UserViewModel.Get(tch);
     }
 
     [RelayCommand]
@@ -264,6 +306,17 @@ public partial class SectionViewModel :
     public static async Task Initialize(RegistrarService service, ErrorAction onError)
     {
         await Task.CompletedTask; // Cache to be built on demand.
+    }
+
+    public static SectionViewModel Get(SectionMinimalRecord model)
+    {
+        var vm = ViewModelCache.FirstOrDefault(sec => sec.Model.Reduce(SectionRecord.Empty).sectionId == model.sectionId);
+        if (vm is not null)
+            return vm.Clone();
+
+        vm = new(model);
+        ViewModelCache.Add(vm);
+        return vm.Clone();
     }
 
     public static SectionViewModel Get(SectionRecord model)

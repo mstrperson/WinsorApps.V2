@@ -13,9 +13,9 @@ public readonly record struct NewLateWork(string details, string[] studentIds);
         string details, DateOnly markedDate, bool isResolved, DateTime? resolvedDate, bool isAssessment,
         string sectionId, string? assessmentId = null);
 
-public readonly record struct StudentLateWorkCollection(StudentRecordShort student, ImmutableArray<LateWorkRecord> lateWork)
+public readonly record struct StudentLateWorkCollection(StudentRecordShort student, ImmutableArray<LateWorkDetails> lateWork)
 {
-    public static implicit operator StudentLateWorkCollection(KeyValuePair<UserRecord, IEnumerable<LateWorkRecord>> kvp)
+    public static implicit operator StudentLateWorkCollection(KeyValuePair<UserRecord, IEnumerable<LateWorkDetails>> kvp)
         => new(kvp.Key, kvp.Value.ToImmutableArray());
 
     public void Split(out StudentLateWorkCollection assessments, out StudentLateWorkCollection patterns)
@@ -27,7 +27,7 @@ public readonly record struct StudentLateWorkCollection(StudentRecordShort stude
 
     public readonly record struct LateWorkByStudentCollection(ImmutableArray<StudentLateWorkCollection> lateWorkByStudent)
     {
-        public static implicit operator LateWorkByStudentCollection(List<KeyValuePair<UserRecord, IEnumerable<LateWorkRecord>>> dictionary)
+        public static implicit operator LateWorkByStudentCollection(List<KeyValuePair<UserRecord, IEnumerable<LateWorkDetails>>> dictionary)
             => new(dictionary.Select(kvp => (StudentLateWorkCollection)kvp).ToImmutableArray());
     }
 
@@ -40,15 +40,15 @@ public readonly record struct StudentLateWorkCollection(StudentRecordShort stude
             foreach (var col in collections)
             {
                 var assessmentIds = col.lateWork
-                    .Where(lw => !string.IsNullOrEmpty(lw.assessmentId))
-                    .Select(lw => lw.assessmentId!)
+                    .Where(lw => lw.assessment.HasValue)
+                    .Select(lw => lw.assessment!.Value.assessmentId)
                     .Distinct();
                 foreach(var id in assessmentIds)
                 {
                     if (!output.ContainsKey(id))
                         output.Add(id, new());
                     output[id].Add(new(col.student, 
-                        col.lateWork.Where(lw => !string.IsNullOrEmpty(lw.assessmentId) && lw.assessmentId == id).ToImmutableArray()));
+                        col.lateWork.Where(lw => !string.IsNullOrEmpty(lw.assessment!.Value.assessmentId) && lw.assessment!.Value.assessmentId == id).ToImmutableArray()));
                 }
             }
 

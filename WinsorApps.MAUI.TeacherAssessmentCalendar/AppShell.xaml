@@ -20,6 +20,11 @@
         Route="MyAssessmentsPage" />
 
     <ShellContent
+        Title="Late Work"
+        ContentTemplate="{DataTemplate pages:LateWorkPage}"
+        Route="LateWorkPage" />
+
+    <ShellContent
         Title="My Students"
         ContentTemplate="{DataTemplate pages:StudentPage}"
         Route="StudentPage" />

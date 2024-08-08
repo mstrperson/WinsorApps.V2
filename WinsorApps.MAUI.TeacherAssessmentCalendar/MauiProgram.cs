@@ -47,6 +47,8 @@ namespace WinsorApps.MAUI.TeacherAssessmentCalendar
             builder.Services.AddSingleton<StudentPageViewModel>();
             builder.Services.AddSingleton<StudentPage>();
 
+            builder.Services.AddSingleton<LateWorkPageViewModel>();
+            builder.Services.AddSingleton<LateWorkPage>();
 
 
 #if DEBUG
