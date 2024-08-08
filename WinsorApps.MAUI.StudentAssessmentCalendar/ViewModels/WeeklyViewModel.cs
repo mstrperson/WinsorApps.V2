@@ -66,7 +66,7 @@ public partial class WeeklyViewModel :
             // Reset all other assessment selections.
             foreach (var asmt in Calendar.Days.SelectMany(day => day.Assessments))
             {
-                asmt.IsSelected = assessment.Event.Model.id == asmt.Event.Model.id && assessment.IsSelected;
+                asmt.IsSelected = assessment.Event.Model.Reduce(AssessmentCalendarEvent.Empty).id == asmt.Event.Model.Reduce(AssessmentCalendarEvent.Empty).id && assessment.IsSelected;
             }
         };
     }
@@ -111,7 +111,7 @@ public partial class StudentDayViewModel :
         var vm = new StudentDayViewModel()
         {
             Day = day,
-            Assessments = [.. day.Events.Where(e => e.Model.type == AssessmentType.Assessment)]
+            Assessments = [.. day.Events.Where(e => e.Model.Reduce(AssessmentCalendarEvent.Empty).type == AssessmentType.Assessment)]
         };
 
         foreach(var assessment in vm.Assessments)
