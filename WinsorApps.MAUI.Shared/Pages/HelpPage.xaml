@@ -12,49 +12,91 @@
         </ResourceDictionary>
     </ContentPage.Resources>
     <ScrollView>
-        <VerticalStackLayout>
-            <Label
-                StyleClass="Header"
-                Text="{Binding LoggedInUser.DisplayName}" />
+        <VerticalStackLayout
+        HorizontalOptions="Center">
+            <Grid
+                RowDefinitions="*"
+                ColumnDefinitions="500,500">
             <CollectionView
+                Grid.Column="1"
+                Margin="0"
                 ItemsSource="{Binding Services}"
-                Header="Services">
+                BackgroundColor="Transparent">
+                <CollectionView.Header>
+                    <HorizontalStackLayout
+                        Margin="0"
+                        Padding="0">
+                        <Label 
+                            StyleClass="Header"
+                            Text="Services" />
+                    </HorizontalStackLayout>
+                </CollectionView.Header>
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="vm:ServiceAwaiterViewModel">
-                        <HorizontalStackLayout>
+                        <Grid
+                            RowDefinitions="*"
+                            ColumnDefinitions="225,225,50">
                             <Label 
+                                Grid.Column="0"
                                 Text="{Binding ServiceName}" />
                             <ProgressBar 
+                                Grid.Column="1"
+                                HorizontalOptions="Start"
+                                WidthRequest="200"
                                 Progress="{Binding Progress}" />
-                            <Button 
-                                StyleClass="RefreshButton"
-                                Command="{Binding RefreshCommand}"/>
-                        </HorizontalStackLayout>
+
+                            <Image 
+                                Grid.Column="2"
+                                WidthRequest="25"
+                                StyleClass="RefreshButton">
+                                <Image.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding RefreshCommand}"/>
+                                </Image.GestureRecognizers>
+                            </Image>
+                        </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-            <BoxView 
-                BackgroundColor="{AppThemeBinding Light={DynamicResource SlateDark}, Dark=White}" 
-                HeightRequest="1"
-                Margin="15,0"/>
-            <Label
-                StyleClass="SubHeader"
-                Text="Application Logs" />
-            <Label
-                Text="Last Version Updated" />
-            <Label
-                Text="{Binding LastUpdated, Converter={StaticResource DateConverter}}" />
-            <Label
-                Text="Log Start Date" />
-            <DatePicker
-                Date="{Binding LogStart}"/>
-            <Label
-                Text="Log End Date" />
-            <DatePicker
-                Date="{Binding LogEnd}" />
-            <Button
-                Text="Send Logs to Tech"
-                Command="{Binding SubmitLogsCommand}" />
+                <VerticalStackLayout
+                    Margin="0"
+                    Padding="0"
+                    Grid.Column="0">
+                    <Label
+                        StyleClass="Header"
+                        Text="Application Logs" />
+                    <HorizontalStackLayout
+                        Margin="0"
+                        Padding="0">
+                        <Label
+                            Text="Last Version Updated: " />
+                        <Label
+                            Text="{Binding LastUpdated, StringFormat='{0:dddd, dd MMMM yyyy}'}" />
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout
+                        Margin="0"
+                        Padding="0">
+                        <Label
+                            WidthRequest="120"
+                            Text="Log Start Date" />
+                        <DatePicker
+                            Date="{Binding LogStart}"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout
+                        Margin="0"
+                        Padding="0">
+                        <Label
+                            WidthRequest="120"
+                            Text="Log End Date" />
+                        <DatePicker
+                            Date="{Binding LogEnd}" />
+                    </HorizontalStackLayout>
+                    <Button
+                        HorizontalOptions="Center"
+                        Text="Send Logs to Tech"
+                        Command="{Binding SubmitLogsCommand}" />
+
+                </VerticalStackLayout>
+            </Grid>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
