@@ -21,10 +21,10 @@
 		<Nullable>enable</Nullable>
 
 		<!-- Display name -->
-		<ApplicationTitle>WinsorApps.MAUI.EventsAdmin</ApplicationTitle>
+		<ApplicationTitle>Event Forms Admin</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.winsorapps.maui.eventsadmin</ApplicationId>
+		<ApplicationId>edu.winsor.events-admin</ApplicationId>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -38,9 +38,39 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-maccatalyst|AnyCPU'">
+		<ApplicationTitle>Event Forms</ApplicationTitle>
+		<ApplicationId>maccatalyst.edu.winsor.events-admin</ApplicationId>
+		<ApplicationIdGuid>P8CLK55JUH</ApplicationIdGuid>
+		<MtouchLink>SdkOnly</MtouchLink>
+		<EnableCodeSigning>True</EnableCodeSigning>
+		<EnablePackageSigning>true</EnablePackageSigning>
+		<CreatePackage>true</CreatePackage>
+		<CodesignKey>Developer ID Application: Jason Cox (P8CLK55JUH)</CodesignKey>
+		<CodesignProvision>Events Admin</CodesignProvision>
+		<CodesignEntitlements>Platforms\MacCatalyst\Entitlements.plist</CodesignEntitlements>
+		<PackageSigningKey>Developer ID Installer: Jason Cox (P8CLK55JUH)</PackageSigningKey>
+		<UseHardenedRuntime>true</UseHardenedRuntime>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-maccatalyst|AnyCPU'">
+		<ApplicationTitle>Event Forms</ApplicationTitle>
+		<ApplicationId>maccatalyst.edu.winsor.events-admin</ApplicationId>
+		<ApplicationIdGuid>P8CLK55JUH</ApplicationIdGuid>
+		<MtouchLink>SdkOnly</MtouchLink>
+		<EnableCodeSigning>True</EnableCodeSigning>
+		<EnablePackageSigning>true</EnablePackageSigning>
+		<CreatePackage>true</CreatePackage>
+		<CodesignKey>Developer ID Application: Jason Cox (P8CLK55JUH)</CodesignKey>
+		<CodesignProvision>Events Admin</CodesignProvision>
+		<CodesignEntitlements>Platforms\MacCatalyst\Entitlements.plist</CodesignEntitlements>
+		<PackageSigningKey>Developer ID Installer: Jason Cox (P8CLK55JUH)</PackageSigningKey>
+		<UseHardenedRuntime>true</UseHardenedRuntime>
+	</PropertyGroup>
+	
 	<ItemGroup>
 		<!-- App Icon -->
-		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
+		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#FFFFFF" />
 
 		<!-- Splash Screen -->
 		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
@@ -56,28 +86,7 @@
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <None Remove="Resources\AppIcon\appicon.svg" />
-	  <None Remove="Resources\Fonts\CrimsonText-Semibold.ttf" />
-	  <None Remove="Resources\Fonts\fa-brands-400.ttf" />
-	  <None Remove="Resources\Fonts\fa-regular-400.ttf" />
-	  <None Remove="Resources\Fonts\fa-solid-900.ttf" />
-	  <None Remove="Resources\Fonts\NotoSans-Regular.ttf" />
-	  <None Remove="Resources\Fonts\OpenSans-Regular.ttf" />
-	  <None Remove="Resources\Fonts\OpenSans-Semibold.ttf" />
-	  <None Remove="Resources\Images\invisible.png" />
-	  <None Remove="Resources\Images\loading.gif" />
-	  <None Remove="Resources\Images\logo_withwordmark_black.png" />
-	  <None Remove="Resources\Images\logo_withwordmark_red.png" />
-	  <None Remove="Resources\Images\logo_withwordmark_white.png" />
-	  <None Remove="Resources\Images\wordmark_oneline_black_02.png" />
-	  <None Remove="Resources\Images\wordmark_oneline_red_01.png" />
-	  <None Remove="Resources\Images\wordmark_oneline_red_notoutlined.png" />
-	  <None Remove="Resources\Images\wordmark_oneline_white_03.png" />
-	  <None Remove="Resources\Raw\AboutAssets.txt" />
-	  <None Remove="Resources\Splash\splash.svg" />
-	</ItemGroup>
-
+	
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Maui.Core" Version="9.0.2" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />

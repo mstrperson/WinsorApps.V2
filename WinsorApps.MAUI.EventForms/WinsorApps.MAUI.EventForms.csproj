@@ -37,8 +37,8 @@
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 		
-		<Title>Cycle Day Recurring Events</Title>
-		<PackageId>Cycle Day Recurring Events</PackageId>
+		<Title>Event Forms</Title>
+		<PackageId>Event Forms</PackageId>
 		<Authors>Jason Cox</Authors>
 		<Company>The Winsor School</Company>
 		<PackageIcon>appicon.png</PackageIcon>

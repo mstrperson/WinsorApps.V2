@@ -16,7 +16,7 @@ using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 
-namespace WinsorApps.MAUI.EventsAdmin;
+namespace WinsorApps.MAUI.EventsAdmin.ViewModels;
 
 public partial class AdminFormViewModel :
     ObservableObject,
