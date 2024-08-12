@@ -3,6 +3,7 @@ using CommunityToolkit.Maui.Core;
 using Microsoft.Extensions.Logging;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.EventForms;
+using WinsorApps.MAUI.Shared.EventForms.ViewModels;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Services;
 using WinsorApps.Services.EventForms.Services.Admin;
@@ -58,6 +59,12 @@ namespace WinsorApps.MAUI.EventsAdmin
                 new(ServiceHelper.GetService<ContactService>(), "Contact Service"),
                 new(ServiceHelper.GetService<CateringMenuService>(), "Catering Menu Service")
             ];
+
+            var admin = ServiceHelper.GetService<EventsAdminService>();
+            admin.OnCacheRefreshed += (_, _) =>
+            {
+                EventFormViewModel.ResetCache(admin.AllEvents.Values);
+            };
 
             logging.LogMessage(LocalLoggingService.LogLevel.Information, "App Built Successfully!");
             return app;

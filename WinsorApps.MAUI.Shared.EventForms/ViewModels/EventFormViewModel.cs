@@ -679,6 +679,12 @@ public partial class EventFormViewModel :
     }
     public static ConcurrentBag<EventFormViewModel> ViewModelCache { get; private set; } = [];
 
+    public static void ResetCache(IEnumerable<EventFormBase> newCache)
+    {
+        ViewModelCache = [];
+        _ = GetClonedViewModels(newCache);
+    }
+
     public static EventFormViewModel Get(EventFormBase model)
     {
         var vm = ViewModelCache.FirstOrDefault(evt => evt.Id == model.id);

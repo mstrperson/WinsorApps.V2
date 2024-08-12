@@ -14,6 +14,7 @@ namespace WinsorApps.Services.Global.Services
         /// The Currently Logged-in User.
         /// </summary>
         public UserRecord Me => _api.UserInfo!.Value;
+        public ImmutableArray<string> MyRoles { get; private set; } = [];
 
         private Dictionary<string, ConcurrentBag<SectionDetailRecord>> _sectionsByCourse;
 
@@ -468,6 +469,8 @@ namespace WinsorApps.Services.Global.Services
                 getStudents,
                 getEmployees,
                 acad);
+
+            var roles = await Me.GetRoles(_api);
 
             Progress = 1;
             Ready = true;

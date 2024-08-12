@@ -32,17 +32,122 @@ public partial class AdminFormViewModel :
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "";
 
+    [ObservableProperty] bool isAdmin;
+    [ObservableProperty] bool isRegistrar;
+
     public event EventHandler<ErrorRecord>? OnError;
+    public event EventHandler? StatusChanged;
+
+    public static implicit operator AdminFormViewModel(EventFormViewModel form) => new(form);
+    public static implicit operator AdminFormViewModel(EventFormBase form) => new(EventFormViewModel.Get(form));
 
     public AdminFormViewModel(EventFormViewModel form)
     {
         this.form = form;
+
+        var registrar = ServiceHelper.GetService<RegistrarService>();
+        isAdmin = registrar.MyRoles.Intersect(["System Admin", "Winsor - Events Admin"]).Any();
+        isRegistrar = registrar.MyRoles.Intersect(["System Admin", "Registrar"]).Any();
     }
 
     [RelayCommand]
     public async Task LoadHistory()
     {
+        Busy = true;
+        BusyMessage = $"Getting History for {Form.Summary}";
+        var result = await _admin.GetHistory(Form.Id, OnError.DefaultBehavior(this));
+        ApprovalHistory = [.. result.Select(ApprovalRecordViewModel.Get)];
+        Busy = false;
+    }
 
+    [RelayCommand]
+    public void ToggleShowNoteEditor()
+    {
+        ShowNoteEditor = !ShowNoteEditor;
+        if(ShowNoteEditor)
+        {
+            NoteEditor.Note = "";
+            NoteEditor.Status = Form.StatusSelection.Selected.Label;
+        }
+    }
+
+    [RelayCommand]
+    public async Task Approve()
+    {
+        if (!IsAdmin) return;
+        Busy = true;
+        BusyMessage = $"Approving {Form.Summary}";
+        var result = await _admin.ApproveEvent(Form.Id, OnError.DefaultBehavior(this));
+        var form = result.Reduce(EventFormBase.Empty);
+        if (form.id == Form.Id) 
+        {
+            Form.StatusSelection.Select(form.status);
+            await LoadHistory();
+        }
+        Busy = false;
+        StatusChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    [RelayCommand]
+    public async Task Reject()
+    {
+        if (!IsAdmin) return;
+        Busy = true;
+        BusyMessage = $"Declining {Form.Summary}";
+        var result = await _admin.DeclineEvent(Form.Id, OnError.DefaultBehavior(this));
+        var form = result.Reduce(EventFormBase.Empty);
+        if (form.id == Form.Id)
+        {
+            Form.StatusSelection.Select(form.status);
+            await LoadHistory();
+        }
+        Busy = false;
+        StatusChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    [RelayCommand]
+    public async Task ApproveRoomUse()
+    {
+        if (!IsRegistrar) return;
+        Busy = true;
+        BusyMessage = $"Approving Room for {Form.Summary}";
+        var result = await _admin.ApproveRoomUse(Form.Id, OnError.DefaultBehavior(this));
+        
+        if (result.HasValue)
+        {
+            Form.StatusSelection.Select(result.Value.status);
+            await LoadHistory();
+        }
+        Busy = false;
+        StatusChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    [RelayCommand]
+    public async Task RevokeRoomUse()
+    {
+        if (!IsRegistrar) return;
+        Busy = true;
+        BusyMessage = $"Revoking Room for {Form.Summary}";
+        var result = await _admin.RevokeRoomUse(Form.Id, NoteEditor.Note, OnError.DefaultBehavior(this));
+
+        if (result.HasValue)
+        {
+            Form.StatusSelection.Select(result.Value.status);
+            await LoadHistory();
+        }
+
+        Busy = false;
+        StatusChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    [RelayCommand]
+    public async Task SubmitNote()
+    {
+        Busy = true;
+        BusyMessage = $"Sending Note to {Form.Creator.DisplayName} about {Form.Summary}";
+        await _admin.SendNote(Form.Id, NoteEditor, OnError.DefaultBehavior(this));
+        await LoadHistory();
+        Busy = false;
     }
 }
 
@@ -72,7 +177,6 @@ public partial class ApprovalRecordViewModel :
     [ObservableProperty] UserViewModel manager = UserViewModel.Empty;
     [ObservableProperty] string note = "";
     [ObservableProperty] DateTime timeStamp;
-
     public OptionalStruct<EventApprovalStatusRecord> Model { get; private set; }
 
     public static ApprovalRecordViewModel Get(EventApprovalStatusRecord model)
