@@ -8,6 +8,39 @@ public readonly record struct ApprovalStatus(string id, string label)
     public static implicit operator ApprovalStatus(KeyValuePair<string, string> status) => new(status.Value, status.Key);
 }
 
+public readonly record struct ApprovalStatusLabel
+{
+    public static readonly ApprovalStatusLabel Pending = new("Pending");
+    public static readonly ApprovalStatusLabel Approved = new("Approved");
+    public static readonly ApprovalStatusLabel Withdrawn = new("Withdrawn");
+    public static readonly ApprovalStatusLabel Declined = new("Declined");
+    public static readonly ApprovalStatusLabel RoomNotCleared = new("Room Not Cleared");
+    public static readonly ApprovalStatusLabel Draft = new("Draft");
+    public static readonly ApprovalStatusLabel Creating = new("Creating");
+    public static readonly ApprovalStatusLabel Updating = new("Approved");
+
+    public static implicit operator string(ApprovalStatusLabel label) => label._label;
+    public static implicit operator ApprovalStatusLabel(string label) => label.ToLowerInvariant() switch
+    {
+        "pending" => Pending,
+        "approved" => Approved,
+        "withrdawn" => Withdrawn,
+        "declined" => Declined,
+        "room not cleared" => RoomNotCleared,
+        "draft" => Draft,
+        "creating" => Creating,
+        "updating" => Updating,
+        _ => throw new InvalidCastException($"{label} is not a valid Approval Status Label.")
+    };
+
+    private readonly string _label;
+
+    private ApprovalStatusLabel(string label)
+    {
+        this._label = label;
+    }
+}
+
 public readonly record struct Location(string id, string label, string type);
 
 
