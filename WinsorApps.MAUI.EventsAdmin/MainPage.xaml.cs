@@ -47,12 +47,12 @@ public partial class MainPage : ContentPage
         {
             Completion = 
             [
-                new(new Task(async () => await LocationViewModel.Initialize(locationService, this.DefaultOnErrorAction())), "Locations Cache"),
-                new(new Task(async () => await BudgetCodeViewModel.Initialize(budgetCodes, this.DefaultOnErrorAction())), "Budget Codes Cache"),
-                new(new Task(async () => await ContactViewModel.Initialize(contactService, this.DefaultOnErrorAction())), "My Contacts"),
-                new(new Task(async () => await ApprovalStatusViewModel.Initialize(eventForms, this.DefaultOnErrorAction())), "Approval Status Cache"),
-                new(new Task(async () => await CateringMenuCategoryViewModel.Initialize(cateringMenuService, this.DefaultOnErrorAction())), "Catering Menus"),
-                new(new Task(async () => await EventTypeViewModel.Initialize(eventForms, this.DefaultOnErrorAction())), "Event Types"),
+                new(LocationViewModel.Initialize(locationService, this.DefaultOnErrorAction()), "Locations Cache"),
+                new(BudgetCodeViewModel.Initialize(budgetCodes, this.DefaultOnErrorAction()), "Budget Codes Cache"),
+                new(ContactViewModel.Initialize(contactService, this.DefaultOnErrorAction()), "My Contacts"),
+                new(ApprovalStatusViewModel.Initialize(eventForms, this.DefaultOnErrorAction()), "Approval Status Cache"),
+                new(CateringMenuCategoryViewModel.Initialize(cateringMenuService, this.DefaultOnErrorAction()), "Catering Menus"),
+                new(EventTypeViewModel.Initialize(eventForms, this.DefaultOnErrorAction()), "Event Types"),
                 new(listpagevm.Initialize(this.DefaultOnErrorAction()), "Event List")
             ],
             AppId = "yBDj8LA61lpR"

@@ -45,6 +45,13 @@
                         HorizontalOptions="Center"
                         VerticalOptions="Center" />
                 </Border>
+                <HorizontalStackLayout
+                    Spacing="50"
+                    IsVisible="{Binding Ready, Converter={StaticResource Invert}}">
+                    <Label StyleClass="Header"
+                           Text="Please be patient while we load event form data." />
+                    <Image StyleClass="loading_symbol" />
+                </HorizontalStackLayout>
                 <CollectionView 
                     ItemsSource="{Binding PostLoginServices}"
                     IsVisible="{Binding Ready, Converter={StaticResource Invert}}"

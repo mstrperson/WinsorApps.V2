@@ -15,11 +15,17 @@
             Text="Pending Events"
             Command="{Binding ToggleShowPendingCommand}" />
         <ToolbarItem
+            StyleClass="Separator" />
+        <ToolbarItem
             Text="Waiting for Room Approval"
             Command="{Binding ToggleShowWaitingCommand}" />
         <ToolbarItem
+            StyleClass="Separator" />
+        <ToolbarItem
             Text="Other Events"
             Command="{Binding ToggleShowOtherCommand}" />
+        <ToolbarItem
+            StyleClass="Separator" />
         <ToolbarItem
             Text="All Events"
             Command="{Binding ToggleShowAllCommand}" />
@@ -30,6 +36,7 @@
             <VerticalStackLayout
                 Margin="0"
                 Padding="0"
+                WidthRequest="1170"
                 HorizontalOptions="Center">
                 <HorizontalStackLayout
                         IsVisible="{Binding Busy}">
@@ -40,52 +47,53 @@
                 </HorizontalStackLayout>
                 <!-- Pending Events -->
                 <CollectionView
-                        BackgroundColor="Transparent"
-                        IsVisible="{Binding ShowPending}"
-                        ItemsSource="{Binding PendingEvents}">
+                    HeightRequest="{Binding PendingHeight}"
+                    BackgroundColor="Transparent"
+                    IsVisible="{Binding ShowPending}"
+                    ItemsSource="{Binding PendingEvents}">
                     <CollectionView.Header>
                         <VerticalStackLayout
-                                Margin="0"
-                                Padding="0"
-                                HorizontalOptions="Center">
+                            Margin="0"
+                            Padding="0"
+                            HorizontalOptions="Center">
                             <Label
-                                    StyleClass="Header"
-                                    Text="Events Pending Approval" />
+                                StyleClass="Header"
+                                Text="Events Pending Approval" />
                             <BoxView StyleClass="Bar" />
                             <Grid
-                                    RowDefinitions="*"
-                                    ColumnDefinitions="120,400,200,150,300"
-                                    BackgroundColor="{AppThemeBinding Light={DynamicResource WinsorRed}, Dark={DynamicResource SlateDark}}">
+                                RowDefinitions="*"
+                                ColumnDefinitions="120,400,200,150,300"
+                                BackgroundColor="{AppThemeBinding Light={DynamicResource WinsorRed}, Dark={DynamicResource SlateDark}}">
                                 <Label
-                                        Grid.Column="0"
-                                        StyleClass="SubHeader"
-                                        TextColor="White"
-                                        HorizontalTextAlignment="Center"
-                                        Text="Type" />
+                                    Grid.Column="0"
+                                    StyleClass="SubHeader"
+                                    TextColor="White"
+                                    HorizontalTextAlignment="Center"
+                                    Text="Type" />
                                 <Label
-                                        Grid.Column="1"
-                                        StyleClass="SubHeader"
-                                        TextColor="White"
-                                        HorizontalTextAlignment="Center"
-                                        Text="Event Name" />
+                                    Grid.Column="1"
+                                    StyleClass="SubHeader"
+                                    TextColor="White"
+                                    HorizontalTextAlignment="Center"
+                                    Text="Event Name" />
                                 <Label
-                                        Grid.Column="2"
-                                        StyleClass="SubHeader"
-                                        TextColor="White"
-                                        HorizontalTextAlignment="Center"
-                                        Text="Date" />
+                                    Grid.Column="2"
+                                    StyleClass="SubHeader"
+                                    TextColor="White"
+                                    HorizontalTextAlignment="Center"
+                                    Text="Date" />
                                 <Label
-                                        Grid.Column="3"
-                                        StyleClass="SubHeader"
-                                        TextColor="White"
-                                        HorizontalTextAlignment="Center"
-                                        Text="Leader" />
+                                    Grid.Column="3"
+                                    StyleClass="SubHeader"
+                                    TextColor="White"
+                                    HorizontalTextAlignment="Center"
+                                    Text="Leader" />
                                 <Label
-                                        Grid.Column="4"
-                                        StyleClass="SubHeader"
-                                        TextColor="White"
-                                        HorizontalTextAlignment="Center"
-                                        Text="Actions" />
+                                    Grid.Column="4"
+                                    StyleClass="SubHeader"
+                                    TextColor="White"
+                                    HorizontalTextAlignment="Center"
+                                    Text="Actions" />
                             </Grid>
                         </VerticalStackLayout>
                     </CollectionView.Header>
@@ -113,8 +121,8 @@
                                         Grid.Column="2"
                                         Text="{Binding Form.StartDate, StringFormat='{0:ddd d MMM, hh:mm tt}'}" />
                                     <Label
-                                            Grid.Column="3"
-                                            Text="{Binding Form.Leader.DisplayName}" />
+                                        Grid.Column="3"
+                                        Text="{Binding Form.Leader.DisplayName}" />
                                     <HorizontalStackLayout
                                         Margin="0"
                                         Padding="0"
@@ -193,6 +201,7 @@
                 <!-- End Pending Events -->
                 <!-- Room Use Events -->
                 <CollectionView
+                    HeightRequest="{Binding WaitingHeight}"
                         BackgroundColor="Transparent"
                         IsVisible="{Binding ShowWaiting}"
                         ItemsSource="{Binding WaitingEvents}">
@@ -342,6 +351,7 @@
                 <!-- End Waiting Events -->
                 <!-- Other Events -->
                 <CollectionView
+                    HeightRequest="{Binding OtherHeight}"
                         BackgroundColor="Transparent"
                         IsVisible="{Binding ShowOther}"
                         ItemsSource="{Binding OtherEvents}">
@@ -511,18 +521,17 @@
                 <!-- End Other Events -->
                 <!-- Two Week List -->
                 <CollectionView
+                    HeightRequest="{Binding TwoWeekHeight}"
                     BackgroundColor="Transparent"
                     IsVisible="{Binding ShowAll}"
                     ItemsSource="{Binding TwoWeekList}">
                     <CollectionView.Header>
                         <VerticalStackLayout
                             Margin="0"
-                            Padding="0"
-                            HorizontalOptions="Center">
+                            Padding="0">
                             <HorizontalStackLayout
                                 Margin="0"
                                 Padding="0"
-                                WidthRequest="860"
                                 HorizontalOptions="Center"
                                 Spacing="75">
                                 <Image

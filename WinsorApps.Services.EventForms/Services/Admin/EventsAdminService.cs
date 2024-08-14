@@ -20,18 +20,14 @@ public partial class EventsAdminService :
     IAsyncInitService,
     IAutoRefreshingCacheService
 {
-    private readonly EventFormsService _eventsService;
-    private readonly ReadonlyCalendarService _calendar;
     private readonly RegistrarService _registrar;
     private readonly ApiService _api;
     private readonly LocalLoggingService _logging;
 
     public event EventHandler? OnCacheRefreshed;
 
-    public EventsAdminService(EventFormsService eventsService, ReadonlyCalendarService calendar, ApiService api, RegistrarService registrar, LocalLoggingService logging)
+    public EventsAdminService(ApiService api, RegistrarService registrar, LocalLoggingService logging)
     {
-        _eventsService = eventsService;
-        _calendar = calendar;
         _api = api;
         _registrar = registrar;
         _logging = logging;
@@ -58,7 +54,8 @@ public partial class EventsAdminService :
     public async Task Initialize(ErrorAction onError)
     {
         await _api.WaitForInit(onError);
-        await _registrar.WaitForInit(onError);
+        while (!_registrar.SchoolYears.Any())
+            await Task.Delay(100);
         Started = true;
 
         var schoolyear = _registrar.SchoolYears.First(sy => sy.startDate <= DateOnly.FromDateTime(DateTime.Today) && sy.endDate >= DateOnly.FromDateTime(DateTime.Today));

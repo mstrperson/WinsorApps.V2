@@ -30,12 +30,13 @@ public partial class EventListPageViewModel :
     [ObservableProperty] string busyMessage = "";
 
     [ObservableProperty] ObservableCollection<AdminFormViewModel> pendingEvents = [];
+    [ObservableProperty] double pendingHeight;
     [ObservableProperty] bool showPending = true;
-    [ObservableProperty] ObservableCollection<AdminFormViewModel> approvedEvents = [];
-    [ObservableProperty] bool showApproved;
     [ObservableProperty] ObservableCollection<AdminFormViewModel> waitingEvents = [];
+    [ObservableProperty] double waitingHeight;
     [ObservableProperty] bool showWaiting;
     [ObservableProperty] ObservableCollection<AdminFormViewModel> otherEvents = [];
+    [ObservableProperty] double otherHeight;
     [ObservableProperty] bool showOther;
     [ObservableProperty] ObservableCollection<AdminFormViewModel> allEvents = [];
     [ObservableProperty] bool showAll;
@@ -43,9 +44,13 @@ public partial class EventListPageViewModel :
     [ObservableProperty] DateTime start;
     [ObservableProperty] DateTime end;
     [ObservableProperty] ObservableCollection<AdminFormViewModel> twoWeekList = [];
+    [ObservableProperty] double twoWeekHeight;
 
     [ObservableProperty] bool isAdmin;
     [ObservableProperty] bool isRegistrar;
+
+    private static readonly double _headerHeight = 150;
+    private static readonly double _rowHeight = 40;
     public EventListPageViewModel()
     {
         var registrar = ServiceHelper.GetService<RegistrarService>();
@@ -67,6 +72,8 @@ public partial class EventListPageViewModel :
 
     public void LoadEvents(ImmutableArray<EventFormBase> events)
     {
+        Busy = true;
+        BusyMessage = "Loading Events.";
         AllEvents = [.. events.OrderBy(evt => evt.start)]; 
         
         TwoWeekList = [.. AllEvents.Where(evt => 
@@ -74,11 +81,14 @@ public partial class EventListPageViewModel :
             && evt.Form.EndDate <= End
             && evt.Form.StatusSelection.Selected.Label != ApprovalStatusLabel.Withdrawn
             && evt.Form.StatusSelection.Selected.Label != ApprovalStatusLabel.Declined)];
+        TwoWeekHeight = _headerHeight + (_rowHeight * TwoWeekList.Count);
         
         PendingEvents = [.. AllEvents.Where(evt => evt.Form.StatusSelection.Selected.Label == ApprovalStatusLabel.Pending)];
-        ApprovedEvents = [.. TwoWeekList.Where(evt => evt.Form.StatusSelection.Selected.Label == ApprovalStatusLabel.Approved)];
+        PendingHeight = _headerHeight + (_rowHeight * PendingEvents.Count);
         WaitingEvents = [.. AllEvents.Where(evt => evt.Form.StatusSelection.Selected.Label == ApprovalStatusLabel.RoomNotCleared)];
+        WaitingHeight = _headerHeight + (_rowHeight * WaitingEvents.Count);
         OtherEvents = [.. TwoWeekList.Where(evt => !SpecificStates.Contains(evt.Form.StatusSelection.Selected.Label))];
+        OtherHeight = _headerHeight + (_rowHeight * OtherEvents.Count);
 
         foreach (var evt in AllEvents)
         {
@@ -87,14 +97,23 @@ public partial class EventListPageViewModel :
             evt.PropertyChanged += ((IBusyViewModel)this).BusyChangedCascade;
             evt.StatusChanged += (_, _) =>
             {
-                TwoWeekList = [.. AllEvents.Where(evt => evt.Form.StartDate >= Start && evt.Form.EndDate <= End)];
-
+                TwoWeekList = [.. AllEvents.Where(evt => 
+                    evt.Form.StartDate >= Start 
+                    && evt.Form.EndDate <= End
+                    && evt.Form.StatusSelection.Selected.Label != ApprovalStatusLabel.Withdrawn
+                    && evt.Form.StatusSelection.Selected.Label != ApprovalStatusLabel.Declined)];
+                TwoWeekHeight = _headerHeight + (_rowHeight * TwoWeekList.Count);
+        
                 PendingEvents = [.. AllEvents.Where(evt => evt.Form.StatusSelection.Selected.Label == ApprovalStatusLabel.Pending)];
-                ApprovedEvents = [.. TwoWeekList.Where(evt => evt.Form.StatusSelection.Selected.Label == ApprovalStatusLabel.Approved)];
+                PendingHeight = _headerHeight + (_rowHeight * PendingEvents.Count);
                 WaitingEvents = [.. AllEvents.Where(evt => evt.Form.StatusSelection.Selected.Label == ApprovalStatusLabel.RoomNotCleared)];
+                WaitingHeight = _headerHeight + (_rowHeight * WaitingEvents.Count);
                 OtherEvents = [.. TwoWeekList.Where(evt => !SpecificStates.Contains(evt.Form.StatusSelection.Selected.Label))];
+                OtherHeight = _headerHeight + (_rowHeight * OtherEvents.Count);
             };
         }
+
+        Busy = false;
     }
 
     private static string[] SpecificStates = [ApprovalStatusLabel.Pending, ApprovalStatusLabel.Approved, ApprovalStatusLabel.RoomNotCleared];
@@ -109,13 +128,17 @@ public partial class EventListPageViewModel :
 
     private void ReloadLists()
     {
+        Busy = true;
+        BusyMessage = "Loading Events...";
         TwoWeekList = [.. AllEvents.Where(evt =>
                evt.Form.StartDate >= Start
             && evt.Form.EndDate <= End
             && evt.Form.StatusSelection.Selected.Label != ApprovalStatusLabel.Withdrawn
             && evt.Form.StatusSelection.Selected.Label != ApprovalStatusLabel.Declined)];
-        ApprovedEvents = [.. TwoWeekList.Where(evt => evt.Form.StatusSelection.Selected.Label == ApprovalStatusLabel.Approved)];
+        TwoWeekHeight = _headerHeight + (_rowHeight * TwoWeekList.Count);
         OtherEvents = [.. TwoWeekList.Where(evt => !SpecificStates.Contains(evt.Form.StatusSelection.Selected.Label))];
+        OtherHeight = _headerHeight + (_rowHeight * OtherEvents.Count);
+        Busy = false;
     }
 
     [RelayCommand]
@@ -130,7 +153,6 @@ public partial class EventListPageViewModel :
     public void ToggleShowPending()
     {
         ShowPending = true;
-        ShowApproved = false;
         ShowWaiting = false;
         ShowOther = false;
         ShowAll = false;
@@ -139,7 +161,6 @@ public partial class EventListPageViewModel :
     public void ToggleShowApproved()
     {
         ShowPending = false;
-        ShowApproved = true;
         ShowWaiting = false;
         ShowOther = false;
         ShowAll = false;
@@ -148,7 +169,6 @@ public partial class EventListPageViewModel :
     public void ToggleShowWaiting()
     {
         ShowPending = false;
-        ShowApproved = false;
         ShowWaiting = true;
         ShowOther = false;
         ShowAll = false;
@@ -157,7 +177,6 @@ public partial class EventListPageViewModel :
     public void ToggleShowOther()
     {
         ShowPending = false;
-        ShowApproved = false;
         ShowWaiting = false;
         ShowOther = true;
         ShowAll = false;
@@ -166,7 +185,6 @@ public partial class EventListPageViewModel :
     public void ToggleShowAll()
     {
         ShowPending = false;
-        ShowApproved = false;
         ShowWaiting = false;
         ShowOther = false;
         ShowAll = true;
