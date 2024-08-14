@@ -1,9 +1,12 @@
 ﻿
+using WinsorApps.MAUI.EventsAdmin.Pages;
+using WinsorApps.MAUI.EventsAdmin.ViewModels;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.EventForms.ViewModels;
 using WinsorApps.MAUI.Shared.Pages;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Services;
+using WinsorApps.Services.EventForms.Services.Admin;
 using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.EventsAdmin;
@@ -23,11 +26,14 @@ public partial class MainPage : ContentPage
         ContactService contactService,
         LocationService locationService,
         CateringMenuService cateringMenuService,
-        TheaterService theaterService)
+        TheaterService theaterService,
+        EventsAdminService adminService,
+        EventListPageViewModel listpagevm)
     {
         MainPageViewModel vm = new(
         [
             new(registrar, "Registrar Data"),
+            new(adminService, "Admin Service"),
             new(eventForms, "Event Forms"),
             new(calendarService, "Calendar"),
             new(budgetCodes, "Budget Codes"),
@@ -41,15 +47,15 @@ public partial class MainPage : ContentPage
         {
             Completion = 
             [
-                new(new Task(async () => await EventFormViewModel.Initialize(eventForms, this.DefaultOnErrorAction())), "Event Forms Cache"),
                 new(new Task(async () => await LocationViewModel.Initialize(locationService, this.DefaultOnErrorAction())), "Locations Cache"),
                 new(new Task(async () => await BudgetCodeViewModel.Initialize(budgetCodes, this.DefaultOnErrorAction())), "Budget Codes Cache"),
                 new(new Task(async () => await ContactViewModel.Initialize(contactService, this.DefaultOnErrorAction())), "My Contacts"),
                 new(new Task(async () => await ApprovalStatusViewModel.Initialize(eventForms, this.DefaultOnErrorAction())), "Approval Status Cache"),
                 new(new Task(async () => await CateringMenuCategoryViewModel.Initialize(cateringMenuService, this.DefaultOnErrorAction())), "Catering Menus"),
-                new(new Task(async () => await EventTypeViewModel.Initialize(eventForms, this.DefaultOnErrorAction())), "Event Types")
+                new(new Task(async () => await EventTypeViewModel.Initialize(eventForms, this.DefaultOnErrorAction())), "Event Types"),
+                new(listpagevm.Initialize(this.DefaultOnErrorAction()), "Event List")
             ],
-            AppId = ""
+            AppId = "yBDj8LA61lpR"
         };
 
         BindingContext = vm;
@@ -71,8 +77,8 @@ public partial class MainPage : ContentPage
     {
         if (!ViewModel.UpdateAvailable)
         {
-           // var page = ServiceHelper.GetService<MyEventsList>();
-           // Navigation.PushAsync(page);
+           var page = ServiceHelper.GetService<EventListPage>();
+           Navigation.PushAsync(page);
         }
     }
 }

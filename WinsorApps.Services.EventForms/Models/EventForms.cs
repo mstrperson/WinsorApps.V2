@@ -24,7 +24,7 @@ public readonly record struct ApprovalStatusLabel
     {
         "pending" => Pending,
         "approved" => Approved,
-        "withrdawn" => Withdrawn,
+        "withdrawn" => Withdrawn,
         "declined" => Declined,
         "room not cleared" => RoomNotCleared,
         "draft" => Draft,

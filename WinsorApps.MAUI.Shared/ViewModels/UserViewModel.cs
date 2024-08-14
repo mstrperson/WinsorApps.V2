@@ -36,8 +36,12 @@ public partial class UserViewModel :
 
         return output;
     }
+
+    private static readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
+
     public static UserViewModel Get(UserRecord user)
     {
+        //using DebugTimer _ = new($"Getting UserViewModel for {user.email}", _logging);
         var vm = ViewModelCache.FirstOrDefault(cvm => cvm.Model.Reduce(UserRecord.Empty).id == user.id);
         if (vm is null)
         {

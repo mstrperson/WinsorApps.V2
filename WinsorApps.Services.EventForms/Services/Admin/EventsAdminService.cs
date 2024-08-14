@@ -58,23 +58,17 @@ public partial class EventsAdminService :
     public async Task Initialize(ErrorAction onError)
     {
         await _api.WaitForInit(onError);
+        await _registrar.WaitForInit(onError);
         Started = true;
 
-        var month = DateTime.Today.MonthOf().MondayOf();
-        var result = await GetAllEvents(onError, month, month.AddDays(35));
+        var schoolyear = _registrar.SchoolYears.First(sy => sy.startDate <= DateOnly.FromDateTime(DateTime.Today) && sy.endDate >= DateOnly.FromDateTime(DateTime.Today));
+        var result = await GetAllEvents(onError, schoolyear.startDate.ToDateTime(default), schoolyear.endDate.ToDateTime(default));
+        Progress = 0.5;
+        AllEvents = new(result.Select(evt => new KeyValuePair<string, EventFormBase>(evt.id, evt)));
+
         Progress = 1;
         Ready = true;
-        LoadSchoolYear(onError).SafeFireAndForget(e => e.LogException(_logging));
         _lastUpdated = DateTime.Now;
-    }
-
-    private async Task LoadSchoolYear(ErrorAction onError)
-    {
-        var schoolyear = _registrar.SchoolYears.First(sy => sy.startDate <= DateOnly.FromDateTime(DateTime.Today) && sy.endDate >= DateOnly.FromDateTime(DateTime.Today));
-        for(SixWeekPeriod swp = new() { StartDate = schoolyear.startDate }; swp.EndDate < schoolyear.endDate; swp = swp.Next)
-        {
-            var result = await GetAllEvents(onError, swp.StartDate.ToDateTime(default), swp.EndDate.ToDateTime(default));
-        }
     }
 
     private DateTime _lastUpdated;
@@ -131,6 +125,7 @@ public partial class EventsAdminService :
         {
             AllEvents.AddOrUpdate(result.Value.id, result.Value, (id, e) => e);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
+            _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"{result.Value.summary} - {result.Value.start:yyyy-MM-dd} was approved.");
             return OptionalStruct<EventFormBase>.Some(result.Value);
         }
 
@@ -143,6 +138,7 @@ public partial class EventsAdminService :
         {
             AllEvents.AddOrUpdate(result.Value.id, result.Value, (id, e) => e);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
+            _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"{result.Value.summary} - {result.Value.start:yyyy-MM-dd} was declined.");
             return OptionalStruct<EventFormBase>.Some(result.Value);
         }
 
@@ -151,7 +147,9 @@ public partial class EventsAdminService :
 
     public async Task SendNote(string eventId, CreateApprovalNote note, ErrorAction onError)
     {
+        var evt = AllEvents[eventId];
         await _api.SendAsync(HttpMethod.Post, $"api/events/{eventId}/approve", JsonSerializer.Serialize(note), onError: onError);
+        _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Note submitted to event {evt.summary} - {evt.start:yyyy-MM-dd}.");
     }
 
     public async Task<ImmutableArray<EventApprovalStatusRecord>> GetHistory(string eventId, ErrorAction onError)

@@ -1,6 +1,10 @@
-﻿using AsyncAwaitBestPractices;
+﻿global using ErrorAction = System.Action<WinsorApps.Services.Global.Models.ErrorRecord>;
+
+using AsyncAwaitBestPractices;
 using CommunityToolkit.Maui.Core;
 using Microsoft.Extensions.Logging;
+using WinsorApps.MAUI.EventsAdmin.Pages;
+using WinsorApps.MAUI.EventsAdmin.ViewModels;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.EventForms;
 using WinsorApps.MAUI.Shared.EventForms.ViewModels;
@@ -35,6 +39,9 @@ namespace WinsorApps.MAUI.EventsAdmin
 
             builder.Services.AddSingleton<EventsAdminService>();
             builder.Services.AddSingleton<MainPage>();
+
+            builder.Services.AddSingleton<EventListPageViewModel>();
+            builder.Services.AddSingleton<EventListPage>();
 
 
 #if DEBUG

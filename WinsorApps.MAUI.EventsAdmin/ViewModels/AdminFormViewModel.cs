@@ -21,7 +21,8 @@ namespace WinsorApps.MAUI.EventsAdmin.ViewModels;
 public partial class AdminFormViewModel :
     ObservableObject,
     IErrorHandling,
-    IBusyViewModel
+    IBusyViewModel,
+    ISelectable<AdminFormViewModel>
 {
     private readonly EventsAdminService _admin = ServiceHelper.GetService<EventsAdminService>();
 
@@ -35,8 +36,12 @@ public partial class AdminFormViewModel :
     [ObservableProperty] bool isAdmin;
     [ObservableProperty] bool isRegistrar;
 
+    [ObservableProperty] bool isSelected;
+    [ObservableProperty] string roomList;
+
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler? StatusChanged;
+    public event EventHandler<AdminFormViewModel>? Selected;
 
     public static implicit operator AdminFormViewModel(EventFormViewModel form) => new(form);
     public static implicit operator AdminFormViewModel(EventFormBase form) => new(EventFormViewModel.Get(form));
@@ -44,10 +49,15 @@ public partial class AdminFormViewModel :
     public AdminFormViewModel(EventFormViewModel form)
     {
         this.form = form;
+        Form.ApproveRequested += async (_, _) => await Approve();
+        Form.DeleteRequested += async (_, _) => await Reject();
+        Form.ApproveRoomRequested += async (_, _) => await ApproveRoomUse();
 
+        form.Selected += (_, _) => Selected?.Invoke(this, this);
         var registrar = ServiceHelper.GetService<RegistrarService>();
         isAdmin = registrar.MyRoles.Intersect(["System Admin", "Winsor - Events Admin"]).Any();
         isRegistrar = registrar.MyRoles.Intersect(["System Admin", "Registrar"]).Any();
+        RoomList = form.SelectedLocations.Any() ? form.SelectedLocations.Select(loc => loc.Label).DelimeteredList() : "None!";
     }
 
     [RelayCommand]
@@ -148,6 +158,13 @@ public partial class AdminFormViewModel :
         await _admin.SendNote(Form.Id, NoteEditor, OnError.DefaultBehavior(this));
         await LoadHistory();
         Busy = false;
+    }
+
+    [RelayCommand]
+    public void Select()
+    {
+        IsSelected = !IsSelected;
+        Selected?.Invoke(this, this);
     }
 }
 

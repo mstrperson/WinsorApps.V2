@@ -1,0 +1,685 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.EventsAdmin.ViewModels"
+             xmlns:svm="clr-namespace:WinsorApps.MAUI.Shared.EventForms.ViewModels;assembly=WinsorApps.MAUI.Shared.EventForms"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             x:DataType="vm:EventListPageViewModel"
+             x:Class="WinsorApps.MAUI.EventsAdmin.Pages.EventListPage"
+             Title="Events Admin">
+    <ContentPage.Resources>
+        <conv:BoolInverter x:Key="Invert" />
+    </ContentPage.Resources>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem
+            Text="Pending Events"
+            Command="{Binding ToggleShowPendingCommand}" />
+        <ToolbarItem
+            Text="Waiting for Room Approval"
+            Command="{Binding ToggleShowWaitingCommand}" />
+        <ToolbarItem
+            Text="Other Events"
+            Command="{Binding ToggleShowOtherCommand}" />
+        <ToolbarItem
+            Text="All Events"
+            Command="{Binding ToggleShowAllCommand}" />
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <ScrollView>
+            <!-- Left Column -->
+            <VerticalStackLayout
+                Margin="0"
+                Padding="0"
+                HorizontalOptions="Center">
+                <HorizontalStackLayout
+                        IsVisible="{Binding Busy}">
+                    <Label
+                            StyleClass="Header"
+                            Text="{Binding BusyMessage}" />
+                    <Image StyleClass="loading_image" />
+                </HorizontalStackLayout>
+                <!-- Pending Events -->
+                <CollectionView
+                        BackgroundColor="Transparent"
+                        IsVisible="{Binding ShowPending}"
+                        ItemsSource="{Binding PendingEvents}">
+                    <CollectionView.Header>
+                        <VerticalStackLayout
+                                Margin="0"
+                                Padding="0"
+                                HorizontalOptions="Center">
+                            <Label
+                                    StyleClass="Header"
+                                    Text="Events Pending Approval" />
+                            <BoxView StyleClass="Bar" />
+                            <Grid
+                                    RowDefinitions="*"
+                                    ColumnDefinitions="120,400,200,150,300"
+                                    BackgroundColor="{AppThemeBinding Light={DynamicResource WinsorRed}, Dark={DynamicResource SlateDark}}">
+                                <Label
+                                        Grid.Column="0"
+                                        StyleClass="SubHeader"
+                                        TextColor="White"
+                                        HorizontalTextAlignment="Center"
+                                        Text="Type" />
+                                <Label
+                                        Grid.Column="1"
+                                        StyleClass="SubHeader"
+                                        TextColor="White"
+                                        HorizontalTextAlignment="Center"
+                                        Text="Event Name" />
+                                <Label
+                                        Grid.Column="2"
+                                        StyleClass="SubHeader"
+                                        TextColor="White"
+                                        HorizontalTextAlignment="Center"
+                                        Text="Date" />
+                                <Label
+                                        Grid.Column="3"
+                                        StyleClass="SubHeader"
+                                        TextColor="White"
+                                        HorizontalTextAlignment="Center"
+                                        Text="Leader" />
+                                <Label
+                                        Grid.Column="4"
+                                        StyleClass="SubHeader"
+                                        TextColor="White"
+                                        HorizontalTextAlignment="Center"
+                                        Text="Actions" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </CollectionView.Header>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:AdminFormViewModel">
+                            <VerticalStackLayout
+                                Margin="0"
+                                Padding="0"
+                                HorizontalOptions="Center">
+                                <Grid
+                                    WidthRequest="1170"
+                                    RowDefinitions="*"
+                                    ColumnDefinitions="120,400,200,150,300">
+                                    <Label
+                                        Grid.Column="0"
+                                        Text="{Binding Form.Type.Type}" />
+                                    <Label
+                                        Grid.Column="1"
+                                        Text="{Binding Form.Summary}">
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                        </Label.GestureRecognizers>
+                                    </Label>
+                                    <Label
+                                        Grid.Column="2"
+                                        Text="{Binding Form.StartDate, StringFormat='{0:ddd d MMM, hh:mm tt}'}" />
+                                    <Label
+                                            Grid.Column="3"
+                                            Text="{Binding Form.Leader.DisplayName}" />
+                                    <HorizontalStackLayout
+                                        Margin="0"
+                                        Padding="0"
+                                        Grid.Column="4"
+                                        Spacing="15"
+                                        HorizontalOptions="Center">
+                                        <Label
+                                            Text="Approve"
+                                            IsVisible="{Binding IsAdmin}">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding ApproveCommand}" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                        <Label
+                                            Text="Decline"
+                                            IsVisible="{Binding IsAdmin}">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding RejectCommand}" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                        <Label
+                                                Text="Add Note">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding ToggleShowNoteEditorCommand}" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                    </HorizontalStackLayout>
+                                </Grid>
+                                <HorizontalStackLayout
+                                    HorizontalOptions="Center"
+                                    Margin="10"
+                                    Padding="0"
+                                    IsVisible="{Binding ShowNoteEditor}">
+                                    <Border
+                                        StrokeThickness="1"
+                                        Padding="5">
+                                        <VerticalStackLayout
+                                            WidthRequest="640">
+                                            <Label 
+                                                StyleClass="H3"
+                                                Text="Note" />
+                                            <Editor
+                                                HeightRequest="75"
+                                                Margin="0,0,10,0"
+                                                Placeholder="Note to be sent to creator"
+                                                Text="{Binding NoteEditor.Note}" />
+                                            <HorizontalStackLayout
+                                                    Margin="0"
+                                                    Padding="0">
+                                                <Picker
+                                                        WidthRequest="400"
+                                                        ItemsSource="{Binding NoteEditor.StatusChoices}" 
+                                                        SelectedItem="{Binding NoteEditor.Status}" />
+                                                <Label
+                                                    StyleClass="H3"
+                                                    WidthRequest="240"
+                                                    HorizontalTextAlignment="Center"
+                                                        Text="Send Note">
+                                                    <Label.GestureRecognizers>
+                                                        <TapGestureRecognizer Command="{Binding SubmitNoteCommand}" />
+                                                    </Label.GestureRecognizers>
+                                                </Label>
+                                            </HorizontalStackLayout>
+                                        </VerticalStackLayout>
+                                    </Border>
+                                </HorizontalStackLayout>
+                                <BoxView 
+                                    WidthRequest="1170"
+                                    Margin="0"
+                                    HeightRequest="1"
+                                    StyleClass="Bar" />
+                            </VerticalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                <!-- End Pending Events -->
+                <!-- Room Use Events -->
+                <CollectionView
+                        BackgroundColor="Transparent"
+                        IsVisible="{Binding ShowWaiting}"
+                        ItemsSource="{Binding WaitingEvents}">
+                    <CollectionView.Header>
+                        <VerticalStackLayout
+                                Margin="0"
+                                Padding="0"
+                                HorizontalOptions="Center">
+                            <Label
+                                    StyleClass="Header"
+                                    Text="Events Pending Room Approval" />
+                            <BoxView StyleClass="Bar" />
+                            <Grid
+                                RowDefinitions="*"
+                                ColumnDefinitions="120,400,200,150,300"
+                                BackgroundColor="{AppThemeBinding Light={DynamicResource WinsorRed}, Dark={DynamicResource SlateDark}}">
+                                <Label
+                                        Grid.Column="0"
+                                        StyleClass="SubHeader"
+                                        TextColor="White"
+                                        HorizontalTextAlignment="Center"
+                                        Text="Type" />
+                                <Label
+                                        Grid.Column="1"
+                                        StyleClass="SubHeader"
+                                        TextColor="White"
+                                        HorizontalTextAlignment="Center"
+                                        Text="Event Name" />
+                                <Label
+                                        Grid.Column="2"
+                                        StyleClass="SubHeader"
+                                        TextColor="White"
+                                        HorizontalTextAlignment="Center"
+                                        Text="Date" />
+                                <Label
+                                        Grid.Column="3"
+                                        StyleClass="SubHeader"
+                                        TextColor="White"
+                                        HorizontalTextAlignment="Center"
+                                        Text="Leader" />
+                                <Label
+                                        Grid.Column="4"
+                                        StyleClass="SubHeader"
+                                        TextColor="White"
+                                        HorizontalTextAlignment="Center"
+                                        Text="Actions" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </CollectionView.Header>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:AdminFormViewModel">
+                            <VerticalStackLayout
+                                    Margin="0"
+                                    Padding="0">
+                                <Grid
+                                    WidthRequest="1170"
+                                    RowDefinitions="*"
+                                    ColumnDefinitions="120,400,200,150,300">
+                                    <Label
+                                            Grid.Column="0"
+                                            Text="{Binding Form.Type.Type}" />
+                                    <Label
+                                            Grid.Column="1"
+                                            Text="{Binding Form.Summary}">
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                        </Label.GestureRecognizers>
+                                    </Label>
+                                    <HorizontalStackLayout
+                                            Margin="0"
+                                            Padding="0"
+                                            Grid.Column="2"
+                                            Spacing="15">
+                                        <Label
+                                                Text="{Binding Form.StartDate, StringFormat='{0:ddd d MMM, hh:mm tt}'}" />
+                                    </HorizontalStackLayout>
+                                    <Label
+                                            Grid.Column="3"
+                                            Text="{Binding Form.Leader.DisplayName}" />
+                                    <HorizontalStackLayout
+                                            Margin="0"
+                                            Padding="0"
+                                            Grid.Column="4"
+                                            Spacing="15">
+                                        <Label
+                                            Text="{Binding RoomList, StringFormat='Approve: {0}'}"
+                                            IsVisible="{Binding IsRegistrar}">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding ApproveRoomUseCommand}" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                        <Label
+                                            Text="Add Note">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding ToggleShowNoteEditorCommand}" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                    </HorizontalStackLayout>
+                                </Grid>
+                                <HorizontalStackLayout
+                                    HorizontalOptions="Center"
+                                    Margin="10"
+                                    Padding="0"
+                                    IsVisible="{Binding ShowNoteEditor}">
+                                    <Border
+                                        StrokeThickness="1"
+                                        Padding="5">
+                                        <VerticalStackLayout
+                                            WidthRequest="640">
+                                            <Label 
+                                                StyleClass="H3"
+                                                Text="Note" />
+                                            <Editor
+                                                HeightRequest="75"
+                                                Margin="0,0,10,0"
+                                                Placeholder="Note to be sent to creator"
+                                                Text="{Binding NoteEditor.Note}" />
+                                            <HorizontalStackLayout
+                                                    Margin="0"
+                                                    Padding="0">
+                                                <Picker
+                                                        WidthRequest="400"
+                                                        ItemsSource="{Binding NoteEditor.StatusChoices}" 
+                                                        SelectedItem="{Binding NoteEditor.Status}" />
+                                                <Label
+                                                    StyleClass="H3"
+                                                    WidthRequest="240"
+                                                    HorizontalTextAlignment="Center"
+                                                        Text="Send Note">
+                                                    <Label.GestureRecognizers>
+                                                        <TapGestureRecognizer Command="{Binding SubmitNoteCommand}" />
+                                                    </Label.GestureRecognizers>
+                                                </Label>
+                                            </HorizontalStackLayout>
+                                        </VerticalStackLayout>
+                                    </Border>
+                                </HorizontalStackLayout>
+                                <BoxView 
+                                    WidthRequest="1170"
+                                    Margin="0"
+                                    HeightRequest="1"
+                                    StyleClass="Bar" />
+                            </VerticalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                <!-- End Waiting Events -->
+                <!-- Other Events -->
+                <CollectionView
+                        BackgroundColor="Transparent"
+                        IsVisible="{Binding ShowOther}"
+                        ItemsSource="{Binding OtherEvents}">
+                    <CollectionView.Header>
+                        <VerticalStackLayout
+                                Margin="0"
+                                Padding="0"
+                                HorizontalOptions="Center">
+                            <HorizontalStackLayout
+                                    Margin="0"
+                                    Padding="0"
+                                    WidthRequest="860"
+                                    HorizontalOptions="Center"
+                                    Spacing="75">
+                                <Image
+                                        StyleClass="LeftArrow">
+                                    <Image.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding PreviousPageCommand}" />
+                                    </Image.GestureRecognizers>
+                                </Image>
+                                <Label
+                                        StyleClass="Header"
+                                        Text="Other Events" />
+                                <Image
+                                        StyleClass="RightArrow">
+                                    <Image.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding NextPageCommand}" />
+                                    </Image.GestureRecognizers>
+                                </Image>
+                            </HorizontalStackLayout>
+                            <BoxView StyleClass="Bar" />
+                            <Grid
+                                    RowDefinitions="*"
+                                    ColumnDefinitions="120,400,200,150,300"
+                                    BackgroundColor="{AppThemeBinding Light={DynamicResource WinsorRed}, Dark={DynamicResource SlateDark}}">
+                                <Label
+                                        Grid.Column="0"
+                                        StyleClass="SubHeader"
+                                        TextColor="White"
+                                        HorizontalTextAlignment="Center"
+                                        Text="Type" />
+                                <Label
+                                        Grid.Column="1"
+                                        StyleClass="SubHeader"
+                                        TextColor="White"
+                                        HorizontalTextAlignment="Center"
+                                        Text="Event Name" />
+                                <Label
+                                        Grid.Column="2"
+                                        StyleClass="SubHeader"
+                                        TextColor="White"
+                                        HorizontalTextAlignment="Center"
+                                        Text="Date" />
+                                <Label
+                                        Grid.Column="3"
+                                        StyleClass="SubHeader"
+                                        TextColor="White"
+                                        HorizontalTextAlignment="Center"
+                                        Text="Leader" />
+                                <Label
+                                        Grid.Column="4"
+                                        StyleClass="SubHeader"
+                                        TextColor="White"
+                                        HorizontalTextAlignment="Center"
+                                        Text="Actions" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </CollectionView.Header>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:AdminFormViewModel">
+                            <VerticalStackLayout
+                                    Margin="0"
+                                    Padding="0">
+                                <Grid
+                                    WidthRequest="1170"
+                                    RowDefinitions="*"
+                                    ColumnDefinitions="120,400,200,150,300">
+                                    <Label
+                                            Grid.Column="0"
+                                            Text="{Binding Form.Type.Type}" />
+                                    <HorizontalStackLayout
+                                        Margin="0"
+                                        Padding="0"
+                                        Spacing="10"
+                                        Grid.Column="1">
+                                        <HorizontalStackLayout.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                        </HorizontalStackLayout.GestureRecognizers>
+                                        <Label
+                                            Text="{Binding Form.StatusSelection.Selected.Label, StringFormat='[{0}]'}" />
+                                        <Label
+                                            Text="{Binding Form.Summary}"/>
+                                    </HorizontalStackLayout>
+                                    <HorizontalStackLayout
+                                            Margin="0"
+                                            Padding="0"
+                                            Grid.Column="2"
+                                            Spacing="15">
+                                        <Label
+                                                Text="{Binding Form.StartDate, StringFormat='{0:ddd d MMM, hh:mm tt}'}" />
+                                    </HorizontalStackLayout>
+                                    <Label
+                                            Grid.Column="3"
+                                            Text="{Binding Form.Leader.DisplayName}" />
+                                    <HorizontalStackLayout
+                                            Margin="0"
+                                            Padding="0"
+                                            Grid.Column="4"
+                                            Spacing="15"
+                                        HorizontalOptions="Center">
+                                        <Label
+                                                Text="Add Note">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding ToggleShowNoteEditorCommand}" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                    </HorizontalStackLayout>
+                                </Grid>
+
+                                <HorizontalStackLayout
+                                    HorizontalOptions="Center"
+                                    Margin="10"
+                                    Padding="0"
+                                    IsVisible="{Binding ShowNoteEditor}">
+                                    <Border
+                                        StrokeThickness="1"
+                                        Padding="5">
+                                        <VerticalStackLayout
+                                            WidthRequest="640">
+                                            <Label 
+                                                StyleClass="H3"
+                                                Text="Note" />
+                                            <Editor
+                                                HeightRequest="75"
+                                                Margin="0,0,10,0"
+                                                Placeholder="Note to be sent to creator"
+                                                Text="{Binding NoteEditor.Note}" />
+                                            <HorizontalStackLayout
+                                                    Margin="0"
+                                                    Padding="0">
+                                                <Picker
+                                                        WidthRequest="400"
+                                                        ItemsSource="{Binding NoteEditor.StatusChoices}" 
+                                                        SelectedItem="{Binding NoteEditor.Status}" />
+                                                <Label
+                                                    StyleClass="H3"
+                                                    WidthRequest="240"
+                                                    HorizontalTextAlignment="Center"
+                                                        Text="Send Note">
+                                                    <Label.GestureRecognizers>
+                                                        <TapGestureRecognizer Command="{Binding SubmitNoteCommand}" />
+                                                    </Label.GestureRecognizers>
+                                                </Label>
+                                            </HorizontalStackLayout>
+                                        </VerticalStackLayout>
+                                    </Border>
+                                </HorizontalStackLayout>
+                                <BoxView 
+                                    WidthRequest="1170"
+                                    Margin="0"
+                                    HeightRequest="1"
+                                    StyleClass="Bar" />
+                            </VerticalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                <!-- End Other Events -->
+                <!-- Two Week List -->
+                <CollectionView
+                    BackgroundColor="Transparent"
+                    IsVisible="{Binding ShowAll}"
+                    ItemsSource="{Binding TwoWeekList}">
+                    <CollectionView.Header>
+                        <VerticalStackLayout
+                            Margin="0"
+                            Padding="0"
+                            HorizontalOptions="Center">
+                            <HorizontalStackLayout
+                                Margin="0"
+                                Padding="0"
+                                WidthRequest="860"
+                                HorizontalOptions="Center"
+                                Spacing="75">
+                                <Image
+                                    StyleClass="LeftArrow">
+                                    <Image.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding PreviousPageCommand}" />
+                                    </Image.GestureRecognizers>
+                                </Image>
+                                <Label
+                                    StyleClass="Header"
+                                    Text="{Binding Start, StringFormat='Two Week List: {0:ddd d MMMM yyyy}'}" />
+                                <Image
+                                    StyleClass="RightArrow">
+                                    <Image.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding NextPageCommand}" />
+                                    </Image.GestureRecognizers>
+                                </Image>
+                            </HorizontalStackLayout>
+                            <BoxView StyleClass="Bar" />
+                            <Grid
+                                RowDefinitions="*"
+                                ColumnDefinitions="120,550,200,150,150"
+                                BackgroundColor="{AppThemeBinding Light={DynamicResource WinsorRed}, Dark={DynamicResource SlateDark}}">
+                                <Label
+                                    Grid.Column="0"
+                                    StyleClass="SubHeader"
+                                    TextColor="White"
+                                    HorizontalTextAlignment="Center"
+                                    Text="Type" />
+                                <Label
+                                    Grid.Column="1"
+                                    StyleClass="SubHeader"
+                                    TextColor="White"
+                                    HorizontalTextAlignment="Center"
+                                    Text="Event Name" />
+                                <Label
+                                    Grid.Column="2"
+                                    StyleClass="SubHeader"
+                                    TextColor="White"
+                                    HorizontalTextAlignment="Center"
+                                    Text="Date" />
+                                <Label
+                                    Grid.Column="3"
+                                    StyleClass="SubHeader"
+                                    TextColor="White"
+                                    HorizontalTextAlignment="Center"
+                                    Text="Leader" />
+                                <Label
+                                    Grid.Column="4"
+                                    StyleClass="SubHeader"
+                                    TextColor="White"
+                                    HorizontalTextAlignment="Center"
+                                    Text="Actions" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </CollectionView.Header>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:AdminFormViewModel">
+                            <VerticalStackLayout
+                                    Margin="0"
+                                    Padding="0">
+                                <Grid
+                                    RowDefinitions="*"
+                                    WidthRequest="1170"
+                                    ColumnDefinitions="120,550,200,150,150">
+                                    <Label
+                                        Grid.Column="0"
+                                        HorizontalTextAlignment="Center"
+                                        Text="{Binding Form.Type.Type}" />
+                                    <HorizontalStackLayout
+                                        Margin="0"
+                                        Padding="0"
+                                        Spacing="10"
+                                        Grid.Column="1">
+                                        <HorizontalStackLayout.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                        </HorizontalStackLayout.GestureRecognizers>
+                                        <Label
+                                            Text="{Binding Form.StatusSelection.Selected.Label, StringFormat='[{0}]'}" />
+                                        <Label
+                                            Text="{Binding Form.Summary}"/>
+                                    </HorizontalStackLayout>
+                                    <HorizontalStackLayout
+                                        Margin="0"
+                                        Padding="0"
+                                        Grid.Column="2"
+                                        HorizontalOptions="Center"
+                                        Spacing="15">
+                                        <Label
+                                            Text="{Binding Form.StartDate, StringFormat='{0:ddd d MMM, hh:mm tt}'}" />
+                                    </HorizontalStackLayout>
+                                    <Label
+                                        Grid.Column="3"
+                                        Text="{Binding Form.Leader.DisplayName}" />
+                                    <HorizontalStackLayout
+                                        Margin="0"
+                                        Padding="0"
+                                        Grid.Column="4"
+                                        HorizontalOptions="Center"
+                                        Spacing="15">
+                                        <Label
+                                                Text="Add Note">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding ToggleShowNoteEditorCommand}" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                    </HorizontalStackLayout>
+                                </Grid>
+                                <HorizontalStackLayout
+                                    HorizontalOptions="Center"
+                                    Margin="10"
+                                    Padding="0"
+                                    IsVisible="{Binding ShowNoteEditor}">
+                                    <Border
+                                        StrokeThickness="1"
+                                        Padding="5">
+                                        <VerticalStackLayout
+                                            WidthRequest="640">
+                                            <Label 
+                                                StyleClass="H3"
+                                                Text="Note" />
+                                            <Editor
+                                                HeightRequest="75"
+                                                Margin="0,0,10,0"
+                                                Placeholder="Note to be sent to creator"
+                                                Text="{Binding NoteEditor.Note}" />
+                                            <HorizontalStackLayout
+                                                    Margin="0"
+                                                    Padding="0">
+                                                <Picker
+                                                        WidthRequest="400"
+                                                        ItemsSource="{Binding NoteEditor.StatusChoices}" 
+                                                        SelectedItem="{Binding NoteEditor.Status}" />
+                                                <Label
+                                                    StyleClass="H3"
+                                                    WidthRequest="240"
+                                                    HorizontalTextAlignment="Center"
+                                                        Text="Send Note">
+                                                    <Label.GestureRecognizers>
+                                                        <TapGestureRecognizer Command="{Binding SubmitNoteCommand}" />
+                                                    </Label.GestureRecognizers>
+                                                </Label>
+                                            </HorizontalStackLayout>
+                                        </VerticalStackLayout>
+                                    </Border>
+                                </HorizontalStackLayout>
+                                <BoxView 
+                                    WidthRequest="1170"
+                                    Margin="0"
+                                    HeightRequest="1"
+                                    StyleClass="Bar" />
+                            </VerticalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                <!-- All Events -->
+            </VerticalStackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

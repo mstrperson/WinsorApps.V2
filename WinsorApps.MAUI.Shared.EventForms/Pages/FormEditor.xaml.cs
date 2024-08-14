@@ -26,7 +26,10 @@ public partial class FormEditor : ContentPage
             vm.FieldTripRequested += (sender, ftvm) => Navigation.PushAsync(new FieldTripPage(ftvm));
             vm.FacilitesRequested += (sender, fvm) => Navigation.PushAsync(new FacilitesPage(fvm));
 
-            
+            vm.ApproveRequested += (_, _) => Navigation.PopAsync();
+            vm.ApproveRoomRequested += (_, _) => Navigation.PopAsync();
+            vm.DeleteRequested += (_, _) => Navigation.PopAsync();
+
             vm.PropertyChanged += Vm_PropertyChanged;
 
             vm.HasLoadedOnce = true;

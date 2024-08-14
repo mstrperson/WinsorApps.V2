@@ -56,6 +56,57 @@
                         StyleClass="loading_image"/>
                 </HorizontalStackLayout>
                 <!-- End Busy Message Container -->
+                <!-- Admin Controls -->
+                <HorizontalStackLayout
+                    IsVisible="{Binding UserIsAdmin}"
+                    Spacing="50"
+                    HorizontalOptions="Center">
+                    <Border StrokeThickness="2"
+                            Padding="15,0"
+                            IsVisible="{Binding IsPending}">
+                        <HorizontalStackLayout>
+                            <HorizontalStackLayout.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ApproveCommand}" />
+                            </HorizontalStackLayout.GestureRecognizers>
+                            <Image StyleClass="PositiveSignifier" />
+                            <Label
+                                StyleClass="SubHeader"
+                                Text="Approve" />
+                        </HorizontalStackLayout>
+                    </Border>
+                    <Border StrokeThickness="2"
+                            Padding="15,0"
+                            IsVisible="{Binding IsDeleted, Converter={StaticResource Invert}}">
+                        <HorizontalStackLayout
+                            Spacing="5">
+                            <HorizontalStackLayout.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding RejectCommand}" />
+                            </HorizontalStackLayout.GestureRecognizers>
+                            <Image 
+                                StyleClass="DeleteButton" />
+                            <Label
+                                StyleClass="SubHeader"
+                                Text="Decline" />
+                        </HorizontalStackLayout>
+                    </Border>
+                </HorizontalStackLayout>
+                <HorizontalStackLayout
+                    IsVisible="{Binding UserIsRegistrar}"
+                    HorizontalOptions="Center">
+                    <Border StrokeThickness="2"
+                            IsVisible="{Binding NeedsRoomApproval}">
+                        <HorizontalStackLayout>
+                            <HorizontalStackLayout.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ApproveRoomCommand}" />
+                            </HorizontalStackLayout.GestureRecognizers>
+                            <Image StyleClass="PositiveSignifier" />
+                            <Label
+                                StyleClass="SubHeader"
+                                Text="Approve Room Use" />
+                        </HorizontalStackLayout>
+                    </Border>
+                </HorizontalStackLayout>
+                <!-- End Admin Controls-->
                 <!-- Container Enabled if CanEditBase -->
                 <VerticalStackLayout
                     IsEnabled="{Binding CanEditBase}">

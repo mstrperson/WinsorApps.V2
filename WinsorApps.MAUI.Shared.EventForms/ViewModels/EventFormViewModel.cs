@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.EventForms.Services;
+using WinsorApps.Services.EventForms.Services.Admin;
 using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
@@ -83,6 +84,55 @@ public partial class EventFormViewModel :
     public event EventHandler<FieldTripViewModel>? FieldTripRequested;
     public event EventHandler? Deleted;
     public event EventHandler? Submitted;
+
+    public event EventHandler? ApproveRequested;
+    public event EventHandler? DeleteRequested;
+    public event EventHandler? ApproveRoomRequested;
+
+    [ObservableProperty] bool isPending;
+    [ObservableProperty] bool isDeleted;
+    [ObservableProperty] bool needsRoomApproval;
+
+    [ObservableProperty]
+    bool userIsAdmin = IsAdmin;
+    [ObservableProperty]
+    bool userIsRegistrar = IsRegistrar;
+    private static bool IsAdmin
+    {
+        get
+        {
+            try
+            {
+                var admin = ServiceHelper.GetService<EventsAdminService>();
+                if (admin is null)
+                    return false;
+            }
+            catch
+            {
+                return false;
+            }
+            return _registrar.MyRoles.Intersect(["Winsor - Events Admin", "System Admin"]).Any();
+        }
+    }
+    private static bool IsRegistrar
+    {
+        get
+        {
+            try
+            {
+                var admin = ServiceHelper.GetService<EventsAdminService>();
+                if (admin is null)
+                    return false;
+            }
+            catch
+            {
+                return false;
+            }
+            return _registrar.MyRoles.Intersect(["Registrar", "System Admin"]).Any();
+        }
+    }
+
+    private static readonly RegistrarService _registrar = ServiceHelper.GetService<RegistrarService>();
 
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "Working";
@@ -214,6 +264,29 @@ public partial class EventFormViewModel :
             vm.SelectedLocations.Select(loc => loc.Id).ToImmutableArray(),
             vm.SelectedCustomLocations.Select(loc => loc.Id).ToImmutableArray()
         );
+
+    [RelayCommand]
+    public void Approve()
+    {
+        ApproveRequested?.Invoke(this, EventArgs.Empty);
+        IsPending = false;
+        IsDeleted = false;
+    }
+
+    [RelayCommand]
+    public void Reject()
+    {
+        DeleteRequested?.Invoke(this, EventArgs.Empty);
+        IsDeleted = true;
+        IsPending = false;
+    }
+
+    [RelayCommand]
+    public void ApproveRoom()
+    {
+        ApproveRoomRequested?.Invoke(this, EventArgs.Empty);
+        NeedsRoomApproval = false;
+    }
 
     [RelayCommand]
     public void ClearLeader()
@@ -700,9 +773,9 @@ public partial class EventFormViewModel :
             Summary = model.summary,
             Description = model.description,
             Type = EventTypeViewModel.Get(model.type),
-            StartDate = model.start.Date,
+            StartDate = model.start,
             StartTime = TimeOnly.FromDateTime(model.start).ToTimeSpan(),
-            EndDate = model.end.Date,
+            EndDate = model.end,
             EndTime = TimeOnly.FromDateTime(model.end).ToTimeSpan(),
             Creator = UserViewModel.Get(registrar.AllUsers.First(u => u.id == model.creatorId)),
             AttendeeCount = model.attendeeCount,
@@ -716,7 +789,12 @@ public partial class EventFormViewModel :
             IsCreating = model.status.Equals("creating", StringComparison.InvariantCultureIgnoreCase),
             IsUpdating = model.status.Equals("updating", StringComparison.InvariantCultureIgnoreCase),
             CanEditCatering = model.start > DateTime.Today.AddDays(14),
-            Model = OptionalStruct<EventFormBase>.Some(model)
+            Model = OptionalStruct<EventFormBase>.Some(model),
+            UserIsAdmin = IsAdmin,
+            UserIsRegistrar = IsRegistrar,
+            IsPending = model.status == ApprovalStatusLabel.Pending,
+            IsDeleted = model.status == ApprovalStatusLabel.Withdrawn || model.status == ApprovalStatusLabel.Declined,
+            NeedsRoomApproval = model.status == ApprovalStatusLabel.RoomNotCleared
         };
 
         vm.CanEditBase = vm.IsCreating || vm.IsUpdating;

@@ -470,7 +470,7 @@ namespace WinsorApps.Services.Global.Services
                 getEmployees,
                 acad);
 
-            var roles = await Me.GetRoles(_api);
+            MyRoles = await Me.GetRoles(_api);
 
             Progress = 1;
             Ready = true;
