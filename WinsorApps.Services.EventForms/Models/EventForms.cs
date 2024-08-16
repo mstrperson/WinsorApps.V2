@@ -41,6 +41,29 @@ public readonly record struct ApprovalStatusLabel
     }
 }
 
+public readonly record struct EventType
+{
+    public static readonly EventType Default = new("Default");
+    public static readonly EventType Rental = new("Rental");
+    public static readonly EventType FieldTrip = new("Field Trip");
+    public static readonly EventType VirtualEvent = new("Virtual Event");
+
+    public static implicit operator string(EventType type) => type._type;
+    public static implicit operator EventType(string str) =>
+        str.ToLowerInvariant().Replace('-', ' ').Trim() switch
+        {
+            "default" => Default,
+            "rental" => Rental,
+            "field trip" => FieldTrip,
+            "virtual event" => VirtualEvent,
+            _ => throw new InvalidCastException($"{str} is not a valid event type.")
+        };
+
+    private readonly string _type;
+
+    private EventType(string type) => _type = type;
+}
+
 public readonly record struct Location(string id, string label, string type);
 
 

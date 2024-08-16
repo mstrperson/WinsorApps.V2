@@ -900,7 +900,7 @@ public partial class EventTypeViewModel :
     ICachedViewModel<EventTypeViewModel, string, EventFormsService>,
     ISelectable<EventTypeViewModel>
 {
-    public string Type { get; init; } = "";
+    public EventType Type { get; init; }
 
     [ObservableProperty] bool isSelected;
     

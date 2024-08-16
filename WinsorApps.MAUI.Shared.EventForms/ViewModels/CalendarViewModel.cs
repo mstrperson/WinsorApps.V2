@@ -22,6 +22,12 @@ public partial class CalendarViewModel :
     /// </summary>
     public required Func<DateTime, IEnumerable<EventFormBase>> MonthlyEventSource;
 
+    public void ApplyFilter(Func<EventFormViewModel, bool> filter)
+    {
+        foreach(var week in Weeks)
+            week.ApplyFilter(filter);
+    }
+
     [RelayCommand]
     public void LoadEvents()
     {
@@ -31,6 +37,20 @@ public partial class CalendarViewModel :
         {
             Weeks.Add(new(sunday, events));
         }
+    }
+
+    [RelayCommand]
+    public void IncrementMonth()
+    {
+        Month = Month.AddMonths(1);
+        LoadEvents();
+    }
+
+    [RelayCommand]
+    public void DecrementMonth()
+    {
+        Month = Month.AddMonths(-1);
+        LoadEvents();
     }
 }
 
