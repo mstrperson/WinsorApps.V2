@@ -1,21 +1,21 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.Global;
+using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.Shared.EventForms.ViewModels;
 
 public partial class CalendarViewModel :
     ObservableObject
 {
+    private readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
+
     [ObservableProperty] ObservableCollection<CalendarWeekViewModel> weeks = [];
     [ObservableProperty] DateTime month;
+
+    public event EventHandler<EventFormViewModel>? EventSelected;
 
     /// <summary>
     /// Event source that returns a collection of events that are in the provided Month. 
@@ -29,28 +29,33 @@ public partial class CalendarViewModel :
     }
 
     [RelayCommand]
-    public void LoadEvents()
+    public async Task LoadEvents() => await Task.Run(() =>
     {
+        using DebugTimer _ = new($"Loading Calendar Events for {Month:MMMM yyyy}", _logging);
         var events = EventFormViewModel.GetClonedViewModels(MonthlyEventSource(Month));
+        foreach (var evt in events)
+            evt.Selected += (_, _) => EventSelected?.Invoke(this, evt);
+
+        Weeks = [];
         var firstCalendarDay = new DateTime(Month.Year, Month.Month, 1).MondayOf().AddDays(-1);
-        for(DateTime sunday = firstCalendarDay; sunday.Month <= Month.Month; sunday = sunday.AddDays(7))
+        for (DateTime sunday = firstCalendarDay; sunday.Month <= Month.Month; sunday = sunday.AddDays(7))
         {
             Weeks.Add(new(sunday, events));
         }
-    }
+    });
 
     [RelayCommand]
-    public void IncrementMonth()
+    public async Task IncrementMonth()
     {
         Month = Month.AddMonths(1);
-        LoadEvents();
+        await LoadEvents();
     }
 
     [RelayCommand]
-    public void DecrementMonth()
+    public async Task DecrementMonth()
     {
         Month = Month.AddMonths(-1);
-        LoadEvents();
+        await LoadEvents();
     }
 }
 

@@ -7,7 +7,6 @@ using WinsorApps.MAUI.EventsAdmin.Pages;
 using WinsorApps.MAUI.EventsAdmin.ViewModels;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.EventForms;
-using WinsorApps.MAUI.Shared.EventForms.ViewModels;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Services;
 using WinsorApps.Services.EventForms.Services.Admin;
@@ -42,7 +41,8 @@ namespace WinsorApps.MAUI.EventsAdmin
 
             builder.Services.AddSingleton<EventListPageViewModel>();
             builder.Services.AddSingleton<EventListPage>();
-
+            builder.Services.AddSingleton<AdminCalendarViewModel>();
+            builder.Services.AddSingleton<MonthlyCalendar>();
 
 #if DEBUG
             builder.Logging.AddDebug();
@@ -67,12 +67,13 @@ namespace WinsorApps.MAUI.EventsAdmin
                 new(ServiceHelper.GetService<CateringMenuService>(), "Catering Menu Service")
             ];
 
+            /*
             var admin = ServiceHelper.GetService<EventsAdminService>();
             admin.OnCacheRefreshed += (_, _) =>
             {
-                EventFormViewModel.ResetCache(admin.AllEvents.Values);
+                EventFormViewModel.ResetCache(admin.AllEvents);
             };
-
+            */
             logging.LogMessage(LocalLoggingService.LogLevel.Information, "App Built Successfully!");
             return app;
         }

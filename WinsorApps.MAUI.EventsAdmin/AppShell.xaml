@@ -17,6 +17,12 @@
         Title="Events List"
         ContentTemplate="{DataTemplate pages:EventListPage}"
         Route="EventListPage" />
+
+    <ShellContent
+        Title="Master Calendar"
+        ContentTemplate="{DataTemplate pages:MonthlyCalendar}"
+        Route="MonthlyCalendar" />
+    
     <ShellContent
         Title="Help"
         ContentTemplate="{DataTemplate shared:HelpPage}"

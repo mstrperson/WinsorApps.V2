@@ -1,18 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
-using WinsorApps.MAUI.Shared.EventForms.ViewModels;
-using WinsorApps.Services.Global;
 using WinsorApps.Services.EventForms.Services.Admin;
 using System.Collections.Immutable;
 
@@ -65,17 +58,22 @@ public partial class EventListPageViewModel :
     {
         await _admin.WaitForInit(onError);
 
-        LoadEvents([.. _admin.AllEvents.Values]);
+        LoadEvents([.. _admin.AllEvents]);
         _admin.OnCacheRefreshed += (_, _) => 
-            LoadEvents([.. _admin.AllEvents.Values]);
+            LoadEvents([.. _admin.AllEvents]);
     }
 
     public void LoadEvents(ImmutableArray<EventFormBase> events)
     {
         Busy = true;
         BusyMessage = "Loading Events.";
-        AllEvents = [.. events.OrderBy(evt => evt.start)]; 
-        
+
+        var diff = events.Where(evt => AllEvents.All(af => !af.Form.Model.Map(e => e.IsSameAs(evt)).Reduce(true))).ToImmutableArray();
+        var updates = AllEvents.Where(af => diff.Any(evt => af.Form.Model.Map(e => e.id == evt.id).Reduce(false))).ToImmutableArray();
+
+
+        AllEvents = [..  AllEvents.Except(updates), .. diff]; 
+        AllEvents = [.. AllEvents.OrderBy(evt => evt.Form.StartDate) ];
         TwoWeekList = [.. AllEvents.Where(evt => 
                evt.Form.StartDate >= Start 
             && evt.Form.EndDate <= End
@@ -119,11 +117,18 @@ public partial class EventListPageViewModel :
     private static string[] SpecificStates = [ApprovalStatusLabel.Pending, ApprovalStatusLabel.Approved, ApprovalStatusLabel.RoomNotCleared];
 
     [RelayCommand]
-    public void NextPage()
+    public async Task NextPage()
     {
+        Busy = true;
+        BusyMessage = "Loading Events...";
         Start = Start.AddDays(14);
         End = Start.AddDays(14);
-        ReloadLists();
+        if (End > _admin.CacheEndDate)
+            _ = await _admin.GetAllEvents(OnError.DefaultBehavior(this), Start, End);
+        else
+            ReloadLists();
+
+        Busy = false;
     }
 
     private void ReloadLists()
@@ -142,11 +147,17 @@ public partial class EventListPageViewModel :
     }
 
     [RelayCommand]
-    public void PreviousPage()
+    public async Task PreviousPage()
     {
+        Busy = true;
+        BusyMessage = "Loading Events";
         Start = Start.AddDays(-14);
         End = Start.AddDays(14);
-        ReloadLists();
+        if (Start < _admin.CacheStartDate)
+            _ = await _admin.GetAllEvents(OnError.DefaultBehavior(this), Start, End);
+        else
+            ReloadLists();
+        Busy = false;
     }
 
     [RelayCommand]

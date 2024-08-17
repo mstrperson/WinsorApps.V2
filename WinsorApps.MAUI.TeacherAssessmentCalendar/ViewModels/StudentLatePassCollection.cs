@@ -7,7 +7,6 @@ using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.AssessmentCalendar.Models;
 using WinsorApps.Services.AssessmentCalendar.Services;
 using WinsorApps.Services.Global.Models;
-using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.TeacherAssessmentCalendar.ViewModels;
 

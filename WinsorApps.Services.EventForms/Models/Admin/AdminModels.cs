@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WinsorApps.Services.EventForms.Models.Admin;
+﻿namespace WinsorApps.Services.EventForms.Models.Admin;
 
 
 public readonly record struct EventApprovalStatusRecord(string eventId, string status,

@@ -1,18 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WinsorApps.Services.Global.Services;
-using WinsorApps.Services.EventForms;
+﻿using WinsorApps.Services.Global.Services;
 using WinsorApps.Services.EventForms.Models;
-using WinsorApps.Services.EventForms.Services;
 using System.Collections.Immutable;
-using System.Collections.Concurrent;
 using WinsorApps.Services.Global;
-using AsyncAwaitBestPractices;
 using WinsorApps.Services.EventForms.Models.Admin;
 using System.Text.Json;
+using System.Diagnostics;
 
 namespace WinsorApps.Services.EventForms.Services.Admin;
 
@@ -33,10 +25,13 @@ public partial class EventsAdminService :
         _logging = logging;
     }
 
-    public ConcurrentDictionary<string, EventFormBase> AllEvents { get; protected set; } = [];
+    public DateTime CacheStartDate { get; private set; }
+    public DateTime CacheEndDate { get; private set; }
 
-    public ImmutableArray<EventFormBase> PendingEvents => [.. AllEvents.Values.Where(evt => evt.status == ApprovalStatusLabel.Pending)];
-    public ImmutableArray<EventFormBase> WaitingForRoom => [.. AllEvents.Values.Where(evt => evt.status == ApprovalStatusLabel.RoomNotCleared)];
+    public ImmutableArray<EventFormBase> AllEvents { get; protected set; } = [];
+
+    public ImmutableArray<EventFormBase> PendingEvents => [.. AllEvents.Where(evt => evt.status == ApprovalStatusLabel.Pending)];
+    public ImmutableArray<EventFormBase> WaitingForRoom => [.. AllEvents.Where(evt => evt.status == ApprovalStatusLabel.RoomNotCleared)];
 
 
     public bool Started { get; protected set; }
@@ -58,11 +53,15 @@ public partial class EventsAdminService :
             await Task.Delay(100);
         Started = true;
 
-        var schoolyear = _registrar.SchoolYears.First(sy => sy.startDate <= DateOnly.FromDateTime(DateTime.Today) && sy.endDate >= DateOnly.FromDateTime(DateTime.Today));
-        var result = await GetAllEvents(onError, schoolyear.startDate.ToDateTime(default), schoolyear.endDate.ToDateTime(default));
-        Progress = 0.5;
-        AllEvents = new(result.Select(evt => new KeyValuePair<string, EventFormBase>(evt.id, evt)));
-
+        var start = DateTime.Today.MonthOf().MondayOf();
+        var end = start.AddMonths(1).MondayOf().AddDays(6);
+        CacheStartDate = DateTime.Today;
+        CacheEndDate = DateTime.Today;
+        _ = await GetAllEvents(onError, start, end);
+        Progress = 0.33;
+        _ = await GetPendingEventsAsync(onError);
+        Progress = 0.66;
+        _ = await GetRoomPendingEvents(onError);
         Progress = 1;
         Ready = true;
         _lastUpdated = DateTime.Now;
@@ -75,14 +74,25 @@ public partial class EventsAdminService :
         var result = await _api.SendAsync<ImmutableArray<EventFormBase>?>(HttpMethod.Get, $"api/events/admin/delta?since={_lastUpdated:yyyy-MM-dd HH:mm:ss}", onError: onError);
         if(result.HasValue && result.Value.Length > 0)
         {
-            foreach(var evt in result.Value)
-            {
-                AllEvents.AddOrUpdate(evt.id, evt, (id, evt) => evt);
-            }
-
+            ComputeChangesAndUpdates(result.Value);   
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
         _lastUpdated = DateTime.Now;
+    }
+
+    private void ComputeChangesAndUpdates(ImmutableArray<EventFormBase> incoming)
+    {
+        using DebugTimer _ = new("Computing Changes and Updates", _logging);
+        var newEvents = incoming.Where(evt => AllEvents.All(existing => existing.id != evt.id)).ToImmutableArray();
+        Debug.WriteLine($"{newEvents.Length} are not cached events.");
+
+        var changes = incoming.Except(newEvents).Where(evt => AllEvents.All(existing => !existing.IsSameAs(evt))).ToImmutableArray();
+        Debug.WriteLine($"{changes.Length} Events that are different.");
+
+        var toReplace = AllEvents.Where(evt => changes.Any(update => update.id == evt.id)).ToImmutableArray();
+
+        AllEvents = [.. AllEvents.Except(toReplace).Union(changes).Union(newEvents)];
+        OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
     }
 
     public async Task WaitForInit(ErrorAction onError)
@@ -95,8 +105,9 @@ public partial class EventsAdminService :
     {
         var result = await _api.SendAsync<ImmutableArray<EventFormBase>?>(HttpMethod.Get, "api/events/admin/pending-events", onError: onError);
         if(result.HasValue)
-            foreach (var evt in result.Value)
-                AllEvents.AddOrUpdate(evt.id, evt, (id, e) => e);
+        {
+            ComputeChangesAndUpdates(result.Value);
+        }
         return result ?? [];
     }
 
@@ -109,8 +120,22 @@ public partial class EventsAdminService :
 
     public async Task<ImmutableArray<EventFormBase>> GetAllEvents(ErrorAction onError, DateTime start, DateTime end)
     {
+        if (end < CacheStartDate)
+            end = CacheStartDate;
+
+        if(start > CacheEndDate)
+            start = CacheEndDate;
+
+        if (CacheStartDate > start)
+            CacheStartDate = start;
+
         var result = await _api.SendAsync<ImmutableArray<EventFormBase>?>(HttpMethod.Get,
             $"api/events/admin/all-events?start={start:yyyy-MM-dd}&end={end:yyyy-MM-dd}", onError: onError);
+
+        if (result.HasValue)
+        {
+            ComputeChangesAndUpdates(result.Value);
+        }
 
         return result ?? [];
     }
@@ -120,8 +145,7 @@ public partial class EventsAdminService :
         var result = await _api.SendAsync<EventFormBase?>(HttpMethod.Get, $"api/events/{eventId}/approve", onError: onError);
         if(result.HasValue)
         {
-            AllEvents.AddOrUpdate(result.Value.id, result.Value, (id, e) => e);
-            OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
+            ComputeChangesAndUpdates([result.Value]);
             _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"{result.Value.summary} - {result.Value.start:yyyy-MM-dd} was approved.");
             return OptionalStruct<EventFormBase>.Some(result.Value);
         }
@@ -133,7 +157,7 @@ public partial class EventsAdminService :
         var result = await _api.SendAsync<EventFormBase?>(HttpMethod.Get, $"api/events/{eventId}/decline", onError: onError);
         if (result.HasValue)
         {
-            AllEvents.AddOrUpdate(result.Value.id, result.Value, (id, e) => e);
+            ComputeChangesAndUpdates([result.Value]);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
             _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"{result.Value.summary} - {result.Value.start:yyyy-MM-dd} was declined.");
             return OptionalStruct<EventFormBase>.Some(result.Value);
@@ -144,7 +168,7 @@ public partial class EventsAdminService :
 
     public async Task SendNote(string eventId, CreateApprovalNote note, ErrorAction onError)
     {
-        var evt = AllEvents[eventId];
+        var evt = AllEvents.FirstOrDefault(evt=> evt.id == eventId);
         await _api.SendAsync(HttpMethod.Post, $"api/events/{eventId}/approve", JsonSerializer.Serialize(note), onError: onError);
         _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Note submitted to event {evt.summary} - {evt.start:yyyy-MM-dd}.");
     }

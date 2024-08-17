@@ -2,7 +2,6 @@
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
-using System.Text.RegularExpressions;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.Bookstore.ViewModels;
 using WinsorApps.MAUI.Shared.ViewModels;

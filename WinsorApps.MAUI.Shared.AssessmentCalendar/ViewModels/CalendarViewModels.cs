@@ -1,13 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
-using System.Globalization;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.AssessmentCalendar.Models;
 using WinsorApps.Services.AssessmentCalendar.Services;
 using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WinsorApps.MAUI.Shared.AssessmentCalendar.ViewModels;
 

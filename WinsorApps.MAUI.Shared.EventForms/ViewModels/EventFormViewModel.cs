@@ -760,7 +760,7 @@ public partial class EventFormViewModel :
 
     public static EventFormViewModel Get(EventFormBase model)
     {
-        var vm = ViewModelCache.FirstOrDefault(evt => evt.Id == model.id);
+        var vm = ViewModelCache.FirstOrDefault(evt => evt.Model.Map(e => e.id == evt.Id).Reduce(false));
         if (vm is not null)
             return vm.Clone();
 
@@ -885,7 +885,7 @@ public partial class EventTypeSelectionViewModel :
     [RelayCommand]
     public void Select(string type)
     {
-        var vm = Types.FirstOrDefault(t => t.Type.Equals(type, StringComparison.InvariantCultureIgnoreCase));
+        var vm = Types.FirstOrDefault(t => ((string)t.Type).Equals(type, StringComparison.InvariantCultureIgnoreCase));
         if (vm is not null)
         {
             Selected = vm;

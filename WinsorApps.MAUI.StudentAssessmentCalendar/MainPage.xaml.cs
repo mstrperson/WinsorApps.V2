@@ -1,8 +1,6 @@
 ﻿using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.Pages;
 using WinsorApps.MAUI.Shared.ViewModels;
-using WinsorApps.MAUI.StudentAssessmentCalendar.Pages;
-using WinsorApps.MAUI.StudentAssessmentCalendar.ViewModels;
 using WinsorApps.Services.AssessmentCalendar.Services;
 using WinsorApps.Services.Global.Services;
 

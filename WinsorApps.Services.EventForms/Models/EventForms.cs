@@ -17,7 +17,7 @@ public readonly record struct ApprovalStatusLabel
     public static readonly ApprovalStatusLabel RoomNotCleared = new("Room Not Cleared");
     public static readonly ApprovalStatusLabel Draft = new("Draft");
     public static readonly ApprovalStatusLabel Creating = new("Creating");
-    public static readonly ApprovalStatusLabel Updating = new("Approved");
+    public static readonly ApprovalStatusLabel Updating = new("Updating");
 
     public static implicit operator string(ApprovalStatusLabel label) => label._label;
     public static implicit operator ApprovalStatusLabel(string label) => label.ToLowerInvariant() switch
@@ -103,6 +103,31 @@ public readonly record struct EventFormBase(string id, string summary, string de
         bool hasFacilitiesInfo = false, bool hasTechRequest = false, bool hasCatering = false, bool hasTheaterRequest = false, bool hasFieldTripInfo = false,
         bool hasZoom = false, bool hasMarCom = false)
 {
+
+    public bool IsSameAs(EventFormBase b)
+    {
+        if(id != b.id) return false;
+
+        var result = summary.Equals(b.summary, StringComparison.InvariantCultureIgnoreCase)
+            && description.Equals(b.description, StringComparison.InvariantCultureIgnoreCase)
+            && type.Equals(b.type, StringComparison.InvariantCultureIgnoreCase)
+            && status.Equals(b.status, StringComparison.InvariantCultureIgnoreCase)
+            && start == b.start
+            && attendeeCount == b.attendeeCount
+            && (selectedLocations ?? []).SequenceEqual(b.selectedLocations ?? [])
+            && (selectedCustomLocations ?? []).SequenceEqual(b.selectedCustomLocations ?? [])
+            && hasFacilitiesInfo == b.hasFacilitiesInfo
+            && hasCatering == b.hasCatering
+            && hasFieldTripInfo == b.hasFieldTripInfo
+            && hasTechRequest == b.hasTechRequest
+            && hasZoom == b.hasZoom
+            && hasMarCom == b.hasMarCom
+            && hasTheaterRequest == b.hasTheaterRequest;
+
+        return result;
+    }
+
+
     public static EventFormBase Empty => new("", "", "", "", "", default, default, "", "", default, 0, "", [], [], [], false, false, false, false, false, false, false);
 }
 
