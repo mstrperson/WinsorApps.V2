@@ -12,8 +12,8 @@ using WinsorApps.Services.Helpdesk.Services;
 namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices;
 
 public partial class DeviceViewModel : 
-    ObservableObject, 
-    IEmptyViewModel<DeviceViewModel>, 
+    ObservableObject,
+    IDefaultValueViewModel<DeviceViewModel>,
     ISelectable<DeviceViewModel>,
     IErrorHandling,
     ICachedViewModel<DeviceViewModel, DeviceRecord, DeviceService>
@@ -23,6 +23,8 @@ public partial class DeviceViewModel :
     public override string ToString() => DisplayName;
     public static ConcurrentBag<DeviceViewModel> ViewModelCache { get; private set; } = [];
 
+    public static DeviceViewModel Empty => new();
+
     public DeviceViewModel Clone() => (DeviceViewModel)this.MemberwiseClone();
 
     protected readonly DeviceService _deviceService;
@@ -30,7 +32,7 @@ public partial class DeviceViewModel :
 
     [ObservableProperty] private string id;
     [ObservableProperty] private string serialNumber;
-    [ObservableProperty] private UserViewModel owner = IEmptyViewModel<UserViewModel>.Empty;
+    [ObservableProperty] private UserViewModel owner = UserViewModel.Empty;
     [ObservableProperty] private bool unicorn;
     [ObservableProperty] private DateTime firstSeen;
     [ObservableProperty] private bool isActive;

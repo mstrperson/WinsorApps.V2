@@ -11,7 +11,6 @@ using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.Pages;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Global;
-using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 using WinsorApps.Services.Helpdesk.Services;
 

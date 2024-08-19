@@ -13,8 +13,8 @@ public partial class TeacherAssessmentService
         await _api.SendAsync<ImmutableArray<StudentLateWorkCollection>>(HttpMethod.Get, $"api/assessment-calendar/late-work/advisees?includeResolved={includeResolved}",
             onError: onError);
 
-    public async Task<StudentLateWorkCollection?> GetStudentLateWork(ErrorAction onError, string studentId, bool includeResolved = false) =>
-        await _api.SendAsync<StudentLateWorkCollection?>(HttpMethod.Get, $"api/assessment-calendar/late-work/student/{studentId}?includeResolved={includeResolved}",
+    public async Task<ImmutableArray<LateWorkDetails>?> GetStudentLateWork(ErrorAction onError, string studentId, bool includeResolved = false) =>
+        await _api.SendAsync<ImmutableArray<LateWorkDetails>?>(HttpMethod.Get, $"api/assessment-calendar/late-work/student/{studentId}?includeResolved={includeResolved}",
             onError: onError);
 
     public async Task<LateWorkByStudentCollection?> PostNewLateAssessment(ErrorAction onError, string assessmentId, NewLateWork lateWork) =>

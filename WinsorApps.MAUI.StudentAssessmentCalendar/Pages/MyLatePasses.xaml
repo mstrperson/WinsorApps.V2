@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.StudentAssessmentCalendar.ViewModels"
+             xmlns:svm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels;assembly=WinsorApps.MAUI.Shared"
+             xmlns:cvm="clr-namespace:WinsorApps.MAUI.Shared.AssessmentCalendar.ViewModels;assembly=WinsorApps.MAUI.Shared.AssessmentCalendar"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             x:DataType="vm:LatePassCollectionViewModel"
+             x:Class="WinsorApps.MAUI.StudentAssessmentCalendar.Pages.MyLatePasses"
+             Title="My Late Passes">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem
+            StyleClass="RefreshButton"
+            Command="{Binding RefreshCommand}" />
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <Grid
+            RowDefinitions="*"
+            ColumnDefinitions="900,900"
+            HorizontalOptions="Center">
+            <CollectionView
+                ItemsSource="{Binding AvailablePasses}"
+                BackgroundColor="Transparent"
+                Grid.Column="0">
+                <CollectionView.Header>
+                    <StackLayout>
+                        <Label
+                            Text="Available Late Passes:" 
+                            StyleClass="Header"
+                            TextDecorations="Underline"/>
+                    </StackLayout>
+                </CollectionView.Header>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="svm:SectionViewModel">
+                        <HorizontalStackLayout
+                            Spacing="30">
+                            <Label
+                                StyleClass="H3"
+                                Text="{Binding DisplayName}" />
+                            <Label
+                                StyleClass="H3"
+                                Text="{Binding Block}" />
+                            <Label
+                                StyleClass="H3"
+                                Text="{Binding PrimaryTeacher.DisplayName}" />
+                        </HorizontalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            <BoxView StyleClass="Bar" HeightRequest="3"/>
+            <CollectionView
+                ItemsSource="{Binding MyLatePasses}"
+                BackgroundColor="Transparent"
+                Grid.Column="1">
+                <CollectionView.Header>
+                    <StackLayout>
+                        <Label
+                            Text="Submitted Late Passes:"
+                            StyleClass="Header"
+                            TextDecorations="Underline"/>
+                    </StackLayout>
+                </CollectionView.Header>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="cvm:LatePassViewModel">
+                        <VerticalStackLayout
+                            ToolTipProperties.Text="{Binding Note}"
+                            Margin="0"
+                            Padding="0">
+                            <VerticalStackLayout.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding LoadAssessmentCommand}" />
+                            </VerticalStackLayout.GestureRecognizers>
+                            <HorizontalStackLayout
+                                Spacing="30">
+                                <Label
+                                    Text="{Binding CourseName}"
+                                    StyleClass="H3"
+                                    WidthRequest="300"/>
+                                <Label
+                                    StyleClass="H3"
+                                    Text="{Binding DateAndTime,StringFormat='{0:ddd dd MMMM}'}" />
+                            </HorizontalStackLayout>
+                            <Label
+                                StyleClass="H3"
+                                Text="{Binding Note}"
+                                Margin="5,-10,0,0"/>
+                            <HorizontalStackLayout
+                                Spacing="30"
+                                HorizontalOptions="End">
+                                <Label
+                                    Text="Submitted:" 
+                                    StyleClass="H3"/>
+                                <Label
+                                    StyleClass="H3"
+                                    Text="{Binding Timestamp, StringFormat='{0:ddd dd MMMM - hh:mm tt}'}" />
+                            </HorizontalStackLayout>
+                            <BoxView StyleClass="Bar"/>
+                        </VerticalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

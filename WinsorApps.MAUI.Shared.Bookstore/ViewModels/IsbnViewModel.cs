@@ -11,12 +11,14 @@ using WinsorApps.Services.Global.Services;
 namespace WinsorApps.MAUI.Shared.Bookstore.ViewModels;
 
 public partial class IsbnViewModel : 
-    ObservableObject, 
-    IEmptyViewModel<IsbnViewModel>,
-    ICachedViewModel<IsbnViewModel, ISBNInfo, BookService>
+    ObservableObject,
+    IDefaultValueViewModel<IsbnViewModel>,
+    ICachedViewModel<IsbnViewModel, ISBNInfo, BookService>,
+    ISelectable<IsbnViewModel>
 {
     public event EventHandler<OdinDataViewModel>? OdinUpdateRequested;
     public event EventHandler<IsbnViewModel>? IsbnUpdateRequested;
+    public event EventHandler<IsbnViewModel>? Selected;
 
     [ObservableProperty] bool editable = true;
      
@@ -25,20 +27,26 @@ public partial class IsbnViewModel :
     [ObservableProperty] BookBindingViewModel binding = new("Hardcover");
 
     [ObservableProperty] bool available = true;
+    [ObservableProperty] bool isSelected;
 
     public string AvailableString => Available ? "Available" : "Not Available";
 
     public static ConcurrentBag<IsbnViewModel> ViewModelCache { get; private set; } = [];
 
+    public static IsbnViewModel Empty => new();
+
+
     [ObservableProperty] string displayName = "";
 
     [ObservableProperty] bool hasOdinData = false;
 
-    [ObservableProperty] OdinDataViewModel currentOdinData = IEmptyViewModel<OdinDataViewModel>.Empty;
+    [ObservableProperty] OdinDataViewModel currentOdinData = OdinDataViewModel.Empty;
 
     [ObservableProperty] ImmutableArray<string> bindingOptions = [];
 
     [ObservableProperty] string bookId = "";
+
+    [ObservableProperty] BookInfoViewModel book = new();
 
     public IsbnViewModel(ISBNInfo info)
     {
@@ -55,6 +63,39 @@ public partial class IsbnViewModel :
             FetchOdinData().SafeFireAndForget();
         BookService? bookService = ServiceHelper.GetService<BookService>();
         bindingOptions = bookService?.BookBindings.Select(b => $"{b}").ToImmutableArray() ?? [];
+        
+    }
+
+    private IsbnViewModel(string isbn)
+    {
+        editable = true;
+        Isbn = isbn;
+        binding = new("Hardcover");
+        available = true;
+        hasOdinData = false;
+        displayName = "";
+        currentOdinData = new();
+        CurrentOdinData.UpdateRequested += (sender, e) =>
+            OdinUpdateRequested?.Invoke(this, (OdinDataViewModel)sender!);
+        BookService? bookService = ServiceHelper.GetService<BookService>();
+        bindingOptions = bookService?.BookBindings.Select(b => $"{b}").ToImmutableArray() ?? [];
+
+        LoadBookDetails();
+    }
+
+    [RelayCommand]
+    public void LoadBookDetails()
+    {
+        var bookService = ServiceHelper.GetService<BookService>();
+
+        var book = bookService.BooksCache.FirstOrDefault(bk => bk.isbns.Any(item => item.isbn == Isbn));
+
+        var isbn = book.isbns.FirstOrDefault(item => item.isbn == Isbn);
+
+        Binding = new(isbn.binding);
+        DisplayName = $"{Isbn} [{Binding}]";
+
+        Book = new(book);
     }
 
     public IsbnViewModel()
@@ -177,10 +218,23 @@ public partial class IsbnViewModel :
         var vm = ViewModelCache.FirstOrDefault(i => i.Isbn == isbn);
         if (vm is null)
         {
-            return new() { Isbn = isbn };
+            vm = new(isbn);
         }
 
         return vm;
+    }
+
+    public static IsbnViewModel Get(ISBNDetail model)
+    {
+        var vm = ViewModelCache.FirstOrDefault(isbn => isbn.Isbn == model.isbn);
+        if (vm is null)
+        {
+            vm = new(new ISBNInfo(model.isbn, model.binding, true, model.odinData.HasValue));
+            ViewModelCache.Add(vm);
+        }
+        var output = vm.Clone();
+        output.Book = new(model.bookInfo);
+        return output;
     }
 
     public static IsbnViewModel Get(ISBNInfo model)
@@ -190,13 +244,24 @@ public partial class IsbnViewModel :
         {
             vm = new(model);
             ViewModelCache.Add(vm);
+
+            var bookService = ServiceHelper.GetService<BookService>();
+            var book = bookService.BooksCache.FirstOrDefault(bk=>bk.isbns.Any(isbn => isbn.isbn == model.isbn));
+            vm.Book = new(book);
         }
         return vm.Clone();
     }
 
     public IsbnViewModel Clone() => (IsbnViewModel)MemberwiseClone();
+
+    [RelayCommand]
+    public void Select()
+    {
+        IsSelected = !IsSelected;
+        Selected?.Invoke(this, this);
+    }
 }
-public partial class OdinDataViewModel : ObservableObject
+public partial class OdinDataViewModel : ObservableObject, IDefaultValueViewModel<OdinDataViewModel>
 {
     private OdinData? data;
 
@@ -217,14 +282,16 @@ public partial class OdinDataViewModel : ObservableObject
         set => Cost = value.ConvertToCurrency();
     }
 
+    public static OdinDataViewModel Empty => new();
+
     [ObservableProperty]
-    bool? isCurrent;
+    bool isCurrent;
 
     public OdinDataViewModel()
     {
         plu = "";
         cost = 0;
-        isCurrent = null;
+        isCurrent = false;
     }
     public OdinDataViewModel(OdinData data)
     {

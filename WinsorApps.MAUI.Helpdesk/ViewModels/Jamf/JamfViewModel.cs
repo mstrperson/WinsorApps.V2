@@ -9,7 +9,7 @@ using WinsorApps.Services.Helpdesk.Services;
 
 namespace WinsorApps.MAUI.Helpdesk.ViewModels.Jamf;
 
-public partial class JamfViewModel : ObservableObject, IEmptyViewModel<JamfViewModel>, ISelectable<JamfViewModel>, IErrorHandling
+public partial class JamfViewModel : ObservableObject, IDefaultValueViewModel<JamfViewModel>, ISelectable<JamfViewModel>, IErrorHandling
 {
     private readonly JamfService _jamf;
 
@@ -78,9 +78,11 @@ public partial class JamfViewModel : ObservableObject, IEmptyViewModel<JamfViewM
     [ObservableProperty] private string serialNumber = "";
     [ObservableProperty] private Department department;
     [ObservableProperty] private string model = "";
-    [ObservableProperty] private UserViewModel user = IEmptyViewModel<UserViewModel>.Empty;
+    [ObservableProperty] private UserViewModel user = UserViewModel.Empty;
     [ObservableProperty] private JamfDeviceType type = JamfDeviceType.Computer;
     [ObservableProperty] private bool isSelected;
+
+    public static JamfViewModel Empty => new();
 
     [RelayCommand]
     public void Select()
@@ -106,7 +108,7 @@ public partial class JamfViewModel : ObservableObject, IEmptyViewModel<JamfViewM
     }
 }
 
-public partial class InventoryPreloadViewModel : ObservableObject, IEmptyViewModel<InventoryPreloadViewModel>, ISelectable<InventoryPreloadViewModel>, IErrorHandling
+public partial class InventoryPreloadViewModel : ObservableObject, IDefaultValueViewModel<InventoryPreloadViewModel>, ISelectable<InventoryPreloadViewModel>, IErrorHandling
 {
     private readonly JamfService _jamf;
 
@@ -114,11 +116,13 @@ public partial class InventoryPreloadViewModel : ObservableObject, IEmptyViewMod
 
     [ObservableProperty] private string id = "";
     [ObservableProperty] private string serialNumber = "";
-    [ObservableProperty] private UserViewModel owner = IEmptyViewModel<UserViewModel>.Empty;
+    [ObservableProperty] private UserViewModel owner = UserViewModel.Empty;
     [ObservableProperty] private string department = "";
     [ObservableProperty] private string assetTag = "";
     [ObservableProperty] private JamfDeviceType type = JamfDeviceType.Computer;
     [ObservableProperty] private bool isSelected;
+
+    public static InventoryPreloadViewModel Empty => new();
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<UserViewModel>? OnUserSelected;

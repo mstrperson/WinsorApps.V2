@@ -46,7 +46,7 @@
         <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
         <GenerateTestArtifacts>True</GenerateTestArtifacts>
         <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
-        <BaseOutputPath>C:\Users\jcox\Documents\Helpdesk App</BaseOutputPath>
+        <BaseOutputPath></BaseOutputPath>
         <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
         <Title>Winsor Helpdesk</Title>
         <Authors>Jason Cox</Authors>
@@ -57,7 +57,9 @@
 
     <ItemGroup>
         <!-- App Icon -->
-        <MauiIcon Include="Resources\AppIcon\icon.png" />
+        <MauiIcon Include="Resources\AppIcon\appicon.svg">
+          <ForegroundFile>Resources\AppIcon\appiconfg.svg</ForegroundFile>
+        </MauiIcon>
 
         <!-- Splash Screen -->
         <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
@@ -74,11 +76,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="CommunityToolkit.Maui.Core" Version="9.0.1" />
+        <PackageReference Include="CommunityToolkit.Maui.Core" Version="9.0.2" />
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
         <PackageReference Include="CoxProgramming.CSV" Version="1.1.0" />
-        <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.40" />
-        <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.40" />
+        <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.70" />
+        <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.70" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
     </ItemGroup>
 
@@ -128,6 +130,21 @@
       <MauiXaml Update="Pages\ServiceCase\ServiceCaseSearchPage.xaml">
         <Generator>MSBuild:Compile</Generator>
       </MauiXaml>
+      <MauiXaml Update="Resources\Styles\ButtonStyles.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Resources\Styles\ImageStyles.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Resources\Styles\LabelStyles.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Resources\Styles\SignifierLabels.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Resources\Styles\ToolbarItemStyles.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
       <MauiXaml Update="Views\CommonIssueCheckListView.xaml">
         <Generator>MSBuild:Compile</Generator>
       </MauiXaml>
@@ -149,13 +166,6 @@
       <MauiXaml Update="Views\ServiceCaseSearchFilter.xaml">
         <Generator>MSBuild:Compile</Generator>
       </MauiXaml>
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Update="Resources\AppIcon\icon.png">
-        <Pack>True</Pack>
-        <PackagePath>\</PackagePath>
-      </None>
     </ItemGroup>
 
 </Project>

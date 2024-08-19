@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Immutable;
 using WinsorApps.Services.EventForms.Models;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.Services.EventForms.Services;
@@ -25,6 +21,35 @@ public class LocationService :
         _api = api;
     }
 
+    public async Task<Location?> CreateCustomLocation(string name, bool isPublic, ErrorAction onError)
+    {
+        var result = await _api.SendAsync<Location?>(HttpMethod.Post, $"api/events/location/custom?name={name}&isPublic={isPublic}", onError: onError);
+        if(result.HasValue)
+        {
+            MyCustomLocations = MyCustomLocations.Add(result.Value);
+            OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
+        }
+        return result;
+    }
+
+    public async Task DeleteCustomLocation(string id, ErrorAction onError)
+    {
+        var location = MyCustomLocations.FirstOrDefault(loc => loc.id == id);
+        bool success = true;
+        await _api.SendAsync(HttpMethod.Delete, $"api/events/location/custom/{id}", 
+            onError: err =>
+            {
+                onError(err);
+                success = false;
+            });
+
+        if(success)
+        {
+            MyCustomLocations = MyCustomLocations.Remove(location);
+            OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
     public bool Started { get; private set; }
 
     public bool Ready { get; private set; }
@@ -33,18 +58,40 @@ public class LocationService :
 
     public event EventHandler? OnCacheRefreshed;
 
-    public Task Initialize(ErrorAction onError)
+    public async Task Initialize(ErrorAction onError)
     {
-        throw new NotImplementedException();
+        await _api.WaitForInit(onError);
+
+        Started = true;
+
+        var campusTask = _api.SendAsync<ImmutableArray<Location>?>(HttpMethod.Get, "api/events/location", onError: onError);
+        campusTask.WhenCompleted(() =>
+        {
+            OnCampusLocations = campusTask.Result ?? [];
+            Progress += 0.5;
+        });
+
+        var customTask = _api.SendAsync<ImmutableArray<Location>?>(HttpMethod.Get, "api/events/location/custom", onError: onError);
+        customTask.WhenCompleted(() =>
+        {
+            MyCustomLocations = customTask.Result ?? [];
+            Progress += 0.5;
+        });
+
+        await Task.WhenAll(campusTask, customTask);
+
+        Ready = true;
     }
 
-    public Task Refresh(ErrorAction onError)
+    public async Task Refresh(ErrorAction onError)
     {
-        throw new NotImplementedException();
+        MyCustomLocations = await _api.SendAsync<ImmutableArray<Location>?>(HttpMethod.Get, "api/events/location/custom", onError: onError) ?? [];
+        OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
     }
 
-    public Task WaitForInit(ErrorAction onError)
+    public async Task WaitForInit(ErrorAction onError)
     {
-        throw new NotImplementedException();
+        while (!Ready)
+            await Task.Delay(250);
     }
 }

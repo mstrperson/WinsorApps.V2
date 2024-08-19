@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.Services.Bookstore.Models;
 
@@ -8,8 +7,7 @@ namespace WinsorApps.Services.Bookstore.Models;
 /// </summary>
 /// <param name="sectionId">section.id of a class on the student's schedule</param>
 /// <param name="selectedBooks">Books that the student has indicated that they intend to purchase from the school</param>
-
-public readonly record struct StudentSectionBookOrder(string sectionId, UserRecord student, SectionMinimalRecord section, ImmutableArray<StudentBookRequest> selectedBooks);
+public readonly record struct StudentSectionBookOrder(string sectionId, ImmutableArray<StudentBookRequest> selectedBooks);
 
 /// <summary>
 /// Option Groups indicate whether a Student is expected to purchase `All` or the books in this group, or 
@@ -39,30 +37,4 @@ public readonly record struct StudentSemesterBookList(string term, ImmutableArra
 /// <param name="submitted">Timestamp for when the student submitted the order.</param>
 /// <param name="status">current status of the order in the ordering process.</param>
 /// <param name="isbn">specific ISBN that has been indicated.</param>
-
 public readonly record struct StudentBookRequest(DateTime submitted, string status, string isbn);
-
-public readonly record struct StudentOrderStatus
-{
-    private readonly string _status;
-
-    public static readonly StudentOrderStatus Submitted = new("Submitted");
-    public static readonly StudentOrderStatus Recieved = new("Recieved");
-    public static readonly StudentOrderStatus Withdrawn = new("Withdrawn");
-    public static readonly StudentOrderStatus Completed = new("Completed");
-
-    public static implicit operator StudentOrderStatus(string str) => str.ToLowerInvariant().Trim() switch
-    {
-        "submitted" => Submitted,
-        "recieved" => Recieved,
-        "withdrawn" => Withdrawn,
-        "completed" => Completed,
-        _ => throw new InvalidCastException($"{str} is not a valid status")
-    };
-
-    public static implicit operator string(StudentOrderStatus status) => status._status;
-
-    public override string ToString() => $"{_status}";
-
-    private StudentOrderStatus(string status) => _status = status;
-}

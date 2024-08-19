@@ -1,7 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using System.Collections.Concurrent;
-using System.ComponentModel;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Helpdesk.Models;
@@ -10,8 +8,8 @@ using WinsorApps.Services.Helpdesk.Services;
 namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom;
 
 public partial class CheqroomItemViewModel : 
-    ObservableObject, 
-    IEmptyViewModel<CheqroomItemViewModel>,
+    ObservableObject,
+    IDefaultValueViewModel<CheqroomItemViewModel>,
     ICachedViewModel<CheqroomItemViewModel, CheqroomItem, CheqroomService>
 {
     private readonly CheqroomService _cheqroom;
@@ -44,6 +42,8 @@ public partial class CheqroomItemViewModel :
     }
 
     public static ConcurrentBag<CheqroomItemViewModel> ViewModelCache { get; private set; } = [];
+
+    public static CheqroomItemViewModel Empty => new();
 
     public static CheqroomItemViewModel Get(CheqroomItem model)
     {

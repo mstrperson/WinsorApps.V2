@@ -1,17 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
-using WinsorApps.Services.Helpdesk.Models;
 using WinsorApps.Services.Helpdesk.Services;
 
 namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices
@@ -72,7 +66,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices
                     dev.Selected += Dev_Selected;
                 }
 
-                selected = IEmptyViewModel<DeviceViewModel>.Empty;
+                selected = DeviceViewModel.Empty;
             }
         }
 
@@ -81,7 +75,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices
         {
             AllSelected = [];
             Options = [];
-            Selected = IEmptyViewModel<DeviceViewModel>.Empty;
+            Selected = DeviceViewModel.Empty;
             IsSelected = false;
             ShowOptions = false;
             SearchText = "";
@@ -108,7 +102,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices
                     if (Options.Length == 0)
                     {
                         ShowOptions = false;
-                        Selected = IEmptyViewModel<DeviceViewModel>.Empty;
+                        Selected = DeviceViewModel.Empty;
                         IsSelected = false;
                         return;
                     }
@@ -124,7 +118,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices
                     }
 
                     ShowOptions = true;
-                    Selected = IEmptyViewModel<DeviceViewModel>.Empty;
+                    Selected = DeviceViewModel.Empty;
                     IsSelected = false;
                     return;
                 default: return;
@@ -136,7 +130,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices
             switch (SelectionMode)
             {
                 case SelectionMode.Single:
-                    Selected = Available.FirstOrDefault(user => user.Id == e.Id) ?? IEmptyViewModel<DeviceViewModel>.Empty;
+                    Selected = Available.FirstOrDefault(user => user.Id == e.Id) ?? DeviceViewModel.Empty;
                     IsSelected = string.IsNullOrEmpty(Selected.Id);
                     Options = [];
                     ShowOptions = false;

@@ -20,18 +20,24 @@ public readonly record struct AssessmentConflictRecord(string studentId, Immutab
 
     public readonly record struct AssessmentDateRecord(string sectionId, DateTime date);
 
-    /// <summary>
-    /// Details of an assessment scheduled on a particular day for a class.
-    /// </summary>
-    /// <param name="assessmentId">Id of the assessment (use this if you are submitting a pass)</param>
-    /// <param name="section">The class details.</param>
-    /// <param name="assessmentDateTime">Date and Time when the assessment is scheduled (this is your class period)</param>
-    /// <param name="studentsUsingPasses">List of students who have used a Pass for this assessment.</param>
-    /// <param name="studentConflicts">
-    /// List of students with other assessments scheduled on the same day and how many assessments they have.
-    /// </param>
-    public readonly record struct AssessmentEntryRecord(string assessmentId, SectionRecord section, DateTime assessmentDateTime,
-        ImmutableArray<AssessmentPassListItem> studentsUsingPasses, ImmutableArray<StudentConflictCount> studentConflicts);
+/// <summary>
+/// Details of an assessment scheduled on a particular day for a class.
+/// </summary>
+/// <param name="assessmentId">Id of the assessment (use this if you are submitting a pass)</param>
+/// <param name="section">The class details.</param>
+/// <param name="assessmentDateTime">Date and Time when the assessment is scheduled (this is your class period)</param>
+/// <param name="studentsUsingPasses">List of students who have used a Pass for this assessment.</param>
+/// <param name="studentConflicts">
+/// List of students with other assessments scheduled on the same day and how many assessments they have.
+/// </param>
+public readonly record struct AssessmentEntryRecord(string groupId, string assessmentId, SectionRecord section, DateTime assessmentDateTime,
+    ImmutableArray<AssessmentPassListItem> studentsUsingPasses, ImmutableArray<StudentConflictCount> studentConflicts, ImmutableArray<StudentRecordShort> studentsWithPassAvailable)
+{
+    public static readonly AssessmentEntryRecord Empty = new("", "", SectionRecord.Empty, DateTime.Now, [], [], []);
+
+    public AssessmentCalendarEvent ToCalendarEvent(AssessmentGroup group) => 
+        new(assessmentId, AssessmentType.Assessment, group.course, group.note, assessmentDateTime, assessmentDateTime.AddMinutes(75), false, []);
+}
 
     public readonly record struct StudentAssessmentRosterEntry(StudentRecordShort student, bool latePass, int conflictCount)
     {
@@ -46,11 +52,11 @@ public readonly record struct AssessmentConflictRecord(string studentId, Immutab
                 assessment.section.students.Select(student =>
                     new StudentAssessmentRosterEntry(student,
                         assessment.studentsUsingPasses.Any(pass => pass.student.id == student.id),
-                        assessment.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.id).count)
+                        assessment.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.id).conflictCount)
                 ).ToImmutableArray());
     }
 
-    public readonly record struct StudentConflictCount(StudentRecordShort student, int count);
+    public readonly record struct StudentConflictCount(StudentRecordShort student, int conflictCount, bool latePass, bool redFlag);
 
     public readonly record struct AssessmentPassListItem(StudentRecordShort student, DateTime timeStamp);
 
@@ -60,5 +66,5 @@ public readonly record struct AssessmentConflictRecord(string studentId, Immutab
     /// <param name="id">Assessment Id (use this when requesting a pass)</param>
     /// <param name="note">Teacher note about the assessment.</param>
     /// <param name="assessments">Details for each section of the class doing this assessment.</param>
-    public readonly record struct AssessmentGroup(string id, string course, string note,
-        ImmutableArray<AssessmentEntryShort> assessments);
+    public readonly record struct AssessmentGroup(string id, string course, string courseId, string note,
+        ImmutableArray<AssessmentEntryRecord> assessments);

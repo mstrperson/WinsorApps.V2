@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.EventForms.ViewModels"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             xmlns:views="clr-namespace:WinsorApps.MAUI.Shared.EventForms.Views"
+             xmlns:styles="clr-namespace:WinsorApps.MAUI.Shared.Resources.Styles;assembly=WinsorApps.MAUI.Shared"
+             x:DataType="vm:TechEventViewModel"
+             x:Class="WinsorApps.MAUI.Shared.EventForms.Pages.TechPage"
+             Title="Technology Details">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert"/>
+            <conv:StringToIntegerConverter x:Key="StringToInt" />
+            <conv:CurrencyToStringConverter x:Key="Currency" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem 
+            Command="{Binding ContinueCommand}" 
+            CommandParameter="{x:Boolean false}"
+            StyleClass="SubmitButton"/>
+        <ToolbarItem
+            Text="Continue"
+            Command="{Binding ContinueCommand}"
+            CommandParameter="{x:Boolean false}"/>
+        <ToolbarItem
+            StyleClass="Separator" />
+        <ToolbarItem
+            Command="{Binding DeleteCommand}" 
+            StyleClass="DeleteButton"/>
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout
+                IsEnabled="{Binding Busy, Converter={StaticResource Invert}}">
+                <Label
+                    Text="{Binding BusyMessage}"
+                    StyleClass="Header"
+                    IsVisible="{Binding Busy}" />
+                <StackLayout
+                    Orientation="Horizontal">
+                    <CheckBox 
+                        IsChecked="{Binding HelpRequested}" />
+                    <Label 
+                        Text="Need Setup Help"
+                        Margin="0, 0, 55, 0"/>
+                    <CheckBox
+                        IsChecked="{Binding PresenceRequested}" />
+                    <Label
+                        Text="Tech Present During Event"
+                        ToolTipProperties.Text="This requires explicit approval."
+                        Margin="0, 0, 55, 0" />
+                    <CheckBox
+                        IsChecked="{Binding EquipmentNeeded}" />
+                    <Label
+                        Text="Specific Equipment"
+                        ToolTipProperties.Text="Please provide details."
+                        Margin="0, 0, 55, 0" />
+                </StackLayout>
+                <Editor
+                    Text="{Binding Details}"
+                    Placeholder="What do you need from the Tech Team to support this event?"
+                    HeightRequest="150" />
+                <BoxView StyleClass="Bar" />
+                <!-- Virtual Event Details -->
+                <Button 
+                    Text="Add Virtual Event Details"
+                    Command="{Binding AddVirtualDetailsCommand}"
+                    IsVisible="{Binding IsVirtual, Converter={StaticResource Invert}}" />
+                <StackLayout
+                    Margin="0"
+                    Padding="0"
+                    IsVisible="{Binding IsVirtual}">
+                    <StackLayout
+                        Orientation="Horizontal">
+                        <Switch
+                            IsToggled="{Binding VirtualEvent.IsWebinar}" />
+                        <Label
+                            Text="{Binding VirtualEvent.WebinarLabel}" />
+                        <Button
+                            Margin="50,0"
+                            Text="Remove Virtual Event Details"
+                            Command="{Binding VirtualEvent.DeleteCommand}"/>
+                    </StackLayout>
+                    <StackLayout
+                        Margin="0"
+                        Padding="0"
+                        IsVisible="{Binding VirtualEvent.IsWebinar}">
+                        <Label
+                            StyleClass="H3"
+                            Text="Webinar Options"/>
+                        <Grid
+                            RowDefinitions="auto,auto,auto,auto"
+                            ColumnDefinitions="50,250,50,250">
+                            <CheckBox
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                IsChecked="{Binding VirtualEvent.RegistrationRequired}" />
+                            <Label
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Text="Participant Registration" />
+                            <CheckBox
+                                Grid.Row="0"
+                                Grid.Column="2"
+                                IsChecked="{Binding VirtualEvent.RecordingEnabled}" />
+                            <Label
+                                Grid.Row="0"
+                                Grid.Column="3"
+                                Text="Record this Event" />
+                            <CheckBox
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                IsChecked="{Binding VirtualEvent.ChatEnabled}" />
+                            <Label
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Text="Chat Enabled" />
+                            <CheckBox
+                                Grid.Row="1"
+                                Grid.Column="2"
+                                IsChecked="{Binding VirtualEvent.SendReminder}" />
+                            <Label
+                                Grid.Row="1"
+                                Grid.Column="3"
+                                Text="Registrant Reminder (24hr)" />
+                            <CheckBox
+                                Grid.Row="2"
+                                Grid.Column="0"
+                                IsChecked="{Binding VirtualEvent.QaEnabled}" />
+                            <Label
+                                Grid.Row="2"
+                                Grid.Column="1"
+                                Text="Q&amp;A Enabled" />
+                            <CheckBox
+                                Grid.Row="2"
+                                Grid.Column="2"
+                                IsChecked="{Binding VirtualEvent.RecordTranscript}" />
+                            <Label
+                                Grid.Row="2"
+                                Grid.Column="3"
+                                Text="Keep Chat Transcript" />
+                            <CheckBox
+                                Grid.Row="3"
+                                Grid.Column="0"
+                                IsChecked="{Binding VirtualEvent.QaSupport}" />
+                            <Label
+                                Grid.Row="3"
+                                Grid.Column="1"
+                                Text="Q&amp;A Support Person" />
+                            <CheckBox
+                                Grid.Row="3"
+                                Grid.Column="2"
+                                IsChecked="{Binding VirtualEvent.GetRegistrantList}" />
+                            <Label
+                                Grid.Row="3"
+                                Grid.Column="3"
+                                Text="List of Registrants" />
+                        </Grid>
+                        <StackLayout
+                                Orientation="Horizontal"
+                                IsVisible="{Binding VirtualEvent.QaSupport}">
+                            <Label Text="Who will monitor Q&amp;A?" />
+                            <Entry 
+                                    Text="{Binding VirtualEvent.QASupportPerson}"
+                                    Placeholder="Required" />
+                        </StackLayout>
+                        <!-- Panelists -->
+                        <Label
+                            StyleClass="H3"
+                            Text="Select Panelists" />
+                        <views:ContactSingleSelector BindingContext="{Binding VirtualEvent.PanelistSearch}" />
+                        <CollectionView
+                            ItemsSource="{Binding VirtualEvent.Panelists}">
+                            <CollectionView.Header>
+                                <Label
+                                    Text="Panelists" 
+                                    StyleClass="H3" />
+                            </CollectionView.Header>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="vm:ContactViewModel">
+                                    <StackLayout
+                                        Orientation="Horizontal"
+                                        Spacing="15">
+                                        <StackLayout.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                        </StackLayout.GestureRecognizers>
+                                        <Label
+                                            Text="{Binding FullName}" />
+                                        <Label
+                                            Text="{Binding Email}" />
+                                        <Label Text="❌" />
+                                    </StackLayout>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </StackLayout>
+                </StackLayout>
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

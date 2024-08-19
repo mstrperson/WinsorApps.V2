@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="WinsorApps.MAUI.TeacherAssessmentCalendar.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:WinsorApps.MAUI.TeacherAssessmentCalendar"
+    xmlns:pages="clr-namespace:WinsorApps.MAUI.TeacherAssessmentCalendar.Pages"
+    xmlns:shared="clr-namespace:WinsorApps.MAUI.Shared.Pages;assembly=WinsorApps.MAUI.Shared"
+    Shell.FlyoutBehavior="Flyout"
+    Title="Assessment Calendar - Teacher">
+
+    <ShellContent
+        Title="Home"
+        ContentTemplate="{DataTemplate local:MainPage}"
+        Route="MainPage" />
+
+    <ShellContent
+        Title="My Assessments"
+        ContentTemplate="{DataTemplate pages:MyAssessmentsPage}"
+        Route="MyAssessmentsPage" />
+
+    <ShellContent
+        Title="Late Work"
+        ContentTemplate="{DataTemplate pages:LateWorkPage}"
+        Route="LateWorkPage" />
+
+    <ShellContent
+        Title="My Students"
+        ContentTemplate="{DataTemplate pages:StudentPage}"
+        Route="StudentPage" />
+
+    <ShellContent
+        Title="Help"
+        ContentTemplate="{DataTemplate shared:HelpPage}"
+        Route="HelpPage" />
+
+</Shell>

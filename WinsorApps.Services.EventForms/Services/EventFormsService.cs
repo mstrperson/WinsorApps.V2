@@ -1,10 +1,5 @@
 ﻿using AsyncAwaitBestPractices;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Services;
@@ -49,6 +44,9 @@ namespace WinsorApps.Services.EventForms.Services
 
         public event EventHandler? OnCacheRefreshed;
 
+        public DateTime CacheStartDate { get; protected set; } = DateTime.Today;
+        public DateTime CacheEndDate { get; protected set; } = DateTime.Today;
+
         public async Task Initialize(ErrorAction onError)
         {
             if (Started)
@@ -61,45 +59,53 @@ namespace WinsorApps.Services.EventForms.Services
 
             double taskCount = 5;
 
-            var statusTask = _api.SendAsync<ImmutableArray<ApprovalStatus>>(HttpMethod.Get, "api/events/status-labels", onError: onError);
+            var statusTask = _api.SendAsync<ImmutableArray<ApprovalStatus>?>(HttpMethod.Get, "api/events/status-labels", onError: onError);
             statusTask.WhenCompleted(() =>
             {
-                StatusLabels = statusTask.Result;
+                StatusLabels = statusTask.Result ?? [];
                 Progress += 1 / taskCount;
             });
 
-            var typeTask = _api.SendAsync<ImmutableArray<string>>(HttpMethod.Get, "api/events/event-types", onError: onError);
+            var typeTask = _api.SendAsync<ImmutableArray<string>?>(HttpMethod.Get, "api/events/event-types", onError: onError);
             typeTask.WhenCompleted(() =>
             {
-                EventTypes = typeTask.Result;
+                EventTypes = typeTask.Result ?? [];
                 Progress += 1 / taskCount;
             });
 
-            var vehicleTask = _api.SendAsync<ImmutableArray<VehicleCategory>>(HttpMethod.Get, "api/events/transportation/vehicles", onError: onError);
+            var vehicleTask = _api.SendAsync<ImmutableArray<VehicleCategory>?>(HttpMethod.Get, "api/events/transportation/vehicles", onError: onError);
             vehicleTask.WhenCompleted(() =>
             {
-                VehicleCategories = vehicleTask.Result;
+                VehicleCategories = vehicleTask.Result ?? [];
                 Progress += 1 / taskCount;
             });
 
-            var createdTask = _api.SendAsync<ImmutableArray<EventFormBase>>(HttpMethod.Get, "api/events/created", onError: onError);
+            var createdTask = _api.SendAsync<ImmutableArray<EventFormBase>?>(HttpMethod.Get, "api/events/created", onError: onError);
             createdTask.WhenCompleted(() =>
             {
-                EventsCache = createdTask.Result;
+                EventsCache = createdTask.Result ?? [];
                 Progress += 1 / taskCount;
             });
 
-            var leadTask = _api.SendAsync<ImmutableArray<EventFormBase>>(HttpMethod.Get, "api/events/lead", onError: onError);
+            var leadTask = _api.SendAsync<ImmutableArray<EventFormBase>?>(HttpMethod.Get, "api/events/lead", onError: onError);
             leadTask.WhenCompleted(() =>
             {
-                LeadEvents = leadTask.Result;
+                LeadEvents = leadTask.Result ?? [];
                 Progress += 1 / taskCount;
             });
 
+           
             await Task.WhenAll(statusTask, typeTask, vehicleTask, createdTask, leadTask);
 
+            if (EventsCache.Any())
+            {
+                CacheStartDate = EventsCache.Select(evt => evt.start).Min();
+                CacheEndDate = EventsCache.Select(evt => evt.start).Max();
+            }
             Ready = true;
             Progress = 1;
+
+            //RefreshInBackground(CancellationToken.None, onError).SafeFireAndForget(e => e.LogException(_logging));
         }
 
         public async Task Refresh(ErrorAction onError)
@@ -107,7 +113,7 @@ namespace WinsorApps.Services.EventForms.Services
             Refreshing = true;
             var updated = 
                 await _api.SendAsync<string[], ImmutableArray<EventFormBase>>(HttpMethod.Get, "api/events/list",
-                EventsCache.Select(evt => evt.id).ToArray(), onError: onError);
+                    EventsCache.Select(evt => evt.id).ToArray(), onError: onError);
             EventsCache = updated;
             Refreshing = false;
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);

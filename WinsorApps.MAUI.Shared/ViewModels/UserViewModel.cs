@@ -1,8 +1,5 @@
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
-using System.Formats.Asn1;
-using AsyncAwaitBestPractices;
-using CommunityToolkit.Maui.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using WinsorApps.Services.Global;
@@ -12,11 +9,12 @@ using WinsorApps.Services.Global.Services;
 namespace WinsorApps.MAUI.Shared.ViewModels;
 
 public partial class UserViewModel : 
-    ObservableObject, 
-    IEmptyViewModel<UserViewModel>, 
+    ObservableObject,
+    IDefaultValueViewModel<UserViewModel>, 
     ISelectable<UserViewModel>, 
     IErrorHandling, 
-    ICachedViewModel<UserViewModel, UserRecord, RegistrarService>
+    ICachedViewModel<UserViewModel, UserRecord, RegistrarService>,
+    IModelCarrier<UserViewModel, UserRecord>
 {
 
     public static async Task Initialize(RegistrarService registrar, ErrorAction onError)
@@ -29,7 +27,6 @@ public partial class UserViewModel :
             vm.GetUniqueDisplayName();
     }
     public static ConcurrentBag<UserViewModel> ViewModelCache { get; private set; } = [];
-    //public static ConcurrentBag<UserViewModel> ViewModelCache => _viewModelCache.ToList();
 
     public static List<UserViewModel> GetClonedViewModels(IEnumerable<UserRecord> models)
     {
@@ -41,7 +38,7 @@ public partial class UserViewModel :
     }
     public static UserViewModel Get(UserRecord user)
     {
-        var vm = ViewModelCache.FirstOrDefault(cvm => cvm.User.id == user.id);
+        var vm = ViewModelCache.FirstOrDefault(cvm => cvm.Model.Reduce(UserRecord.Empty).id == user.id);
         if (vm is null)
         {
             vm = new(user);
@@ -49,20 +46,30 @@ public partial class UserViewModel :
         }
         return vm.Clone();
     }
-    public UserViewModel Clone() => (UserViewModel)this.MemberwiseClone();
+    public UserViewModel Clone() => new()
+    {
+        ImageSource = ImageSource,
+        IsSelected = false,
+        DisplayName = DisplayName,
+        Model = Model with { },
+        AcademicSchedule = [.. AcademicSchedule.Select(sec => sec.Clone())],
+        ShowButton = ShowButton
+    };
 
     private readonly RegistrarService _registrar;
-    public UserRecord User;
+    public OptionalStruct<UserRecord> Model { get; private set; } = OptionalStruct<UserRecord>.None();
 
-    public string BlackbaudId => $"{User.blackbaudId}";
-    public string Id => User.id;
+    public string BlackbaudId => $"{Model.Reduce(UserRecord.Empty).blackbaudId}";
+    public string Id => Model.Reduce(UserRecord.Empty).id ?? "";
     
     [ObservableProperty] private string displayName;
-    public string Email => User.email;
+    public string Email => Model.Reduce(UserRecord.Empty).email;
+
+    public static UserViewModel Empty => new();
 
     [ObservableProperty] private ImmutableArray<SectionViewModel> academicSchedule = [];
     [ObservableProperty] private bool showButton = false;
-    [ObservableProperty] bool isSelected;
+    [ObservableProperty] bool isSelected = false;
 
     [ObservableProperty] private ImageSource imageSource;
 
@@ -73,13 +80,13 @@ public partial class UserViewModel :
     public UserViewModel()
     {
         _registrar = ServiceHelper.GetService<RegistrarService>()!;
-        User = new();
+        Model = new();
         displayName = "";
         ImageSource = ImageSource.FromUri(new("https://bbk12e1-cdn.myschoolcdn.com/ftpimages/1082/logo/2019-masterlogo-white.png"));
     }
     private UserViewModel(UserRecord user)
     {
-        User = user;
+        Model = OptionalStruct<UserRecord>.Some(user);
         displayName = $"{user.firstName} {user.lastName}";
         _registrar = ServiceHelper.GetService<RegistrarService>()!;
         ImageSource = ImageSource.FromUri(new("https://bbk12e1-cdn.myschoolcdn.com/ftpimages/1082/logo/2019-masterlogo-white.png"));
@@ -103,7 +110,7 @@ public partial class UserViewModel :
     {
         try
         {
-            DisplayName = _registrar.GetUniqueDisplayNameFor(User);
+            DisplayName = _registrar.GetUniqueDisplayNameFor(Model.Reduce(UserRecord.Empty));
         }
         catch (ServiceNotReadyException)
         {
@@ -117,7 +124,7 @@ public partial class UserViewModel :
     {
         var schedule = _registrar.MyAcademicSchedule;
         AcademicSchedule = schedule
-            .Select(sec => new SectionViewModel(sec))
+            .Select(SectionViewModel.Get)
             .ToImmutableArray();
         foreach (var section in AcademicSchedule)
             section.Selected += (sender, sec) => SectionSelected?.Invoke(sender, sec); 
@@ -127,6 +134,7 @@ public partial class UserViewModel :
     [RelayCommand]
     public void Select()
     {
+        IsSelected = !IsSelected;
         Selected?.Invoke(this, this);
     }
 }

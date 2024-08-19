@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.CDRE.ViewModels"
+             xmlns:styles="clr-namespace:WinsorApps.MAUI.CDRE.Resources.Styles"
+             x:DataType="vm:EventListViewModel"
+             x:Class="WinsorApps.MAUI.CDRE.Pages.EventsListPage"
+             Title="My Recurring Events"
+             NavigatedTo="ContentPage_NavigatedTo">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem 
+            Text="Refresh"
+            IconImageSource="{FontImage FontFamily=FontAwesomeSolid, Color=DarkGray,
+            Glyph={x:Static styles:FontAwesomeSolid.SyncAlt}}"
+            Command="{Binding LoadEventsCommand}"/>
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <ScrollView>
+            <VerticalStackLayout
+                HorizontalOptions="Center">
+                <CollectionView 
+                    x:Name="EventsListView"
+                    ItemsSource="{Binding Events}"
+                    VerticalOptions="FillAndExpand"
+                    BackgroundColor="Transparent">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:RecurringEventViewModel">
+                            <StackLayout> 
+                                <Border
+                                    StrokeThickness="3"
+                                    Margin="5,10,10,0"
+                                    Padding="0,0,0,0">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="25"/>
+                                    </Border.StrokeShape>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectCommand}"/>
+                                    </Border.GestureRecognizers>
+                                    <VerticalStackLayout>
+                                        <HorizontalStackLayout>
+                                        <Image Source="{AppThemeBinding
+                                        Light={FontImage FontFamily=FontAwesomeSolid, Color=IndianRed,
+                                                                   Glyph={x:Static styles:FontAwesomeSolid.CalendarAlt}},
+                                                Dark={FontImage FontFamily=FontAwesomeSolid, Color=White,
+                                                                   Glyph={x:Static styles:FontAwesomeSolid.CalendarAlt}}}"
+                                                                    HorizontalOptions="Start"/>
+
+                                        <Label Text="{Binding Summary}"
+                                               FontAttributes="Bold" 
+                                               FontSize="Medium"
+                                               HorizontalOptions="Start"
+                                               ToolTipProperties.Text="Edit"/>
+
+
+                                        <Image Source="{AppThemeBinding
+                                        Light={FontImage FontFamily=FontAwesomeSolid, Color=IndianRed,
+                                                                   Glyph={x:Static styles:FontAwesomeSolid.PencilAlt}},
+                                                Dark={FontImage FontFamily=FontAwesomeSolid, Color=White,
+                                                                   Glyph={x:Static styles:FontAwesomeSolid.CalendarAlt}}}"
+                                                            WidthRequest="15"
+                                                            ToolTipProperties.Text="Edit"/>
+
+                                    </HorizontalStackLayout>
+                                    <Label Text="{Binding Description}"
+                                            HorizontalOptions="Start"/>  
+                                    </VerticalStackLayout> 
+                                </Border>
+                            </StackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+          
+            <HorizontalStackLayout
+                HorizontalOptions="Center">
+                <HorizontalStackLayout.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CreateCommand}"/>
+                </HorizontalStackLayout.GestureRecognizers>
+                <Image Source="{FontImage FontFamily=FontAwesomeSolid, Color=White,
+                Glyph={x:Static styles:FontAwesomeSolid.PlusCircle}}"/>
+                <Label Text="Create New Event"
+                       LineBreakMode="NoWrap" 
+                       MaxLines="1"
+                       FontAttributes="Bold" 
+                       StyleClass="H3"
+                       TextDecorations="Underline"/>
+            </HorizontalStackLayout>
+            
+            </VerticalStackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

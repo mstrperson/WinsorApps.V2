@@ -32,7 +32,7 @@ namespace WinsorApps.Services.AssessmentCalendar.Models;
     /// <param name="assessmentNote">Note about the assessment</param>
     /// <param name="assessmentId">hash encoded AssessmentCalendarEntry.GroupId used for requesting Late Pass</param>
     /// <param name="sectionId">hash encoded AssessmentCalendarEntry.SectionId used for requesting Late Pass</param>
-    public readonly record struct StudentAssessmentDetailsRecord(
+    public readonly record struct StudentAssessmentDetails(
         string courseName, DateTime assessmentDateTime, string assessmentNote, string assessmentId, string sectionId);
 
     /// <summary>
@@ -51,7 +51,10 @@ namespace WinsorApps.Services.AssessmentCalendar.Models;
     /// <param name="timeStamp">when you submitted this pass</param>
     public readonly record struct AssessmentPass(string assessmentId, string studentId, DateTime timeStamp);
 
-    public readonly record struct AssessmentPassDetail(StudentAssessmentDetailsRecord assessment, UserRecord student, DateTime timeStamp);
+public readonly record struct AssessmentPassDetail(AssessmentCalendarEvent assessment, UserRecord student, DateTime timeStamp)
+{
+    public static readonly AssessmentPassDetail Empty = new(AssessmentCalendarEvent.Empty, UserRecord.Empty, DateTime.Now);
+}
 
     /// <summary>
     /// Display an AP Exam
@@ -59,4 +62,4 @@ namespace WinsorApps.Services.AssessmentCalendar.Models;
     /// <param name="courseName">AP Course Name</param>
     /// <param name="examStart">Date and Time the exam starts</param>
     /// <param name="examEnd">Time the exam ends</param>
-    public readonly record struct APExamRecord(string courseName, DateTime examStart, DateTime examEnd);
+    //public readonly record struct APExamRecord(string courseName, DateTime examStart, DateTime examEnd);

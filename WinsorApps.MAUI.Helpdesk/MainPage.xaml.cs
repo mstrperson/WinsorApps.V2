@@ -1,13 +1,9 @@
-﻿using AsyncAwaitBestPractices;
-using WinsorApps.MAUI.Helpdesk.ViewModels;
-using WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom;
+﻿using WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom;
 using WinsorApps.MAUI.Helpdesk.ViewModels.Devices;
 using WinsorApps.MAUI.Helpdesk.ViewModels.ServiceCases;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.Pages;
 using WinsorApps.MAUI.Shared.ViewModels;
-using WinsorApps.Services.Global;
-using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 using WinsorApps.Services.Helpdesk.Services;
 
@@ -22,6 +18,7 @@ public partial class MainPage : ContentPage
     public MainPageViewModel ViewModel => (MainPageViewModel)BindingContext;
 
     public MainPage(
+        ApiService api,
         RegistrarService registrar, 
         AppService app, 
         DeviceService devService, 
@@ -37,7 +34,7 @@ public partial class MainPage : ContentPage
             new(jamfService, "Jamf Service"),
             new(cheqroom, "Cheqroom Checkouts"),
             new(caseService, "Service Cases")
-        ])
+        ], app, api)
         {
             Completion = [
                 new(new Task(async () => await DeviceViewModel.Initialize(devService, this.DefaultOnErrorAction())), "Device Cache"),

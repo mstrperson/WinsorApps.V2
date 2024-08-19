@@ -1,0 +1,621 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.TeacherAssessmentCalendar.ViewModels"
+             xmlns:svm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels;assembly=WinsorApps.MAUI.Shared"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             x:DataType="vm:LateWorkPageViewModel"
+             x:Class="WinsorApps.MAUI.TeacherAssessmentCalendar.Pages.LateWorkPage"
+             Title="My Late Work">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem
+            StyleClass="RefreshButton"
+            Command="{Binding SelectedSection.LoadLateWorkCommand}" />
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <ScrollView>
+            <VerticalStackLayout
+                HorizontalOptions="Center">
+                <!-- Section Selection -->
+                <VerticalStackLayout
+                    Margin="0"
+                    Padding="0"
+                    IsVisible="{Binding ShowSelectedSection, Converter={StaticResource Invert}}">
+                    <CollectionView
+                        ItemsSource="{Binding Sections}"
+                        BackgroundColor="Transparent">
+                        <CollectionView.Header>
+                            <HorizontalStackLayout>
+                                <Label 
+                                    StyleClass="Header"
+                                    Text="My Classes" />
+                            </HorizontalStackLayout>
+                        </CollectionView.Header>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:SectionLateWorkCollection">
+                                <HorizontalStackLayout>
+                                    <HorizontalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                    </HorizontalStackLayout.GestureRecognizers>
+                                    <Label
+                                        StyleClass="H3"
+                                        Text="{Binding Section.DisplayName}" />
+                                    <Label
+                                        StyleClass="H3"
+                                        Text="{Binding Section.Block}" />
+                                </HorizontalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+                <!-- End Section Selection -->
+                <Grid
+                    RowDefinitions="*"
+                    ColumnDefinitions="750,1,750">
+                    <!-- Selected Section View -->
+                    <VerticalStackLayout
+                        Grid.Column="0"
+                        Margin="0"
+                        Padding="0"
+                        WidthRequest="750"
+                        IsVisible="{Binding ShowSelectedSection}">
+                        <HorizontalStackLayout
+                            Margin="0"
+                            Padding="0"
+                            Spacing="15">
+                            <HorizontalStackLayout.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectedSection.SelectCommand}" />
+                            </HorizontalStackLayout.GestureRecognizers>
+                            <Label
+                                StyleClass="Header"
+                                Text="{Binding SelectedSection.Section.DisplayName}" />
+                            <Label
+                                StyleClass="Header"
+                                Text="{Binding SelectedSection.Section.Block}" />
+                        </HorizontalStackLayout>
+                        <BoxView StyleClass="Bar" />
+                        <HorizontalStackLayout
+                            IsVisible="{Binding Busy}">
+                            <Label
+                                StyleClass="Header"
+                                Text="{Binding BusyMessage}" />
+                            <Image
+                                StyleClass="loading_symbol" />
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout
+                            Spacing="30">
+                            <Border
+                                StrokeThickness="1">
+                                <HorizontalStackLayout>
+                                    <HorizontalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectedSection.ToggleShowAssessmentsCommand}" />
+                                    </HorizontalStackLayout.GestureRecognizers>
+                                    <Label
+                                        StyleClass="SubHeader"
+                                        Text="Show Assessments"
+                                        IsVisible="{Binding SelectedSection.ShowLateWork}"/>
+                                    <Label
+                                        StyleClass="SubHeader"
+                                        Text="Show Late Work"
+                                        IsVisible="{Binding SelectedSection.ShowAssessments}"/>
+                                    <Label
+                                        StyleClass="SubHeader"
+                                        Text="Show Assessments"
+                                        IsVisible="{Binding SelectedSection.ShowNewPattern}" />
+                                    <Label
+                                        StyleClass="SubHeader"
+                                        Text="Show Assessments"
+                                        IsVisible="{Binding SelectedSection.ShowNewLateAssessment}" />
+                                </HorizontalStackLayout>
+                            </Border>
+                            <Border
+                                StrokeThickness="1">
+                                <HorizontalStackLayout>
+                                    <HorizontalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectedSection.ToggleShowNewPatternCommand}" />
+                                    </HorizontalStackLayout.GestureRecognizers>
+                                    <Label
+                                        StyleClass="SubHeader"
+                                        Text="New Late Work Pattern"/>
+                                </HorizontalStackLayout>
+                            </Border>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                    <!-- End Selected Section View -->
+                    <BoxView
+                        WidthRequest="1"
+                        BackgroundColor="{AppThemeBinding Light={DynamicResource WinsorRed}, Dark=White}"
+                        Grid.Column="1" />
+                    <VerticalStackLayout
+                        Margin="0"
+                        Padding="0"
+                        IsVisible="{Binding ShowSelectedSection}"
+                            Grid.Column="2">
+                        <CollectionView
+                        IsVisible="{Binding SelectedSection.ShowLateWork}"
+                            Margin="0"
+                            BackgroundColor="Transparent"
+                            ItemsSource="{Binding SelectedSection.LateWorkByStudent}">
+                        <CollectionView.Header>
+                            <HorizontalStackLayout
+                                    Spacing="30"
+                                Margin="0"
+                                Padding="0">
+                                <HorizontalStackLayout.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SelectedSection.ToggleShowResolvedCommand}" />
+                                </HorizontalStackLayout.GestureRecognizers>
+                                <Label
+                                    StyleClass="Header"
+                                    Text="All Late Work By Student" 
+                                    IsVisible="{Binding SelectedSection.ShowResolved}"/>
+                                <Label
+                                    StyleClass="Header"
+                                    Text="Outstanding Late Work By Student" 
+                                    IsVisible="{Binding SelectedSection.ShowResolved, Converter={StaticResource Invert}}"/>
+                                <Image StyleClass="RefreshButton" />
+                            </HorizontalStackLayout>
+                        </CollectionView.Header>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:StudentLateWorkCollectionViewModel">
+                                <VerticalStackLayout
+                                        Padding="0">
+                                    <BoxView StyleClass="Bar" />
+                                    <HorizontalStackLayout
+                                            Margin="0"
+                                            Padding="0"
+                                            Spacing="30">
+                                        <HorizontalStackLayout.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding ToggleShowLateWorkCommand}" />
+                                        </HorizontalStackLayout.GestureRecognizers>
+                                        <Label
+                                                StyleClass="SubHeader"
+                                                Text="{Binding Student.UserInfo.DisplayName}" />
+                                        <Label
+                                                StyleClass="SubHeader"
+                                                Text="{Binding Student.AdvisorName, StringFormat='[{0}]'}" />
+                                        <Image
+                                                StyleClass="DownArrow" 
+                                                IsVisible="{Binding ShowLateWork, Converter={StaticResource Invert}}"/>
+                                        <Image
+                                                StyleClass="UpArrow" 
+                                                IsVisible="{Binding ShowLateWork}"/>
+                                    </HorizontalStackLayout>
+                                    <VerticalStackLayout
+                                                Margin="0"
+                                                Padding="0"
+                                                IsVisible="{Binding ShowLateWork}">
+                                        <CollectionView
+                                                IsVisible="{Binding HasAssessments}"
+                                                BackgroundColor="Transparent"    
+                                                ItemsSource="{Binding LateAssessments}">
+                                            <CollectionView.Header>
+                                                <HorizontalStackLayout
+                                                        Margin="0"
+                                                        Padding="0">
+                                                    <Label
+                                                            StyleClass="H3"
+                                                            Text="Late Assessments" />
+                                                </HorizontalStackLayout>
+                                            </CollectionView.Header>
+                                            <CollectionView.ItemTemplate>
+                                                <DataTemplate x:DataType="vm:LateWorkViewModel">
+                                                    <VerticalStackLayout
+                                                            Margin="0"
+                                                            Padding="0">
+                                                        <BoxView 
+                                                                StyleClass="Bar"
+                                                                HeightRequest="1" />
+                                                        <HorizontalStackLayout
+                                                                Margin="0"
+                                                                Padding="0"
+                                                                Spacing="15">
+                                                            <Label
+                                                                    StyleClass="H3"
+                                                                    Text="{Binding Assessment.Title}" />
+                                                            <Label
+                                                                    StyleClass="H3"
+                                                                    Text="{Binding Assessment.DateLabel}" />
+                                                        </HorizontalStackLayout>
+                                                        <Grid
+                                                                Margin="0"
+                                                                Padding="0"
+                                                                RowDefinitions="*"
+                                                                ColumnDefinitions="*,150">
+                                                            <HorizontalStackLayout
+                                                                    Grid.Column="0"
+                                                                    Margin="0"
+                                                                    Padding="0">
+                                                                <Label
+                                                                        Text="{Binding Marked, StringFormat='{0:d MMMM}'}" />
+                                                                <Label
+                                                                        Text="{Binding Details}" />
+                                                                <Image
+                                                                        StyleClass="RedFlagSignifier"
+                                                                        IsVisible="{Binding IsResolved, Converter={StaticResource Invert}}" />
+                                                            </HorizontalStackLayout>
+                                                            <HorizontalStackLayout
+                                                                    Margin="0"
+                                                                    Padding="0"
+                                                                    Grid.Column="1"
+                                                                    HorizontalOptions="End">
+                                                                <Label 
+                                                                        FontAttributes="Bold"
+                                                                        TextDecorations="Underline"
+                                                                        Text="Mark Resolved"
+                                                                        IsVisible="{Binding IsResolved, Converter={StaticResource Invert}}">
+                                                                    <Label.GestureRecognizers>
+                                                                        <TapGestureRecognizer Command="{Binding ResolveCommand}" />
+                                                                    </Label.GestureRecognizers>
+                                                                </Label>
+                                                                <Label
+                                                                        Text="{Binding ResolvedDate, StringFormat='Resolved: {0:d MMMM}'}"
+                                                                        IsVisible="{Binding IsResolved}" />
+                                                            </HorizontalStackLayout>
+                                                        </Grid>
+                                                    </VerticalStackLayout>
+                                                </DataTemplate>
+                                            </CollectionView.ItemTemplate>
+                                        </CollectionView>
+                                        <BoxView 
+                                                HeightRequest="1"
+                                                StyleClass="Bar" 
+                                                IsVisible="{Binding HasAssessments}"/>
+                                        <CollectionView
+                                                Margin="0"
+                                                IsVisible="{Binding HasPatterns}"
+                                                BackgroundColor="Transparent"
+                                                ItemsSource="{Binding LateWorkPatterns}">
+                                            <CollectionView.Header>
+                                                <HorizontalStackLayout>
+                                                    <Label
+                                                            StyleClass="H3"
+                                                            Text="Late Work Patterns" />
+                                                </HorizontalStackLayout>
+                                            </CollectionView.Header>
+                                            <CollectionView.ItemTemplate>
+                                                <DataTemplate x:DataType="vm:LateWorkViewModel">
+                                                    <VerticalStackLayout
+                                                            Margin="0"
+                                                            Padding="0">
+                                                        <BoxView StyleClass="Bar" HeightRequest="1" />
+                                                        <Grid
+                                                                Margin="0"
+                                                                Padding="0"
+                                                                RowDefinitions="*"
+                                                                ColumnDefinitions="*,150">
+                                                            <HorizontalStackLayout
+                                                                    Grid.Column="0"
+                                                                    Margin="0"
+                                                                    Padding="0">
+                                                                <Label
+                                                                        Text="{Binding Marked, StringFormat='{0:d MMMM}'}" />
+                                                                <Label
+                                                                        Text="{Binding Details}" />
+                                                                <Image
+                                                                        StyleClass="RedFlagSignifier"
+                                                                        IsVisible="{Binding IsResolved, Converter={StaticResource Invert}}" />
+                                                            </HorizontalStackLayout>
+                                                            <HorizontalStackLayout
+                                                                    Margin="0"
+                                                                    Padding="0"
+                                                                    Grid.Column="1"
+                                                                    HorizontalOptions="End">
+                                                                <Label 
+                                                                        FontAttributes="Bold"
+                                                                        TextDecorations="Underline"
+                                                                        Text="Mark Resolved"
+                                                                        IsVisible="{Binding IsResolved, Converter={StaticResource Invert}}">
+                                                                    <Label.GestureRecognizers>
+                                                                        <TapGestureRecognizer Command="{Binding ResolveCommand}" />
+                                                                    </Label.GestureRecognizers>
+                                                                </Label>
+                                                                <Label
+                                                                        Text="{Binding ResolvedDate, StringFormat='Resolved: {0:d MMMM}'}"
+                                                                        IsVisible="{Binding IsResolved}" />
+                                                            </HorizontalStackLayout>
+                                                        </Grid>
+                                                    </VerticalStackLayout>
+                                                </DataTemplate>
+                                            </CollectionView.ItemTemplate>
+                                        </CollectionView>
+                                    </VerticalStackLayout>
+                                    <BoxView
+                                            HeightRequest="50" />
+                                </VerticalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    </VerticalStackLayout>
+                    <!-- Assessments List-->
+                    <VerticalStackLayout
+                        Padding="0"
+                        Margin="0"
+                        Grid.Column="2"
+                        IsVisible="{Binding SelectedSection.ShowAssessments}">
+                        <CollectionView
+                            Margin="0"
+                            WidthRequest="750"
+                            BackgroundColor="Transparent"
+                            ItemsSource="{Binding SelectedSection.Assessments}">
+                            <CollectionView.Header>
+                                <VerticalStackLayout
+                                    Margin="0"
+                                    Padding="0"
+                                    WidthRequest="750">
+                                    <Label
+                                        StyleClass="Header"
+                                        Text="Scheduled Assessments" />
+                                    <BoxView StyleClass="Bar" />
+                                </VerticalStackLayout>
+                            </CollectionView.Header>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="vm:AssessmentEditorViewModel">
+                                    <VerticalStackLayout
+                                        Margin="0"
+                                        Padding="0">
+                                        <HorizontalStackLayout
+                                            Margin="0"
+                                            Padding="0"
+                                            Spacing="30">
+                                            <HorizontalStackLayout.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                            </HorizontalStackLayout.GestureRecognizers>
+                                            <Label 
+                                                StyleClass="H3"
+                                                Text="{Binding Details.Title, StringFormat='Block: {0}'}" />
+                                            <Label 
+                                                StyleClass="H3"
+                                                Text="{Binding Date, StringFormat='{0:ddd dd MMMM}'}" />
+                                            <Image
+                                                StyleClass="PassSignifier"
+                                                IsVisible="{Binding HasLatePasses}" />
+                                            <Image
+                                                StyleClass="WarningSignifier"
+                                                IsVisible="{Binding HasConflicts}" />
+                                            <Image
+                                                StyleClass="RedFlagSignifier"
+                                                IsVisible="{Binding HasRedFlags}" />
+                                        </HorizontalStackLayout>
+                                        <BoxView StyleClass="Bar" />
+                                    </VerticalStackLayout>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                    <!-- End Assessment List -->
+                    <!-- New Late Assessment Entry -->
+                    <VerticalStackLayout
+                        Grid.Column="2"
+                        IsVisible="{Binding SelectedSection.ShowNewLateAssessment}">
+                        <Grid
+                            RowDefinitions="*"
+                            ColumnDefinitions="*,150">
+                            <VerticalStackLayout
+                                Grid.Column="0"
+                                Margin="0"
+                                Padding="0">
+                                <Label
+                                    StyleClass="Header"
+                                    Text="{Binding SelectedSection.CreateLateAssessment.Assessment.Details.Title}" />
+                                <Label
+                                    StyleClass="SubHeader"
+                                    Text="{Binding SelectedSection.CreateLateAssessment.Assessment.Details.Subtitle}" />
+                                <Label
+                                    StyleClass="H3"
+                                    Text="{Binding SelectedSection.CreateLateAssessment.Assessment.Date, StringFormat='{0:dddd d MMMM hh:mm tt}'}" />
+                            </VerticalStackLayout>
+                            <HorizontalStackLayout
+                                Grid.Column="1"
+                                Spacing="30"
+                                HorizontalOptions="End">
+                                <Image
+                                    StyleClass="SaveButton">
+                                    <Image.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectedSection.CreateLateAssessment.SubmitCommand}" />
+                                    </Image.GestureRecognizers>
+                                </Image>
+                                <Image
+                                    StyleClass="CancelButton">
+                                    <Image.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectedSection.CreateLateAssessment.Assessment.SelectCommand}" />
+                                    </Image.GestureRecognizers>
+                                </Image>
+                            </HorizontalStackLayout>
+                        </Grid>
+                        <BoxView StyleClass="Bar" />
+                        <Editor
+                            WidthRequest="745"
+                            HeightRequest="100"
+                            Margin="0,0,0,15"
+                            Placeholder="Please provide additional details that will be sent to advisors."
+                            Text="{Binding SelectedSection.CreateLateAssessment.Details}" />
+                        <Grid
+                            RowDefinitions="*"
+                            ColumnDefinitions="375,375">
+                            <CollectionView
+                                Margin="0"
+                                Grid.Column="0"
+                                ItemsSource="{Binding SelectedSection.CreateLateAssessment.NotSelectedStudents}">
+                                <CollectionView.Header>
+                                    <VerticalStackLayout 
+                                        WidthRequest="375"
+                                        Margin="0"
+                                        Padding="0">
+                                        <Label
+                                            StyleClass="SubHeader"
+                                            Text="Students" />
+                                        <BoxView 
+                                            StyleClass="Bar" 
+                                            Margin="0"     />
+                                    </VerticalStackLayout>
+                                </CollectionView.Header>
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="svm:UserViewModel">
+                                        <HorizontalStackLayout>
+                                            <HorizontalStackLayout.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                            </HorizontalStackLayout.GestureRecognizers>
+                                            <Label 
+                                                VerticalTextAlignment="Center"
+                                                Text="{Binding DisplayName}" />
+                                            <Image
+                                                StyleClass="RightArrow" />
+                                        </HorizontalStackLayout>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                            <CollectionView
+                                Grid.Column="1"
+                                Margin="0"
+                                
+                                ItemsSource="{Binding SelectedSection.CreateLateAssessment.SelectedStudents}">
+                                <CollectionView.Header>
+                                    <VerticalStackLayout 
+                                        WidthRequest="375"
+                                        Margin="0"
+                                        Padding="0">
+                                        <Label
+                                            StyleClass="SubHeader"
+                                            Text="Students Marked Late" />
+                                        <BoxView 
+                                            StyleClass="Bar"
+                                            Margin="0"/>
+                                    </VerticalStackLayout>
+                                </CollectionView.Header>
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="svm:UserViewModel">
+                                        <HorizontalStackLayout>
+                                            <HorizontalStackLayout.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                            </HorizontalStackLayout.GestureRecognizers>
+                                            <Label 
+                                                VerticalTextAlignment="Center"
+                                                Text="{Binding DisplayName}" />
+                                            <Image
+                                                StyleClass="BackButton" />
+                                        </HorizontalStackLayout>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </Grid>
+                    </VerticalStackLayout>
+                    <!-- End New Late Assessment -->
+                    <!-- New Late Work Pattern -->
+                    <VerticalStackLayout
+                        Grid.Column="2"
+                        Margin="0"
+                        Padding="0"
+                        IsVisible="{Binding SelectedSection.ShowNewPattern}">
+                        <Grid
+                            RowDefinitions="*"
+                            ColumnDefinitions="*,150">
+                            <VerticalStackLayout
+                                Grid.Column="0"
+                                Margin="0"
+                                Padding="0">
+                                <Label
+                                    StyleClass="Header"
+                                    Text="New Late Work Pattern" />
+                            </VerticalStackLayout>
+                            <HorizontalStackLayout
+                                Grid.Column="1"
+                                Spacing="30"
+                                HorizontalOptions="End">
+                                <Image
+                                    StyleClass="SaveButton">
+                                    <Image.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectedSection.CreatePattern.SubmitCommand}" />
+                                    </Image.GestureRecognizers>
+                                </Image>
+                                <Image
+                                    StyleClass="CancelButton">
+                                    <Image.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectedSection.ToggleShowNewPatternCommand}" />
+                                    </Image.GestureRecognizers>
+                                </Image>
+                            </HorizontalStackLayout>
+                        </Grid>
+                        <BoxView StyleClass="Bar" />
+                        <Editor
+                            WidthRequest="745"
+                            HeightRequest="100"
+                            Margin="0,0,0,15"
+                            Placeholder="Please provide additional details that will be sent to advisors."
+                            Text="{Binding SelectedSection.CreatePattern.Details}" />
+                        <Grid
+                            RowDefinitions="*"
+                            ColumnDefinitions="375,375">
+                            <CollectionView
+                                Margin="0"
+                                Grid.Column="0"
+                                ItemsSource="{Binding SelectedSection.CreatePattern.NotSelectedStudents}">
+                                <CollectionView.Header>
+                                    <VerticalStackLayout
+                                        WidthRequest="375"
+                                        Margin="0"
+                                        Padding="0">
+                                        <Label
+                                            StyleClass="SubHeader"
+                                            Text="Students" />
+                                        <BoxView StyleClass="Bar" />
+                                    </VerticalStackLayout>
+                                </CollectionView.Header>
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="svm:UserViewModel">
+                                        <HorizontalStackLayout>
+                                            <HorizontalStackLayout.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                            </HorizontalStackLayout.GestureRecognizers>
+                                            <Label 
+                                                VerticalTextAlignment="Center"
+                                                Text="{Binding DisplayName}" />
+                                            <Image
+                                                StyleClass="RightArrow" />
+                                        </HorizontalStackLayout>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                            <CollectionView
+                                Margin="0"
+                                Grid.Column="1"
+                                ItemsSource="{Binding SelectedSection.CreatePattern.SelectedStudents}">
+                                <CollectionView.Header>
+                                    <VerticalStackLayout
+                                        Margin="0"
+                                        Padding="0"
+                                        WidthRequest="375">
+                                        <Label
+                                            StyleClass="SubHeader"
+                                            Text="Students Marked Late" />
+                                        <BoxView StyleClass="Bar" />
+                                    </VerticalStackLayout>
+                                </CollectionView.Header>
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="svm:UserViewModel">
+                                        <HorizontalStackLayout>
+                                            <HorizontalStackLayout.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                            </HorizontalStackLayout.GestureRecognizers>
+                                            <Label 
+                                                VerticalTextAlignment="Center"
+                                                Text="{Binding DisplayName}" />
+                                            <Image
+                                                StyleClass="BackButton" />
+                                        </HorizontalStackLayout>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </Grid>
+                    </VerticalStackLayout>
+                    <!-- End New Late Work Pattern -->
+                </Grid>
+                
+            </VerticalStackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

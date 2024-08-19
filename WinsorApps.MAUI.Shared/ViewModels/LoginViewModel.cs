@@ -1,3 +1,4 @@
+using AsyncAwaitBestPractices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using WinsorApps.Services.Global.Models;
@@ -5,7 +6,9 @@ using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.Shared.ViewModels;
 
-public partial class LoginViewModel : ObservableObject
+public partial class LoginViewModel : 
+    ObservableObject,
+    IBusyViewModel
 {
     /***************************************
      * Ok, so ObservableProperty ...
@@ -23,6 +26,8 @@ public partial class LoginViewModel : ObservableObject
     [ObservableProperty] private bool isLoggedIn = false;
     [ObservableProperty] private bool showPasswordField = true;
     [ObservableProperty] private string statusMessage;
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "Working...";
 
     private readonly ApiService _api;
 
@@ -49,12 +54,22 @@ public partial class LoginViewModel : ObservableObject
     public LoginViewModel()
     {
         // Inject this service from the Service Helper!
-        _api = ServiceHelper.GetService<ApiService>()!;
+        _api = ServiceHelper.GetService<ApiService>();
+        busy = _api.AutoLoginInProgress;
         _api.OnLoginSuccess += _api_OnLoginSuccess;
         email = "";
         password = "";
-        statusMessage = _api.Ready ? "Login Successful" : "Please Log In";
+        statusMessage = _api.Ready ? "Login Successful" : Busy ? "Waiting for Auto Login" : "Please Log In";
         isLoggedIn = _api.Ready;
+        WaitForAutoLogin().SafeFireAndForget(e => e.LogException());
+    }
+
+    private async Task WaitForAutoLogin()
+    {
+        while (_api.AutoLoginInProgress)
+            await Task.Delay(100);
+        Busy = false;
+        StatusMessage = _api.Ready ? "Login Successful" : "Please Login";
     }
 
     private void _api_OnLoginSuccess(object? sender, EventArgs e)
@@ -73,6 +88,8 @@ public partial class LoginViewModel : ObservableObject
     [RelayCommand]
     public async Task Login()
     {
+        Busy = true;
+        BusyMessage = "Logging in";
         await _api.Login(Email.ToLowerInvariant(), Password, 
             err =>
             {
@@ -80,6 +97,7 @@ public partial class LoginViewModel : ObservableObject
                 OnError?.Invoke(this, err);
             });
         IsLoggedIn = _api.Ready;
+        Busy = false;
     }
 
     /// <summary>
@@ -103,8 +121,19 @@ public partial class LoginViewModel : ObservableObject
     [RelayCommand]
     public async Task ForgotPassword()
     {
+        Busy = true;
+        StatusMessage = "Submitting Forgot Password Request";
+        bool success = true;
         await _api.ForgotPassword(Email, "", 
             str => OnForgotPassword?.Invoke(this, str),
-            err => OnError?.Invoke(this, err));
+            err => { OnError?.Invoke(this, err); success = false; });
+
+        if(success)
+        {
+            StatusMessage = "Forgot Password accepted.  Please check your email and follow the instructions for your new password.";
+            await Task.Delay(5000);
+        }
+        Busy = false;
     }
+
 }

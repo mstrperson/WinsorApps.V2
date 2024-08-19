@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels;assembly=WinsorApps.MAUI.Shared"
+             xmlns:styles="clr-namespace:WinsorApps.MAUI.StudentBookstore.Resources.Styles"
+             xmlns:converters="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             x:DataType="vm:MainPageViewModel"
+             x:Class="WinsorApps.MAUI.StudentBookstore.MainPage">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:BoolInverter x:Key="Invert" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem
+            Text="Logout"
+            Command="{Binding LogoutCommand}" />
+    </ContentPage.ToolbarItems>
+    <ScrollView>
+        <VerticalStackLayout
+        Padding="30,0"
+        Spacing="25">
+            <Image
+            StyleClass="wordmark_oneline" />
+            <VerticalStackLayout
+                Margin="0"
+                Padding="0">
+                <HorizontalStackLayout 
+                        VerticalOptions="Center"
+                        HorizontalOptions="Center"
+                        IsVisible="{Binding Busy}">
+                    <Label 
+                        Text="{Binding BusyMessage}"
+                        FontSize="Large"
+                        x:Name="Loading"/>
+                    <Image
+                        StyleClass="loading_symbol"
+                        VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+
+                <Label Text="Hello, " IsVisible="{Binding Ready}"/>
+                <Label
+                    Text="{Binding UserVM.DisplayName}"
+                    StyleClass="Header" 
+                    IsVisible="{Binding Ready}"/>
+            </VerticalStackLayout>
+            
+            <Border
+                StrokeThickness="3"
+                Margin="5,10,10,0"
+                Padding="0"
+                WidthRequest="300"
+                HeightRequest="60"
+                Stroke="{AppThemeBinding Dark={DynamicResource WarmGrey}, Light={DynamicResource SlateDark}}"
+                BackgroundColor="{AppThemeBinding Dark={DynamicResource SlateDark}, Light={DynamicResource WarmGrey}}"
+                IsVisible="{Binding Ready}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="25,25,25,25"/>
+                </Border.StrokeShape>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
+                </Border.GestureRecognizers>
+                <Label
+                    Text="View Requested Books"
+                    FontSize="Small"
+                    IsVisible="{Binding Ready}"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    />
+            </Border>
+            <Border
+                StrokeThickness="3"
+                Margin="5,10,10,0"
+                Padding="0"
+                WidthRequest="300"
+                HeightRequest="60"
+                Stroke="{AppThemeBinding Dark={DynamicResource WarmGrey}, Light={DynamicResource SlateDark}}"
+                BackgroundColor="{AppThemeBinding Dark={DynamicResource SlateDark}, Light={DynamicResource WarmGrey}}"
+                IsVisible="{Binding UpdateAvailable}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="25,25,25,25"/>
+                </Border.StrokeShape>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding DownloadLatestVersionCommand}"/>
+                </Border.GestureRecognizers>
+                <Label
+                    Text="Download Updated App!"
+                    FontSize="Small"
+                    IsVisible="{Binding UpdateAvailable}"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center" />
+            </Border>
+
+            <CollectionView 
+                ItemsSource="{Binding PostLoginServices}"
+                BackgroundColor="Transparent">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ServiceAwaiterViewModel">
+                        <VerticalStackLayout IsVisible="{Binding Ready, Converter={StaticResource Invert}}">
+                            <Label 
+                            StyleClass="SubHeader"
+                            Text="{Binding ServiceName}" />
+                            <Label
+                            Text="Waiting to Start..."
+                            IsVisible="{Binding Started, Converter={StaticResource Invert}}" />
+                            <ProgressBar 
+                            Progress="{Binding Progress}"
+                            IsVisible="{Binding Started}" />
+                        </VerticalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            <CollectionView 
+                ItemsSource="{Binding Completion}"
+                BackgroundColor="Transparent">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:TaskAwaiterViewModel">
+                        <HorizontalStackLayout IsVisible="{Binding Ready, Converter={StaticResource Invert}}">
+                            <Label
+                            StyleClass="H3"
+                            Text="{Binding TaskName}" />
+                            <Switch
+                            IsToggled="{Binding Ready}"
+                            IsEnabled="False" />
+                        </HorizontalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

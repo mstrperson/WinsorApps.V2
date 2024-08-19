@@ -1,12 +1,11 @@
 ﻿using System.Collections.Immutable;
 using System.IdentityModel.Tokens.Jwt;
-using System.Text;
 using System.Text.Json;
 using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.Services.Global.Models;
 
-    public sealed class ApiException : Exception
+public sealed class ApiException : Exception
     {
         public ErrorRecord ErrorRecord { get; private set; }
 

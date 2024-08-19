@@ -1,13 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System.Collections.Immutable;
 using WinsorApps.Services.EventForms.Models;
-using WinsorApps.Services.Global;
-using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.Services.EventForms.Services
@@ -55,7 +47,7 @@ namespace WinsorApps.Services.EventForms.Services
             }
             Progress = 0;
 
-            BudgetCodes = await _api.SendAsync<ImmutableArray<BudgetCode>>(HttpMethod.Get, "api/budget-codes", onError: onError);
+            BudgetCodes = await _api.SendAsync<ImmutableArray<BudgetCode>?>(HttpMethod.Get, "api/budget-codes", onError: onError) ?? [];
             Progress = 1;
             Ready = true;
         }

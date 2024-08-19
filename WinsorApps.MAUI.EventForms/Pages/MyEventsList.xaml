@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.EventForms.ViewModels;assembly=WinsorApps.MAUI.Shared.EventForms"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             xmlns:styles="clr-namespace:WinsorApps.MAUI.Shared.Resources.Styles;assembly=WinsorApps.MAUI.Shared"
+             x:DataType="vm:EventListViewModel"
+             x:Class="WinsorApps.MAUI.EventForms.Pages.MyEventsList"
+             NavigatedTo="MyEventsList_OnNavigatedTo"
+             Title="My Events">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert"/>
+            <conv:StringToIntegerConverter x:Key="StringToInt" />
+            <conv:CurrencyToStringConverter x:Key="Currency" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem 
+            Text="Create New" 
+            Command="{Binding CreateNewCommand}" 
+            StyleClass="AddButton"/>
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout>
+                <HorizontalStackLayout
+                    Spacing="30"
+                    HorizontalOptions="Center">
+                    <Label 
+                        StyleClass="LeftArrow"
+                        FontSize="Large">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer 
+                                Command="{Binding DecrementMonthCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                    <Label
+                        StyleClass="Header"
+                        Text="{Binding PageLabel}" 
+                        WidthRequest="400"
+                        HorizontalTextAlignment="Center"/>
+                    <Label
+                        StyleClass="RightArrow"
+                        FontSize="Large">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding IncrementMonthCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </HorizontalStackLayout>
+                <BoxView StyleClass="Bar" />
+                <HorizontalStackLayout
+                    IsVisible="{Binding Busy}">
+                    <Label
+                        Text="{Binding BusyMessage}"
+                        StyleClass="SubHeader"/>
+                    <Image
+                        StyleClass="loading_image" />
+                </HorizontalStackLayout>
+                <CollectionView
+                    HeightRequest="1000"
+                    ItemsSource="{Binding Events}"
+                    BackgroundColor="Transparent">
+                    <CollectionView.Header>
+                        <HorizontalStackLayout
+                            HorizontalOptions="Center">
+                            <Label
+                                StyleClass="SubHeader"
+                                Text="My Events" />
+                            <Image
+                                StyleClass="RefreshButton">
+                                <Image.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ReloadCommand}" />
+                                </Image.GestureRecognizers>
+                            </Image>
+                        </HorizontalStackLayout>
+                    </CollectionView.Header>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:EventFormViewModel">
+                            <Grid
+                                RowDefinitions="*,*"
+                                ColumnDefinitions="*,250">
+                                <HorizontalStackLayout
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    Spacing="15"
+                                    HeightRequest="60">
+                                    <HorizontalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                    </HorizontalStackLayout.GestureRecognizers>
+                                    <Label Text="{Binding StatusSelection.Selected.Label}"/>
+                                    <Label Text="-" />
+                                    <Label Text="{Binding Summary}" />
+                                    <Label Text="{Binding StartDate,StringFormat='{0:dddd dd MMMM, yyyy}'}"/>
+                                </HorizontalStackLayout>
+                                <HorizontalStackLayout
+                                    Grid.Row="0"
+                                    Grid.Column="1"
+                                    Spacing="30">
+                                    <Image
+                                        StyleClass="PrintButton">
+                                        <Image.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding PrintCommand}"/>
+                                        </Image.GestureRecognizers>
+                                    </Image>
+                                </HorizontalStackLayout>
+                                <BoxView 
+                                    StyleClass="Bar"
+                                    Grid.Row="1"
+                                    Grid.ColumnSpan="2" />
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

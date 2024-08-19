@@ -1,12 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.Bookstore.ViewModels;
 using WinsorApps.MAUI.Shared.ViewModels;
@@ -19,13 +14,13 @@ namespace WinsorApps.MAUI.BookstoreManager.ViewModels;
 public partial class TeacherOrderViewModel :
     ObservableObject,
     ICachedViewModel<TeacherOrderViewModel, TeacherBookOrderDetail, BookstoreManagerService>,
-    IEmptyViewModel<TeacherOrderViewModel>,
+    IDefaultValueViewModel<TeacherOrderViewModel>,
     IErrorHandling,
     IBusyViewModel
 {
     private readonly BookstoreManagerService _managerService = ServiceHelper.GetService<BookstoreManagerService>();
 
-    [ObservableProperty] SectionViewModel section = IEmptyViewModel<SectionViewModel>.Empty;
+    [ObservableProperty] SectionViewModel section = SectionViewModel.Empty;
     [ObservableProperty] ImmutableArray<BookRequestViewModel> bookRequests = [];
 
     [ObservableProperty] bool busy;
@@ -38,7 +33,6 @@ public partial class TeacherOrderViewModel :
     {
         Busy = true;
         BusyMessage = "Submitting Book Order";
-
         if (string.IsNullOrEmpty(Section.Id))
         {
             await Section.CreateSection();
@@ -53,6 +47,9 @@ public partial class TeacherOrderViewModel :
     }
 
     public static ConcurrentBag<TeacherOrderViewModel> ViewModelCache { get; private set; } = [];
+
+    public static TeacherOrderViewModel Empty => new();
+
     public static TeacherOrderViewModel Get(TeacherBookOrderDetail model)
     {
         var vm = ViewModelCache.FirstOrDefault(ord => ord.Section.Id == model.section.id);
@@ -94,7 +91,7 @@ public partial class BookRequestOptionGroupViewModel :
     ICachedViewModel<BookRequestOptionGroupViewModel, TeacherBookOrderGroup, BookstoreManagerService>
 {
     [ObservableProperty] string groupId = "";
-    [ObservableProperty] BookOrderOptionViewModel option = BookOrderOptionViewModel.Default;
+    [ObservableProperty] BookOrderOptionViewModel option = BookOrderOptionViewModel.Empty;
     [ObservableProperty] ImmutableArray<BookRequestViewModel> requests = [];
 
     public static ConcurrentBag<BookRequestOptionGroupViewModel> ViewModelCache { get; private set; } = [];
@@ -137,7 +134,7 @@ public partial class BookRequestViewModel :
     ObservableObject,
     ISelectable<BookRequestViewModel>
 {
-    [ObservableProperty] IsbnViewModel isbn = IEmptyViewModel<IsbnViewModel>.Empty;
+    [ObservableProperty] IsbnViewModel isbn = IsbnViewModel.Empty;
     [ObservableProperty] DateTime submitted;
     [ObservableProperty] int quantity;
     [ObservableProperty] bool fallOrFullYear = true;

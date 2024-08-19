@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.StudentAssessmentCalendar.ViewModels"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             x:DataType="vm:StudentAssessmentViewModel"
+             x:Class="WinsorApps.MAUI.StudentAssessmentCalendar.Pages.AssessmentPage"
+             Title="{Binding ClassName}">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.Content>
+        <VerticalStackLayout>
+            <HorizontalStackLayout
+                HorizontalOptions="Center"
+                Spacing="30">
+                <Label
+                    StyleClass="Header"
+                    Text="{Binding ClassName}" />
+                <Label
+                    StyleClass="Header"
+                    Text="{Binding TeacherName}" />
+            </HorizontalStackLayout>
+            <HorizontalStackLayout
+                HorizontalOptions="Center">
+                <Label
+                    StyleClass="SubHeader"
+                    Text="{Binding Event.Description}" />
+            </HorizontalStackLayout>
+            <HorizontalStackLayout
+                HorizontalOptions="Center">
+                <Label
+                    Text="{Binding Event.Start, StringFormat='{0:dddd dd MMMM - hh:mm tt}'}" 
+                    IsVisible="{Binding Event.AllDay,Converter={StaticResource Invert}}"/>
+                <Label
+                    Text="{Binding Event.Start, StringFormat='{0:dddd dd MMMM}'}" 
+                    IsVisible="{Binding Event.AllDay}"/>
+            </HorizontalStackLayout>
+            <HorizontalStackLayout
+                HorizontalOptions="Center"
+                IsVisible="{Binding IsAssessment}"
+                IsEnabled="{Binding Busy, Converter={StaticResource Invert}}">
+                <Button
+                    Text="Use Late Pass"
+                    IsVisible="{Binding Event.PassAvailable}" 
+                    Command="{Binding UseLatePassCommand}"/>
+                <Button
+                    Text="Withdraw Late Pass"
+                    IsVisible="{Binding Event.PassUsed}"
+                    Command="{Binding WithdrawLatePassCommand}" />
+                <Label
+                    StyleClass="H3"
+                    Text="{Binding LatePassMessage}"
+                    IsVisible="{Binding CannotLatePass}" />
+            </HorizontalStackLayout>
+            <HorizontalStackLayout
+                HorizontalOptions="Center"
+                IsVisible="{Binding Busy}">
+                <Label
+                    StyleClass="H3"
+                    Text="{Binding BusyMessage}" />
+                <Image
+                    StyleClass="loading_symbol" />
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+    </ContentPage.Content>
+</ContentPage>

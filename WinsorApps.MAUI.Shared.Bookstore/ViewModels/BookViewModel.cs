@@ -9,10 +9,32 @@ using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.Shared.Bookstore.ViewModels;
 
+public partial class BookInfoViewModel :
+    ObservableObject
+{
+    [ObservableProperty] private string title = "";
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private string authorList = "";
+    [ObservableProperty] private string edition = "";
+    [ObservableProperty] private DateTime publicationDate;
+    [ObservableProperty] private string publisher = "";
+
+    public BookInfoViewModel() { }
+    public BookInfoViewModel(BookInfo bookInfo)
+    {
+        Title = bookInfo.title;
+        Id = bookInfo.id;
+        AuthorList = bookInfo.authors.DelimeteredList();
+        Edition = bookInfo.edition;
+        PublicationDate = bookInfo.publicationDate.ToDateTime(default);
+        Publisher = bookInfo.publisher;
+    }
+}
+
 public partial class BookViewModel :
     ObservableObject, 
-    IErrorHandling, 
-    IEmptyViewModel<BookViewModel>, 
+    IErrorHandling,
+    IDefaultValueViewModel<BookViewModel>,
     ICachedViewModel<BookViewModel, BookDetail, BookService>
 {
     public event EventHandler<BookViewModel>? Selected;
@@ -34,6 +56,8 @@ public partial class BookViewModel :
     private BookDetail _book = new("", "", [], "", default, "", []);
 
     public static ConcurrentBag<BookViewModel> ViewModelCache { get; private set; } = [];
+
+    public static BookViewModel Empty => new();
 
     public BookViewModel()
     {

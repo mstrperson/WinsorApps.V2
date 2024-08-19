@@ -1,8 +1,6 @@
 using AsyncAwaitBestPractices;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using System.Collections.Concurrent;
-using System.Runtime.InteropServices;
 using WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom;
 using WinsorApps.MAUI.Helpdesk.ViewModels.Jamf;
 using WinsorApps.MAUI.Shared;
@@ -15,7 +13,7 @@ using WinsorApps.Services.Helpdesk.Services;
 
 namespace WinsorApps.MAUI.Helpdesk.ViewModels;
 
-public partial class WinsorDeviceViewModel : ObservableObject, IErrorHandling, ICachedViewModel<WinsorDeviceViewModel, DeviceRecord, DeviceService>
+public partial class WinsorDeviceViewModel : ObservableObject, IErrorHandling, ICachedViewModel<WinsorDeviceViewModel, DeviceRecord, DeviceService>, IDefaultValueViewModel<WinsorDeviceViewModel>
 {
     private readonly DeviceService _deviceService;
     private readonly CheqroomService _cheqroom;
@@ -33,12 +31,12 @@ public partial class WinsorDeviceViewModel : ObservableObject, IErrorHandling, I
     [ObservableProperty] private CategorySearchViewModel categorySearch = new();
     [ObservableProperty] private DateTime purchaseDate;
     [ObservableProperty] private double purchaseCost;
-    [ObservableProperty] private JamfViewModel jamfDetails = IEmptyViewModel<JamfViewModel>.Empty;
+    [ObservableProperty] private JamfViewModel jamfDetails = JamfViewModel.Empty;
     [ObservableProperty] private bool showJamf;
-    [ObservableProperty] private InventoryPreloadViewModel jamfInventoryPreload = IEmptyViewModel<InventoryPreloadViewModel>.Empty;
+    [ObservableProperty] private InventoryPreloadViewModel jamfInventoryPreload = InventoryPreloadViewModel.Empty;
     [ObservableProperty]
     private bool showInventoryPreload;
-    [ObservableProperty] private CheqroomItemViewModel cheqroomItem = IEmptyViewModel<CheqroomItemViewModel>.Empty;
+    [ObservableProperty] private CheqroomItemViewModel cheqroomItem = CheqroomItemViewModel.Empty;
     [ObservableProperty]
     private bool showCheqroom;
 
@@ -54,6 +52,8 @@ public partial class WinsorDeviceViewModel : ObservableObject, IErrorHandling, I
     }
 
     public static ConcurrentBag<WinsorDeviceViewModel> ViewModelCache { get; private set; } = [];
+
+    public static WinsorDeviceViewModel Empty => new();
 
     public WinsorDeviceViewModel()
     {
@@ -181,7 +181,7 @@ public partial class WinsorDeviceViewModel : ObservableObject, IErrorHandling, I
             output.Add(vm.Clone());
         }
         if(output.Count == 0)
-            output.Add(IEmptyViewModel<WinsorDeviceViewModel>.Empty);
+            output.Add(WinsorDeviceViewModel.Empty);
         return output;
     }
 

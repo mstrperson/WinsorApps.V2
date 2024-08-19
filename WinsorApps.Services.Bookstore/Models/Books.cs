@@ -92,6 +92,9 @@ public readonly record struct BookDetail(
     ImmutableArray<ISBNInfo> isbns)
 {
     public override string ToString() => $"{title}, {authors.Aggregate((a, b) => $"{a}; {b}")} [{publisher}]";
+
+    public static implicit operator BookInfo(BookDetail details) =>
+        new(details.id, details.title, details.authors, details.edition, details.publicationDate, details.publisher);
 }
 
 public readonly record struct BookInfo(

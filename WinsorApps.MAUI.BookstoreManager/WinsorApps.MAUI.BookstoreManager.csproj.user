@@ -9,9 +9,6 @@
     <MauiXaml Update="Pages\ManagerBookEditor.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
-    <MauiXaml Update="Pages\StudentCheckout.xaml">
-      <SubType>Designer</SubType>
-    </MauiXaml>
     <MauiXaml Update="Resources\Styles\ButtonStyles.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>

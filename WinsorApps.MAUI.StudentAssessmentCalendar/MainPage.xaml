@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels;assembly=WinsorApps.MAUI.Shared"
+             xmlns:styles="clr-namespace:WinsorApps.MAUI.StudentBookstore.Resources.Styles"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             x:DataType="vm:MainPageViewModel"
+             x:Class="WinsorApps.MAUI.StudentAssessmentCalendar.MainPage">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem 
+            Text="Logout"
+            Command="{Binding LogoutCommand}" />
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <ScrollView>
+            <VerticalStackLayout
+            Spacing="25">
+                <Image
+                StyleClass="wordmark_oneline" />
+                <VerticalStackLayout
+                Margin="0"
+                Padding="0">
+                    <Label Text="Hello, "/>
+                    <Label
+                    Text="{Binding UserVM.DisplayName}"
+                    StyleClass="Header"/>
+                </VerticalStackLayout>
+
+                <Border
+                StrokeThickness="3"
+                Margin="5,10,10,0"
+                Padding="0"
+                WidthRequest="300"
+                HeightRequest="60"
+                BackgroundColor="Gray"
+                IsVisible="{Binding UpdateAvailable}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="25,25,25,25"/>
+                    </Border.StrokeShape>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding DownloadLatestVersionCommand}"/>
+                    </Border.GestureRecognizers>
+                    <Label
+                    Text="Download Updated App!"
+                    FontSize="Small"
+                    IsVisible="{Binding UpdateAvailable}"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center" />
+                </Border>
+
+                <CollectionView 
+                ItemsSource="{Binding PostLoginServices}"
+                IsVisible="{Binding Ready, Converter={StaticResource Invert}}"
+                BackgroundColor="Transparent">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ServiceAwaiterViewModel">
+                            <VerticalStackLayout IsVisible="{Binding Ready, Converter={StaticResource Invert}}">
+                                <Label 
+                                StyleClass="SubHeader"
+                                Text="{Binding ServiceName}" />
+                                <Label
+                                Text="Waiting to Start..."
+                                IsVisible="{Binding Started, Converter={StaticResource Invert}}" />
+                                <ProgressBar 
+                                Progress="{Binding Progress}"
+                                IsVisible="{Binding Started}" />
+                            </VerticalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                <CollectionView 
+                ItemsSource="{Binding Completion}"
+                BackgroundColor="Transparent">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:TaskAwaiterViewModel">
+                            <HorizontalStackLayout>
+                                <Label
+                                StyleClass="H3"
+                                Text="{Binding TaskName}" />
+                                <Switch
+                                IsToggled="{Binding Ready}"
+                                IsEnabled="False" />
+                            </HorizontalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

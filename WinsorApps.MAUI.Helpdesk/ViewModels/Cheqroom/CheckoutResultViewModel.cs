@@ -1,15 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Helpdesk.Models;
 
 namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
 {
-    public class CheckoutResultViewModel : ObservableObject, IEmptyViewModel<CheckoutResultViewModel>
+    public class CheckoutResultViewModel : ObservableObject, IDefaultValueViewModel<CheckoutResultViewModel>
     {
         private readonly CheqroomCheckoutResult _result;
 
@@ -17,6 +12,8 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         public string Status => _result.status;
         public string ItemSummary => _result.itemSummary;
         public DateTime Due => _result.due;
+
+        public static CheckoutResultViewModel Empty => new();
 
         public CheckoutResultViewModel() => _result = new();
 

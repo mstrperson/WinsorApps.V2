@@ -1,27 +1,49 @@
 ﻿using System.Collections.Immutable;
+using System.Text.Json;
 using WinsorApps.Services.Global.Models;
+using static WinsorApps.Services.Global.Services.LocalLoggingService;
 
 namespace WinsorApps.Services.Global.Services
 {
-    public class AppService
+    public class AppService : 
+        IAsyncInitService
     {
         private readonly ApiService _api;
         private readonly LocalLoggingService _logging;
+
+        public bool Allowed { get; private set; }
+
+        public bool UpdateAvailable { get; private set; }
+
+        public bool Started { get; private set; }
+
+        public bool Ready { get; private set; }
+
+        public double Progress { get; private set; }
+
+        public string AppId { get; set; } = "";
+
+        public AppInstallerGroup Group { get; private set; }
+
+        public event EventHandler? AppNotAuthorized;
+
+        private AppVersionList _versionList = new([]);
+
         public AppService(ApiService api, LocalLoggingService logging)
         {
             _api = api;
             _logging = logging;
         }
 
-        public async Task<AppInstallerAvailableRoles> GetAllowedRoles(string groupId, ErrorAction onError)
+        public async Task<AppInstallerAvailableRoles> GetAllowedRoles(ErrorAction onError)
         {
             var result = await _api.SendAsync<AppInstallerAvailableRoles>(HttpMethod.Get,
-                $"api/apps/{groupId}/roles", authorize: false, onError: onError);
+                $"api/apps/{AppId}/roles", authorize: false, onError: onError);
 
             return result;
         }
 
-        public async Task<bool> AmIAllowed(string groupId, ErrorAction onError)
+        public async Task<bool> AmIAllowed(ErrorAction onError)
         {
             var roles = await _api.UserInfo!.Value.GetRoles(_api);
             if (roles.Contains("System Admin"))
@@ -34,74 +56,64 @@ namespace WinsorApps.Services.Global.Services
             var allowedApps = await _api.SendAsync<ImmutableArray<AppInstallerGroup>>(HttpMethod.Get,
                 $"api/apps/for/{userId}", authorize: false, onError: onError);
 
-            return allowedApps.Any(app => app.id == groupId);
+            return allowedApps.Any(app => app.id == AppId);
         }
 
-        public async Task<bool> CheckForUpdates(string groupId, ErrorAction onError)
+        public async Task<bool> CheckForUpdates()
         {
-            var app = await CheckAppStatus(groupId);
-            if (app == default)
+            var app = await CheckAppStatus();
+            if (!app.HasValue)
                 return false;
 
-            if (app.availableDownloads.Any(version =>
+            if (app.Value.availableDownloads.Any(version =>
                 version.arch == _logging.ValidArchitecture &&
                 version.contentType == _logging.ValidExecutableType &&
-                version.uploaded > _logging.LastVersionUpdated))
+                version.uploaded > LastVersionUpdated))
             {
-                var version = app.availableDownloads.First(v =>
+                var version = app.Value.availableDownloads.First(v =>
                                 v.arch == _logging.ValidArchitecture &&
                                 v.contentType == _logging.ValidExecutableType &&
-                                v.uploaded > _logging.LastVersionUpdated);
-                _logging.LogMessage(LocalLoggingService.LogLevel.Debug,
-                    $"Found version update: {version.uploaded:yyyy-MM-dd hh:mm tt} > {_logging.LastVersionUpdated:yyyy-MM-dd hh:mm tt}");
+                                v.uploaded > LastVersionUpdated);
+                _logging.LogMessage(LogLevel.Debug,
+                    $"Found version update: {version.uploaded:yyyy-MM-dd hh:mm tt} > {LastVersionUpdated:yyyy-MM-dd hh:mm tt}");
                 return true;
             }
 
             return false;
         }
 
-        public async Task<string> CheckForUpdates(string groupId)
+        public async Task CheckForUpdates(Action<FileStreamWrapper> onNewVersionAvailable, ErrorAction onError)
         {
-
-            var app = await CheckAppStatus(groupId);
-            if (app == default)
-                return "";
-
-            return OpenBrowserLinkForLatestVersion(app);
-        }
-
-        public async Task CheckForUpdates(string groupId, Action<FileStreamWrapper> onNewVersionAvailable, ErrorAction onError)
-        {
-            var app = await CheckAppStatus(groupId);
-            if (app == default)
+            var app = await CheckAppStatus();
+            if (!app.HasValue)
                 return;
 
-            if (app.availableDownloads.Any(version =>
+            if (app.Value.availableDownloads.Any(version =>
                 version.arch == _logging.ValidArchitecture &&
                 version.contentType == _logging.ValidExecutableType &&
-                version.uploaded > _logging.LastVersionUpdated))
+                version.uploaded > LastVersionUpdated))
             {
-                var version = app.availableDownloads.First(v =>
+                var version = app.Value.availableDownloads.First(v =>
                                 v.arch == _logging.ValidArchitecture &&
                                 v.contentType == _logging.ValidExecutableType &&
-                                v.uploaded > _logging.LastVersionUpdated);
-                _logging.LogMessage(LocalLoggingService.LogLevel.Debug,
-                    $"Found version update: {version.uploaded:yyyy-MM-dd hh:mm tt} > {_logging.LastVersionUpdated:yyyy-MM-dd hh:mm tt}");
-                onNewVersionAvailable((await DownloadLatestVersion(groupId, onError))!);
+                                v.uploaded > LastVersionUpdated);
+                _logging.LogMessage(LogLevel.Debug,
+                    $"Found version update: {version.uploaded:yyyy-MM-dd hh:mm tt} > {LastVersionUpdated:yyyy-MM-dd hh:mm tt}");
+                onNewVersionAvailable((await DownloadLatestVersion(onError))!);
             }
         }
 
         public async Task<ImmutableArray<AppInstallerGroup>> GetAllApps() =>
-            await _api.SendAsync<ImmutableArray<AppInstallerGroup>>(HttpMethod.Get,
-                "api/apps", authorize: false);
+            await _api.SendAsync<ImmutableArray<AppInstallerGroup>?>(HttpMethod.Get,
+                "api/apps", authorize: false) ?? [];
 
-        public async Task<AppInstallerGroup> CheckAppStatus(string groupId) => 
-            await _api.SendAsync<AppInstallerGroup>(HttpMethod.Get,
-                $"api/apps/{groupId}", authorize: false);
+        public async Task<AppInstallerGroup?> CheckAppStatus() => 
+            await _api.SendAsync<AppInstallerGroup?>(HttpMethod.Get,
+                $"api/apps/{AppId}", authorize: false);
 
 
 
-        public string OpenBrowserLinkForLatestVersion(AppInstallerGroup group)
+        public string GetBrowserLinkForLatestVersion()
         {
             var arch = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture switch
             {
@@ -119,23 +131,95 @@ namespace WinsorApps.Services.Global.Services
                 _ => "pkg"
             };
 
-            var stub = group.availableDownloads.FirstOrDefault(inst => inst.arch == arch && inst.contentType == type);
+            var stub = Group.availableDownloads.FirstOrDefault(inst => inst.arch == arch && inst.contentType == type);
 
             if (stub == default)
                 return "";
 
-            var url = $"{_api.BaseAddress}/api/apps/{group.id}/latest?arch={arch}&type={type}";
+            var url = $"{_api.BaseAddress}/api/apps/{Group.id}/latest?arch={arch}&type={type}";
 
 
             return url;
         }
 
-        public async Task<FileStreamWrapper?> DownloadLatestVersion(string groupId, ErrorAction onError)
+        public async Task<FileStreamWrapper?> DownloadLatestVersion(ErrorAction onError)
         {
-            var result = await _api.DownloadFileExt($"api/apps/{groupId}/latest", authorize: false,
+            var result = await _api.DownloadFileExt($"api/apps/{AppId}/latest", authorize: false,
                 onError: onError);
 
             return result;          
+        }
+
+        public async Task Initialize(ErrorAction onError)
+        {
+
+            while (string.IsNullOrEmpty(AppId))
+                await Task.Delay(250);
+
+            Started = true;
+
+            bool success = false;
+            if (File.Exists(VersionFilePath))
+            {
+                var versionFileJson = File.ReadAllText(VersionFilePath);
+                try
+                {
+                    var list = JsonSerializer.Deserialize<AppVersionList>(versionFileJson);
+                    if(list is not null)
+                    {
+                        _versionList = list;
+                        success = true;
+                    }
+                }
+                catch(Exception ex) 
+                {
+                    ex.LogException(_logging);
+                }
+            }
+
+            if(!success)
+            {
+                _versionList.UpdateApp(AppId);
+                _versionList_SaveRequested(this, EventArgs.Empty);
+            }
+
+            _versionList.SaveRequested += _versionList_SaveRequested;
+
+            _ = _versionList[AppId];
+
+            Allowed = await AmIAllowed(onError);
+            UpdateAvailable = await CheckForUpdates();
+            Group = await CheckAppStatus() ?? AppInstallerGroup.Default;
+            Progress = 1;
+            Ready = true;
+        }
+
+        private void _versionList_SaveRequested(object? sender, EventArgs e)
+        {
+            var newVersionFileJson = JsonSerializer.Serialize(_versionList);
+            File.WriteAllText(VersionFilePath, newVersionFileJson);
+        }
+
+        public async Task WaitForInit(ErrorAction onError)
+        {
+            while (!Ready)
+                await Task.Delay(100);
+        }
+
+        public Task Refresh(ErrorAction onError) => Task.CompletedTask;
+
+        private string VersionFilePath => $"{AppDataPath}{Path.DirectorySeparatorChar}appVersionInstallDates.json";
+        public DateTime LastVersionUpdated
+        {
+            get
+            {
+                var version = _versionList[AppId];
+                return version.installedOn;
+            }
+            set
+            {
+                _versionList.UpdateApp(AppId);
+            }
         }
     }
 }

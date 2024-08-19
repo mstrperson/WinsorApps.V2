@@ -1,10 +1,5 @@
 ﻿using AsyncAwaitBestPractices;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Services;
@@ -19,6 +14,8 @@ namespace WinsorApps.Services.EventForms.Services
         public event EventHandler? OnCacheRefreshed;
 
         public ImmutableArray<CateringMenuCategory> MenuCategories { get; private set; } = [];
+
+        public ImmutableArray<CateringMenuCategory> AvailableCategories => [.. MenuCategories.Where(cat => !cat.isDeleted)];
 
 
         public CateringMenuService(LocalLoggingService logging, ApiService api)
@@ -46,7 +43,7 @@ namespace WinsorApps.Services.EventForms.Services
 
             Started = true;
 
-            MenuCategories = await _api.SendAsync<ImmutableArray<CateringMenuCategory>>(HttpMethod.Get, "api/events/catering/menu");
+            MenuCategories = await _api.SendAsync<ImmutableArray<CateringMenuCategory>?>(HttpMethod.Get, "api/events/catering/menu") ?? [];
             Progress = 1;
             Ready = true;
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
@@ -54,7 +51,7 @@ namespace WinsorApps.Services.EventForms.Services
 
         public async Task Refresh(ErrorAction onError)
         {
-            MenuCategories = await _api.SendAsync<ImmutableArray<CateringMenuCategory>>(HttpMethod.Get, "api/events/catering/menu");
+            MenuCategories = await _api.SendAsync<ImmutableArray<CateringMenuCategory>?>(HttpMethod.Get, "api/events/catering/menu") ?? [];
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
 

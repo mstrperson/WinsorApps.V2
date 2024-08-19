@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xaml-comp compile="true" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    <Style
+    TargetType="Image"
+    Class="AddButton">
+        <Setter 
+            Property="Source"
+            Value="{FontImage 
+                FontFamily=Serif,
+                Glyph=+,
+                Size=32}" />
+        <Setter
+            Property="HeightRequest"
+            Value="{OnPlatform MacCatalyst=40}" />
+    </Style>
+    <Style
+        TargetType="Image"
+        Class="RefreshButton">
+        <Setter 
+            Property="Source"
+            Value="{FontImage 
+                FontFamily=Serif,
+                Glyph=🔄,
+                Size=18}" />
+        <Setter
+            Property="HeightRequest"
+            Value="{OnPlatform MacCatalyst=40}" />
+    </Style>
+    <Style
+        TargetType="Image"
+        Class="PositiveSignifier">
+        <Setter 
+            Property="Source"
+            Value="{FontImage 
+                FontFamily=Serif,
+                Glyph=✅,
+                Size=18}" />
+        <Setter
+            Property="HeightRequest"
+            Value="{OnPlatform MacCatalyst=40}" />
+    </Style>
+    <Style
+        TargetType="Image"
+        Class="NeutralSignifier">
+        <Setter 
+            Property="Source"
+            Value="{FontImage 
+                FontFamily=Serif,
+                Glyph=🔘,
+                Size=18}" />
+        <Setter
+            Property="HeightRequest"
+            Value="{OnPlatform MacCatalyst=40}" />
+    </Style>
+    <Style
+        TargetType="Image"
+        Class="CancelButton">
+        <Setter 
+            Property="Source"
+            Value="{FontImage 
+                FontFamily=Serif,
+                Glyph=🚫,
+                Size=18}" />
+        <Setter
+            Property="HeightRequest"
+            Value="{OnPlatform MacCatalyst=40}" />
+    </Style>
+
+    <Style
+        TargetType="Image"
+        Class="SaveButton">
+        <Setter 
+            Property="Source"
+            Value="{FontImage 
+                FontFamily=Serif,
+                Glyph=💾,
+                Size=18}" />
+        <Setter
+            Property="HeightRequest"
+            Value="{OnPlatform MacCatalyst=40}" />
+    </Style>
+    <Style
+        TargetType="Image"
+        Class="DeleteButton">
+        <Setter 
+            Property="Source"
+            Value="{FontImage 
+                FontFamily=Serif,
+                Glyph=🗑,
+                Size=18}" />
+        <Setter
+            Property="HeightRequest"
+            Value="{OnPlatform MacCatalyst=40}" />
+    </Style>
+    <Style
+        TargetType="Image"
+        Class="PrintButton">
+        <Setter 
+            Property="Source"
+            Value="{FontImage 
+                FontFamily=Serif,
+                Glyph=🖨,
+                Size=18}" />
+        <Setter
+            Property="HeightRequest"
+            Value="{OnPlatform MacCatalyst=40}" />
+    </Style>
+
+    <Style
+        TargetType="Image"
+        Class="EditButton">
+        <Setter 
+            Property="Source"
+            Value="{FontImage
+                FontFamily=Serif,
+                Glyph=✏️,
+                Size=18}" />
+        <Setter
+            Property="HeightRequest"
+            Value="{OnPlatform MacCatalyst=40}" />
+    </Style>
+
+    <Style
+        TargetType="Image"
+        Class="BackButton">
+        <Setter
+            Property="Source"
+            Value="{FontImage
+                FontFamily=Serif,
+                Glyph=↩️,
+                Size=18}"/>
+        <Setter
+            Property="HeightRequest"
+            Value="{OnPlatform MacCatalyst=40}" />
+    </Style>
+    <Style
+        TargetType="Image"
+        Class="SubmitButton">
+        <Setter
+            Property="Source"
+            Value="{FontImage
+                FontFamily=Serif,
+                Glyph=📤,
+                Size=18}"/>
+        <Setter
+            Property="HeightRequest"
+            Value="{OnPlatform MacCatalyst=40}" />
+    </Style>
+
+    <Style
+        TargetType="Image"
+        Class="WarningSignifier">
+        <Setter
+            Property="Source"
+            Value="{FontImage
+                FontFamily=Serif,
+                Glyph=⚠️,
+                Size=18}"/>
+        <Setter
+            Property="HeightRequest"
+            Value="{OnPlatform MacCatalyst=40}" />
+    </Style>
+
+
+    <Style
+        TargetType="Image"
+        Class="RedFlagSignifier">
+        <Setter
+            Property="Source"
+            Value="{FontImage
+                FontFamily=Serif,
+                Glyph=‼️,
+                Size=18}"/>
+        <Setter
+            Property="HeightRequest"
+            Value="{OnPlatform MacCatalyst=40}" />
+    </Style>
+    <Style
+        TargetType="Image"
+        Class="PassSignifier">
+        <Setter
+            Property="Source"
+            Value="{FontImage
+                FontFamily=Serif,
+                Glyph=📨,
+                Size=18}"/>
+        <Setter
+            Property="HeightRequest"
+            Value="{OnPlatform MacCatalyst=40}" />
+    </Style>
+
+
+    <Style
+        TargetType="Image"
+        Class="UpArrow">
+        <Setter
+            Property="Source"
+            Value="{FontImage
+                FontFamily=Serif,
+                Glyph=🔼,
+                Size=18}"/>
+        <Setter
+            Property="HeightRequest"
+            Value="{OnPlatform MacCatalyst=40}" />
+    </Style>
+    <Style
+        TargetType="Image"
+        Class="DownArrow">
+        <Setter
+            Property="Source"
+            Value="{FontImage
+                FontFamily=Serif,
+                Glyph=🔽,
+                Size=18}"/>
+        <Setter
+            Property="HeightRequest"
+            Value="{OnPlatform MacCatalyst=40}" />
+    </Style>
+    <Style
+        TargetType="Image"
+        Class="RightArrow">
+        <Setter
+            Property="Source"
+            Value="{FontImage
+                FontFamily=Serif,
+                Glyph=▶️,
+                Size=18}"/>
+        <Setter
+            Property="HeightRequest"
+            Value="{OnPlatform MacCatalyst=40}" />
+    </Style>
+    <Style
+        TargetType="Image"
+        Class="LeftArrow">
+        <Setter
+            Property="Source"
+            Value="{FontImage
+                FontFamily=Serif,
+                Glyph=◀️,
+                Size=18}"/>
+        <Setter
+            Property="HeightRequest"
+            Value="{OnPlatform MacCatalyst=40}" />
+    </Style>
+
+    <!--
+        This is for inserting a wordmark_oneline logo anywhere in the project.
+    -->
+    <Style TargetType="Image" Class="wordmark_oneline">
+        <Setter Property="Source" Value="{AppThemeBinding Light='wordmark_oneline_red_01.png', Dark='wordmark_oneline_white_03.png'}"/>
+        <Setter Property="HorizontalOptions" Value="Start"/>
+        <Setter Property="MaximumHeightRequest" Value="100"/>
+    </Style>
+
+    <Style TargetType="Image" Class="logo_withwordmark">
+        <Setter Property="Source" Value="{AppThemeBinding Light='logo_withwordmark_red.png', Dark='logo_withwordmark_white.png'}"/>
+        <Setter Property="HorizontalOptions" Value="Start"/>
+        <Setter Property="MaximumHeightRequest" Value="100"/>
+    </Style>
+    
+    <Style TargetType="Image" Class="loading_symbol">
+        <Setter Property="Source" Value="loading.gif"/>
+        <Setter Property="IsAnimationPlaying" Value="True"/>
+        <Setter Property="HeightRequest" Value="30"/>
+        <Setter Property="VerticalOptions" Value="End"/>
+    </Style>
+</ResourceDictionary>

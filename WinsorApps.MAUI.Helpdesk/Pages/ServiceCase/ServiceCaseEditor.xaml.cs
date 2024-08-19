@@ -2,7 +2,6 @@ using System.Diagnostics;
 using WinsorApps.MAUI.Helpdesk.ViewModels.Devices;
 using WinsorApps.MAUI.Helpdesk.ViewModels.ServiceCases;
 using WinsorApps.MAUI.Shared;
-using WinsorApps.MAUI.Shared.ViewModels;
 
 namespace WinsorApps.MAUI.Helpdesk.Pages.ServiceCase;
 
@@ -25,7 +24,7 @@ public partial class ServiceCaseEditor : ContentPage
 		};
 		LoanerSearch.ViewModel.OnZeroResults += (sender, e) =>
 		{
-			ViewModel.SetLoaner(IEmptyViewModel<DeviceViewModel>.Empty);
+			ViewModel.SetLoaner(DeviceViewModel.Empty);
 		};
 
         if (!string.IsNullOrEmpty(ViewModel.Loaner.SerialNumber))

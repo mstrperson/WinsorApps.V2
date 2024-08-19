@@ -1,10 +1,5 @@
 ﻿using AsyncAwaitBestPractices;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Services;
@@ -60,59 +55,59 @@ namespace WinsorApps.Services.EventForms.Services
 
             int year = DateTime.Today.Month > 6 ? DateTime.Today.Year : DateTime.Today.Year - 1;
 
-            var allEventsTask = _api.SendAsync<ImmutableArray<CalendarEvent<EventFormBase>>>(HttpMethod.Get, $"api/events/calendar?start={year}-07-01&end={year + 1}-06-30", onError: onError);
-            var cateringTask =  _api.SendAsync<ImmutableArray<CalendarEvent<CateringEvent>>>(HttpMethod.Get, $"api/events/calendar/catering?start={year}-07-01&end={year + 1}-06-30", onError: onError);
-            var facilitiesTask =  _api.SendAsync<ImmutableArray<CalendarEvent<FacilitiesEvent>>>(HttpMethod.Get, $"api/events/facilities?start={year}-07-01&end={year + 1}-06-30", onError: onError);
-            var technologyTask =  _api.SendAsync<ImmutableArray<CalendarEvent<TechEvent>>>(HttpMethod.Get, $"api/events/calendar/technology?start={year}-07-01&end={year + 1}-06-30", onError: onError);
-            var theaterTask =  _api.SendAsync<ImmutableArray<CalendarEvent<TheaterEvent>>>(HttpMethod.Get, $"api/events/calendar/theater?start={year}-07-01&end={year + 1}-06-30", onError: onError);
-            var marcomTask =  _api.SendAsync<ImmutableArray<CalendarEvent<MarCommRequest>>>(HttpMethod.Get, $"api/events/calendar/marcom?start={year}-07-01&end={year + 1}-06-30", onError: onError);
-            var fieldTripTask =  _api.SendAsync<ImmutableArray<CalendarEvent<FieldTrip>>>(HttpMethod.Get, $"api/events/calendar/field-trip?start={year}-07-01&end={year + 1}-06-30", onError: onError);
+            var allEventsTask = _api.SendAsync<ImmutableArray<CalendarEvent<EventFormBase>>?>(HttpMethod.Get, $"api/events/calendar?start={year}-07-01&end={year + 1}-06-30", onError: onError);
+            var cateringTask =  _api.SendAsync<ImmutableArray<CalendarEvent<CateringEvent>>?>(HttpMethod.Get, $"api/events/calendar/catering?start={year}-07-01&end={year + 1}-06-30", onError: onError);
+            var facilitiesTask =  _api.SendAsync<ImmutableArray<CalendarEvent<FacilitiesEvent>>?>(HttpMethod.Get, $"api/events/facilities?start={year}-07-01&end={year + 1}-06-30", onError: onError);
+            var technologyTask =  _api.SendAsync<ImmutableArray<CalendarEvent<TechEvent>>?>(HttpMethod.Get, $"api/events/calendar/technology?start={year}-07-01&end={year + 1}-06-30", onError: onError);
+            var theaterTask =  _api.SendAsync<ImmutableArray<CalendarEvent<TheaterEvent>>?>(HttpMethod.Get, $"api/events/calendar/theater?start={year}-07-01&end={year + 1}-06-30", onError: onError);
+            var marcomTask =  _api.SendAsync<ImmutableArray<CalendarEvent<MarCommRequest>>?>(HttpMethod.Get, $"api/events/calendar/marcom?start={year}-07-01&end={year + 1}-06-30", onError: onError);
+            var fieldTripTask =  _api.SendAsync<ImmutableArray<CalendarEvent<FieldTrip>>?>(HttpMethod.Get, $"api/events/calendar/field-trip?start={year}-07-01&end={year + 1}-06-30", onError: onError);
 
             allEventsTask.WhenCompleted(() =>
             {
-                EventForms = allEventsTask.Result;
+                EventForms = allEventsTask.Result ?? [];
                 Progress += (1.0 / 7);
             });
             allEventsTask.SafeFireAndForget(e => e.LogException(_logging));
 
             cateringTask.WhenCompleted(() =>
             {
-                CateringEvents = cateringTask.Result;
+                CateringEvents = cateringTask.Result ?? [];
                 Progress += (1.0 / 7);
             });
             cateringTask.SafeFireAndForget(e => e.LogException(_logging));
 
             facilitiesTask.WhenCompleted(() =>
             {
-                FacilitiesEvents = facilitiesTask.Result;
+                FacilitiesEvents = facilitiesTask.Result ?? [];
                 Progress += (1.0 / 7);
             });
             facilitiesTask.SafeFireAndForget(e => e.LogException(_logging));
 
             technologyTask.WhenCompleted(() =>
             {
-                TechEvents = technologyTask.Result;
+                TechEvents = technologyTask.Result ?? [];
                 Progress += (1.0 / 7);
             });
             technologyTask.SafeFireAndForget(e => e.LogException(_logging));
 
             theaterTask.WhenCompleted(() =>
             {
-                TheaterEvents = theaterTask.Result;
+                TheaterEvents = theaterTask.Result ?? [];
                 Progress += (1.0 / 7);
             });
             theaterTask.SafeFireAndForget(e => e.LogException(_logging));
 
             marcomTask.WhenCompleted(() =>
             {
-                MarCommEvents = marcomTask.Result;
+                MarCommEvents = marcomTask.Result ?? [];
                 Progress += (1.0 / 7);
             });
             marcomTask.SafeFireAndForget(e => e.LogException(_logging));
 
             fieldTripTask.WhenCompleted(() =>
             {
-                FieldTripEvents = fieldTripTask.Result;
+                FieldTripEvents = fieldTripTask.Result ?? [];
                 Progress += (1.0 / 7);
             });
             fieldTripTask.SafeFireAndForget(e => e.LogException(_logging));

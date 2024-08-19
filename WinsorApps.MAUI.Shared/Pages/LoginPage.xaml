@@ -3,36 +3,67 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters"
              x:DataType="vm:LoginViewModel"
-             x:Class="WinsorApps.MAUI.Shared.Pages.LoginPage">
+             x:Class="WinsorApps.MAUI.Shared.Pages.LoginPage"
+             Shell.NavBarIsVisible="False"
+             Shell.FlyoutBehavior="Disabled"
+             Shell.NavBarHasShadow="True">
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsEnabled="False" IconOverride="invisible.png"/>
+    </Shell.BackButtonBehavior>
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary>
+                <conv:BoolInverter x:Key="Invert" />
+            </ResourceDictionary>
+        </ResourceDictionary>
+    </ContentPage.Resources>
     <ContentPage.Content>
-        <VerticalStackLayout>
+        <StackLayout>
             <Image StyleClass="wordmark_oneline"/>
             <HorizontalStackLayout
+                Spacing="30"
+                Margin="50,0">
+                <Label
+                    StyleClass="H3"
+                    Text="{Binding StatusMessage}"
+                    IsVisible="{Binding Busy}" />
+                <Image 
+                    StyleClass="loading_symbol"
+                    IsVisible="{Binding Busy}" />
+            </HorizontalStackLayout>
+            <VerticalStackLayout
+                IsVisible="{Binding Busy, Converter={StaticResource Invert}}">
+            <StackLayout
+                Orientation="Horizontal"
+                Spacing="20"
                 Margin="0"
                 Padding="0">
                 <Label 
                     Text="Email"
-                    FontSize="Large"
-                    WidthRequest="150"/>
+                    FontSize="Medium"
+                    WidthRequest="120"/>
                 <Entry 
                     Text="{Binding Email}" 
                     IsReadOnly="{Binding IsLoggedIn}" 
                     WidthRequest="400"/>
-            </HorizontalStackLayout>
-            <HorizontalStackLayout
+            </StackLayout>
+            <StackLayout
+                Orientation="Horizontal"
+                Spacing="20"
                 Margin="0"
                 Padding="0"
                 IsVisible="{Binding ShowPasswordField}">
                 <Label 
                     Text="Password" 
-                    FontSize="Large"
-                    WidthRequest="150"/>
+                    FontSize="Medium"
+                    WidthRequest="120"/>
                 <Entry 
                     Text="{Binding Password}" 
                     IsPassword="True" 
                     WidthRequest="400"/>
-            </HorizontalStackLayout>
+            </StackLayout>
             <Button 
                 Text="Login" 
                 Command="{Binding LoginCommand}" 
@@ -53,6 +84,7 @@
                 Text="Forgot Password"
                 Command="{Binding ForgotPasswordCommand}"
                 IsVisible="{Binding ShowPasswordField}" />
-        </VerticalStackLayout>
+            </VerticalStackLayout>
+        </StackLayout>
     </ContentPage.Content>
 </ContentPage>

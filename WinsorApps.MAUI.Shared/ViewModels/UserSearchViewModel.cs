@@ -1,23 +1,28 @@
-using System.Collections.Immutable;
+using System.Collections.ObjectModel;
+using AsyncAwaitBestPractices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.Shared.ViewModels;
 
-public partial class UserSearchViewModel : ObservableObject, ICachedSearchViewModel<UserViewModel>, IErrorHandling
+public partial class UserSearchViewModel : 
+    ObservableObject, 
+    ICachedSearchViewModel<UserViewModel>, 
+    IErrorHandling
 {
-    [ObservableProperty] private ImmutableArray<UserViewModel> available;
-    [ObservableProperty] private ImmutableArray<UserViewModel> allSelected = [];
-    [ObservableProperty] private ImmutableArray<UserViewModel> options = [];
+    [ObservableProperty] private ObservableCollection<UserViewModel> available = [];
+    [ObservableProperty] private ObservableCollection<UserViewModel> allSelected = [];
+    [ObservableProperty] private ObservableCollection<UserViewModel> options = [];
     [ObservableProperty] private SelectionMode selectionMode = SelectionMode.Single;
     [ObservableProperty] private UserViewModel selected;
     [ObservableProperty] private string searchText = "";
     [ObservableProperty] private bool isSelected;
     [ObservableProperty] private bool showOptions;
 
-    public event EventHandler<ImmutableArray<UserViewModel>>? OnMultipleResult;
+    public event EventHandler<ObservableCollection<UserViewModel>>? OnMultipleResult;
     public event EventHandler<UserViewModel>? OnSingleResult;
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler? OnZeroResults;
@@ -26,9 +31,22 @@ public partial class UserSearchViewModel : ObservableObject, ICachedSearchViewMo
     {
         var registrar = ServiceHelper.GetService<RegistrarService>();
         isSelected = false;
-        selected = IEmptyViewModel<UserViewModel>.Empty;
-        available = UserViewModel.GetClonedViewModels(registrar.AllUsers).ToImmutableArray();
-        foreach(var user in Available)
+        selected = UserViewModel.Empty;
+        if (registrar.Ready)
+        {
+            Available = [.. UserViewModel.GetClonedViewModels(registrar.AllUsers)];
+            foreach (var user in Available)
+                user.Selected += UserOnSelected;
+        }
+    }
+
+
+
+    public void SetAvailableUsers(IEnumerable<UserRecord> users)
+    {
+        ClearSelection();
+        Available = [..UserViewModel.GetClonedViewModels(users)];
+        foreach (var user in Available)
             user.Selected += UserOnSelected;
     }
 
@@ -37,7 +55,7 @@ public partial class UserSearchViewModel : ObservableObject, ICachedSearchViewMo
     {
         AllSelected = [];
         Options = [];
-        Selected = IEmptyViewModel<UserViewModel>.Empty;
+        Selected = UserViewModel.Empty;
         IsSelected = false;
         ShowOptions = false;
         SearchText = "";
@@ -53,8 +71,16 @@ public partial class UserSearchViewModel : ObservableObject, ICachedSearchViewMo
         switch (SelectionMode)
         {
             case SelectionMode.Single:
-                Selected = Available.FirstOrDefault(user => user.Id == selectedUser.Id) ?? IEmptyViewModel<UserViewModel>.Empty;
-                IsSelected = string.IsNullOrEmpty(Selected.Id);
+                Selected = Available.FirstOrDefault(user => user.Id == selectedUser.Id) ?? UserViewModel.Empty;
+                if (Selected.Id != "")
+                {
+                    foreach (var item in Available.Except([Selected]))
+                    {
+                        item.IsSelected = false;
+                    }
+                    Selected.IsSelected = true;
+                }
+                IsSelected = true;
                 Options = [];
                 ShowOptions = false;
                 SearchText = Selected.DisplayName;
@@ -67,8 +93,15 @@ public partial class UserSearchViewModel : ObservableObject, ICachedSearchViewMo
                     AllSelected = [.. AllSelected.Except([user])];
                 else
                     AllSelected = [.. AllSelected, user];
-
-                IsSelected = AllSelected.Length > 0;
+                
+                IsSelected = AllSelected.Count > 0;
+                if (AllSelected.Count > 0)
+                {
+                    foreach (var item in Available)
+                    {
+                        item.IsSelected = AllSelected.Contains(item);
+                    }
+                }
                 return;
             case SelectionMode.None:
             default: return;
@@ -90,20 +123,20 @@ public partial class UserSearchViewModel : ObservableObject, ICachedSearchViewMo
         {
             case SelectionMode.Multiple:
                 AllSelected = [..possible];
-                IsSelected = AllSelected.Length > 0;
+                IsSelected = AllSelected.Count > 0;
                 OnMultipleResult?.Invoke(this, AllSelected);
                 return;
             case SelectionMode.Single:
                 Options = [..possible];
-                if (Options.Length == 0)
+                if (Options.Count == 0)
                 {
                     ShowOptions = false;
-                    Selected = IEmptyViewModel<UserViewModel>.Empty;
+                    Selected = UserViewModel.Empty;
                     IsSelected = false;
                     return;
                 }
 
-                if (Options.Length == 1)
+                if (Options.Count == 1)
                 {
                     ShowOptions = false;
                     Selected = Options.First();
@@ -114,7 +147,7 @@ public partial class UserSearchViewModel : ObservableObject, ICachedSearchViewMo
                 }
 
                 ShowOptions = true;
-                Selected = IEmptyViewModel<UserViewModel>.Empty;
+                Selected = UserViewModel.Empty;
                 IsSelected = false;
                 return;
             default: return;

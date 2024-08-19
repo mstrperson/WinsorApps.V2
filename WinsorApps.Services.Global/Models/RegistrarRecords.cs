@@ -43,10 +43,11 @@ public readonly record struct AdvisorRecord(string id, int blackbaudId, string f
 /// <param name="lastName">Family Name</param>
 /// <param name="email">Email address used for logging in and communication.</param>
 /// <param name="studentInfo"></param>
-public readonly record struct UserRecord(string id, int blackbaudId, string firstName, string nickname, string lastName, string email,
+public readonly record struct UserRecord(string id = "", int blackbaudId = -1, string firstName = "", 
+    string nickname = "", string lastName = "", string email = "",
     StudentInfoRecord? studentInfo = null, bool hasLogin = false, DocumentHeader? photo = null)
 {
-
+    public static readonly UserRecord Empty = new();
     internal readonly bool requiresYearDistinction { get; } = false;
     internal readonly bool requiresNameDistinction { get; } = false;
     public override string ToString()
@@ -103,6 +104,7 @@ public readonly record struct TermRecord(string termId, string schoolYear, strin
 /// <param name="department">What department is this course listed in.</param>
 public readonly record struct CourseRecord(string courseId, string courseCode, string displayName, int lengthInTerms, string department)
 {
+    public static readonly CourseRecord Empty = new("", "", "", 0, "");
     public override string ToString() => this.displayName;
 }
 
@@ -154,7 +156,10 @@ public readonly record struct SectionDetailRecord(string sectionId, CourseRecord
 /// <param name="displayName">Section Display (as seen on your Google Calendar)</param>
 public readonly record struct SectionRecord(string sectionId, string courseId, string? primaryTeacherId,
     ImmutableArray<AdvisorRecord> teachers, ImmutableArray<StudentRecordShort> students, string termId,
-    string room, string block, string displayName);
+    string room, string block, string displayName)
+{
+    public static readonly SectionRecord Empty = new("", "", "", [], [], "", "", "", "");
+}
 
 public readonly record struct SectionMinimalRecord(string sectionId, string courseId, string? primaryTeacherId,
     ImmutableArray<string> teachers, ImmutableArray<string> students, string termId,

@@ -1,26 +1,25 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.ViewModels;
-using WinsorApps.Services.Helpdesk.Models;
 using WinsorApps.Services.Helpdesk.Services;
 
 namespace WinsorApps.MAUI.Helpdesk.ViewModels.ServiceCases;
 
-public partial class ServiceStatusViewModel : ObservableObject, ISelectable<ServiceStatusViewModel>, IEmptyViewModel<ServiceStatusViewModel>
+public partial class ServiceStatusViewModel : 
+    ObservableObject, 
+    ISelectable<ServiceStatusViewModel>,
+    IDefaultValueViewModel<ServiceStatusViewModel>
 {
     [ObservableProperty] string id = "";
     [ObservableProperty] string status = "";
     [ObservableProperty] string description = "";
     [ObservableProperty] string nextId = "";
-    [ObservableProperty] ServiceStatusViewModel next = IEmptyViewModel<ServiceStatusViewModel>.Empty;
+    [ObservableProperty] ServiceStatusViewModel next = ServiceStatusViewModel.Empty;
     [ObservableProperty] bool isSelected;
+
+    public static ServiceStatusViewModel Empty => new();
 
     public event EventHandler<ServiceStatusViewModel>? Selected;
 
@@ -39,7 +38,7 @@ public partial class ServiceStatusSearchViewModel : ObservableObject, ICachedSea
     [ObservableProperty] private ImmutableArray<ServiceStatusViewModel> available;
     [ObservableProperty] private ImmutableArray<ServiceStatusViewModel> allSelected = [];
     [ObservableProperty] private ImmutableArray<ServiceStatusViewModel> options = [];
-    [ObservableProperty] private ServiceStatusViewModel selected = IEmptyViewModel<ServiceStatusViewModel>.Empty;
+    [ObservableProperty] private ServiceStatusViewModel selected = ServiceStatusViewModel.Empty;
     [ObservableProperty] private bool isSelected;
     [ObservableProperty]
     private bool showOptions;
@@ -67,7 +66,7 @@ public partial class ServiceStatusSearchViewModel : ObservableObject, ICachedSea
 
         foreach(var status in Available)
         {
-            status.Next = Available.FirstOrDefault(st => st.Id == status.NextId) ?? IEmptyViewModel<ServiceStatusViewModel>.Empty;
+            status.Next = Available.FirstOrDefault(st => st.Id == status.NextId) ?? ServiceStatusViewModel.Empty;
             status.Selected += (_, st) => Select(st);
         }
     }
@@ -91,7 +90,7 @@ public partial class ServiceStatusSearchViewModel : ObservableObject, ICachedSea
                 if (Options.Length == 0)
                 {
                     ShowOptions = false;
-                    Selected = IEmptyViewModel<ServiceStatusViewModel>.Empty;
+                    Selected = ServiceStatusViewModel.Empty;
                     IsSelected = false;
                     return;
                 }
@@ -107,7 +106,7 @@ public partial class ServiceStatusSearchViewModel : ObservableObject, ICachedSea
                 }
 
                 ShowOptions = true;
-                Selected = IEmptyViewModel<ServiceStatusViewModel>.Empty;
+                Selected = ServiceStatusViewModel.Empty;
                 IsSelected = false;
                 return;
             default: return;
@@ -127,7 +126,7 @@ public partial class ServiceStatusSearchViewModel : ObservableObject, ICachedSea
         switch (SelectionMode)
         {
             case SelectionMode.Single:
-                Selected = Available.FirstOrDefault(st => st.Id == status.Id) ?? IEmptyViewModel<ServiceStatusViewModel>.Empty;
+                Selected = Available.FirstOrDefault(st => st.Id == status.Id) ?? ServiceStatusViewModel.Empty;
                 IsSelected = string.IsNullOrEmpty(Selected.Id);
                 Options = [];
                 ShowOptions = false;
