@@ -7,7 +7,7 @@ using SectionRecord = WinsorApps.Services.Bookstore.Models.SectionRecord;
 
 namespace WinsorApps.Services.Bookstore.Services;
 
-public class BookstoreManagerService :
+public partial class BookstoreManagerService :
     IAsyncInitService,
     IAutoRefreshingCacheService
 {
@@ -80,6 +80,7 @@ public class BookstoreManagerService :
 
         Ready = true;
     }
+
 
     public async Task<TeacherBookOrderCollection> GetTeacherBookOrders(UserRecord teacher, ErrorAction onError)
     {

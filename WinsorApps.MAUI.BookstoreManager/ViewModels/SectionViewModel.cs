@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Bookstore.Services;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 using SectionRecord = WinsorApps.Services.Bookstore.Models.SectionRecord;
@@ -38,6 +39,8 @@ public partial class SectionViewModel :
 
     public event EventHandler<ErrorRecord>? OnError;
 
+    public OptionalStruct<SectionRecord> Model { get; private set; } = OptionalStruct<SectionRecord>.None();
+
     public SectionViewModel()
     {
 
@@ -57,6 +60,7 @@ public partial class SectionViewModel :
             return;
         }
 
+        Model = OptionalStruct<SectionRecord>.Some(result.Value);
         this.Id = result.Value.id;
         this.SchoolYearId = result.Value.schoolYearId;
         Busy = false;
@@ -85,7 +89,9 @@ public partial class SectionViewModel :
                 SchoolYearId = model.schoolYearId,
                 Course = CourseViewModel.Get(model.course),
                 Teacher = UserViewModel.Get(_registrar.AllUsers.First(u => u.id == model.teacherId)),
-                Created = model.createdTimeStamp
+
+                Created = model.createdTimeStamp,
+                Model = OptionalStruct<SectionRecord>.Some(model)
             };
             ViewModelCache.Add(vm);
         }

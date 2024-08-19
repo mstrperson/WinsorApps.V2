@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.BookstoreManager.ViewModels"
+             xmlns:bvm="clr-namespace:WinsorApps.MAUI.Shared.Bookstore.ViewModels;assembly=WinsorApps.MAUI.Shared.Bookstore"
+             xmlns:svm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels;assembly=WinsorApps.MAUI.Shared"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             x:DataType="vm:StudentPageViewModel"
+             x:Class="WinsorApps.MAUI.BookstoreManager.Pages.StudentCheckout"
+             Title="Student Checkout">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ScrollView>
+        <VerticalStackLayout>
+            <HorizontalStackLayout
+                IsVisible="{Binding Busy}">
+                <Label 
+                    StyleClass="Header"
+                    Text="{Binding BusyMessage}" />
+                <Image
+                    StyleClass="loading_symbol" />
+            </HorizontalStackLayout>
+            <!--Student Search-->
+            <VerticalStackLayout
+                Margin="0"
+                Padding="0"
+                IsVisible="{Binding ShowSelected, Converter={StaticResource Invert}}">
+                <HorizontalStackLayout
+                    Margin="0"
+                    Padding="0"
+                    Spacing="30">
+                    <Label StyleClass="Header" Text="Student:" />
+                    <SearchBar 
+                        WidthRequest="300"
+                        Text="{Binding SearchText}" 
+                        Placeholder="Select a Student" 
+                        SearchCommand="{Binding SearchCommand}" />
+                </HorizontalStackLayout>
+                <CollectionView
+                    ItemsSource="{Binding SearchResults}"
+                    IsVisible="{Binding ShowSearchResults}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:StudentCartViewModel">
+                            <HorizontalStackLayout>
+                                <HorizontalStackLayout.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                </HorizontalStackLayout.GestureRecognizers>
+                                <Label Text="{Binding Student.DisplayName}" />
+                            </HorizontalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+            <!-- End Student Search -->
+            <!--Selected Student Cart-->
+            <VerticalStackLayout
+                Margin="0"
+                Padding="0"
+                IsVisible="{Binding ShowSelected}">
+                <HorizontalStackLayout
+                    Margin="0"
+                    Padding="0"
+                    Spacing="30">
+                    <Label
+                        StyleClass="Header"
+                        Text="{Binding SelectedCart.Student.DisplayName}" />
+                    <Image
+                        StyleClass="CancelButton">
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SelectedCart.SelectCommand}" />
+                        </Image.GestureRecognizers>
+                    </Image>
+                </HorizontalStackLayout>
+                <BoxView StyleClass="Bar" />
+                <CollectionView
+                    BackgroundColor="Transparent"
+                    ItemsSource="{Binding SelectedCart.Sections}">
+                    <CollectionView.Header>
+                        <HorizontalStackLayout
+                            Margin="0"
+                            Padding="0">
+                            <Label StyleClass="SubHeader"
+                                   Text="Books by Class" />
+                        </HorizontalStackLayout>
+                    </CollectionView.Header>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:StudentSectionCartViewModel">
+                            <VerticalStackLayout
+                                Margin="0"
+                                Padding="0">
+                                <CollectionView
+                                    BackgroundColor="Transparent"
+                                    ItemsSource="{Binding Cart}">
+                                    <CollectionView.Header>
+                                        <HorizontalStackLayout
+                                            Margin="0"
+                                            Padding="0">
+                                            <Label 
+                                                StyleClass="H3"
+                                                Text="{Binding Section.DisplayName}" />
+                                        </HorizontalStackLayout>
+                                    </CollectionView.Header>
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:StudentBookRequestViewModel">
+                                            <HorizontalStackLayout
+                                                Margin="0"
+                                                Padding="0">
+                                                <HorizontalStackLayout.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                                </HorizontalStackLayout.GestureRecognizers>
+                                                <CheckBox IsChecked="{Binding IsSelected}" />
+                                                <Label Text="{Binding Isbn.DisplayName}" />
+                                            </HorizontalStackLayout>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
+                                <CollectionView
+                                    BackgroundColor="Transparent"
+                                    ItemsSource="{Binding NotSelectedIsbns}">
+                                    <CollectionView.Header>
+                                        <HorizontalStackLayout
+                                            Margin="0"
+                                            Padding="0">
+                                            <Label StyleClass="H3" Text="Not Selected Books" />
+                                        </HorizontalStackLayout>
+                                    </CollectionView.Header>
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate x:DataType="bvm:IsbnViewModel">
+                                            <HorizontalStackLayout
+                                                Margin="0"
+                                                Padding="0">
+                                                <HorizontalStackLayout.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                                </HorizontalStackLayout.GestureRecognizers>
+                                                <Label Text="{Binding DisplayName}" />
+                                                <Image
+                                                    StyleClass="AddButton"/>
+                                            </HorizontalStackLayout>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
+                                <BoxView StyleClass="Bar" />
+                            </VerticalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+            <!--End Selected Student Cart-->
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
