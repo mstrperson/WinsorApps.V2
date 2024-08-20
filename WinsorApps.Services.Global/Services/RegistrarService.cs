@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using AsyncAwaitBestPractices;
 using WinsorApps.Services.Global.Models;
 
@@ -486,7 +487,30 @@ namespace WinsorApps.Services.Global.Services
         {
             foreach (var user in AllUsers)
                 GetUniqueDisplayNameFor(user);
+            var check = _uniqueNameCache.Values.Count == _uniqueNameCache.Values.Distinct().Count();
+            if (!check)
+            {
+                var missed = _uniqueNameCache
+                    .Where(kvp => _uniqueNameCache.Values.Count(name => kvp.Value == name) > 1)
+                    .SeparateByKeys(kvp => kvp.Value);
 
+                foreach (var name in missed.Keys)
+                {
+                    Debug.WriteLine($"The Name {name} still appears {missed[name].Count} times...");
+                    foreach (var user in missed[name].Select(kvp => kvp.Key))
+                    {
+                        if (!string.IsNullOrEmpty(user.nickname) && user.nickname != user.firstName)
+                        {
+                            var fixedName = $"{user.nickname} \"{user.firstName}\" {user.lastName}";
+                            if (user.studentInfo.HasValue)
+                                fixedName += $" [{user.studentInfo.Value.className}]";
+                            _uniqueNameCache[user] = fixedName;
+
+                            Debug.WriteLine($"Got {fixedName} corrected!");
+                        }
+                    }
+                }
+            }
             UniqueNamesReady = true;
         });
         

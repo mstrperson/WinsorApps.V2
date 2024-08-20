@@ -59,7 +59,7 @@ public partial class BookstoreManagerService :
 
     public async Task Initialize(ErrorAction onError)
     {
-        while (!(_registrar.Ready && _bookService.Ready))
+        while (!(_api.Ready && _registrar.Ready && _bookService.Ready))
             await Task.Delay(500);
 
         var cacheTask = _api.SendAsync<ImmutableArray<TeacherBookOrder>>(HttpMethod.Get, "api/book-orders/manager/requests", onError: onError);

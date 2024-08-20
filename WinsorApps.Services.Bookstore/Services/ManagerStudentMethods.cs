@@ -12,6 +12,8 @@ public partial class BookstoreManagerService
 {
     public ImmutableArray<StudentSectionBookOrder> StudentOrders { get; private set; } = [];
 
+    public Dictionary<string, StudentSectionBookRequirements> StudentBookRequirementsBySection = [];
+
     public async Task DownloadStudentBookOrders(ErrorAction onError, Action<byte[]> completion)
     {
         var result = await _api.DownloadFile("api/book-orders/manager/student-orders", onError: onError);

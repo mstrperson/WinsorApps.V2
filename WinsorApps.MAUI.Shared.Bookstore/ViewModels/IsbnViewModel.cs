@@ -61,9 +61,9 @@ public partial class IsbnViewModel :
             OdinUpdateRequested?.Invoke(this, (OdinDataViewModel) sender!);
         if (hasOdinData)
             FetchOdinData().SafeFireAndForget();
-        BookService? bookService = ServiceHelper.GetService<BookService>();
-        bindingOptions = bookService?.BookBindings.Select(b => $"{b}").ToImmutableArray() ?? [];
-        
+        BookService bookService = ServiceHelper.GetService<BookService>();
+        bindingOptions = bookService.BookBindings.Select(b => $"{b}").ToImmutableArray();
+        LoadBookDetails();
     }
 
     private IsbnViewModel(string isbn)
@@ -88,14 +88,20 @@ public partial class IsbnViewModel :
     {
         var bookService = ServiceHelper.GetService<BookService>();
 
-        var book = bookService.BooksCache.FirstOrDefault(bk => bk.isbns.Any(item => item.isbn == Isbn));
+        var bookInfo = bookService.BooksCache.FirstOrDefault(bk => bk.isbns.Any(item => item.isbn == Isbn));
 
-        var isbn = book.isbns.FirstOrDefault(item => item.isbn == Isbn);
+        var isbn = bookInfo.isbns.FirstOrDefault(item => item.isbn == Isbn);
 
         Binding = new(isbn.binding);
         DisplayName = $"{Isbn} [{Binding}]";
 
-        Book = new(book);
+        Book.Title = bookInfo.title;
+        Book.Id = bookInfo.id;
+        Book.AuthorList = bookInfo.authors.DelimeteredList();
+        Book.Edition = bookInfo.edition;
+        Book.PublicationDate = bookInfo.publicationDate.ToDateTime(default);
+        Book.Publisher = bookInfo.publisher;
+        
     }
 
     public IsbnViewModel()

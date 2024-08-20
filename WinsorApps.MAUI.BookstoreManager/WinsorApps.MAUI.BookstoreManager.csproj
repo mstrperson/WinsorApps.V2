@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net8.0-android;net8.0-ios;net8.0-maccatalyst</TargetFrameworks>
+		<TargetFrameworks>net8.0-ios;net8.0-maccatalyst</TargetFrameworks>
 		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net8.0-windows10.0.19041.0</TargetFrameworks>
 		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
 		<!-- <TargetFrameworks>$(TargetFrameworks);net8.0-tizen</TargetFrameworks> -->
@@ -21,7 +21,7 @@
 		<Nullable>enable</Nullable>
 
 		<!-- Display name -->
-		<ApplicationTitle>WinsorApps.MAUI.BookstoreManager</ApplicationTitle>
+		<ApplicationTitle>Bookstore Manager</ApplicationTitle>
 
 		<!-- App Identifier -->
 		<ApplicationId>com.companyname.winsorapps.maui.bookstoremanager</ApplicationId>
@@ -36,6 +36,40 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
+		<GenerateAppInstallerFile>False</GenerateAppInstallerFile>
+		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+		<PackageCertificateThumbprint>08B7D1EC7093C4213DDFAB8A6877EB0159A73BDD</PackageCertificateThumbprint>
+		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+		<AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+		<AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
+		<GenerateTestArtifacts>True</GenerateTestArtifacts>
+		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+		<AssemblyName>Winsor Bookstore Manager</AssemblyName>
+		<SignAssembly>True</SignAssembly>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-ios|AnyCPU'">
+	  <ApplicationId>edu.winsor.bookstore-manager</ApplicationId>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-maccatalyst|AnyCPU'">
+	  <ApplicationId>edu.winsor.bookstore-manager</ApplicationId>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-windows10.0.19041.0|AnyCPU'">
+	  <ApplicationId>edu.winsor.bookstore-manager</ApplicationId>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-ios|AnyCPU'">
+	  <ApplicationId>edu.winsor.bookstore-manager</ApplicationId>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-maccatalyst|AnyCPU'">
+	  <ApplicationId>edu.winsor.bookstore-manager</ApplicationId>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-windows10.0.19041.0|AnyCPU'">
+	  <ApplicationId>edu.winsor.bookstore-manager</ApplicationId>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -47,7 +81,7 @@
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
-		<MauiImage Update="Resources\Images\dotnet_bot.png" Resize="True" BaseSize="300,185" />
+		<MauiImage Update="Resources\Images\dotnet_bot.png" />
 
 		<!-- Custom Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />
@@ -64,6 +98,8 @@
 	  <None Remove="Resources\Fonts\OpenSans-Regular.ttf" />
 	  <None Remove="Resources\Fonts\OpenSans-Semibold.ttf" />
 	  <None Remove="Resources\Images\dotnet_bot.png" />
+	  <None Remove="Resources\Images\invisible.png" />
+	  <None Remove="Resources\Images\loading.gif" />
 	  <None Remove="Resources\Images\logo_withwordmark_black.png" />
 	  <None Remove="Resources\Images\logo_withwordmark_red.png" />
 	  <None Remove="Resources\Images\logo_withwordmark_white.png" />
@@ -76,8 +112,8 @@
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
 		<PackageReference Include="CoxProgramming.CSV" Version="1.1.0" />
-		<PackageReference Include="Microsoft.Maui.Controls" Version="8.0.70" />
-		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.70" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="8.0.80" />
+		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.80" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
 	</ItemGroup>
 
@@ -86,13 +122,6 @@
 	  <ProjectReference Include="..\WinsorApps.MAUI.Shared\WinsorApps.MAUI.Shared.csproj" />
 	  <ProjectReference Include="..\WinsorApps.Services.Bookstore\WinsorApps.Services.Bookstore.csproj" />
 	  <ProjectReference Include="..\WinsorApps.Services.Global\WinsorApps.Services.Global.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <MauiImage Update="Resources\Images\dotnet_bot.png">
-	    <Resize>True</Resize>
-	    <BaseSize>300,185</BaseSize>
-	  </MauiImage>
 	</ItemGroup>
 
 	<ItemGroup>

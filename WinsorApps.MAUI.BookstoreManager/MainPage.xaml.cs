@@ -30,11 +30,11 @@ public partial class MainPage : ContentPage
             new(registrar, "Registrar Data"),
             new(managerService, "Manager Service"),
             new(bookService, "Books"),
+            new(studentPage, "Student Orders"),
             new(app, "Checking for Updates")
         ], app, api, logging)
         {
             Completion = [
-                new(studentPage.Initialize(OnError.DefaultBehavior(this)), "Student Point of Service")
             ],
             AppId = "PwpjXEMXEv5K"
         };

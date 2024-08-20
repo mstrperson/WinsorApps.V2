@@ -186,7 +186,7 @@ public readonly record struct DocumentHeader(string id, string fileName, string 
 
 public static partial class Extensions
 {
-    public static string GetUniqueNameWithin(this HashSet<string> names, UserRecord user)
+    public static string GetUniqueNameWithin(this List<string> names, UserRecord user)
     {
         var name = $"{user}";
         if (!names.Contains(name))
@@ -197,6 +197,12 @@ public static partial class Extensions
         if (names.Distinct().Count(u => name == $"{u}") > 1)
         {
             name = $"{user.firstName} {name}";
+            names.Add(name);
+        }
+
+        if (names.Distinct().Count(u => name == $"{u}") > 1)
+        {
+            name = $"{user.nickname} \"{user.firstName}\" {name}";
         }
 
         //Debug.WriteLine($"Found unique name {name}");
@@ -206,7 +212,7 @@ public static partial class Extensions
     public static string GetUniqueNameWithin(this IEnumerable<UserRecord> users, UserRecord user)
     {
         Debug.WriteLine($"Looking up unique name for {user}");
-        HashSet<string> names = users.Select(u => $"{u}").ToHashSet();
+        List<string> names = users.Select(u => $"{u}").ToList();
         return names.GetUniqueNameWithin(user);
 
     }

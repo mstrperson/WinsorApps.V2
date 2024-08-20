@@ -13,6 +13,14 @@
             <conv:BoolInverter x:Key="Invert" />
         </ResourceDictionary>
     </ContentPage.Resources>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem
+            Text="Download Student Orders"
+            Command="{Binding DownloadAllOrdersCommand}" />
+        <ToolbarItem
+            StyleClass="RefreshButton"
+            Command="{Binding RefreshCommand}" />
+    </ContentPage.ToolbarItems>
     <ScrollView>
         <VerticalStackLayout>
             <HorizontalStackLayout
@@ -43,12 +51,12 @@
                     ItemsSource="{Binding SearchResults}"
                     IsVisible="{Binding ShowSearchResults}">
                     <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="vm:StudentCartViewModel">
+                        <DataTemplate x:DataType="svm:UserViewModel">
                             <HorizontalStackLayout>
                                 <HorizontalStackLayout.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding SelectCommand}" />
                                 </HorizontalStackLayout.GestureRecognizers>
-                                <Label Text="{Binding Student.DisplayName}" />
+                                <Label Text="{Binding DisplayName}" />
                             </HorizontalStackLayout>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
@@ -71,6 +79,12 @@
                         StyleClass="CancelButton">
                         <Image.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding SelectedCart.SelectCommand}" />
+                        </Image.GestureRecognizers>
+                    </Image>
+                    <Image
+                        StyleClass="SaveButton">
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SubmitSelectedCartCommand}" />
                         </Image.GestureRecognizers>
                     </Image>
                 </HorizontalStackLayout>
@@ -101,6 +115,10 @@
                                             <Label 
                                                 StyleClass="H3"
                                                 Text="{Binding Section.DisplayName}" />
+                                            <Label
+                                                StyleClass="H3"
+                                                Text="{Binding BusyMessage}"
+                                                IsVisible="{Binding Busy}" />
                                         </HorizontalStackLayout>
                                     </CollectionView.Header>
                                     <CollectionView.ItemTemplate>
@@ -112,7 +130,8 @@
                                                     <TapGestureRecognizer Command="{Binding SelectCommand}" />
                                                 </HorizontalStackLayout.GestureRecognizers>
                                                 <CheckBox IsChecked="{Binding IsSelected}" />
-                                                <Label Text="{Binding Isbn.DisplayName}" />
+                                                <Label Text="{Binding Isbn.Book.Title}" />
+                                                <Label Text="{Binding Isbn.Binding, StringFormat='[{0}]'}" />
                                             </HorizontalStackLayout>
                                         </DataTemplate>
                                     </CollectionView.ItemTemplate>
@@ -125,17 +144,27 @@
                                             Margin="0"
                                             Padding="0">
                                             <Label StyleClass="H3" Text="Not Selected Books" />
+                                            <Image
+                                                StyleClass="RefreshButton"
+                                                IsVisible="{Binding Busy, Converter={StaticResource Invert}}">
+                                                <Image.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding LoadRequirementsCommand}" />
+                                                </Image.GestureRecognizers>
+                                            </Image>
                                         </HorizontalStackLayout>
                                     </CollectionView.Header>
                                     <CollectionView.ItemTemplate>
                                         <DataTemplate x:DataType="bvm:IsbnViewModel">
                                             <HorizontalStackLayout
                                                 Margin="0"
-                                                Padding="0">
+                                                Padding="0"
+                                                Spacing="15">
                                                 <HorizontalStackLayout.GestureRecognizers>
                                                     <TapGestureRecognizer Command="{Binding SelectCommand}" />
                                                 </HorizontalStackLayout.GestureRecognizers>
-                                                <Label Text="{Binding DisplayName}" />
+                                                <Label Text="{Binding Book.Title}" />
+                                                <Label Text="{Binding Binding, StringFormat='[{0}]'}" />
+                                                <Label Text="{Binding CurrentOdinData.Cost, StringFormat='{0:C}'}" />
                                                 <Image
                                                     StyleClass="AddButton"/>
                                             </HorizontalStackLayout>
