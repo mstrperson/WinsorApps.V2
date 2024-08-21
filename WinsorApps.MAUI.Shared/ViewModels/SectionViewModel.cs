@@ -249,8 +249,8 @@ public partial class SectionViewModel :
         Block = section.block;
         Room = section.room;
         PrimaryTeacher = UserViewModel.Get(
-            registrar.TeacherList
-                .First(t => t.id == section.primaryTeacherId));
+            registrar.AllUsers
+                .FirstStructOrDefault(t => t.id == section.primaryTeacherId, UserRecord.Empty));
     }
 
     private SectionViewModel(SectionRecord section)

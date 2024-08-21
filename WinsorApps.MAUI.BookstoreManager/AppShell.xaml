@@ -4,9 +4,10 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:shared="clr-namespace:WinsorApps.MAUI.Shared.Bookstore.Pages;assembly=WinsorApps.MAUI.Shared.Bookstore"
+    xmlns:pages="clr-namespace:WinsorApps.MAUI.BookstoreManager.Pages"
     xmlns:local="clr-namespace:WinsorApps.MAUI.BookstoreManager"
-    Shell.FlyoutBehavior="Disabled"
-    Title="WinsorApps.MAUI.BookstoreManager">
+    Shell.FlyoutBehavior="Flyout"
+    Title="Winsor Bookstore Manager">
 
     <ShellContent
         Title="Home"
@@ -14,8 +15,8 @@
         Route="MainPage" />
 
     <ShellContent
-        Title="Books Database"
-        ContentTemplate="{DataTemplate shared:BookSearchPage}"
-        Route="BookSearchPage" />
+        Title="Student Orders"
+        ContentTemplate="{DataTemplate pages:StudentCheckout}"
+        Route="StudentCheckout" />
 
 </Shell>

@@ -19,7 +19,7 @@ public partial class MainPageViewModel : ObservableObject, IBusyViewModel, IErro
     [ObservableProperty] private bool busy;
     [ObservableProperty] private string busyMessage = "Loading Data... Please Wait";
     [ObservableProperty] private bool updateAvailable;
-    [ObservableProperty] private string updateLink;
+    [ObservableProperty] private string updateLink = "";
     
     public string AppId
     {
@@ -117,7 +117,7 @@ public partial class MainPageViewModel : ObservableObject, IBusyViewModel, IErro
         BusyMessage = "Logging out.";
         _api.Logout();
 
-        Thread.Sleep(1000);
+        Thread.Sleep(5000);
         Application.Current?.Quit();
     }
 

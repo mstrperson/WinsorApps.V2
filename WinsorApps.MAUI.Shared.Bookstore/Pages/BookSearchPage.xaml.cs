@@ -8,10 +8,12 @@ public partial class BookSearchPage : ContentPage
 {
     public event EventHandler<BookViewModel>? EditBookRequested;
 
-    public BookSearchPage(BookService bookService, LocalLoggingService logging)
+
+    public BookSearchViewModel ViewModel => (BookSearchViewModel)BindingContext;
+
+    public BookSearchPage(BookSearchViewModel vm)
     {
         InitializeComponent();
-        var vm = new BookSearchViewModel();
         this.BindingContext = vm;
     }
 

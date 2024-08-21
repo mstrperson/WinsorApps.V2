@@ -87,6 +87,7 @@ public partial class BookSearchViewModel :
 
     public void Select(BookViewModel item)
     {
+        BookSelected?.Invoke(this, item);
     }
 
     async Task IAsyncSearchViewModel<BookViewModel>.Search() => await Task.Run(Search);

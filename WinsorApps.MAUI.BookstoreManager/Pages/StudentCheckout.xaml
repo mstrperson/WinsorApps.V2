@@ -19,6 +19,7 @@
             Command="{Binding DownloadAllOrdersCommand}" />
         <ToolbarItem
             StyleClass="RefreshButton"
+            Text="Refresh"
             Command="{Binding RefreshCommand}" />
     </ContentPage.ToolbarItems>
     <ScrollView>
@@ -75,18 +76,18 @@
                     <Label
                         StyleClass="Header"
                         Text="{Binding SelectedCart.Student.DisplayName}" />
-                    <Image
-                        StyleClass="CancelButton">
-                        <Image.GestureRecognizers>
+                    <Label
+                        StyleClass="BackButton">
+                        <Label.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding SelectedCart.SelectCommand}" />
-                        </Image.GestureRecognizers>
-                    </Image>
-                    <Image
+                        </Label.GestureRecognizers>
+                    </Label>
+                    <Label
                         StyleClass="SaveButton">
-                        <Image.GestureRecognizers>
+                        <Label.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding SubmitSelectedCartCommand}" />
-                        </Image.GestureRecognizers>
-                    </Image>
+                        </Label.GestureRecognizers>
+                    </Label>
                 </HorizontalStackLayout>
                 <BoxView StyleClass="Bar" />
                 <CollectionView
@@ -144,13 +145,16 @@
                                             Margin="0"
                                             Padding="0">
                                             <Label StyleClass="H3" Text="Not Selected Books" />
-                                            <Image
+                                            <Label
                                                 StyleClass="RefreshButton"
+                                                FontSize="32"
+                                                HeightRequest="40"
+                                                Padding="0"
                                                 IsVisible="{Binding Busy, Converter={StaticResource Invert}}">
-                                                <Image.GestureRecognizers>
+                                                <Label.GestureRecognizers>
                                                     <TapGestureRecognizer Command="{Binding LoadRequirementsCommand}" />
-                                                </Image.GestureRecognizers>
-                                            </Image>
+                                                </Label.GestureRecognizers>
+                                            </Label>
                                         </HorizontalStackLayout>
                                     </CollectionView.Header>
                                     <CollectionView.ItemTemplate>
@@ -165,8 +169,10 @@
                                                 <Label Text="{Binding Book.Title}" />
                                                 <Label Text="{Binding Binding, StringFormat='[{0}]'}" />
                                                 <Label Text="{Binding CurrentOdinData.Cost, StringFormat='{0:C}'}" />
-                                                <Image
-                                                    StyleClass="AddButton"/>
+                                                <Label
+                                                    StyleClass="AddButton"
+                                                    FontSize="Large"
+                                                    TextColor="{AppThemeBinding Light={DynamicResource WinsorRed}, Dark=White}"/>
                                             </HorizontalStackLayout>
                                         </DataTemplate>
                                     </CollectionView.ItemTemplate>

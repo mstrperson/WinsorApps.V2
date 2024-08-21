@@ -7,6 +7,8 @@ using WinsorApps.MAUI.BookstoreManager.Pages;
 using WinsorApps.MAUI.BookstoreManager.ViewModels;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.Bookstore;
+using WinsorApps.MAUI.Shared.Bookstore.Pages;
+using WinsorApps.MAUI.Shared.Bookstore.ViewModels;
 using WinsorApps.MAUI.Shared.Pages;
 using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Services;
@@ -36,6 +38,8 @@ namespace WinsorApps.MAUI.BookstoreManager
 
             builder.Services.AddSingleton<MainPage>();
             builder.Services.AddSingleton<LoginPage>();
+            builder.Services.AddSingleton<BookSearchViewModel>();
+            builder.Services.AddSingleton<BookSearchPage>();
             builder.Services.AddSingleton<StudentPageViewModel>();
             builder.Services.AddSingleton<StudentCheckout>(); 
 
@@ -51,6 +55,12 @@ namespace WinsorApps.MAUI.BookstoreManager
             ServiceHelper.GetService<ApiService>().Initialize(err => logging.LogMessage(LocalLoggingService.LogLevel.Error,
                 err.type, err.error)).SafeFireAndForget(e => e.LogException(logging));
 
+            var bsp = ServiceHelper.GetService<BookSearchPage>();
+            bsp.ViewModel.BookSelected += (sender, book) =>
+            {
+                ManagerBookEditor page = new() { BindingContext = book };
+                
+            };
 
             return app;
         }

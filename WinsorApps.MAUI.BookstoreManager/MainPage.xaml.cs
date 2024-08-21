@@ -15,6 +15,7 @@ public partial class MainPage : ContentPage
     public EventHandler<ErrorRecord>? OnError;
     public MainPageViewModel ViewModel => (MainPageViewModel)BindingContext;
 
+    private readonly AppService _app;
 
     public MainPage(
         RegistrarService registrar,
@@ -39,6 +40,7 @@ public partial class MainPage : ContentPage
             AppId = "PwpjXEMXEv5K"
         };
 
+        _app = app;
         this.DefaultOnErrorAction();
 
         BindingContext = vm;
@@ -58,6 +60,8 @@ public partial class MainPage : ContentPage
 
     private void Vm_OnCompleted(object? sender, EventArgs e)
     {
+        if (_app.UpdateAvailable)
+            return;
         var page = ServiceHelper.GetService<StudentCheckout>();
         Navigation.PushAsync(page);
     }
