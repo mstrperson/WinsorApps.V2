@@ -48,7 +48,9 @@ public partial class UserViewModel :
             vm = new(user);
             ViewModelCache.Add(vm);
         }
-        return vm.Clone();
+        var output = vm.Clone();
+        output.GetUniqueDisplayName();
+        return output;
     }
     public UserViewModel Clone() => new()
     {

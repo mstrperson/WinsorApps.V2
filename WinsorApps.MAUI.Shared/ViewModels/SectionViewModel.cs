@@ -196,6 +196,7 @@ public partial class SectionViewModel :
     [ObservableProperty] string block = "";
     [ObservableProperty] string term = "";
     [ObservableProperty] UserViewModel primaryTeacher = UserViewModel.Empty;
+    [ObservableProperty] string id = "";
 
     public static ConcurrentBag<SectionViewModel> ViewModelCache { get; private set; } = [];
 
@@ -215,7 +216,7 @@ public partial class SectionViewModel :
     private SectionViewModel(SectionMinimalRecord section)
     {
         Model = OptionalStruct<SectionRecord>.Some(new(section.sectionId, section.courseId, section.primaryTeacherId, [], [], section.termId, section.room, section.block, section.displayName));
-
+        Id = section.sectionId;
         var registrar = ServiceHelper.GetService<RegistrarService>()!;
 
         var detailsTask = registrar.GetSectionDetailsAsync(section.sectionId, OnError.DefaultBehavior(this));
@@ -248,12 +249,13 @@ public partial class SectionViewModel :
         Block = section.block;
         Room = section.room;
         PrimaryTeacher = UserViewModel.Get(
-            registrar.TeacherList
-                .First(t => t.id == section.primaryTeacherId));
+            registrar.AllUsers
+                .FirstStructOrDefault(t => t.id == section.primaryTeacherId, UserRecord.Empty));
     }
 
     private SectionViewModel(SectionRecord section)
     {
+        Id = section.sectionId;
         Model = OptionalStruct<SectionRecord>.Some(section);
         // Get the RegistrarService from the service helper...
         var registrar = ServiceHelper.GetService<RegistrarService>()!;

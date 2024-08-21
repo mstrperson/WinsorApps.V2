@@ -66,7 +66,7 @@
         <Setter Property="HeightRequest" Value="30"/>
         <Setter Property="Padding" Value="5" />
     </Style>
-
+    
 
     <Style TargetType="Label" Class="TrashBin">
         <Setter Property="Text" Value="🗑" />
@@ -75,6 +75,21 @@
         <Setter Property="WidthRequest" Value="100" />
         <Setter Property="MinimumHeightRequest" Value="100" />
         <Setter Property="HeightRequest" Value="100"/>
+        <Setter Property="Padding" Value="5" />
+    </Style>
+    <Style TargetType="Label" Class="RefreshButton">
+        <Setter Property="Text" Value="🔄" />
+        <Setter Property="FontSize" Value="32" />
+        <Setter Property="Padding" Value="5" />
+    </Style>
+    <Style TargetType="Label" Class="BackButton">
+        <Setter Property="Text" Value="↩️" />
+        <Setter Property="FontSize" Value="32" />
+        <Setter Property="Padding" Value="5" />
+    </Style>
+    <Style TargetType="Label" Class="SaveButton">
+        <Setter Property="Text" Value="💾" />
+        <Setter Property="FontSize" Value="32" />
         <Setter Property="Padding" Value="5" />
     </Style>
 </ResourceDictionary>

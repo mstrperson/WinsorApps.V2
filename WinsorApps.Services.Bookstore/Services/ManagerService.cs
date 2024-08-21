@@ -7,7 +7,7 @@ using SectionRecord = WinsorApps.Services.Bookstore.Models.SectionRecord;
 
 namespace WinsorApps.Services.Bookstore.Services;
 
-public class BookstoreManagerService :
+public partial class BookstoreManagerService :
     IAsyncInitService,
     IAutoRefreshingCacheService
 {
@@ -59,7 +59,7 @@ public class BookstoreManagerService :
 
     public async Task Initialize(ErrorAction onError)
     {
-        while (!(_registrar.Ready && _bookService.Ready))
+        while (!(_api.Ready && _registrar.Ready && _bookService.Ready))
             await Task.Delay(500);
 
         var cacheTask = _api.SendAsync<ImmutableArray<TeacherBookOrder>>(HttpMethod.Get, "api/book-orders/manager/requests", onError: onError);
@@ -80,6 +80,7 @@ public class BookstoreManagerService :
 
         Ready = true;
     }
+
 
     public async Task<TeacherBookOrderCollection> GetTeacherBookOrders(UserRecord teacher, ErrorAction onError)
     {

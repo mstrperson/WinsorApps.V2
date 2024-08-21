@@ -111,25 +111,25 @@ namespace WinsorApps.Services.Global.Services
             await _api.SendAsync<AppInstallerGroup?>(HttpMethod.Get,
                 $"api/apps/{AppId}", authorize: false);
 
+        public static string Arch => System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture switch
+        {
+            System.Runtime.InteropServices.Architecture.Arm64 or
+            System.Runtime.InteropServices.Architecture.Arm or
+            System.Runtime.InteropServices.Architecture.Armv6 => "arm64",
+            System.Runtime.InteropServices.Architecture.X64 or
+            System.Runtime.InteropServices.Architecture.X86 => "x86",
+            _ => ""
+        };
 
+        public static string Type => Environment.OSVersion.Platform switch
+        {
+            PlatformID.Win32NT => "exe",
+            _ => "pkg"
+        };
 
         public string GetBrowserLinkForLatestVersion()
         {
-            var arch = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture switch
-            {
-                System.Runtime.InteropServices.Architecture.Arm64 or
-                System.Runtime.InteropServices.Architecture.Arm or
-                System.Runtime.InteropServices.Architecture.Armv6 => "arm64",
-                System.Runtime.InteropServices.Architecture.X64 or
-                System.Runtime.InteropServices.Architecture.X86 => "x86",
-                _ => ""
-            };
-
-            var type = Environment.OSVersion.Platform switch
-            {
-                PlatformID.Win32NT => "exe",
-                _ => "pkg"
-            };
+            (var arch, var type) = (Arch, Type);
 
             var stub = Group.availableDownloads.FirstOrDefault(inst => inst.arch == arch && inst.contentType == type);
 
@@ -144,7 +144,8 @@ namespace WinsorApps.Services.Global.Services
 
         public async Task<FileStreamWrapper?> DownloadLatestVersion(ErrorAction onError)
         {
-            var result = await _api.DownloadFileExt($"api/apps/{AppId}/latest", authorize: false,
+            (var arch, var type) = (Arch, Type);
+            var result = await _api.DownloadFileExt($"api/apps/{AppId}/latest?arch={arch}&type={type}", authorize: false,
                 onError: onError);
 
             return result;          
