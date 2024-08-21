@@ -66,7 +66,8 @@ public partial class CalendarWeekViewModel :
 
     public CalendarWeekViewModel(DateTime sunday, List<EventFormViewModel> events)
     {
-        for (DateTime date = sunday; date.DayOfYear < sunday.DayOfYear + 7; date = date.AddDays(1))
+        var nextSunday = sunday.AddDays(7);
+        for (DateTime date = sunday; date < nextSunday; date = date.AddDays(1))
         {
             Days.Add(new(date, events));
         }

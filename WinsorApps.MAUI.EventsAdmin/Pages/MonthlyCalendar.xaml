@@ -200,15 +200,20 @@
                     <BoxView StyleClass="Bar" />
                 </VerticalStackLayout>
                 <HorizontalStackLayout
+                    HeightRequest="80"
+                    VerticalOptions="Center"
                     IsVisible="{Binding Busy}">
                     <Label 
                         StyleClass="Header"
                         Text="{Binding BusyMessage}" />
-                    <Image StyleClass="loading_symbol" />
+                    <Image 
+                        StyleClass="loading_symbol" 
+                        VerticalOptions="Center"/>
                 </HorizontalStackLayout>
                 <!--End Filters-->
                 <!--Calendar-->
                 <HorizontalStackLayout
+                    WidthRequest="1630"
                     HorizontalOptions="Center"
                     Spacing="75">
                     <Label
@@ -234,6 +239,8 @@
                     </Label>
                 </HorizontalStackLayout>
                 <HorizontalStackLayout
+                    WidthRequest="1630"
+                    HeightRequest="1070"
                     HorizontalOptions="Center">
                     <CollectionView
                         ItemsSource="{Binding Calendar.Weeks}"
