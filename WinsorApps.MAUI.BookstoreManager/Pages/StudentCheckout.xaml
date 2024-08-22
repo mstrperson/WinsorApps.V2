@@ -133,6 +133,12 @@
                                                 <CheckBox IsChecked="{Binding IsSelected}" />
                                                 <Label Text="{Binding Isbn.Book.Title}" />
                                                 <Label Text="{Binding Isbn.Binding, StringFormat='[{0}]'}" />
+                                                <Label 
+                                                    StyleClass="DeleteButton">
+                                                    <Label.GestureRecognizers>
+                                                        <TapGestureRecognizer Command="{Binding DeleteCommand}" />
+                                                    </Label.GestureRecognizers>
+                                                </Label>
                                             </HorizontalStackLayout>
                                         </DataTemplate>
                                     </CollectionView.ItemTemplate>
