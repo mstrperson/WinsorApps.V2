@@ -46,19 +46,19 @@ public partial class AdminCalendarViewModel :
             SelectedEvent = evt;
             ShowEvent = true;
         };
-        _admin.OnCacheRefreshed += (_, _) =>
+        _admin.OnCacheRefreshed += async (_, _) =>
         {
-            Calendar.LoadEvents();
+            await Calendar.LoadEvents();
             ApplyFilter();
         };
     }
 
     [RelayCommand]
-    public void Refresh()
+    public async Task Refresh()
     {
         Busy = true;
         BusyMessage = "Loading Events";
-        Calendar.LoadEvents();
+        await Calendar.LoadEvents();
         ApplyFilter();
         Busy = false;
     }

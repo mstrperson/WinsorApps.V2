@@ -2,7 +2,7 @@
 
 namespace WinsorApps.Services.Global.Models;
 
-public record struct CalendarEventRecord<T>(
+public record struct CalendarEvent<T>(
     DateTime start,
     DateTime end,
     string summary,

@@ -20,6 +20,11 @@
         Route="MyEventList" />
 
     <ShellContent
+        Title="Events Calendar"
+        ContentTemplate="{DataTemplate pages:MonthlyCalendar}"
+        Route="MonthlyCalendar" />
+
+    <ShellContent
         Title="Help"
         ContentTemplate="{DataTemplate shared:HelpPage}"
         Route="HelpPage" />

@@ -1,4 +1,6 @@
+using AsyncAwaitBestPractices;
 using WinsorApps.MAUI.EventsAdmin.ViewModels;
+using WinsorApps.MAUI.Shared;
 
 namespace WinsorApps.MAUI.EventsAdmin.Pages;
 
@@ -13,6 +15,6 @@ public partial class MonthlyCalendar : ContentPage
 
     private void ContentPage_Appearing(object sender, EventArgs e)
     {
-		ViewModel.Refresh();
+		ViewModel.Refresh().SafeFireAndForget(e => e.LogException());
     }
 }
