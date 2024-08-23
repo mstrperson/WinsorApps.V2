@@ -27,8 +27,8 @@
         <ApplicationId>edu.winsor.helpdesk</ApplicationId>
 
         <!-- Versions -->
-        <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
-        <ApplicationVersion>1</ApplicationVersion>
+        <ApplicationDisplayVersion>2.0</ApplicationDisplayVersion>
+        <ApplicationVersion>2</ApplicationVersion>
 
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">11.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">13.1</SupportedOSPlatformVersion>
@@ -54,7 +54,35 @@
         <Copyright>2024</Copyright>
         <PackageIcon>icon.png</PackageIcon>
     </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-maccatalyst|AnyCPU'">
+		<ApplicationTitle>Winsor Helpdesk</ApplicationTitle>
+		<ApplicationId>maccatalyst.edu.winsor.helpdesk</ApplicationId>
+		<ApplicationIdGuid>P8CLK55JUH</ApplicationIdGuid>
+		<MtouchLink>SdkOnly</MtouchLink>
+		<EnableCodeSigning>True</EnableCodeSigning>
+		<EnablePackageSigning>true</EnablePackageSigning>
+		<CreatePackage>true</CreatePackage>
+		<CodesignKey>Developer ID Application: Jason Cox (P8CLK55JUH)</CodesignKey>
+		<CodesignProvision>Winsor Helpdesk</CodesignProvision>
+		<CodesignEntitlements>Platforms\MacCatalyst\Entitlements.plist</CodesignEntitlements>
+		<PackageSigningKey>Developer ID Installer: Jason Cox (P8CLK55JUH)</PackageSigningKey>
+		<UseHardenedRuntime>true</UseHardenedRuntime>
+	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-maccatalyst|AnyCPU'">
+		<ApplicationTitle>Winsor Helpdesk</ApplicationTitle>
+		<ApplicationId>maccatalyst.edu.winsor.helpdesk</ApplicationId>
+		<ApplicationIdGuid>P8CLK55JUH</ApplicationIdGuid>
+		<MtouchLink>SdkOnly</MtouchLink>
+		<EnableCodeSigning>True</EnableCodeSigning>
+		<EnablePackageSigning>true</EnablePackageSigning>
+		<CreatePackage>true</CreatePackage>
+		<CodesignKey>Developer ID Application: Jason Cox (P8CLK55JUH)</CodesignKey>
+		<CodesignProvision>Winsor Helpdesk</CodesignProvision>
+		<CodesignEntitlements>Platforms\MacCatalyst\Entitlements.plist</CodesignEntitlements>
+		<PackageSigningKey>Developer ID Installer: Jason Cox (P8CLK55JUH)</PackageSigningKey>
+		<UseHardenedRuntime>true</UseHardenedRuntime>
+	</PropertyGroup>
     <ItemGroup>
         <!-- App Icon -->
         <MauiIcon Include="Resources\AppIcon\appicon.svg">
@@ -74,26 +102,6 @@
 
         <!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
         <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Remove="Resources\AppIcon\appicon.svg" />
-      <None Remove="Resources\Fonts\CrimsonText-Semibold.ttf" />
-      <None Remove="Resources\Fonts\NotoSans-Regular.ttf" />
-      <None Remove="Resources\Fonts\OpenSans-Regular.ttf" />
-      <None Remove="Resources\Fonts\OpenSans-Semibold.ttf" />
-      <None Remove="Resources\Images\dotnet_bot.png" />
-      <None Remove="Resources\Images\invisible.png" />
-      <None Remove="Resources\Images\loading.gif" />
-      <None Remove="Resources\Images\logo_withwordmark_black.png" />
-      <None Remove="Resources\Images\logo_withwordmark_red.png" />
-      <None Remove="Resources\Images\logo_withwordmark_white.png" />
-      <None Remove="Resources\Images\wordmark_oneline_black_02.png" />
-      <None Remove="Resources\Images\wordmark_oneline_red_01.png" />
-      <None Remove="Resources\Images\wordmark_oneline_red_notoutlined.png" />
-      <None Remove="Resources\Images\wordmark_oneline_white_03.png" />
-      <None Remove="Resources\Raw\AboutAssets.txt" />
-      <None Remove="Resources\Splash\splash.svg" />
     </ItemGroup>
 
     <ItemGroup>

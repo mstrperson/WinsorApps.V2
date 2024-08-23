@@ -6,7 +6,6 @@
              x:DataType="vm:ServiceCaseViewModel"
              x:Class="WinsorApps.MAUI.Helpdesk.Pages.ServiceCase.ServiceCaseEditor"
              Title="Service Case Editor">
- 
     <VerticalStackLayout>
         <HorizontalStackLayout>
             <Label 
@@ -17,7 +16,6 @@
                 StyleClass="SaveButton"
                 Command="{Binding SubmitCommand}" />
         </HorizontalStackLayout>
-        
         <HorizontalStackLayout
             Spacing="30">
             <Label
@@ -41,7 +39,6 @@
             HorizontalOptions="Start"
             HeightRequest="100"
             Text="{Binding IntakeNotes}"/>
-
         <HorizontalStackLayout>
             <Label
             Text="Loaner"
