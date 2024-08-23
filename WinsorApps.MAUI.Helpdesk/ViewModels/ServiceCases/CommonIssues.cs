@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Helpdesk.Models;
@@ -37,9 +38,9 @@ public partial class CommonIssueSelectionViewModel : ObservableObject, ICheckBox
 {
     private readonly ServiceCaseService _caseService = ServiceHelper.GetService<ServiceCaseService>();
 
-    [ObservableProperty] ImmutableArray<CommonIssueViewModel> items;
+    [ObservableProperty] ObservableCollection<CommonIssueViewModel> items;
 
-    public ImmutableArray<CommonIssueViewModel> Selected
+    public ObservableCollection<CommonIssueViewModel> Selected
     {
         get => [.. Items.Where(it => it.IsSelected)];
         set
@@ -62,6 +63,6 @@ public partial class CommonIssueSelectionViewModel : ObservableObject, ICheckBox
 
     public CommonIssueSelectionViewModel()
     {
-        items = _caseService.CommonIssues.Select(issue => new CommonIssueViewModel(issue)).ToImmutableArray();
+        items = [.._caseService.CommonIssues.Select(issue => new CommonIssueViewModel(issue))];
     }
 }

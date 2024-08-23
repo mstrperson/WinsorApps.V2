@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Global;
@@ -23,7 +24,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         private static readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
 
         [ObservableProperty] private string id = "";
-        [ObservableProperty] private ImmutableArray<string> items = [];
+        [ObservableProperty] private ObservableCollection<string> items = [];
         [ObservableProperty] private UserViewModel user;
         [ObservableProperty] private DateTime created;
         [ObservableProperty] private DateTime due;
@@ -60,7 +61,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
             _cheqroom = ServiceHelper.GetService<CheqroomService>();
             user = UserViewModel.Get(result.user);
             created = result.created.LocalDateTime;
-            items = result.items;
+            items = [..result.items];
             due = result.due.LocalDateTime;
             status = result.status;
             isOverdue = result.isOverdue;

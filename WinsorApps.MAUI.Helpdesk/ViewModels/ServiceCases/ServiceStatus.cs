@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Helpdesk.Services;
@@ -16,16 +17,21 @@ public partial class ServiceStatusViewModel :
     [ObservableProperty] string status = "";
     [ObservableProperty] string description = "";
     [ObservableProperty] string nextId = "";
-    [ObservableProperty] ServiceStatusViewModel next = ServiceStatusViewModel.Empty;
+    [ObservableProperty] ServiceStatusViewModel next = _empty;
     [ObservableProperty] bool isSelected;
 
-    public static ServiceStatusViewModel Empty => new();
+    private static ServiceStatusViewModel _empty = new();
+
+    public static ServiceStatusViewModel Empty => _empty;
 
     public event EventHandler<ServiceStatusViewModel>? Selected;
 
     public void Select() => Selected?.Invoke(this, this);
 
-    public ServiceStatusViewModel() { }
+    public ServiceStatusViewModel() 
+    {
+        
+    }
 
     public override string ToString() => Status;
 
@@ -35,9 +41,9 @@ public partial class ServiceStatusSearchViewModel : ObservableObject, ICachedSea
 {
     private readonly ServiceCaseService _caseService = ServiceHelper.GetService<ServiceCaseService>();
 
-    [ObservableProperty] private ImmutableArray<ServiceStatusViewModel> available;
-    [ObservableProperty] private ImmutableArray<ServiceStatusViewModel> allSelected = [];
-    [ObservableProperty] private ImmutableArray<ServiceStatusViewModel> options = [];
+    [ObservableProperty] private ObservableCollection<ServiceStatusViewModel> available;
+    [ObservableProperty] private ObservableCollection<ServiceStatusViewModel> allSelected = [];
+    [ObservableProperty] private ObservableCollection<ServiceStatusViewModel> options = [];
     [ObservableProperty] private ServiceStatusViewModel selected = ServiceStatusViewModel.Empty;
     [ObservableProperty] private bool isSelected;
     [ObservableProperty]
@@ -49,11 +55,11 @@ public partial class ServiceStatusSearchViewModel : ObservableObject, ICachedSea
 
     public event EventHandler<ServiceStatusViewModel>? OnSingleResult;
     public event EventHandler? OnZeroResults;
-    public event EventHandler<ImmutableArray<ServiceStatusViewModel>>? OnMultipleResult;
+    public event EventHandler<ObservableCollection<ServiceStatusViewModel>>? OnMultipleResult;
 
     public ServiceStatusSearchViewModel()
     {
-        Available = _caseService.ServiceStatuses
+        Available = [.. _caseService.ServiceStatuses
             .Select(status => new ServiceStatusViewModel()
             {
                 Id = status.id,
@@ -61,8 +67,7 @@ public partial class ServiceStatusSearchViewModel : ObservableObject, ICachedSea
                 IsSelected = false,
                 Status = status.text,
                 NextId = status.defaultNextId
-            })
-            .ToImmutableArray();
+            })];
 
         foreach(var status in Available)
         {
@@ -82,12 +87,12 @@ public partial class ServiceStatusSearchViewModel : ObservableObject, ICachedSea
         {
             case SelectionMode.Multiple:
                 AllSelected = [.. possible];
-                IsSelected = AllSelected.Length > 0;
+                IsSelected = AllSelected.Count > 0;
                 OnMultipleResult?.Invoke(this, AllSelected);
                 return;
             case SelectionMode.Single:
                 Options = [.. possible];
-                if (Options.Length == 0)
+                if (Options.Count == 0)
                 {
                     ShowOptions = false;
                     Selected = ServiceStatusViewModel.Empty;
@@ -95,7 +100,7 @@ public partial class ServiceStatusSearchViewModel : ObservableObject, ICachedSea
                     return;
                 }
 
-                if (Options.Length == 1)
+                if (Options.Count == 1)
                 {
                     ShowOptions = false;
                     Selected = Options.First();
@@ -141,7 +146,7 @@ public partial class ServiceStatusSearchViewModel : ObservableObject, ICachedSea
                 else
                     AllSelected = [.. AllSelected, sta];
 
-                IsSelected = AllSelected.Length > 0;
+                IsSelected = AllSelected.Count > 0;
                 if(IsSelected)
                     OnMultipleResult?.Invoke(this, AllSelected);
                 return;

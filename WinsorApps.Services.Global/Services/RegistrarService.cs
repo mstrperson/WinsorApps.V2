@@ -494,7 +494,7 @@ namespace WinsorApps.Services.Global.Services
             if (!check)
             {
                 var missed = _uniqueNameCache
-                    .Where(kvp => _uniqueNameCache.Values.Count(name => kvp.Value == name) > 1)
+                    .Where(kvp => _uniqueNameCache.Values.ToImmutableArray().Count(name => kvp.Value == name) > 1)
                     .SeparateByKeys(kvp => kvp.Value);
 
                 foreach (var name in missed.Keys)

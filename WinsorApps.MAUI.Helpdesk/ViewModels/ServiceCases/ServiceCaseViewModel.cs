@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using AsyncAwaitBestPractices;
 using CommunityToolkit.Maui.Storage;
@@ -83,7 +84,7 @@ public partial class ServiceCaseViewModel :
         IsClosed = serviceCase.closed.HasValue;
         Closed = IsClosed ? serviceCase.closed!.Value : DateTime.MinValue;
         StatusSearch.Select(serviceCase.status);
-        AttachedDocuments = serviceCase.attachedDocuments.Select(doc => new DocumentViewModel(doc)).ToImmutableArray();
+        AttachedDocuments = [..serviceCase.attachedDocuments.Select(doc => new DocumentViewModel(doc))];
         RepairCost = serviceCase.repairCost;
 
         ShowNotifyButton = Status.Status.Contains("Ready");
@@ -102,7 +103,7 @@ public partial class ServiceCaseViewModel :
     [ObservableProperty] private DateTime closed = DateTime.MinValue;
     [ObservableProperty] private bool isClosed;
     [ObservableProperty] private ServiceStatusSearchViewModel statusSearch = new();
-    [ObservableProperty] private ImmutableArray<DocumentViewModel> attachedDocuments = [];
+    [ObservableProperty] private ObservableCollection<DocumentViewModel> attachedDocuments = [];
     [ObservableProperty] private double repairCost = 0;
     [ObservableProperty] private DeviceViewModel loaner = DeviceViewModel.Empty;
     [ObservableProperty] private bool loanerSelected;
@@ -115,10 +116,10 @@ public partial class ServiceCaseViewModel :
         get => StatusSearch.Selected;
         set => StatusSearch.Select(value);
     }
-    public ImmutableArray<CommonIssueViewModel> CommonIssueList
+    public ObservableCollection<CommonIssueViewModel> CommonIssueList
     {
         get => CommonIssues.Selected;
-        set => CommonIssues.Select(value);
+        set => CommonIssues.Select([..value]);
     }
 
     public static ConcurrentBag<ServiceCaseViewModel> ViewModelCache { get; private set; } = [];
@@ -288,8 +289,8 @@ public partial class ServiceCaseSearchViewModel : ObservableObject, IAsyncSearch
 {
     private readonly ServiceCaseService _caseService = ServiceHelper.GetService<ServiceCaseService>();
 
-    [ObservableProperty] private ImmutableArray<ServiceCaseViewModel> allSelected = [];
-    [ObservableProperty] private ImmutableArray<ServiceCaseViewModel> options = [];
+    [ObservableProperty] private ObservableCollection<ServiceCaseViewModel> allSelected = [];
+    [ObservableProperty] private ObservableCollection<ServiceCaseViewModel> options = [];
     [ObservableProperty] private ServiceCaseViewModel selected = ServiceCaseViewModel.Empty;
     [ObservableProperty] private bool isSelected;
     [ObservableProperty] private bool showOptions;
@@ -305,7 +306,7 @@ public partial class ServiceCaseSearchViewModel : ObservableObject, IAsyncSearch
 
     public event EventHandler<ServiceCaseViewModel>? OnSingleResult;
     public event EventHandler? OnZeroResults; 
-    public event EventHandler<ImmutableArray<ServiceCaseViewModel>>? OnMultipleResult;
+    public event EventHandler<ObservableCollection<ServiceCaseViewModel>>? OnMultipleResult;
     public event EventHandler<ErrorRecord>? OnError;
 
     public event EventHandler<ServiceCaseViewModel>? OnCaseClosed;
@@ -335,7 +336,7 @@ public partial class ServiceCaseSearchViewModel : ObservableObject, IAsyncSearch
                 else
                     AllSelected = [.. AllSelected, serviceCase];
 
-                IsSelected = AllSelected.Length > 0;
+                IsSelected = AllSelected.Count > 0;
                 if (IsSelected)
                     OnMultipleResult?.Invoke(this, AllSelected);
                 return;
@@ -361,12 +362,12 @@ public partial class ServiceCaseSearchViewModel : ObservableObject, IAsyncSearch
         {
             case SelectionMode.Multiple:
                 AllSelected = [.. possible];
-                IsSelected = AllSelected.Length > 0;
+                IsSelected = AllSelected.Count > 0;
                 OnMultipleResult?.Invoke(this, AllSelected);
                 return;
             case SelectionMode.Single:
                 Options = [.. possible];
-                if (Options.Length == 0)
+                if (Options.Count == 0)
                 {
                     ShowOptions = false;
                     Selected = ServiceCaseViewModel.Empty;
@@ -375,7 +376,7 @@ public partial class ServiceCaseSearchViewModel : ObservableObject, IAsyncSearch
                     return;
                 }
 
-                if (Options.Length == 1)
+                if (Options.Count == 1)
                 {
                     ShowOptions = false;
                     Selected = Options.First();

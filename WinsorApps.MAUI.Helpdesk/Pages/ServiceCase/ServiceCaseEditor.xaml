@@ -6,9 +6,9 @@
              x:DataType="vm:ServiceCaseViewModel"
              x:Class="WinsorApps.MAUI.Helpdesk.Pages.ServiceCase.ServiceCaseEditor"
              Title="Service Case Editor">
+ 
     <VerticalStackLayout>
-        <HorizontalStackLayout
-            HorizontalOptions="Center">
+        <HorizontalStackLayout>
             <Label 
                 StyleClass="Header"
                 HorizontalTextAlignment="Center"
@@ -18,10 +18,13 @@
                 Command="{Binding SubmitCommand}" />
         </HorizontalStackLayout>
         
-        <HorizontalStackLayout>
+        <HorizontalStackLayout
+            Spacing="30">
             <Label
-                Text="Status" />
+                Text="Status" 
+                StyleClass="H3"/>
             <Picker
+                HeightRequest="40"
                 ItemsSource="{Binding StatusSearch.Available}"
                 SelectedItem="{Binding StatusSearch.Selected}" />
             <Button
@@ -35,12 +38,14 @@
             Text="Intake Notes" />
         <Editor
             WidthRequest="500"
+            HorizontalOptions="Start"
             HeightRequest="100"
             Text="{Binding IntakeNotes}"/>
-        <Label
+
+        <HorizontalStackLayout>
+            <Label
             Text="Loaner"
             StyleClass="H3" />
-        <HorizontalStackLayout>
             <views:DeviceSearchMini
                 x:Name="LoanerSearch"
                 LoanerSearch="True"

@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Global.Models;
@@ -60,24 +61,24 @@ public partial class DeviceCategoryViewModel : ObservableObject, IDefaultValueVi
 
 public partial class CategorySearchViewModel : ObservableObject, ICachedSearchViewModel<DeviceCategoryViewModel>, IErrorHandling
 {
-    [ObservableProperty] private ImmutableArray<DeviceCategoryViewModel> available;
-    [ObservableProperty] private ImmutableArray<DeviceCategoryViewModel> allSelected = [];
+    [ObservableProperty] private ObservableCollection<DeviceCategoryViewModel> available;
+    [ObservableProperty] private ObservableCollection<DeviceCategoryViewModel> allSelected = [];
     [ObservableProperty] private SelectionMode selectionMode = SelectionMode.Single;
     [ObservableProperty] private string searchText = "";
     [ObservableProperty] private bool showOptions;
     [ObservableProperty] private bool isSelected;
-    [ObservableProperty] private ImmutableArray<DeviceCategoryViewModel> options = [];
+    [ObservableProperty] private ObservableCollection<DeviceCategoryViewModel> options = [];
     [ObservableProperty] private DeviceCategoryViewModel selected = DeviceCategoryViewModel.Empty;
 
     public event EventHandler<ErrorRecord>? OnError;
-    public event EventHandler<ImmutableArray<DeviceCategoryViewModel>>? OnMultipleResult;
+    public event EventHandler<ObservableCollection<DeviceCategoryViewModel>>? OnMultipleResult;
     public event EventHandler<DeviceCategoryViewModel>? OnSingleResult;
     public event EventHandler? OnZeroResults;
 
     public CategorySearchViewModel()
     {
         var deviceService = ServiceHelper.GetService<DeviceService>();
-        Available = deviceService.Categories.Select(cat => new DeviceCategoryViewModel(cat)).ToImmutableArray();
+        Available = [..deviceService.Categories.Select(cat => new DeviceCategoryViewModel(cat))];
     }
 
     public void Search()
@@ -90,12 +91,12 @@ public partial class CategorySearchViewModel : ObservableObject, ICachedSearchVi
         {
             case SelectionMode.Multiple:
                 AllSelected = [.. possible];
-                IsSelected = AllSelected.Length > 0;
+                IsSelected = AllSelected.Count > 0;
                 OnMultipleResult?.Invoke(this, AllSelected);
                 return;
             case SelectionMode.Single:
                 Options = [.. possible];
-                if (Options.Length == 0)
+                if (Options.Count == 0)
                 {
                     ShowOptions = false;
                     Selected = DeviceCategoryViewModel.Empty;
@@ -104,7 +105,7 @@ public partial class CategorySearchViewModel : ObservableObject, ICachedSearchVi
                     return;
                 }
 
-                if (Options.Length == 1)
+                if (Options.Count == 1)
                 {
                     ShowOptions = false;
                     Selected = Options.First();
@@ -141,7 +142,7 @@ public partial class CategorySearchViewModel : ObservableObject, ICachedSearchVi
                 else
                     AllSelected = [.. AllSelected, cat];
 
-                IsSelected = AllSelected.Length > 0;
+                IsSelected = AllSelected.Count > 0;
                 if (IsSelected)
                     OnMultipleResult?.Invoke(this, AllSelected);
                 return;

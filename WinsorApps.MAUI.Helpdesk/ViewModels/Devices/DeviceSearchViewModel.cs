@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Global;
@@ -22,16 +23,16 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices
 
         private readonly DeviceService _deviceService;
 
-        [ObservableProperty] private ImmutableArray<DeviceViewModel> available;
-        [ObservableProperty] private ImmutableArray<DeviceViewModel> allSelected = [];
-        [ObservableProperty] private ImmutableArray<DeviceViewModel> options = [];
+        [ObservableProperty] private ObservableCollection<DeviceViewModel> available;
+        [ObservableProperty] private ObservableCollection<DeviceViewModel> allSelected = [];
+        [ObservableProperty] private ObservableCollection<DeviceViewModel> options = [];
         [ObservableProperty] private SelectionMode selectionMode = SelectionMode.Single;
         [ObservableProperty] private DeviceViewModel selected;
         [ObservableProperty] private string searchText = "";
         [ObservableProperty] private bool isSelected;
         [ObservableProperty] private bool showOptions;
 
-        public event EventHandler<ImmutableArray<DeviceViewModel>>? OnMultipleResult;
+        public event EventHandler<ObservableCollection<DeviceViewModel>>? OnMultipleResult;
         public event EventHandler<DeviceViewModel>? OnSingleResult;
         public event EventHandler<ErrorRecord>? OnError;
         public event EventHandler? OnZeroResults;
@@ -44,9 +45,8 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices
             {
                 _filter = value; 
                 
-                Available = DeviceViewModel.ViewModelCache
-                    .Where(GenerateFilter(Filter))
-                    .ToImmutableArray();
+                Available = [.. DeviceViewModel.ViewModelCache
+                    .Where(GenerateFilter(Filter))];
             }
         }
 
@@ -57,9 +57,8 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices
             {
                 _deviceService = ServiceHelper.GetService<DeviceService>();
 
-                Available = DeviceViewModel.ViewModelCache
-                    .Where(GenerateFilter(Filter))
-                    .ToImmutableArray();
+                Available = [..DeviceViewModel.ViewModelCache
+                    .Where(GenerateFilter(Filter))];
 
                 foreach (var dev in Available)
                 {
@@ -94,12 +93,12 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices
             {
                 case SelectionMode.Multiple:
                     AllSelected = [.. possible];
-                    IsSelected = AllSelected.Length > 0;
+                    IsSelected = AllSelected.Count > 0;
                     OnMultipleResult?.Invoke(this, AllSelected);
                     return;
                 case SelectionMode.Single:
                     Options = [.. possible];
-                    if (Options.Length == 0)
+                    if (Options.Count == 0)
                     {
                         ShowOptions = false;
                         Selected = DeviceViewModel.Empty;
@@ -107,7 +106,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices
                         return;
                     }
 
-                    if (Options.Length == 1)
+                    if (Options.Count == 1)
                     {
                         ShowOptions = false;
                         Selected = Options.First();
@@ -145,7 +144,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices
                     else
                         AllSelected = [.. AllSelected, user];
 
-                    IsSelected = AllSelected.Length > 0;
+                    IsSelected = AllSelected.Count > 0;
                     if (IsSelected)
                         OnMultipleResult?.Invoke(this, AllSelected);
                     return;

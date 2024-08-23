@@ -23,7 +23,7 @@ public partial class DeviceSearchMini : ContentView
 			if(value)
 			{
 				var deviceService = ServiceHelper.GetService<DeviceService>();
-				ViewModel.Available = DeviceViewModel.GetClonedViewModels(deviceService.Loaners).ToImmutableArray();
+				ViewModel.Available = [..DeviceViewModel.GetClonedViewModels(deviceService.Loaners)];
 			}
 		}
 	}

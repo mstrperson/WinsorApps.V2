@@ -54,7 +54,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
             if (!string.IsNullOrEmpty(result._id))
             {
                 Result = new(result);
-                CheqroomCheckoutSearchResult sres = new(result._id, UserSearch.Selected.Model, [..result.itemSummary.Split(',')], DateTime.Now, result.due, result.status, false);
+                CheqroomCheckoutSearchResult sres = new(result._id, UserSearch.Selected.Model.Reduce(UserRecord.Empty), [..result.itemSummary.Split(',')], DateTime.Now, result.due, result.status, false);
 
                 OnCheckoutSuccessful?.Invoke(this, CheckoutSearchResultViewModel.Get(sres));
                 DisplayResult = true;

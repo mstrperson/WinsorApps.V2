@@ -22,12 +22,14 @@
             Grid.Column="0"
             Placeholder="Asset Tag"
             WidthRequest="200"
+            Margin="5"
             VerticalOptions="Center"
             IsEnabled="{Binding Working, Converter={StaticResource Invert}}"
             Text="{Binding AssetTag}" />
         <Label
             Grid.Row="0"
             Grid.Column="1"
+            Margin="5"
             VerticalTextAlignment="Center"
             VerticalOptions="Center"
             IsVisible="{Binding Working, Converter={StaticResource Invert}}"
@@ -35,6 +37,7 @@
         <Label
             Grid.Row="0"
             Grid.Column="1"
+            Margin="5"
             VerticalTextAlignment="Center"
             VerticalOptions="Center"
             IsVisible="{Binding Working}"
@@ -42,6 +45,8 @@
         <sview:UserSearchBar 
             Grid.Row="0"
             Grid.Column="2"
+            Margin="5"
+            VerticalOptions="Center"
             IsEnabled="{Binding Working, Converter={StaticResource Invert}}"
             BindingContext="{Binding UserSearch}" />
         <Button

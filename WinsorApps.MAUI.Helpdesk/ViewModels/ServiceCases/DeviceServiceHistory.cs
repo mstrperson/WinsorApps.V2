@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Helpdesk.ViewModels.ServiceCases;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.Services.Helpdesk.Services;
@@ -11,14 +12,14 @@ public partial class DeviceViewModel
 {
     private readonly ServiceCaseService _caseService = ServiceHelper.GetService<ServiceCaseService>();
 
-    [ObservableProperty] ImmutableArray<ServiceCaseViewModel> serviceHistory = [];
+    [ObservableProperty] ObservableCollection<ServiceCaseViewModel> serviceHistory = [];
     [ObservableProperty] bool showServiceHistory;
 
     [RelayCommand]
     public async Task LoadServiceHistory()
     {
         var searchResults = await _caseService.SearchServiceCaseHistory(new(deviceId: Id), OnError.DefaultBehavior(this));
-        ServiceHistory = searchResults.Select(sc => ServiceCaseViewModel.Get(sc)).ToImmutableArray();
+        ServiceHistory = [..searchResults.Select(ServiceCaseViewModel.Get)];
         foreach(var serviceCase in ServiceHistory)
         {
             serviceCase.OnError += (sender, e) => OnError?.Invoke(sender, e);;

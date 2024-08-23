@@ -1,4 +1,5 @@
-﻿using WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom;
+﻿using WinsorApps.MAUI.Helpdesk.Pages;
+using WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom;
 using WinsorApps.MAUI.Helpdesk.ViewModels.Devices;
 using WinsorApps.MAUI.Helpdesk.ViewModels.ServiceCases;
 using WinsorApps.MAUI.Shared;
@@ -33,15 +34,17 @@ public partial class MainPage : ContentPage
             new(devService, "Device Service"),
             new(jamfService, "Jamf Service"),
             new(cheqroom, "Cheqroom Checkouts"),
-            new(caseService, "Service Cases")
-        ], app, api)
+            new(caseService, "Service Cases"),
+            new(app, "Checking for Updates")
+        ], app, api, logging)
         {
             Completion = [
                 new(new Task(async () => await DeviceViewModel.Initialize(devService, this.DefaultOnErrorAction())), "Device Cache"),
                 new(new Task(async () => await ServiceCaseViewModel.Initialize(caseService, this.DefaultOnErrorAction())), "Service Case Cache"),
                 new(new Task(async () => await CheqroomItemViewModel.Initialize(cheqroom, this.DefaultOnErrorAction())), "Cheqroom Cache"),
                 new(new Task(async () => await CheckoutSearchResultViewModel.Initialize(cheqroom, this.DefaultOnErrorAction())), "Checkout Cache")
-            ]
+            ],
+            AppId = "pq23ZqbXmGvB"
         };
 
         BindingContext = vm;
@@ -62,5 +65,9 @@ public partial class MainPage : ContentPage
 
     private void Vm_OnCompleted(object? sender, EventArgs e)
     {
+        if (ViewModel.UpdateAvailable) return;
+
+        var page = ServiceHelper.GetService<HUD>();
+        Navigation.PushAsync(page);
     }
 }

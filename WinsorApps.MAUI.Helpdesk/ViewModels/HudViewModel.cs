@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Helpdesk.Pages;
 using WinsorApps.MAUI.Helpdesk.Pages.Devices;
 using WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom;
@@ -37,7 +38,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels
             _devices = devices;
             _caseService = caseService;
 
-            OpenCases = ServiceCaseViewModel.GetClonedViewModels(_caseService.OpenCases).ToImmutableArray();
+            OpenCases = [..ServiceCaseViewModel.GetClonedViewModels(_caseService.OpenCases)];
 
             foreach(var serviceCase in OpenCases)
             {
@@ -85,7 +86,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels
             });
         }
 
-        [ObservableProperty] private ImmutableArray<ServiceCaseViewModel> openCases = [];
+        [ObservableProperty] private ObservableCollection<ServiceCaseViewModel> openCases = [];
         [ObservableProperty] private QuickCheckoutViewModel quickCheckout;
         [ObservableProperty] private CheckoutSearchViewModel checkoutSearch;
         [ObservableProperty] private bool hasOpenCases;
@@ -99,7 +100,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels
             while (_caseService.Refreshing)
                 await Task.Delay(100);
 
-            OpenCases = ServiceCaseViewModel.GetClonedViewModels(_caseService.OpenCases).ToImmutableArray();
+            OpenCases = [..ServiceCaseViewModel.GetClonedViewModels(_caseService.OpenCases)];
 
             foreach (var serviceCase in OpenCases)
             {

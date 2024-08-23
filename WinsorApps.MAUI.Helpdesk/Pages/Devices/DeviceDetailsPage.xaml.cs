@@ -39,9 +39,12 @@ public partial class DeviceDetailsPage : ContentPage
 		{
 			var exiting = ViewModel.ServiceHistory.FirstOrDefault(c => c.Id == sc.Id);
 			if (exiting is null)
-				ViewModel.ServiceHistory = [.. ViewModel.ServiceHistory, sc];
+				ViewModel.ServiceHistory.Add(sc);
 			else
-				ViewModel.ServiceHistory = ViewModel.ServiceHistory.Replace(exiting, sc);
+			{
+				ViewModel.ServiceHistory.Remove(exiting);
+				ViewModel.ServiceHistory.Add(sc);
+			}
             await Navigation.PopAsync();
         };
 		Navigation.PushAsync(page);

@@ -5,7 +5,9 @@
              xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels"
              x:DataType="vm:UserSearchViewModel"
              x:Class="WinsorApps.MAUI.Shared.Views.UserSearchBar">
-    <StackLayout>
+    <VerticalStackLayout
+        Margin="0"
+        Padding="0">
         <SearchBar 
             Text="{Binding SearchText}"
             SearchCommand="{Binding SearchCommand}"
@@ -26,5 +28,5 @@
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
-    </StackLayout>
+    </VerticalStackLayout>
 </ContentView>

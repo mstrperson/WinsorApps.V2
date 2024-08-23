@@ -5,9 +5,20 @@
              x:DataType="svm:CommonIssueSelectionViewModel"
              x:Class="WinsorApps.MAUI.Helpdesk.Views.CommonIssueCheckListView">
     <VerticalStackLayout>
+        <Border>
+            
         <CollectionView
+            BackgroundColor="Transparent"
             ItemsSource="{Binding Items}"
-            ItemsLayout="VerticalGrid, 4">
+            ItemsLayout="VerticalGrid, 4"
+            WidthRequest="1000">
+            <CollectionView.Header>
+                <HorizontalStackLayout>
+                    <Label
+                        StyleClass="SubHeader"
+                        Text="Common Issues" />
+                </HorizontalStackLayout>
+            </CollectionView.Header>
             <CollectionView.ItemTemplate>
                 <DataTemplate
                     x:DataType="svm:CommonIssueViewModel">
@@ -20,5 +31,7 @@
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+
+        </Border>
     </VerticalStackLayout>
 </ContentView>

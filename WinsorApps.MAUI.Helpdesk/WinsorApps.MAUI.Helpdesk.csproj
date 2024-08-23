@@ -59,6 +59,7 @@
         <!-- App Icon -->
         <MauiIcon Include="Resources\AppIcon\appicon.svg">
           <ForegroundFile>Resources\AppIcon\appiconfg.svg</ForegroundFile>
+          <Color>#FFFFFF</Color>
         </MauiIcon>
 
         <!-- Splash Screen -->
@@ -73,6 +74,26 @@
 
         <!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
         <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Resources\AppIcon\appicon.svg" />
+      <None Remove="Resources\Fonts\CrimsonText-Semibold.ttf" />
+      <None Remove="Resources\Fonts\NotoSans-Regular.ttf" />
+      <None Remove="Resources\Fonts\OpenSans-Regular.ttf" />
+      <None Remove="Resources\Fonts\OpenSans-Semibold.ttf" />
+      <None Remove="Resources\Images\dotnet_bot.png" />
+      <None Remove="Resources\Images\invisible.png" />
+      <None Remove="Resources\Images\loading.gif" />
+      <None Remove="Resources\Images\logo_withwordmark_black.png" />
+      <None Remove="Resources\Images\logo_withwordmark_red.png" />
+      <None Remove="Resources\Images\logo_withwordmark_white.png" />
+      <None Remove="Resources\Images\wordmark_oneline_black_02.png" />
+      <None Remove="Resources\Images\wordmark_oneline_red_01.png" />
+      <None Remove="Resources\Images\wordmark_oneline_red_notoutlined.png" />
+      <None Remove="Resources\Images\wordmark_oneline_white_03.png" />
+      <None Remove="Resources\Raw\AboutAssets.txt" />
+      <None Remove="Resources\Splash\splash.svg" />
     </ItemGroup>
 
     <ItemGroup>
@@ -132,18 +153,23 @@
       </MauiXaml>
       <MauiXaml Update="Resources\Styles\ButtonStyles.xaml">
         <Generator>MSBuild:Compile</Generator>
+        <SubType>Designer</SubType>
       </MauiXaml>
       <MauiXaml Update="Resources\Styles\ImageStyles.xaml">
         <Generator>MSBuild:Compile</Generator>
+        <SubType>Designer</SubType>
       </MauiXaml>
       <MauiXaml Update="Resources\Styles\LabelStyles.xaml">
         <Generator>MSBuild:Compile</Generator>
+        <SubType>Designer</SubType>
       </MauiXaml>
       <MauiXaml Update="Resources\Styles\SignifierLabels.xaml">
         <Generator>MSBuild:Compile</Generator>
+        <SubType>Designer</SubType>
       </MauiXaml>
       <MauiXaml Update="Resources\Styles\ToolbarItemStyles.xaml">
         <Generator>MSBuild:Compile</Generator>
+        <SubType>Designer</SubType>
       </MauiXaml>
       <MauiXaml Update="Views\CommonIssueCheckListView.xaml">
         <Generator>MSBuild:Compile</Generator>
@@ -166,6 +192,12 @@
       <MauiXaml Update="Views\ServiceCaseSearchFilter.xaml">
         <Generator>MSBuild:Compile</Generator>
       </MauiXaml>
+    </ItemGroup>
+
+    <ItemGroup>
+      <MauiAsset Update="Resources\Raw\AboutAssets.txt">
+        <LogicalName>%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
+      </MauiAsset>
     </ItemGroup>
 
 </Project>

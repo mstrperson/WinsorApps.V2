@@ -18,6 +18,9 @@
                     StyleClass="Header"
                     IsVisible="{Binding Loading}"
                     Text="Loading..." />
+                <Image
+                    StyleClass="loading_image"
+                    IsVisible="{Binding Loading}" />
                 <Label 
                     StyleClass="Header"
                     Text="Open Service Cases" />
