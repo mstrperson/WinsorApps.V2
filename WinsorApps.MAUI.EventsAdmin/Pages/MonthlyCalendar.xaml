@@ -25,17 +25,20 @@
     <ContentPage.Content>
         <ScrollView>
             <VerticalStackLayout
+                Width="1670"
                 HorizontalOptions="Center">
                 <!--Filters-->
                 <VerticalStackLayout
                     Margin="0"
                     Padding="0"
+                    Width="1670"
+                    HorizontalOptions="Center"
                     IsVisible="{Binding ShowFilter}">
                     <!--Filter Selection-->
                     <HorizontalStackLayout 
                         Margin="0"
                         Padding="0"
-                        WidthRequest="1280"
+                        Width="1670"
                         HorizontalOptions="Center"
                         Spacing="15">
                         <Label
@@ -106,12 +109,15 @@
                     <HorizontalStackLayout
                         Margin="0"
                         Padding="0"
+                        Width="1670"
+                        HeightRequest="75"
                         IsVisible="{Binding EventFilterViewModel.ShowStatus}"
                         Spacing="30">
                         <CollectionView
                             Margin="0"
                             BackgroundColor="Transparent"
-                            WidthRequest="1280"
+                            Width="1670"
+                            HeightRequest="75"
                             ItemsSource="{Binding EventFilterViewModel.ByStatus.Statuses}">
                             <CollectionView.ItemsLayout>
                                 <GridItemsLayout Orientation="Horizontal" Span="1" />
@@ -146,12 +152,15 @@
                     <HorizontalStackLayout
                         Margin="0"
                         Padding="0"
+                        Width="1670"
+                        HeightRequest="75"
                         IsVisible="{Binding EventFilterViewModel.ShowType}"
                         Spacing="30">
                         <CollectionView
                             Margin="0"
                             BackgroundColor="Transparent"
-                            WidthRequest="1280"
+                            Width="1670"
+                            HeightRequest="75"
                             ItemsSource="{Binding EventFilterViewModel.ByType.Types}">
                             <CollectionView.ItemsLayout>
                                 <GridItemsLayout Orientation="Horizontal" Span="1" />
@@ -186,12 +195,13 @@
                     <HorizontalStackLayout
                         Margin="0"
                         Padding="0"
-                        WidthRequest="1280"
+                        Width="1670"
+                        HeightRequest="75"
                         IsVisible="{Binding EventFilterViewModel.ShowPeople}">
                         <Label StyleClass="H3" Text="People:"/>
                         <SearchBar
                             Placeholder="Leader or Creator Name"
-                            WidthRequest="300" 
+                            WidthRequest="500" 
                             Text="{Binding EventFilterViewModel.ByPerson.SearchText}"
                             SearchCommand="{Binding ApplyFilterCommand}"/>
                         
@@ -212,8 +222,8 @@
                 </HorizontalStackLayout>
                 <!--End Filters-->
                 <!--Calendar-->
-                <HorizontalStackLayout
-                    WidthRequest="1630"
+                <StackLayout
+                    Orientation="Horizontal"
                     HorizontalOptions="Center"
                     Spacing="75">
                     <Label
@@ -237,12 +247,12 @@
                             <TapGestureRecognizer Command="{Binding IncrementMonthCommand}" />
                         </Label.GestureRecognizers>
                     </Label>
-                </HorizontalStackLayout>
+                </StackLayout>
                 <HorizontalStackLayout
-                    WidthRequest="1630"
-                    HeightRequest="1070"
                     HorizontalOptions="Center">
                     <CollectionView
+                        WidthRequest="1630"
+                        HeightRequest="1070"
                         ItemsSource="{Binding Calendar.Weeks}"
                         BackgroundColor="Transparent"
                         VerticalScrollBarVisibility="Never">
