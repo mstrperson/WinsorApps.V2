@@ -185,8 +185,6 @@ public partial class StudentCartViewModel :
     {
         using DebugTimer _ = new($"Loading cart for {student.DisplayName}", _logging);
         this.student = student;
-
-
         Sections = [.. sections.Select(item => new StudentSectionCartViewModel(item))];
     }
 
@@ -223,7 +221,22 @@ public partial class StudentSectionCartViewModel :
 
         Cart = [.. model.selectedBooks.Select(b => new StudentBookRequestViewModel(b))];
 
-
+        foreach(var item in Cart)
+        {
+            item.DeleteRequested += async (_, _) =>
+            {
+                Busy = true;
+                BusyMessage = $"Removing {item.Isbn.Book.Title}";
+                Cart.Remove(item);
+                var isbns = Cart.Select(req => req.Isbn.Isbn);
+                var result = await _service.EditStudentBookOrder(_model.student.id, _model.sectionId, isbns, OnError.DefaultBehavior(this));
+                if(!result.HasValue)
+                {
+                    Cart.Add(item);  // there was an error.
+                }
+                Busy = false;
+            };
+        }
     }
 
     [RelayCommand]
@@ -273,6 +286,9 @@ public partial class StudentBookRequestViewModel :
     [ObservableProperty] DateTime submitted;
     [ObservableProperty] IsbnViewModel isbn = IsbnViewModel.Empty;
     [ObservableProperty] bool isSelected;
+
+    public event EventHandler<StudentBookRequestViewModel>? DeleteRequested;
+
     public StudentBookRequestViewModel(StudentBookRequest model)
     {
         var bookInfo = _books.BooksCache.FirstOrDefault(book => book.isbns.Any(isbn => isbn.isbn == model.isbn));
@@ -298,4 +314,7 @@ public partial class StudentBookRequestViewModel :
         IsSelected = !IsSelected;
         Selected?.Invoke(this, this);
     }
+
+    [RelayCommand]
+    public void Delete() => DeleteRequested?.Invoke(this, this);
 }
