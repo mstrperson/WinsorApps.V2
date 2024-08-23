@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Collections.Immutable;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.EventForms.ViewModels;
@@ -7,6 +8,7 @@ using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.EventForms.Services.Admin;
 using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
+using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.EventsAdmin.ViewModels;
 
@@ -16,11 +18,12 @@ public partial class AdminCalendarViewModel :
     IBusyViewModel
 {
     private readonly EventsAdminService _admin = ServiceHelper.GetService<EventsAdminService>();
+    private readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
 
     [ObservableProperty] CalendarViewModel calendar;
     [ObservableProperty] EventFilterViewModel eventFilterViewModel = new();
     [ObservableProperty] bool showFilter;
-
+    
     [ObservableProperty] EventFormViewModel selectedEvent = new();
     [ObservableProperty] bool showEvent;
 
@@ -34,31 +37,39 @@ public partial class AdminCalendarViewModel :
         calendar = new()
         {
             Month = DateTime.Today.MonthOf(),
-            MonthlyEventSource = (month) => _admin.AllEvents.Where(evt =>
-                   evt.start.Month == month.Month
-                && evt.status != ApprovalStatusLabel.Creating
-                && evt.status != ApprovalStatusLabel.Updating
-                && evt.status != ApprovalStatusLabel.Withdrawn
-                && evt.status != ApprovalStatusLabel.Declined)
+            MonthlyEventSource = (month) =>
+            {
+                using DebugTimer _ = new($"Filtering Events from {month:MMMM yyyy}", _logging);
+                return _admin.AllEvents.Where(evt =>
+                        evt.start.Month == month.Month
+                        && evt.status != ApprovalStatusLabel.Creating
+                        && evt.status != ApprovalStatusLabel.Updating
+                        && evt.status != ApprovalStatusLabel.Withdrawn
+                        && evt.status != ApprovalStatusLabel.Declined)
+                    .ToImmutableArray();
+            }
         };
         Calendar.EventSelected += (_, evt) =>
         {
             SelectedEvent = evt;
             ShowEvent = true;
         };
-        _admin.OnCacheRefreshed += (_, _) =>
+        _admin.OnCacheRefreshed += async (_, _) =>
         {
-            Calendar.LoadEvents();
+            Busy = true;
+            BusyMessage = "Refreshing Event List";
+            await Calendar.LoadEvents();
             ApplyFilter();
+            Busy = false;
         };
     }
 
     [RelayCommand]
-    public void Refresh()
+    public async Task Refresh()
     {
         Busy = true;
         BusyMessage = "Loading Events";
-        Calendar.LoadEvents();
+        await Calendar.LoadEvents();
         ApplyFilter();
         Busy = false;
     }
@@ -108,8 +119,8 @@ public partial class AdminCalendarViewModel :
     public async Task DecrementMonth()
     {
         Busy = true;
-        BusyMessage = "Loading Next Month";
-        await Calendar.IncrementMonth();
+        BusyMessage = "Loading Previous Month";
+        await Calendar.DecrementMonth();
         if (Calendar.Month < _admin.CacheStartDate || Calendar.Month.AddMonths(1).AddDays(-1) > _admin.CacheEndDate)
         {
             BusyMessage = $"Downloading Event Data for {Calendar.Month:MMMM yyyy}";

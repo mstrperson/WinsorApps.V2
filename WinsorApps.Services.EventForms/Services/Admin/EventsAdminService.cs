@@ -5,6 +5,7 @@ using WinsorApps.Services.Global;
 using WinsorApps.Services.EventForms.Models.Admin;
 using System.Text.Json;
 using System.Diagnostics;
+using AsyncAwaitBestPractices;
 
 namespace WinsorApps.Services.EventForms.Services.Admin;
 
@@ -65,6 +66,23 @@ public partial class EventsAdminService :
         Progress = 1;
         Ready = true;
         _lastUpdated = DateTime.Now;
+        
+        LoadInBackground().SafeFireAndForget(e => e.LogException(_logging));
+    }
+
+    private async Task LoadInBackground()
+    {
+        var schoolYear =
+            _registrar.SchoolYears.First(sy => sy.startDate <= DateOnly.FromDateTime(DateTime.Today) && sy.endDate >= DateOnly.FromDateTime(DateTime.Today));
+
+        for (SixWeekPeriod swp = new() {StartDate = DateOnly.FromDateTime(CacheEndDate)};
+             swp.StartDate < schoolYear.endDate;
+             swp = swp.Next)
+        {
+            _ = await GetAllEvents(_logging.LogError, swp.StartDate.ToDateTime(default), swp.EndDate.ToDateTime(default), true);
+        }
+        
+        _ = await GetAllEvents(_logging.LogError, schoolYear.startDate.ToDateTime(default), CacheStartDate, true);
     }
 
     private DateTime _lastUpdated;
@@ -80,7 +98,7 @@ public partial class EventsAdminService :
         _lastUpdated = DateTime.Now;
     }
 
-    private void ComputeChangesAndUpdates(ImmutableArray<EventFormBase> incoming)
+    private void ComputeChangesAndUpdates(ImmutableArray<EventFormBase> incoming, bool suppressRefresh = false)
     {
         using DebugTimer _ = new("Computing Changes and Updates", _logging);
         var newEvents = incoming.Where(evt => AllEvents.All(existing => existing.id != evt.id)).ToImmutableArray();
@@ -92,7 +110,8 @@ public partial class EventsAdminService :
         var toReplace = AllEvents.Where(evt => changes.Any(update => update.id == evt.id)).ToImmutableArray();
 
         AllEvents = [.. AllEvents.Except(toReplace).Union(changes).Union(newEvents)];
-        OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
+        if(!suppressRefresh)
+            OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
     }
 
     public async Task WaitForInit(ErrorAction onError)
@@ -118,7 +137,7 @@ public partial class EventsAdminService :
         return result ?? [];
     }
 
-    public async Task<ImmutableArray<EventFormBase>> GetAllEvents(ErrorAction onError, DateTime start, DateTime end)
+    public async Task<ImmutableArray<EventFormBase>> GetAllEvents(ErrorAction onError, DateTime start, DateTime end, bool suppressRefresh = false)
     {
         if (end < CacheStartDate)
             end = CacheStartDate;
