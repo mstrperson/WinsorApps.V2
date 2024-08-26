@@ -150,13 +150,11 @@
                                         <HorizontalStackLayout
                                             Margin="0"
                                             Padding="0">
-                                            <Label StyleClass="H3" Text="Not Selected Books" />
-                                            <Label
-                                                StyleClass="RefreshButton"
-                                                FontSize="32"
-                                                HeightRequest="40"
-                                                Padding="0"
-                                                IsVisible="{Binding Busy, Converter={StaticResource Invert}}">
+                                            <Label 
+                                                StyleClass="H3" 
+                                                Text="Not Selected Books"
+                                                TextDecorations="Underline"
+                                                IsEnabled="{Binding Busy, Converter={StaticResource Invert}}">
                                                 <Label.GestureRecognizers>
                                                     <TapGestureRecognizer Command="{Binding LoadRequirementsCommand}" />
                                                 </Label.GestureRecognizers>
@@ -172,6 +170,8 @@
                                                 <HorizontalStackLayout.GestureRecognizers>
                                                     <TapGestureRecognizer Command="{Binding SelectCommand}" />
                                                 </HorizontalStackLayout.GestureRecognizers>
+                                                <Image
+                                                    StyleClass="AddButton" />
                                                 <Label Text="{Binding Book.Title}" />
                                                 <Label Text="{Binding Binding, StringFormat='[{0}]'}" />
                                                 <Label Text="{Binding CurrentOdinData.Cost, StringFormat='{0:C}'}" />

@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Maui.Storage;
+﻿using AsyncAwaitBestPractices;
+using CommunityToolkit.Maui.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
@@ -219,7 +220,7 @@ public partial class StudentSectionCartViewModel :
         _model = model;
         Section = AcademicSectionViewModel.Get(model.section);
 
-        Cart = [.. model.selectedBooks.Select(b => new StudentBookRequestViewModel(b))];
+        Cart = [.. model.selectedBooks.DistinctBy(req => req.isbn).Select(b => new StudentBookRequestViewModel(b))];
 
         foreach(var item in Cart)
         {
@@ -234,9 +235,11 @@ public partial class StudentSectionCartViewModel :
                 {
                     Cart.Add(item);  // there was an error.
                 }
+                await LoadRequirements();
                 Busy = false;
             };
         }
+        LoadRequirements().SafeFireAndForget(e => e.LogException());
     }
 
     [RelayCommand]
@@ -245,6 +248,11 @@ public partial class StudentSectionCartViewModel :
         Busy = true;
         BusyMessage = "Loading Books";
         var collection = await _service.GetStudentBookRequirements(_model.student.id, OnError.DefaultBehavior(this));
+        if(collection.Length == 0)
+        {
+            Busy = false;
+            return;
+        }
         var sectionId = Section.Model.Reduce(Services.Global.Models.SectionRecord.Empty).sectionId;
         var requiredBooks = collection.FirstOrDefault(sec => sec.sectionId == sectionId);
         if (requiredBooks != default)
