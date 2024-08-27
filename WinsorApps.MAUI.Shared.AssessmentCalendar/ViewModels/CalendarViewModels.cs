@@ -125,7 +125,7 @@ public partial class CalendarMonthViewModel :
 
         _ = await _cycleDays.GetCycleDays(DateOnly.FromDateTime(nextMonth), DateOnly.FromDateTime(nextMonth).AddMonths(1), OnError.DefaultBehavior(this));
 
-        var events = await GetEventsTask(Month);
+        var events = await GetEventsTask(nextMonth);
 
         var monday = nextMonth.MondayOf();
 
@@ -150,7 +150,7 @@ public partial class CalendarMonthViewModel :
 
         _ = await _cycleDays.GetCycleDays(DateOnly.FromDateTime(nextMonth), DateOnly.FromDateTime(nextMonth).AddMonths(1), OnError.DefaultBehavior(this));
 
-        var events = await GetEventsTask(Month);
+        var events = await GetEventsTask(nextMonth);
 
         var monday = nextMonth.MondayOf();
 

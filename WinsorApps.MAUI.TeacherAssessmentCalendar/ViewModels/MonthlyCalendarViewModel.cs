@@ -37,29 +37,46 @@ public partial class MonthlyCalendarViewModel :
 
     public async Task Initialize(ErrorAction onError)
     {
+        Busy = true;
+        BusyMessage = "Initializing";
         await _service.WaitForInit(onError);
-        Calendar = await CalendarMonthViewModel.Get(DateTime.Today.MonthOf(), _service.GetAssessmentsByMonth(DateTime.Today.Month, onError));
-        Calendar.GetEventsTask = (date) => _service.GetAssessmentsByMonth(date.Month, onError);
+        var today = DateTime.Today.MonthOf();
+        Calendar = await CalendarMonthViewModel.Get(today, 
+            _service.GetAssessmentCalendarInRange(onError, DateOnly.FromDateTime(today), 
+                DateOnly.FromDateTime(today.AddMonths(1))));
+        Calendar.GetEventsTask = (date) => _service.GetAssessmentCalendarInRange(onError, DateOnly.FromDateTime(date), DateOnly.FromDateTime(date.AddMonths(1)));
         Calendar.EventSelected += (_, e) => EventSelected?.Invoke(this, e);
+        Busy = false;
     }
 
     [RelayCommand]
     public async Task Refresh()
     {
-        Calendar = await CalendarMonthViewModel.Get(Calendar.Month, _service.GetAssessmentsByMonth(Calendar.Month.Month, OnError.DefaultBehavior(this))); ;
-        Calendar.GetEventsTask = (date) => _service.GetAssessmentsByMonth(date.Month, OnError.DefaultBehavior(this));
+        Busy = true;
+        BusyMessage = "Refreshing Calendar";
+        Calendar = await CalendarMonthViewModel.Get(Calendar.Month, 
+            _service.GetAssessmentCalendarInRange(OnError.DefaultBehavior(this), DateOnly.FromDateTime(Calendar.Month), 
+                DateOnly.FromDateTime(Calendar.Month.AddMonths(1))));
+        Calendar.GetEventsTask = (date) => _service.GetAssessmentCalendarInRange(OnError.DefaultBehavior(this), DateOnly.FromDateTime(date), DateOnly.FromDateTime(date.AddMonths(1)));
         Calendar.EventSelected += (_, e) => EventSelected?.Invoke(this, e);
+        Busy = false;
     }
 
     [RelayCommand]
     public async Task IncrementMonth()
     {
+        Busy = true;
+        BusyMessage = "Loading Next Month's Assessments";
         await Calendar.IncrementMonth();
+        Busy = false;
     }
 
     [RelayCommand]
     public async Task DecrementMonth()
     {
+        Busy = true;
+        BusyMessage = "Loading Previous Month's Assessments";
         await Calendar.DecrementMonth();
+        Busy = false;
     }
 }
