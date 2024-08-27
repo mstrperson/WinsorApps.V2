@@ -134,17 +134,20 @@
                                                 <VerticalStackLayout
                                                 WidthRequest="298">
                                                     <HorizontalStackLayout
-                                                    Spacing="30"
-                                                    HeightRequest="40"
-                                                    Padding="0"
-                                                    Margin="-5">
+                                                        Spacing="30"
+                                                        HeightRequest="40"
+                                                        Padding="0"
+                                                        Margin="-5">
+                                                        <HorizontalStackLayout.GestureRecognizers>
+                                                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                                        </HorizontalStackLayout.GestureRecognizers>
                                                         <Label
-                                                        FontSize="Micro"
-                                                        Text="{Binding Date, StringFormat='{0:dd}'}" />
+                                                            FontSize="Micro"
+                                                            Text="{Binding Date, StringFormat='{0:dd}'}" />
                                                         <Label
-                                                        FontSize="Micro"
-                                                        FontAttributes="Bold"
-                                                        Text="{Binding CycleDay}"/>
+                                                            FontSize="Micro"
+                                                            FontAttributes="Bold"
+                                                            Text="{Binding CycleDay}"/>
                                                     </HorizontalStackLayout>
                                                     <BoxView 
                                                     StyleClass="Bar" 
@@ -158,29 +161,29 @@
                                                         <CollectionView.ItemTemplate>
                                                             <DataTemplate x:DataType="cvm:AssessmentCalendarEventViewModel">
                                                                 <VerticalStackLayout
-                                                                Margin="0"
-                                                                Padding="0">
-                                                                    <Grid
-                                                                    RowDefinitions="25"
-                                                                    ColumnDefinitions="80,220"
-                                                                    ToolTipProperties.Text="{Binding Description}"
-                                                                    IsVisible="{Binding AllDay, Converter={StaticResource Invert}}"
                                                                     Margin="0"
                                                                     Padding="0">
+                                                                    <Grid
+                                                                        RowDefinitions="25"
+                                                                        ColumnDefinitions="80,220"
+                                                                        ToolTipProperties.Text="{Binding Description}"
+                                                                        IsVisible="{Binding AllDay, Converter={StaticResource Invert}}"
+                                                                        Margin="0"
+                                                                        Padding="0">
                                                                         <Grid.GestureRecognizers>
                                                                             <TapGestureRecognizer Command="{Binding SelectCommand}" />
                                                                         </Grid.GestureRecognizers>
                                                                         <Label
-                                                                        Grid.Column="0"
-                                                                        Text="{Binding Start,StringFormat='{0:hh:mm tt}'}" />
+                                                                            Grid.Column="0"
+                                                                            Text="{Binding Start,StringFormat='{0:hh:mm tt}'}" />
                                                                         <Label
-                                                                        Grid.Column="1"
-                                                                        Text="{Binding Summary}" />
+                                                                            Grid.Column="1"
+                                                                            Text="{Binding Summary}" />
                                                                     </Grid>
                                                                     <Label
-                                                                    Text="{Binding Summary}"
-                                                                    FontAttributes="Bold"
-                                                                    IsVisible="{Binding AllDay}" />
+                                                                        Text="{Binding Summary}"
+                                                                        FontAttributes="Bold"
+                                                                        IsVisible="{Binding AllDay}" />
                                                                 </VerticalStackLayout>
                                                             </DataTemplate>
                                                         </CollectionView.ItemTemplate>

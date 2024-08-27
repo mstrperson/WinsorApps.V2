@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared.ViewModels;
@@ -10,13 +11,17 @@ using WinsorApps.Services.Global.Models;
 namespace WinsorApps.MAUI.Shared.AssessmentCalendar.ViewModels;
 
 public partial class CalendarDayViewModel :
-    ObservableObject
+    ObservableObject,
+    ISelectable<CalendarDayViewModel>
 {
     [ObservableProperty] ObservableCollection<AssessmentCalendarEventViewModel> events = [];
     [ObservableProperty] DateTime date;
     [ObservableProperty] string cycleDay = "";
+    [ObservableProperty] bool isSelected;
 
     public EventHandler<AssessmentCalendarEventViewModel>? EventSelected;
+
+    public event EventHandler<CalendarDayViewModel>? Selected;
 
     public CalendarDayViewModel()
     {
@@ -43,6 +48,13 @@ public partial class CalendarDayViewModel :
 
         return vm;
     }
+
+    [RelayCommand]
+    public void Select()
+    {
+        IsSelected = !IsSelected;
+        Selected?.Invoke(this, this);
+    }
 }
 
 public partial class CalendarWeekViewModel :
@@ -51,7 +63,8 @@ public partial class CalendarWeekViewModel :
     [ObservableProperty] DateTime monday;
     [ObservableProperty] ObservableCollection<CalendarDayViewModel> days = [];
 
-    public EventHandler<AssessmentCalendarEventViewModel>? EventSelected;
+    public event EventHandler<AssessmentCalendarEventViewModel>? EventSelected;
+    public event EventHandler<CalendarDayViewModel>? DaySelected;
 
     public static CalendarWeekViewModel Get(DateTime date, IEnumerable<AssessmentCalendarEvent> events)
     {
@@ -66,7 +79,10 @@ public partial class CalendarWeekViewModel :
         };
 
         foreach (var day in vm.Days)
+        {
             day.EventSelected += (_, e) => vm.EventSelected?.Invoke(vm, e);
+            day.Selected += (_, _) => vm.DaySelected?.Invoke(vm, day);
+        }
 
         return vm;
     }
@@ -82,6 +98,7 @@ public partial class CalendarMonthViewModel :
     [ObservableProperty] ObservableCollection<CalendarWeekViewModel> weeks = [];
 
     public event EventHandler<AssessmentCalendarEventViewModel>? EventSelected;
+    public event EventHandler<CalendarDayViewModel>? DaySelected;
     public event EventHandler<ErrorRecord>? OnError;
 
     public Func<DateTime, Task<ImmutableArray<AssessmentCalendarEvent>>>? GetEventsTask;
@@ -111,7 +128,10 @@ public partial class CalendarMonthViewModel :
         };
 
         foreach (var week in vm.Weeks)
+        {
             week.EventSelected += (_, e) => vm.EventSelected?.Invoke(vm, e);
+            week.DaySelected += (_, day) => vm.DaySelected?.Invoke(vm, day);
+        }
 
         return vm;
     }
@@ -139,7 +159,10 @@ public partial class CalendarMonthViewModel :
         Weeks = [.. weeks.Select(wk => CalendarWeekViewModel.Get(wk, events))];
 
         foreach (var week in Weeks)
+        {
             week.EventSelected += (_, e) => EventSelected?.Invoke(this, e);
+            week.DaySelected += (_, day) => DaySelected?.Invoke(this, day);
+        }
     }
     public async Task DecrementMonth()
     {
@@ -164,7 +187,10 @@ public partial class CalendarMonthViewModel :
         Weeks = [.. weeks.Select(wk => CalendarWeekViewModel.Get(wk, events))];
 
         foreach (var week in Weeks)
+        {
             week.EventSelected += (_, e) => EventSelected?.Invoke(this, e);
+            week.DaySelected += (_, day) => DaySelected?.Invoke(this, day);
+        }
     }
 
     public async Task IncrementMonth(Task<ImmutableArray<AssessmentCalendarEvent>> getEventsTask)
@@ -187,7 +213,10 @@ public partial class CalendarMonthViewModel :
         Weeks = [.. weeks.Select(wk => CalendarWeekViewModel.Get(wk, events))];
 
         foreach (var week in Weeks)
+        {
             week.EventSelected += (_, e) => EventSelected?.Invoke(this, e);
+            week.DaySelected += (_, day) => DaySelected?.Invoke(this, day);
+        }
     }
 
     public async Task DecrementMonth(Task<ImmutableArray<AssessmentCalendarEvent>> getEventsTask)
@@ -210,6 +239,9 @@ public partial class CalendarMonthViewModel :
         Weeks = [.. weeks.Select(wk => CalendarWeekViewModel.Get(wk, events))];
 
         foreach (var week in Weeks)
+        {
             week.EventSelected += (_, e) => EventSelected?.Invoke(this, e);
+            week.DaySelected += (_, day) => DaySelected?.Invoke(this, day);
+        }
     }
 }

@@ -25,6 +25,7 @@ public partial class MonthlyCalendarViewModel :
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<AssessmentCalendarEventViewModel>? EventSelected;
+    public event EventHandler<CalendarDayViewModel>? DaySelected;
 
     [ObservableProperty] CalendarMonthViewModel calendar = new();
     [ObservableProperty] bool busy;
@@ -46,6 +47,7 @@ public partial class MonthlyCalendarViewModel :
                 DateOnly.FromDateTime(today.AddMonths(1))));
         Calendar.GetEventsTask = (date) => _service.GetAssessmentCalendarInRange(onError, DateOnly.FromDateTime(date), DateOnly.FromDateTime(date.AddMonths(1)));
         Calendar.EventSelected += (_, e) => EventSelected?.Invoke(this, e);
+        Calendar.DaySelected += (_, day) => DaySelected?.Invoke(this, day);
         Busy = false;
     }
 
@@ -59,6 +61,7 @@ public partial class MonthlyCalendarViewModel :
                 DateOnly.FromDateTime(Calendar.Month.AddMonths(1))));
         Calendar.GetEventsTask = (date) => _service.GetAssessmentCalendarInRange(OnError.DefaultBehavior(this), DateOnly.FromDateTime(date), DateOnly.FromDateTime(date.AddMonths(1)));
         Calendar.EventSelected += (_, e) => EventSelected?.Invoke(this, e);
+        Calendar.DaySelected += (_, day) => DaySelected?.Invoke(this, day);
         Busy = false;
     }
 

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="WinsorApps.MAUI.TeacherAssessmentCalendar.Pages.CalendarDayPage"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.TeacherAssessmentCalendar.ViewModels"
+             xmlns:cvm="clr-namespace:WinsorApps.MAUI.Shared.AssessmentCalendar.ViewModels;assembly=WinsorApps.MAUI.Shared.AssessmentCalendar"
+             xmlns:svm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels;assembly=WinsorApps.MAUI.Shared"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             x:DataType="cvm:CalendarDayViewModel"
+             Title="{Binding Date, StringFormat='{0:dddd dd MMMM yyyy}'}">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.Content>
+        <VerticalStackLayout>
+            <CollectionView
+                    HeightRequest="1080"
+                    ItemsSource="{Binding Events}"
+                    BackgroundColor="Transparent">
+                <CollectionView.Header>
+                    <Label
+                            StyleClass="Header"
+                            Text="{Binding CycleDay}"/>
+                </CollectionView.Header>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="cvm:AssessmentCalendarEventViewModel">
+                        <VerticalStackLayout
+                                Margin="0"
+                                Padding="0">
+                            <HorizontalStackLayout
+                                    ToolTipProperties.Text="{Binding Description}"
+                                    IsVisible="{Binding AllDay, Converter={StaticResource Invert}}"
+                                    Margin="0"
+                                    Padding="0">
+                                <HorizontalStackLayout.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                </HorizontalStackLayout.GestureRecognizers>
+                                <Label
+                                        Text="{Binding Summary}" 
+                                        StyleClass="H3" />
+                                <Label
+                                        Text="{Binding Start,StringFormat='{0:hh:mm tt}'}" 
+                                        StyleClass="H3" />
+                                <Label Text="-" 
+                                        StyleClass="H3" />
+                                <Label
+                                        Text="{Binding End,StringFormat='{0:hh:mm tt}'}" 
+                                        StyleClass="H3" />
+                            </HorizontalStackLayout>
+                            <Label
+                                    Text="{Binding Description}"
+                                    IsVisible="{Binding AllDay, Converter={StaticResource Invert}}"/>
+                            <Label
+                                    Text="{Binding Summary}"
+                                    FontAttributes="Bold"
+                                    IsVisible="{Binding AllDay}" />
+                            <BoxView StyleClass="Bar" />
+                        </VerticalStackLayout>
+
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+    </ContentPage.Content>
+</ContentPage>
