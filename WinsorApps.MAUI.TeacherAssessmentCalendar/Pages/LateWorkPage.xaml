@@ -27,6 +27,7 @@
                     Padding="0"
                     IsVisible="{Binding ShowSelectedSection, Converter={StaticResource Invert}}">
                     <CollectionView
+                        HeightRequest="1080"
                         ItemsSource="{Binding Sections}"
                         BackgroundColor="Transparent">
                         <CollectionView.Header>
@@ -137,7 +138,7 @@
                         IsVisible="{Binding ShowSelectedSection}"
                             Grid.Column="2">
                         <CollectionView
-                        IsVisible="{Binding SelectedSection.ShowLateWork}"
+                            IsVisible="{Binding SelectedSection.ShowLateWork}"
                             Margin="0"
                             BackgroundColor="Transparent"
                             ItemsSource="{Binding SelectedSection.LateWorkByStudent}">
@@ -190,6 +191,7 @@
                                                 Padding="0"
                                                 IsVisible="{Binding ShowLateWork}">
                                         <CollectionView
+                                            HeightRequest="800"
                                                 IsVisible="{Binding HasAssessments}"
                                                 BackgroundColor="Transparent"    
                                                 ItemsSource="{Binding LateAssessments}">
@@ -266,6 +268,7 @@
                                                 StyleClass="Bar" 
                                                 IsVisible="{Binding HasAssessments}"/>
                                         <CollectionView
+                                            HeightRequest="800"
                                                 Margin="0"
                                                 IsVisible="{Binding HasPatterns}"
                                                 BackgroundColor="Transparent"
@@ -338,6 +341,7 @@
                         Grid.Column="2"
                         IsVisible="{Binding SelectedSection.ShowAssessments}">
                         <CollectionView
+                            HeightRequest="800"
                             Margin="0"
                             WidthRequest="750"
                             BackgroundColor="Transparent"
@@ -438,6 +442,7 @@
                             RowDefinitions="*"
                             ColumnDefinitions="375,375">
                             <CollectionView
+                                HeightRequest="800"
                                 Margin="0"
                                 Grid.Column="0"
                                 ItemsSource="{Binding SelectedSection.CreateLateAssessment.NotSelectedStudents}">
@@ -470,6 +475,7 @@
                                 </CollectionView.ItemTemplate>
                             </CollectionView>
                             <CollectionView
+                                HeightRequest="800"
                                 Grid.Column="1"
                                 Margin="0"
                                 
@@ -551,6 +557,7 @@
                             RowDefinitions="*"
                             ColumnDefinitions="375,375">
                             <CollectionView
+                                HeightRequest="800"
                                 Margin="0"
                                 Grid.Column="0"
                                 ItemsSource="{Binding SelectedSection.CreatePattern.NotSelectedStudents}">
@@ -581,6 +588,7 @@
                                 </CollectionView.ItemTemplate>
                             </CollectionView>
                             <CollectionView
+                                HeightRequest="800"
                                 Margin="0"
                                 Grid.Column="1"
                                 ItemsSource="{Binding SelectedSection.CreatePattern.SelectedStudents}">
