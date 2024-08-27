@@ -155,14 +155,15 @@ public partial class ReadonlyCalendarService :
         await _api.SendAsync<DayNote?>(HttpMethod.Get, $"api/assessment-calendar/note/{noteId}",
             onError: onError);
 
-    public Task WaitForInit(ErrorAction onError)
+    public async Task WaitForInit(ErrorAction onError)
     {
-        throw new NotImplementedException();
+        while (!Ready)
+            await Task.Delay(250);
     }
 
-    public Task Refresh(ErrorAction onError)
+    public async Task Refresh(ErrorAction onError)
     {
-        throw new NotImplementedException();
+        await Initialize(onError);
     }
 }
 

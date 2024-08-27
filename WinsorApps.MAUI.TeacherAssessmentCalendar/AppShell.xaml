@@ -13,7 +13,12 @@
         Title="Home"
         ContentTemplate="{DataTemplate local:MainPage}"
         Route="MainPage" />
-
+    
+    <ShellContent
+        Title="Monthly Calendar"
+        ContentTemplate="{DataTemplate pages:MonthlyCalendar}"
+        Route="MonthlyCalendar" />
+    
     <ShellContent
         Title="My Assessments"
         ContentTemplate="{DataTemplate pages:MyAssessmentsPage}"

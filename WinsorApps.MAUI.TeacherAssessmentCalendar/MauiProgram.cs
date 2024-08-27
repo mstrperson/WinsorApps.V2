@@ -50,6 +50,9 @@ namespace WinsorApps.MAUI.TeacherAssessmentCalendar
             builder.Services.AddSingleton<LateWorkPageViewModel>();
             builder.Services.AddSingleton<LateWorkPage>();
 
+            builder.Services.AddSingleton<MonthlyCalendarViewModel>();
+            builder.Services.AddSingleton<MonthlyCalendar>();
+
 
 #if DEBUG
             builder.Logging.AddDebug();

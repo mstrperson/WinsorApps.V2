@@ -84,6 +84,8 @@ public partial class CalendarMonthViewModel :
     public event EventHandler<AssessmentCalendarEventViewModel>? EventSelected;
     public event EventHandler<ErrorRecord>? OnError;
 
+    public Func<DateTime, Task<ImmutableArray<AssessmentCalendarEvent>>>? GetEventsTask;
+
     public static async Task<CalendarMonthViewModel> Get(DateTime date, Task<ImmutableArray<AssessmentCalendarEvent>> getEventsTask)
     {
         var events = await getEventsTask;
@@ -112,6 +114,57 @@ public partial class CalendarMonthViewModel :
             week.EventSelected += (_, e) => vm.EventSelected?.Invoke(vm, e);
 
         return vm;
+    }
+
+    public async Task IncrementMonth()
+    {
+        if (GetEventsTask is null)
+            return;
+
+        var nextMonth = Month.AddMonths(1);
+
+        _ = await _cycleDays.GetCycleDays(DateOnly.FromDateTime(nextMonth), DateOnly.FromDateTime(nextMonth).AddMonths(1), OnError.DefaultBehavior(this));
+
+        var events = await GetEventsTask(Month);
+
+        var monday = nextMonth.MondayOf();
+
+        List<DateTime> weeks = [monday];
+        for (var week = monday.AddDays(7); week.Month == nextMonth.Month; week = week.AddDays(7))
+        {
+            weeks.Add(week);
+        }
+
+        Month = nextMonth;
+        Weeks = [.. weeks.Select(wk => CalendarWeekViewModel.Get(wk, events))];
+
+        foreach (var week in Weeks)
+            week.EventSelected += (_, e) => EventSelected?.Invoke(this, e);
+    }
+    public async Task DecrementMonth()
+    {
+        if (GetEventsTask is null)
+            return;
+
+        var nextMonth = Month.AddMonths(-1);
+
+        _ = await _cycleDays.GetCycleDays(DateOnly.FromDateTime(nextMonth), DateOnly.FromDateTime(nextMonth).AddMonths(1), OnError.DefaultBehavior(this));
+
+        var events = await GetEventsTask(Month);
+
+        var monday = nextMonth.MondayOf();
+
+        List<DateTime> weeks = [monday];
+        for (var week = monday.AddDays(7); week.Month == nextMonth.Month; week = week.AddDays(7))
+        {
+            weeks.Add(week);
+        }
+
+        Month = nextMonth;
+        Weeks = [.. weeks.Select(wk => CalendarWeekViewModel.Get(wk, events))];
+
+        foreach (var week in Weeks)
+            week.EventSelected += (_, e) => EventSelected?.Invoke(this, e);
     }
 
     public async Task IncrementMonth(Task<ImmutableArray<AssessmentCalendarEvent>> getEventsTask)
