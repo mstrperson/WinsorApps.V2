@@ -121,7 +121,7 @@ public partial class AssessmentGroupViewModel :
         var update = new CreateAssessmentRecord(
             Assessments
             .Where(ent => ent.IsSelected)
-            .Select(ent => new AssessmentDateRecord(ent.Model.Reduce(AssessmentEntryRecord.Empty).section.sectionId, ent.Date))
+            .Select(ent => new AssessmentDateRecord(ent.Section.Id, ent.Date))
             .ToImmutableArray(), Note);
 
         var result = await _assessmentService.CreateNewAssessment(update, OnError.DefaultBehavior(this));

@@ -144,6 +144,7 @@
                     <BoxView StyleClass="Bar" />
                     <!-- Existing Assessments -->
                     <CollectionView
+                        MinimumHeightRequest="800"
                         IsVisible="{Binding AssessmentCollection.ShowSelectedGroup, Converter={StaticResource Invert}}"
                         ItemsSource="{Binding AssessmentCollection.MyAssessmentGroups}"
                         BackgroundColor="Transparent">
