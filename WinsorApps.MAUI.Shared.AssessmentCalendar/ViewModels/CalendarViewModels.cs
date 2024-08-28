@@ -97,11 +97,17 @@ public partial class CalendarMonthViewModel :
     [ObservableProperty] DateTime month;
     [ObservableProperty] ObservableCollection<CalendarWeekViewModel> weeks = [];
 
+    [ObservableProperty] CalendarFilterByClassViewModel classFilter = new();
+    [ObservableProperty] bool showFilter;
+
     public event EventHandler<AssessmentCalendarEventViewModel>? EventSelected;
     public event EventHandler<CalendarDayViewModel>? DaySelected;
     public event EventHandler<ErrorRecord>? OnError;
 
     public Func<DateTime, Task<ImmutableArray<AssessmentCalendarEvent>>>? GetEventsTask;
+
+    [RelayCommand]
+    public void ToggleShowFilter() => ShowFilter = !ShowFilter;
 
     public static async Task<CalendarMonthViewModel> Get(DateTime date, Task<ImmutableArray<AssessmentCalendarEvent>> getEventsTask)
     {
@@ -136,6 +142,32 @@ public partial class CalendarMonthViewModel :
         return vm;
     }
 
+    [RelayCommand]
+    public async Task ApplyFilter()
+    {
+        if (GetEventsTask is null) return; 
+        
+        var events = await GetEventsTask(Month);
+
+        events = [.. events.Where(ClassFilter.Filter)];
+
+        var monday = Month.MondayOf();
+
+        List<DateTime> weeks = [monday];
+        for (var week = monday.AddDays(7); week.Month == Month.Month; week = week.AddDays(7))
+        {
+            weeks.Add(week);
+        }
+
+        Weeks = [.. weeks.Select(wk => CalendarWeekViewModel.Get(wk, events))];
+
+        foreach (var week in Weeks)
+        {
+            week.EventSelected += (_, e) => EventSelected?.Invoke(this, e);
+            week.DaySelected += (_, day) => DaySelected?.Invoke(this, day);
+        }
+    }
+
     public async Task IncrementMonth()
     {
         if (GetEventsTask is null)
@@ -146,6 +178,8 @@ public partial class CalendarMonthViewModel :
         _ = await _cycleDays.GetCycleDays(DateOnly.FromDateTime(nextMonth), DateOnly.FromDateTime(nextMonth).AddMonths(1), OnError.DefaultBehavior(this));
 
         var events = await GetEventsTask(nextMonth);
+
+        events = [..events.Where(ClassFilter.Filter)];
 
         var monday = nextMonth.MondayOf();
 
@@ -174,6 +208,7 @@ public partial class CalendarMonthViewModel :
         _ = await _cycleDays.GetCycleDays(DateOnly.FromDateTime(nextMonth), DateOnly.FromDateTime(nextMonth).AddMonths(1), OnError.DefaultBehavior(this));
 
         var events = await GetEventsTask(nextMonth);
+        events = [.. events.Where(ClassFilter.Filter)];
 
         var monday = nextMonth.MondayOf();
 
@@ -200,6 +235,7 @@ public partial class CalendarMonthViewModel :
         _ = await _cycleDays.GetCycleDays(DateOnly.FromDateTime(nextMonth), DateOnly.FromDateTime(nextMonth).AddMonths(1), OnError.DefaultBehavior(this));
 
         var events = await getEventsTask;
+        events = [.. events.Where(ClassFilter.Filter)];
 
         var monday = nextMonth.MondayOf();
 
@@ -226,6 +262,7 @@ public partial class CalendarMonthViewModel :
         _ = await _cycleDays.GetCycleDays(DateOnly.FromDateTime(nextMonth), DateOnly.FromDateTime(nextMonth).AddMonths(1), OnError.DefaultBehavior(this));
 
         var events = await getEventsTask;
+        events = [.. events.Where(ClassFilter.Filter)];
 
         var monday = nextMonth.MondayOf();
 
@@ -244,4 +281,13 @@ public partial class CalendarMonthViewModel :
             week.DaySelected += (_, day) => DaySelected?.Invoke(this, day);
         }
     }
+}
+
+public partial class CalendarFilterByClassViewModel :
+    ObservableObject
+{
+    [ObservableProperty] ObservableCollection<SelectableLabelViewModel> classNames = ["Class V", "Class VI", "Class VII", "Class VIII"];
+
+    public Func<AssessmentCalendarEvent, bool> Filter => evt =>
+        ClassNames.All(c => !c.IsSelected) || evt.affectedClasses.Intersect(ClassNames.Where(c => c.IsSelected).Select(c => c.Label)).Any();
 }

@@ -14,18 +14,66 @@
         </ResourceDictionary>
     </ContentPage.Resources>
     <ContentPage.ToolbarItems>
+        <ToolbarItem
+            Text="Filter By Class" 
+            Command="{Binding Calendar.ToggleShowFilterCommand}" />
         <ToolbarItem 
-        StyleClass="RefreshButton"
-        Text="Refresh"
-        Command="{Binding RefreshCommand}"/>
+            StyleClass="RefreshButton"
+            Text="Refresh"
+            Command="{Binding RefreshCommand}"/>
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <ScrollView>
             <VerticalStackLayout
-            HorizontalOptions="Center">
+                HorizontalOptions="Center">
+                <VerticalStackLayout
+                    HorizontalOptions="Center"
+                    IsVisible="{Binding Calendar.ShowFilter}">
+                    <HorizontalStackLayout Margin="0" Padding="0" Spacing="30">
+                        <CollectionView
+                            BackgroundColor="Transparent"
+                            HeightRequest="75"
+                            ItemsSource="{Binding Calendar.ClassFilter.ClassNames}"
+                            ItemsLayout="HorizontalGrid">
+                            <CollectionView.Header>
+                                <HorizontalStackLayout
+                                    Margin="0"
+                                    Padding="0">
+                                    <Label 
+                                        StyleClass="SubHeader"
+                                        Text="Classes:" />
+                                </HorizontalStackLayout>
+                            </CollectionView.Header>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="svm:SelectableLabelViewModel">
+                                    <HorizontalStackLayout
+                                        Margin="0"
+                                        Padding="0"
+                                        WidthRequest="150"
+                                        VerticalOptions="Center">
+                                        <HorizontalStackLayout.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                        </HorizontalStackLayout.GestureRecognizers>
+                                        <CheckBox IsChecked="{Binding IsSelected}"/>
+                                        <Label 
+                                            VerticalTextAlignment="Center"
+                                            StyleClass="SubHeader"
+                                            Text="{Binding Label}" />
+                                    </HorizontalStackLayout>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                        <Image
+                            StyleClass="RefreshButton">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Calendar.ApplyFilterCommand}" />
+                            </Image.GestureRecognizers>
+                        </Image>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
                 <HorizontalStackLayout
-                HorizontalOptions="Center"
-                Spacing="75">
+                    HorizontalOptions="Center"
+                    Spacing="75">
                     <Label
                     StyleClass="LeftArrow"
                     FontSize="Large">
