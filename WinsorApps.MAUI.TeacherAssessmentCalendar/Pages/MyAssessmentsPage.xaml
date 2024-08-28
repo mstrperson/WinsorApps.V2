@@ -57,13 +57,13 @@
                                     </Image>
                                 </HorizontalStackLayout>
                             </Border>
-                            <Image
+                            <Label
                                 StyleClass="AddButton"
                                 IsVisible="{Binding CourseSelected}">
-                                <Image.GestureRecognizers>
+                                <Label.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding StartNewAssessmentCommand}" />
-                                </Image.GestureRecognizers>
-                            </Image>
+                                </Label.GestureRecognizers>
+                            </Label>
                         </HorizontalStackLayout>
                         <CollectionView
                             IsVisible="{Binding ShowCourseSelection}"

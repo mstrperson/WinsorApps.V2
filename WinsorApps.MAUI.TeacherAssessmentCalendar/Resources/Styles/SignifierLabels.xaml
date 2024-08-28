@@ -66,7 +66,19 @@
         <Setter Property="HeightRequest" Value="30"/>
         <Setter Property="Padding" Value="5" />
     </Style>
-
+    
+    <Style TargetType="Label" Class="AddButton">
+        <Setter Property="Text" Value="+" />
+        <Setter Property="FontSize" Value="40" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource WinsorRed}, Dark=White}" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="MinimumWidthRequest" Value="50" />
+        <Setter Property="WidthRequest" Value="50" />
+        <Setter Property="MinimumHeightRequest" Value="30" />
+        <Setter Property="HeightRequest" Value="30"/>
+        <Setter Property="Padding" Value="5" />
+    </Style>
+        
 
     <Style TargetType="Label" Class="TrashBin">
         <Setter Property="Text" Value="🗑" />
