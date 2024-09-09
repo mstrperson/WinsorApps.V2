@@ -33,17 +33,9 @@
                         <CollectionView
                             BackgroundColor="Transparent"
                             HeightRequest="75"
+                            WidthRequest="600"
                             ItemsSource="{Binding Calendar.ClassFilter.ClassNames}"
                             ItemsLayout="HorizontalGrid">
-                            <CollectionView.Header>
-                                <HorizontalStackLayout
-                                    Margin="0"
-                                    Padding="0">
-                                    <Label 
-                                        StyleClass="SubHeader"
-                                        Text="Classes:" />
-                                </HorizontalStackLayout>
-                            </CollectionView.Header>
                             <CollectionView.ItemTemplate>
                                 <DataTemplate x:DataType="svm:SelectableLabelViewModel">
                                     <HorizontalStackLayout
