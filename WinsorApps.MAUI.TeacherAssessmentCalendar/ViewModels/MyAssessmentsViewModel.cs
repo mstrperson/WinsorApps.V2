@@ -49,7 +49,7 @@ public partial class AssessmentGroupViewModel :
     {
         AssessmentGroupViewModel vm = new() { Course = course, IsSelected = true, IsNew = true };
         await vm.Course.LoadSections();
-        vm.Assessments = [.. vm.Course.Sections.Select(AssessmentEditorViewModel.Create)];
+        vm.Assessments = [.. vm.Course.CurrentSections.Select(AssessmentEditorViewModel.Create)];
         foreach(var entry in vm.Assessments)
         {
             entry.ShowDetailsRequested += (sender, details) => vm.ShowDetailsRequested?.Invoke(sender, details);
