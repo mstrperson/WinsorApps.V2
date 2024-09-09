@@ -73,7 +73,7 @@ public partial class AssessmentGroupViewModel :
     {
         Note = _group.note;
         await Course.LoadSections();
-        Assessments = [.. Course.Sections.Select(AssessmentEditorViewModel.Create)];
+        Assessments = [.. Course.CurrentSections.Select(AssessmentEditorViewModel.Create)];
 
         foreach (var entry in Assessments)
         {
