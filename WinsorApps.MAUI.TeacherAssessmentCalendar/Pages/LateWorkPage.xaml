@@ -135,8 +135,9 @@
                     <VerticalStackLayout
                         Margin="0"
                         Padding="0"
+                        HeightRequest="1000"
                         IsVisible="{Binding ShowSelectedSection}"
-                            Grid.Column="2">
+                        Grid.Column="2">
                         <CollectionView
                             HeightRequest="800"
                             IsVisible="{Binding SelectedSection.ShowLateWork}"
