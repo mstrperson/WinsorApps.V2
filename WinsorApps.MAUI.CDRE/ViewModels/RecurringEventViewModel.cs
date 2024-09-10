@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Global.Models;
@@ -12,7 +13,7 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
     public partial class CycleDaySelectionViewModel : ObservableObject, ICheckBoxListViewModel<SelectableLabelViewModel>
     {
         [ObservableProperty]
-        private ImmutableArray<SelectableLabelViewModel> items = [];
+        private ObservableCollection<SelectableLabelViewModel> items = [];
 
         public SelectableLabelViewModel? this[string cycleday]
         {
