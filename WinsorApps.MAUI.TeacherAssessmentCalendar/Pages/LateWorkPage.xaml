@@ -138,13 +138,14 @@
                         IsVisible="{Binding ShowSelectedSection}"
                             Grid.Column="2">
                         <CollectionView
+                            HeightRequest="800"
                             IsVisible="{Binding SelectedSection.ShowLateWork}"
                             Margin="0"
                             BackgroundColor="Transparent"
                             ItemsSource="{Binding SelectedSection.LateWorkByStudent}">
                         <CollectionView.Header>
                             <HorizontalStackLayout
-                                    Spacing="30"
+                                Spacing="30"
                                 Margin="0"
                                 Padding="0">
                                 <HorizontalStackLayout.GestureRecognizers>
@@ -158,7 +159,7 @@
                                     StyleClass="Header"
                                     Text="Outstanding Late Work By Student" 
                                     IsVisible="{Binding SelectedSection.ShowResolved, Converter={StaticResource Invert}}"/>
-                                <Image StyleClass="RefreshButton" />
+                                <Label StyleClass="RefreshButton" />
                             </HorizontalStackLayout>
                         </CollectionView.Header>
                         <CollectionView.ItemTemplate>
@@ -179,10 +180,10 @@
                                         <Label
                                                 StyleClass="SubHeader"
                                                 Text="{Binding Student.AdvisorName, StringFormat='[{0}]'}" />
-                                        <Image
+                                        <Label
                                                 StyleClass="DownArrow" 
                                                 IsVisible="{Binding ShowLateWork, Converter={StaticResource Invert}}"/>
-                                        <Image
+                                        <Label
                                                 StyleClass="UpArrow" 
                                                 IsVisible="{Binding ShowLateWork}"/>
                                     </HorizontalStackLayout>
@@ -191,17 +192,16 @@
                                                 Padding="0"
                                                 IsVisible="{Binding ShowLateWork}">
                                         <CollectionView
-                                            HeightRequest="800"
-                                                IsVisible="{Binding HasAssessments}"
-                                                BackgroundColor="Transparent"    
-                                                ItemsSource="{Binding LateAssessments}">
+                                            IsVisible="{Binding HasAssessments}"
+                                            BackgroundColor="Transparent"    
+                                            ItemsSource="{Binding LateAssessments}">
                                             <CollectionView.Header>
                                                 <HorizontalStackLayout
                                                         Margin="0"
                                                         Padding="0">
                                                     <Label
-                                                            StyleClass="H3"
-                                                            Text="Late Assessments" />
+                                                        StyleClass="H3"
+                                                        Text="Late Assessments" />
                                                 </HorizontalStackLayout>
                                             </CollectionView.Header>
                                             <CollectionView.ItemTemplate>
@@ -268,11 +268,10 @@
                                                 StyleClass="Bar" 
                                                 IsVisible="{Binding HasAssessments}"/>
                                         <CollectionView
-                                            HeightRequest="800"
-                                                Margin="0"
-                                                IsVisible="{Binding HasPatterns}"
-                                                BackgroundColor="Transparent"
-                                                ItemsSource="{Binding LateWorkPatterns}">
+                                            Margin="0"
+                                            IsVisible="{Binding HasPatterns}"
+                                            BackgroundColor="Transparent"
+                                            ItemsSource="{Binding LateWorkPatterns}">
                                             <CollectionView.Header>
                                                 <HorizontalStackLayout>
                                                     <Label
