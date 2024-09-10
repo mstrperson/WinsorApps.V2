@@ -9,6 +9,13 @@ public partial class MonthlyCalendar : ContentPage
 	{
 		vm.OnError += this.DefaultOnErrorHandler();
 		BindingContext = vm;
+        vm.DaySelected += Vm_DaySelected;
 		InitializeComponent();
 	}
+
+    private void Vm_DaySelected(object? sender, Shared.AssessmentCalendar.ViewModels.CalendarDayViewModel e)
+    {
+		var page = new CalendarDayPage(e);
+		Navigation.PushAsync(page);
+    }
 }

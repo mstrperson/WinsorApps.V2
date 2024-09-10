@@ -186,7 +186,9 @@ public partial class StudentCartViewModel :
     {
         using DebugTimer _ = new($"Loading cart for {student.DisplayName}", _logging);
         this.student = student;
-        Sections = [.. sections.Select(item => new StudentSectionCartViewModel(item))];
+        Sections = [.. sections
+            .Where(sec => !string.IsNullOrEmpty(sec.section.primaryTeacherId))
+            .Select(item => new StudentSectionCartViewModel(item))];
     }
 
     public event EventHandler<StudentCartViewModel>? Selected;

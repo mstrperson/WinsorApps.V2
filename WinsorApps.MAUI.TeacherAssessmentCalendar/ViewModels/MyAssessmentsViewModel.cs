@@ -49,7 +49,7 @@ public partial class AssessmentGroupViewModel :
     {
         AssessmentGroupViewModel vm = new() { Course = course, IsSelected = true, IsNew = true };
         await vm.Course.LoadSections();
-        vm.Assessments = [.. vm.Course.Sections.Select(AssessmentEditorViewModel.Create)];
+        vm.Assessments = [.. vm.Course.CurrentSections.Select(AssessmentEditorViewModel.Create)];
         foreach(var entry in vm.Assessments)
         {
             entry.ShowDetailsRequested += (sender, details) => vm.ShowDetailsRequested?.Invoke(sender, details);
@@ -73,7 +73,7 @@ public partial class AssessmentGroupViewModel :
     {
         Note = _group.note;
         await Course.LoadSections();
-        Assessments = [.. Course.Sections.Select(AssessmentEditorViewModel.Create)];
+        Assessments = [.. Course.CurrentSections.Select(AssessmentEditorViewModel.Create)];
 
         foreach (var entry in Assessments)
         {
@@ -121,7 +121,7 @@ public partial class AssessmentGroupViewModel :
         var update = new CreateAssessmentRecord(
             Assessments
             .Where(ent => ent.IsSelected)
-            .Select(ent => new AssessmentDateRecord(ent.Model.Reduce(AssessmentEntryRecord.Empty).section.sectionId, ent.Date))
+            .Select(ent => new AssessmentDateRecord(ent.Section.Id, ent.Date))
             .ToImmutableArray(), Note);
 
         var result = await _assessmentService.CreateNewAssessment(update, OnError.DefaultBehavior(this));

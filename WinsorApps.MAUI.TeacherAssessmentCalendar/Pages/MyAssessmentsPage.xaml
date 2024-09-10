@@ -57,13 +57,13 @@
                                     </Image>
                                 </HorizontalStackLayout>
                             </Border>
-                            <Image
+                            <Label
                                 StyleClass="AddButton"
                                 IsVisible="{Binding CourseSelected}">
-                                <Image.GestureRecognizers>
+                                <Label.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding StartNewAssessmentCommand}" />
-                                </Image.GestureRecognizers>
-                            </Image>
+                                </Label.GestureRecognizers>
+                            </Label>
                         </HorizontalStackLayout>
                         <CollectionView
                             IsVisible="{Binding ShowCourseSelection}"
@@ -144,6 +144,7 @@
                     <BoxView StyleClass="Bar" />
                     <!-- Existing Assessments -->
                     <CollectionView
+                        MinimumHeightRequest="800"
                         IsVisible="{Binding AssessmentCollection.ShowSelectedGroup, Converter={StaticResource Invert}}"
                         ItemsSource="{Binding AssessmentCollection.MyAssessmentGroups}"
                         BackgroundColor="Transparent">
@@ -181,6 +182,7 @@
                                         </Image>
                                     </HorizontalStackLayout>
                                     <CollectionView
+                                        MinimumHeightRequest="75"
                                         ItemsSource="{Binding Assessments}"
                                         BackgroundColor="Transparent">
                                         <CollectionView.ItemTemplate>
@@ -241,6 +243,7 @@
                     </HorizontalStackLayout>
                     <BoxView StyleClass="Bar" />
                     <CollectionView
+                        HeightRequest="800"
                         BackgroundColor="Transparent"
                         ItemsSource="{Binding SelectedDetails.Students}">
                         <CollectionView.Header>

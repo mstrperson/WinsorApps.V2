@@ -25,7 +25,8 @@ public partial class CourseViewModel :
     [ObservableProperty] string id = "";
     [ObservableProperty] int lengthInTerms;
     [ObservableProperty] string courseCode = "";
-    [ObservableProperty] ImmutableArray<SectionViewModel> sections = [];
+    [ObservableProperty] ObservableCollection<SectionViewModel> sections = [];
+    [ObservableProperty] ObservableCollection<SectionViewModel> currentSections = [];
 
     public OptionalStruct<CourseRecord> Model { get; init; } = OptionalStruct<CourseRecord>.None();
 
@@ -50,7 +51,7 @@ public partial class CourseViewModel :
         if (!success)
             return;
 
-        Sections = SectionViewModel.GetClonedViewModels(sections.Select(sec => 
+        Sections = [..SectionViewModel.GetClonedViewModels(sections.Select(sec => 
             new SectionRecord(
                 sec.sectionId, 
                 sec.course.courseId, 
@@ -60,7 +61,9 @@ public partial class CourseViewModel :
                 sec.term.termId,
                 sec.room?.name ?? "",
                 sec.block?.name ?? "",
-                sec.displayName))).ToImmutableArray();
+                sec.displayName,
+                sec.isCurrent)))];
+        CurrentSections = [.. Sections.Where(sec => sec.IsCurrent)];
     }
 
     public static CourseViewModel Get(CourseRecord model)
@@ -197,6 +200,7 @@ public partial class SectionViewModel :
     [ObservableProperty] string term = "";
     [ObservableProperty] UserViewModel primaryTeacher = UserViewModel.Empty;
     [ObservableProperty] string id = "";
+    [ObservableProperty] bool isCurrent;
 
     public static ConcurrentBag<SectionViewModel> ViewModelCache { get; private set; } = [];
 
@@ -215,16 +219,20 @@ public partial class SectionViewModel :
 
     private SectionViewModel(SectionMinimalRecord section)
     {
-        Model = OptionalStruct<SectionRecord>.Some(new(section.sectionId, section.courseId, section.primaryTeacherId, [], [], section.termId, section.room, section.block, section.displayName));
+        Model = OptionalStruct<SectionRecord>.Some(new(section.sectionId, section.courseId, section.primaryTeacherId, [], [], section.termId, section.room, section.block, section.displayName, section.isCurrent));
         Id = section.sectionId;
         var registrar = ServiceHelper.GetService<RegistrarService>()!;
+
+        IsCurrent = section.isCurrent;
 
         var detailsTask = registrar.GetSectionDetailsAsync(section.sectionId, OnError.DefaultBehavior(this));
         detailsTask.WhenCompleted(() =>
         {
             var result = detailsTask.Result;
             if (result.HasValue)
+            {
                 Model = OptionalStruct<SectionRecord>.Some(result.Value);
+            }
         });
 
         teachers = UserViewModel
@@ -248,7 +256,9 @@ public partial class SectionViewModel :
         DisplayName = section.displayName;
         Block = section.block;
         Room = section.room;
-        PrimaryTeacher = UserViewModel.Get(
+        PrimaryTeacher = string.IsNullOrEmpty(section.primaryTeacherId) ?
+            UserViewModel.Empty :
+            UserViewModel.Get(
             registrar.AllUsers
                 .FirstStructOrDefault(t => t.id == section.primaryTeacherId, UserRecord.Empty));
     }
@@ -259,7 +269,7 @@ public partial class SectionViewModel :
         Model = OptionalStruct<SectionRecord>.Some(section);
         // Get the RegistrarService from the service helper...
         var registrar = ServiceHelper.GetService<RegistrarService>()!;
-        
+        IsCurrent = section.isCurrent;
         // Get data about the teachers of this section
         // and create UserViewModels for each of them
         teachers = UserViewModel

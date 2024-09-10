@@ -92,7 +92,10 @@ public readonly record struct StudentRecordShort(string id, string displayName, 
 /// <param name="name">Display name (First Semester, Second Semester, etc.)</param>
 /// <param name="start">term begin date</param>
 /// <param name="end">term end date</param>
-public readonly record struct TermRecord(string termId, string schoolYear, string name, DateTime start, DateTime end);
+public readonly record struct TermRecord(string termId, string schoolYear, string name, DateTime start, DateTime end)
+{
+    public bool IsCurrent() => start <= DateTime.Today && end >= DateTime.Today;
+}
 
 /// <summary>
 /// Course details used for scheduling
@@ -121,7 +124,7 @@ public readonly record struct CourseRecord(string courseId, string courseCode, s
 /// <param name="block">What block does it meet in (if it is scheduled)<see cref="BlockRecord"/></param>
 public readonly record struct SectionDetailRecord(string sectionId, CourseRecord course, UserRecord primaryTeacher,
     ImmutableArray<AdvisorRecord> teachers, ImmutableArray<StudentRecordShort> students,
-    TermRecord term, RoomRecord? room, BlockRecord? block)
+    TermRecord term, RoomRecord? room, BlockRecord? block, bool isCurrent)
 {
     public string displayName
     {
@@ -139,7 +142,7 @@ public readonly record struct SectionDetailRecord(string sectionId, CourseRecord
         new(sec.sectionId, sec.course.courseId, sec.primaryTeacher.id,
             sec.teachers.ToImmutableArray(),
             sec.students.ToImmutableArray(),
-            sec.term.termId, sec.room?.name ?? "", sec.block?.name ?? "", sec.displayName);
+            sec.term.termId, sec.room?.name ?? "", sec.block?.name ?? "", sec.displayName, sec.isCurrent);
 }
 
 /// <summary>
@@ -156,14 +159,14 @@ public readonly record struct SectionDetailRecord(string sectionId, CourseRecord
 /// <param name="displayName">Section Display (as seen on your Google Calendar)</param>
 public readonly record struct SectionRecord(string sectionId, string courseId, string? primaryTeacherId,
     ImmutableArray<AdvisorRecord> teachers, ImmutableArray<StudentRecordShort> students, string termId,
-    string room, string block, string displayName)
+    string room, string block, string displayName, bool isCurrent)
 {
-    public static readonly SectionRecord Empty = new("", "", "", [], [], "", "", "", "");
+    public static readonly SectionRecord Empty = new("", "", "", [], [], "", "", "", "", false);
 }
 
 public readonly record struct SectionMinimalRecord(string sectionId, string courseId, string? primaryTeacherId,
     ImmutableArray<string> teachers, ImmutableArray<string> students, string termId,
-    string room, string block, string blockId, string displayName, string schoolLevel);
+    string room, string block, string blockId, string displayName, string schoolLevel, bool isCurrent);
 
 /// <summary>
 /// Information about a room

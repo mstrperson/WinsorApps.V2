@@ -14,18 +14,58 @@
         </ResourceDictionary>
     </ContentPage.Resources>
     <ContentPage.ToolbarItems>
+        <ToolbarItem
+            Text="Filter By Class" 
+            Command="{Binding Calendar.ToggleShowFilterCommand}" />
         <ToolbarItem 
-        StyleClass="RefreshButton"
-        Text="Refresh"
-        Command="{Binding RefreshCommand}"/>
+            StyleClass="RefreshButton"
+            Text="Refresh"
+            Command="{Binding RefreshCommand}"/>
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <ScrollView>
             <VerticalStackLayout
-            HorizontalOptions="Center">
+                HorizontalOptions="Center">
+                <VerticalStackLayout
+                    HorizontalOptions="Center"
+                    IsVisible="{Binding Calendar.ShowFilter}">
+                    <HorizontalStackLayout Margin="0" Padding="0" Spacing="30">
+                        <CollectionView
+                            BackgroundColor="Transparent"
+                            HeightRequest="75"
+                            WidthRequest="600"
+                            ItemsSource="{Binding Calendar.ClassFilter.ClassNames}"
+                            ItemsLayout="HorizontalGrid">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="svm:SelectableLabelViewModel">
+                                    <HorizontalStackLayout
+                                        Margin="0"
+                                        Padding="0"
+                                        WidthRequest="150"
+                                        VerticalOptions="Center">
+                                        <HorizontalStackLayout.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                        </HorizontalStackLayout.GestureRecognizers>
+                                        <CheckBox IsChecked="{Binding IsSelected}"/>
+                                        <Label 
+                                            VerticalTextAlignment="Center"
+                                            StyleClass="SubHeader"
+                                            Text="{Binding Label}" />
+                                    </HorizontalStackLayout>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                        <Image
+                            StyleClass="RefreshButton">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Calendar.ApplyFilterCommand}" />
+                            </Image.GestureRecognizers>
+                        </Image>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
                 <HorizontalStackLayout
-                HorizontalOptions="Center"
-                Spacing="75">
+                    HorizontalOptions="Center"
+                    Spacing="75">
                     <Label
                     StyleClass="LeftArrow"
                     FontSize="Large">
@@ -49,11 +89,20 @@
                     </Label>
                 </HorizontalStackLayout>
                 <HorizontalStackLayout
+                    IsVisible="{Binding Busy}">
+                    <Label 
+                        StyleClass="Header"
+                        Text="{Binding BusyMessage}" />
+                    <Image
+                        StyleClass="loading_symbol"/>
+                </HorizontalStackLayout>
+                <HorizontalStackLayout
                 HorizontalOptions="Center">
                     <CollectionView
-                    ItemsSource="{Binding Calendar.Weeks}"
-                    BackgroundColor="Transparent"
-                    VerticalScrollBarVisibility="Never">
+                        HeightRequest="1080"
+                        ItemsSource="{Binding Calendar.Weeks}"
+                        BackgroundColor="Transparent"
+                        VerticalScrollBarVisibility="Never">
                         <!--Week Day Headers-->
                         <CollectionView.Header>
                             <Grid
@@ -112,11 +161,11 @@
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="cvm:CalendarWeekViewModel">
                                 <CollectionView
-                                ItemsSource="{Binding Days}"
-                                ItemsLayout="HorizontalGrid"
-                                HeightRequest="200"
-                                BackgroundColor="Transparent"
-                                Margin="0">
+                                    ItemsSource="{Binding Days}"
+                                    ItemsLayout="HorizontalGrid"
+                                    HeightRequest="200"
+                                    BackgroundColor="Transparent"
+                                    Margin="0">
                                     <CollectionView.ItemTemplate>
                                         <DataTemplate x:DataType="cvm:CalendarDayViewModel">
                                             <Border
@@ -125,17 +174,20 @@
                                                 <VerticalStackLayout
                                                 WidthRequest="298">
                                                     <HorizontalStackLayout
-                                                    Spacing="30"
-                                                    HeightRequest="40"
-                                                    Padding="0"
-                                                    Margin="-5">
+                                                        Spacing="30"
+                                                        HeightRequest="40"
+                                                        Padding="0"
+                                                        Margin="-5">
+                                                        <HorizontalStackLayout.GestureRecognizers>
+                                                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                                        </HorizontalStackLayout.GestureRecognizers>
                                                         <Label
-                                                        FontSize="Micro"
-                                                        Text="{Binding Date, StringFormat='{0:dd}'}" />
+                                                            FontSize="Micro"
+                                                            Text="{Binding Date, StringFormat='{0:dd}'}" />
                                                         <Label
-                                                        FontSize="Micro"
-                                                        FontAttributes="Bold"
-                                                        Text="{Binding CycleDay}"/>
+                                                            FontSize="Micro"
+                                                            FontAttributes="Bold"
+                                                            Text="{Binding CycleDay}"/>
                                                     </HorizontalStackLayout>
                                                     <BoxView 
                                                     StyleClass="Bar" 
@@ -143,42 +195,39 @@
                                                     WidthRequest="300"
                                                     TranslationX="-5"
                                                     Margin="0"/>
-                                                    <ScrollView>
                                                         <CollectionView
                                                         ItemsSource="{Binding Events}"
-                                                        BackgroundColor="Transparent"
-                                                        VerticalScrollBarVisibility="Never">
-                                                            <CollectionView.ItemTemplate>
-                                                                <DataTemplate x:DataType="cvm:AssessmentCalendarEventViewModel">
-                                                                    <VerticalStackLayout
+                                                        BackgroundColor="Transparent">
+                                                        <CollectionView.ItemTemplate>
+                                                            <DataTemplate x:DataType="cvm:AssessmentCalendarEventViewModel">
+                                                                <VerticalStackLayout
                                                                     Margin="0"
                                                                     Padding="0">
-                                                                        <Grid
+                                                                    <Grid
                                                                         RowDefinitions="25"
                                                                         ColumnDefinitions="80,220"
                                                                         ToolTipProperties.Text="{Binding Description}"
                                                                         IsVisible="{Binding AllDay, Converter={StaticResource Invert}}"
                                                                         Margin="0"
                                                                         Padding="0">
-                                                                            <Grid.GestureRecognizers>
-                                                                                <TapGestureRecognizer Command="{Binding SelectCommand}" />
-                                                                            </Grid.GestureRecognizers>
-                                                                            <Label
+                                                                        <Grid.GestureRecognizers>
+                                                                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                                                        </Grid.GestureRecognizers>
+                                                                        <Label
                                                                             Grid.Column="0"
                                                                             Text="{Binding Start,StringFormat='{0:hh:mm tt}'}" />
-                                                                            <Label
+                                                                        <Label
                                                                             Grid.Column="1"
                                                                             Text="{Binding Summary}" />
-                                                                        </Grid>
-                                                                        <Label
+                                                                    </Grid>
+                                                                    <Label
                                                                         Text="{Binding Summary}"
                                                                         FontAttributes="Bold"
                                                                         IsVisible="{Binding AllDay}" />
-                                                                    </VerticalStackLayout>
-                                                                </DataTemplate>
-                                                            </CollectionView.ItemTemplate>
-                                                        </CollectionView>
-                                                    </ScrollView>
+                                                                </VerticalStackLayout>
+                                                            </DataTemplate>
+                                                        </CollectionView.ItemTemplate>
+                                                    </CollectionView>
                                                 </VerticalStackLayout>
                                             </Border>
                                         </DataTemplate>
