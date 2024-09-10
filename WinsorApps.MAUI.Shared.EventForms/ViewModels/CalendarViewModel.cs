@@ -14,7 +14,7 @@ public partial class CalendarViewModel :
     private readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
 
     [ObservableProperty] ObservableCollection<CalendarWeekViewModel> weeks = [];
-    [ObservableProperty] DateTime month;
+    [ObservableProperty] DateTime month = DateTime.Today.MonthOf();
 
     public event EventHandler<EventFormViewModel>? EventSelected;
 
@@ -35,11 +35,12 @@ public partial class CalendarViewModel :
         using DebugTimer _ = new($"Loading Calendar Events for {Month:MMMM yyyy}", _logging);
         var events = EventFormViewModel.GetClonedViewModels(MonthlyEventSource(Month));
         foreach (var evt in events)
-            evt.Selected += (_, _) => EventSelected?.Invoke(this, evt);
+            evt.Selected += (_, _) => 
+                EventSelected?.Invoke(this, evt);
 
         Weeks = [];
         var firstCalendarDay = new DateTime(Month.Year, Month.Month, 1).MondayOf().AddDays(-1);
-        for (DateTime sunday = firstCalendarDay; sunday.Month <= Month.Month; sunday = sunday.AddDays(7))
+        for (DateTime sunday = firstCalendarDay; 100 * sunday.Year + sunday.Month <= 100 * Month.Year + Month.Month; sunday = sunday.AddDays(7))
         {
             Weeks.Add(new(sunday, events));
         }
