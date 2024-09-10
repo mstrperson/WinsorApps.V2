@@ -39,9 +39,101 @@
                 <Label
                     StyleClass="SubHeader"
                     Text="Additional Chaperones" />
-                <views:ContactSingleSelector BindingContext="{Binding ChaperoneSearch}" />
+                <VerticalStackLayout 
+                    BindingContext="{Binding ChaperoneSearch}"
+                    x:DataType="vm:ContactSearchViewModel">
+                    <StackLayout
+                        Orientation="Horizontal"
+                        Spacing="30"
+                        IsVisible="{Binding IsSelected, Converter={StaticResource Invert}}">
+                        <SearchBar
+                            Placeholder="Contact Name"
+                            WidthRequest="250"
+                            HeightRequest="50"
+                            Text="{Binding SearchText}"
+                            SearchCommand="{Binding SearchCommand}" />
+                        <Label
+                            Text="➕"
+                            FontSize="20">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding CreateCommand}" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </StackLayout>
+                    <CollectionView
+                        HeightRequest="250"
+                        IsVisible="{Binding ShowOptions}"
+                        ItemsSource="{Binding Options}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ContactViewModel">
+                                <StackLayout
+                                    Orientation="Horizontal"
+                                    Spacing="30">
+                                    <StackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                    </StackLayout.GestureRecognizers>
+                                    <Label Text="{Binding FullName}" />
+                                    <Label Text="{Binding Email}" />
+                                </StackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <StackLayout
+                        Orientation="Horizontal"
+                        Spacing="30"
+                        IsVisible="{Binding IsSelected}">
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ClearSelectionCommand}" />
+                        </StackLayout.GestureRecognizers>
+                        <Label Text="{Binding Selected.FullName}" />
+                        <Label Text="{Binding Selected.Email}" />
+                        <Label Text="{Binding Selected.Phone}" />
+                    </StackLayout>
+                    <StackLayout
+                        Orientation="Horizontal"
+                        Spacing="30"
+                        IsVisible="{Binding ShowCreate}">
+                        <Entry
+                            Text="{Binding NewItem.FirstName}"
+                            Placeholder="First Name"
+                            WidthRequest="120"
+                            HeightRequest="40"/>
+                        <Entry
+                            Text="{Binding NewItem.LastName}"
+                            Placeholder="Last Name"
+                            WidthRequest="120"
+                            HeightRequest="40"/>
+                        <Entry
+                            Text="{Binding NewItem.Email}"
+                            Placeholder="Email Address"
+                            Keyboard="Email"
+                            WidthRequest="120"
+                            HeightRequest="40" />
+                        <Entry
+                            Text="{Binding NewItem.Phone}"
+                            Placeholder="Cellphone Number"
+                            Keyboard="Telephone"
+                            WidthRequest="120"
+                            HeightRequest="40" />
+                        <Button
+                            StyleClass="SaveButton"
+                            ToolTipProperties.Text="Save Contact" 
+                            Command="{Binding NewItem.CreateCommand}"/>
+                    </StackLayout>
+                </VerticalStackLayout>
                 <CollectionView
-                    ItemsSource="{Binding Chaperones}">
+                    HeightRequest="{Binding ContactsHeightRequest}"
+                    ItemsSource="{Binding Chaperones}"
+                    BackgroundColor="Transparent">
+                    <CollectionView.Header>
+                        <HorizontalStackLayout
+                            Margin="0"
+                            Padding="0">
+                            <Label 
+                                StyleClass="H3"
+                                Text="Chaparones" />
+                        </HorizontalStackLayout>
+                    </CollectionView.Header>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="vm:ContactViewModel">
                             <StackLayout

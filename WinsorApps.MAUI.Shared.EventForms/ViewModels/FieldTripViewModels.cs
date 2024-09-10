@@ -16,13 +16,17 @@ public partial class FieldTripViewModel :
 {
     [ObservableProperty] string id = "";
     [ObservableProperty] ContactSearchViewModel primaryContactSearch = new() { SelectionMode = SelectionMode.Single };
-    [ObservableProperty] ContactSearchViewModel chaperoneSearch = new() { SelectionMode = SelectionMode.Multiple };
+    [ObservableProperty] ContactSearchViewModel chaperoneSearch = new() { SelectionMode = SelectionMode.Single };
     [ObservableProperty] ObservableCollection<ContactViewModel> chaperones = [];
     [ObservableProperty] TransportationViewModel transportation = new();
     [ObservableProperty] StudentsByClassViewModel studentsByClass = new();
     [ObservableProperty] FieldTripCateringRequestViewModel fieldTripCateringRequest = new();
     [ObservableProperty] bool showFood;
     [ObservableProperty] private bool hasLoaded;
+    [ObservableProperty] double contactsHeightRequest;
+
+    private static readonly double ContactHeaderHeight = 32.0;
+    private static readonly double ContactRowHeight = 30;
 
     public event EventHandler? ReadyToContinue;
     public event EventHandler? Deleted;
@@ -48,11 +52,17 @@ public partial class FieldTripViewModel :
 
         ChaperoneSearch.OnSingleResult += (_, e) =>
         {
+            ChaperoneSearch.ClearSelection();
+            if (Chaperones.Any(chap => chap.Id == e.Id))
+                return;
+
             var contact = e.Clone();
             Chaperones.Add(contact);
+            ContactsHeightRequest = ContactHeaderHeight + Chaperones.Count * ContactRowHeight;
             contact.Selected += (_, _) =>
             {
                 Chaperones.Remove(contact);
+                ContactsHeightRequest = ContactHeaderHeight + Chaperones.Count * ContactRowHeight;
             };
         };
     }
@@ -67,6 +77,7 @@ public partial class FieldTripViewModel :
         ShowFood = false;
         PrimaryContactSearch.ClearSelection();
         Chaperones = [];
+        ContactsHeightRequest = ContactHeaderHeight + Chaperones.Count * ContactRowHeight;
         ChaperoneSearch.ClearSelection();
     }
 
@@ -91,11 +102,13 @@ public partial class FieldTripViewModel :
         PrimaryContactSearch.Select(ContactViewModel.Get(model.primaryContact));
 
         Chaperones = [.. model.chaperones.Select(ContactViewModel.Get)];
-        foreach(var chap in Chaperones)
+        ContactsHeightRequest = ContactHeaderHeight + Chaperones.Count * ContactRowHeight;
+        foreach (var chap in Chaperones)
         {
             chap.Selected += (_, _) =>
             {
                 Chaperones.Remove(chap);
+                ContactsHeightRequest = ContactHeaderHeight + Chaperones.Count * ContactRowHeight;
             };
         }
 
@@ -227,7 +240,7 @@ public partial class FieldTripCateringRequestViewModel :
         MenuCollection = new(_service);
         MenuCollection.Menus = MenuCollection.Menus.Where(menu => menu.IsFieldTrip).ToImmutableArray();
         foreach (var menu in MenuCollection.Menus)
-            menu.Items = menu.Items.Where(it => it.Item.FieldTripItem).ToImmutableArray();
+            menu.Items = [..menu.Items.Where(it => it.Item.FieldTripItem)];
     }
 
     public static implicit operator NewFieldTripCateringRequest(FieldTripCateringRequestViewModel vm) =>
