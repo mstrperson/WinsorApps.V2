@@ -18,6 +18,9 @@
     <MauiXaml Update="Pages\MyAssessmentsPage.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
+    <MauiXaml Update="Pages\SectionLateWorkViewPage.xaml">
+      <SubType>Designer</SubType>
+    </MauiXaml>
     <MauiXaml Update="Pages\StudentPage.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>

@@ -16,6 +16,9 @@
         <ToolbarItem
             StyleClass="RefreshButton"
             Command="{Binding SelectedSection.LoadLateWorkCommand}" />
+        <ToolbarItem
+            Text="Load Selected Class Late Work"
+            Clicked="ToolbarItem_Clicked" />
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <ScrollView>
