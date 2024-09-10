@@ -16,6 +16,9 @@
         <ToolbarItem
             StyleClass="RefreshButton"
             Command="{Binding SelectedSection.LoadLateWorkCommand}" />
+        <ToolbarItem
+            Text="Load Selected Class Late Work"
+            Clicked="ToolbarItem_Clicked" />
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <ScrollView>
@@ -136,7 +139,7 @@
                         Margin="0"
                         Padding="0"
                         IsVisible="{Binding ShowSelectedSection}"
-                            Grid.Column="2">
+                        Grid.Column="2">
                         <CollectionView
                             HeightRequest="800"
                             IsVisible="{Binding SelectedSection.ShowLateWork}"
