@@ -58,7 +58,8 @@
                                 </HorizontalStackLayout>
                             </Border>
                             <Label
-                                StyleClass="AddButton"
+                                Text="Add Assessment"
+                                StyleClass="H3"
                                 IsVisible="{Binding CourseSelected}">
                                 <Label.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding StartNewAssessmentCommand}" />

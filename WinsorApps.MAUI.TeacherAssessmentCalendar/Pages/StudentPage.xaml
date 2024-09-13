@@ -521,11 +521,14 @@
                                 StyleClass="Header"
                                 Text="Late Work" />
                             <CollectionView
+                                WidthRequest="1500"
+                                HeightRequest="800"
                                 ItemsSource="{Binding LateWork}"
                                 BackgroundColor="Transparent">
                                 <CollectionView.Header>
                                     <HorizontalStackLayout
-                                        Spacing="15">
+                                        Spacing="15"
+                                        WidthRequest="1500">
                                         <HorizontalStackLayout.GestureRecognizers>
                                             <TapGestureRecognizer Command="{Binding ToggleShowResolvedCommand}" />
                                         </HorizontalStackLayout.GestureRecognizers>
@@ -545,12 +548,14 @@
                                     <DataTemplate x:DataType="vm:LateWorkViewModel">
                                         <VerticalStackLayout
                                             Margin="0"
-                                            Padding="0">
+                                            Padding="0"
+                                            WidthRequest="1500">
                                             <BoxView StyleClass="Bar" />
                                             <HorizontalStackLayout
                                                 Margin="0"
                                                 Padding="0"
-                                                Spacing="15">
+                                                Spacing="15"
+                                                WidthRequest="1500">
                                                 <Label
                                                     StyleClass="H3"
                                                     Text="{Binding Section.DisplayName}" />
@@ -562,6 +567,7 @@
                                                 Margin="0"
                                                 Padding="0"
                                                 Spacing="15"
+                                                WidthRequest="1500"
                                                 IsVisible="{Binding IsAssessment}">
                                                 <Label 
                                                     StyleClass="H3"
@@ -574,21 +580,23 @@
                                             <HorizontalStackLayout
                                                 Margin="0"
                                                 Padding="0"
-                                                Spacing="15">
+                                                Spacing="15"
+                                                WidthRequest="1500">
                                                 <Label
                                                     Text="{Binding Marked, StringFormat='Marked: {0:d MMM}'}" />
                                                 <Label
                                                     Text="{Binding Assessment.Date, StringFormat='Assessment: {0:d MMM}'}"
                                                     IsVisible="{Binding IsAssessment}"/>
                                                 <Image
+                                                    
                                                     StyleClass="RedFlagSignifier"
                                                     IsVisible="{Binding IsResolved, Converter={StaticResource Invert}}" />
                                                 <Label
                                                     Text="{Binding ResolvedDate, StringFormat='Resolved: {0:d MMM}'}"
                                                     IsVisible="{Binding IsResolved}" />
                                             </HorizontalStackLayout>
-                                        </VerticalStackLayout>
-                                    </DataTemplate>
+                                            </VerticalStackLayout>
+                                       </DataTemplate>
                                 </CollectionView.ItemTemplate>
                             </CollectionView>
                         </VerticalStackLayout>

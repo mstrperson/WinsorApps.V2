@@ -16,9 +16,6 @@
         <ToolbarItem
             StyleClass="RefreshButton"
             Command="{Binding SelectedSection.LoadLateWorkCommand}" />
-        <ToolbarItem
-            Text="Load Selected Class Late Work"
-            Clicked="ToolbarItem_Clicked" />
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <ScrollView>
@@ -139,10 +136,12 @@
                         Margin="0"
                         Padding="0"
                         HeightRequest="1000"
+                        WidthRequest="750"
                         IsVisible="{Binding ShowSelectedSection}"
                         Grid.Column="2">
                         <CollectionView
                             HeightRequest="800"
+                            WidthRequest="750"
                             IsVisible="{Binding SelectedSection.ShowLateWork}"
                             Margin="0"
                             BackgroundColor="Transparent"
@@ -169,7 +168,9 @@
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="vm:StudentLateWorkCollectionViewModel">
                                 <VerticalStackLayout
-                                        Padding="0">
+                                        Padding="0"
+                                        HeightRequest="{Binding PannelHeight}"
+                                        WidthRequest="750">
                                     <BoxView StyleClass="Bar" />
                                     <HorizontalStackLayout
                                             Margin="0"
@@ -196,6 +197,8 @@
                                                 Padding="0"
                                                 IsVisible="{Binding ShowLateWork}">
                                         <CollectionView
+                                            HeightRequest="{Binding AssessmentHeight}"
+                                            WidthRequest="750"
                                             IsVisible="{Binding HasAssessments}"
                                             BackgroundColor="Transparent"    
                                             ItemsSource="{Binding LateAssessments}">
@@ -228,14 +231,14 @@
                                                                     Text="{Binding Assessment.DateLabel}" />
                                                         </HorizontalStackLayout>
                                                         <Grid
-                                                                Margin="0"
-                                                                Padding="0"
-                                                                RowDefinitions="*"
-                                                                ColumnDefinitions="*,150">
+                                                            Margin="0"
+                                                            Padding="0"
+                                                            RowDefinitions="*"
+                                                            ColumnDefinitions="*,150">
                                                             <HorizontalStackLayout
-                                                                    Grid.Column="0"
-                                                                    Margin="0"
-                                                                    Padding="0">
+                                                                Grid.Column="0"
+                                                                Margin="0"
+                                                                Padding="0">
                                                                 <Label
                                                                         Text="{Binding Marked, StringFormat='{0:d MMMM}'}" />
                                                                 <Label
@@ -273,21 +276,24 @@
                                                 IsVisible="{Binding HasAssessments}"/>
                                         <CollectionView
                                             Margin="0"
+                                            HeightRequest="{Binding PatternHeight}"
+                                            WidthRequest="750"
                                             IsVisible="{Binding HasPatterns}"
                                             BackgroundColor="Transparent"
                                             ItemsSource="{Binding LateWorkPatterns}">
                                             <CollectionView.Header>
                                                 <HorizontalStackLayout>
                                                     <Label
-                                                            StyleClass="H3"
-                                                            Text="Late Work Patterns" />
+                                                        StyleClass="H3"
+                                                        Text="Late Work Patterns" />
                                                 </HorizontalStackLayout>
                                             </CollectionView.Header>
                                             <CollectionView.ItemTemplate>
                                                 <DataTemplate x:DataType="vm:LateWorkViewModel">
                                                     <VerticalStackLayout
-                                                            Margin="0"
-                                                            Padding="0">
+                                                        Margin="0"
+                                                        Padding="0"
+                                                        WidthRequest="750">
                                                         <BoxView StyleClass="Bar" HeightRequest="1" />
                                                         <Grid
                                                                 Margin="0"

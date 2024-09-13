@@ -159,6 +159,14 @@ public partial class StudentLateWorkCollectionViewModel :
     [ObservableProperty] bool hasAssessments;
     [ObservableProperty] bool showLateWork;
 
+    [ObservableProperty] private double patternHeight;
+    [ObservableProperty] private double assessmentHeight;
+    [ObservableProperty] private double pannelHeight = 150;
+
+    private static readonly double LW_Header_Height = 80;
+    private static readonly double LW_Row_Height = 60;
+    private static readonly double LA_Row_Height = 85;
+
     public StudentLateWorkCollection Model { get; private set; }
 
     public StudentLateWorkCollectionViewModel(StudentLateWorkCollection lateWork)
@@ -169,7 +177,15 @@ public partial class StudentLateWorkCollectionViewModel :
     }
 
     [RelayCommand]
-    public void ToggleShowLateWork() => ShowLateWork = !ShowLateWork;
+    public void ToggleShowLateWork()
+    {
+        ShowLateWork = !ShowLateWork;
+        PannelHeight = ShowLateWork switch
+        {
+            true => 150 + PatternHeight + AssessmentHeight,
+            false => 150
+        };
+    }
 
     [RelayCommand]
     public async Task Load()
@@ -191,8 +207,10 @@ public partial class StudentLateWorkCollectionViewModel :
 
         LateWorkPatterns = [.. result.Where(lw => !lw.IsAssessment).OrderBy(lw => lw.Marked)];
         HasPatterns = LateWorkPatterns.Any();
+        PatternHeight = LW_Header_Height + LateWorkPatterns.Count * LW_Row_Height;
         LateAssessments = [.. result.Where(lw => lw.IsAssessment).OrderBy(lw => lw.Marked)];
         HasAssessments = LateAssessments.Any();
+        AssessmentHeight = LW_Header_Height + LateAssessments.Count * LA_Row_Height;
         TotalLateWork = Model.lateWork.Length;
         OutstandingLateWork = Model.lateWork.Count(lw => !lw.isResolved);
 
