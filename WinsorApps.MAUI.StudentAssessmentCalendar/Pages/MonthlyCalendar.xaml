@@ -50,6 +50,7 @@
                 <HorizontalStackLayout
                     HorizontalOptions="Center">
                     <CollectionView
+                        WidthRequest="1500"
                         ItemsSource="{Binding Calendar.Weeks}"
                         BackgroundColor="Transparent"
                         VerticalScrollBarVisibility="Never">
