@@ -12,7 +12,7 @@
 
     <ItemGroup>
       <PackageReference Include="AsyncAwaitBestPractices" Version="8.0.0" />
-      <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.1" />
+      <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.2" />
     </ItemGroup>
 
 </Project>
