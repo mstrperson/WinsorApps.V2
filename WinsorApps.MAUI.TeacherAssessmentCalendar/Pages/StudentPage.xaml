@@ -418,7 +418,6 @@
                                         <CollectionView
                                             BackgroundColor="Transparent"
                                             WidthRequest="750"
-                                            HeightRequest="800"
                                             ItemsSource="{Binding SelectedSection.DisplayedAssessments}">
                                             <CollectionView.Header>
                                                 <HorizontalStackLayout

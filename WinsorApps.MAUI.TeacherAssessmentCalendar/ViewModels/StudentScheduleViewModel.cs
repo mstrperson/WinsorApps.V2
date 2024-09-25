@@ -98,7 +98,8 @@ public partial class SectionAssessmentCalendarViewModel :
         {
             assessment.Selected += (_, _) => AssessmentSelected?.Invoke(this, assessment);
         }
-        DisplayedAssessments = ShowPastAssessments ? Assessments : [.. Assessments.Where(assessment => assessment.Model.Reduce(AssessmentCalendarEvent.Empty).start >= DateTime.Today)];
+        DisplayedAssessments = ShowPastAssessments ? Assessments : 
+            [.. Assessments.Where(assessment => assessment.Model.Reduce(AssessmentCalendarEvent.Empty).start >= DateTime.Today)];
         HasAssessments = DisplayedAssessments.Count > 0;
     }
 
@@ -106,7 +107,8 @@ public partial class SectionAssessmentCalendarViewModel :
     public void ToggleShowPastAssessments()
     {
         ShowPastAssessments = !ShowPastAssessments;
-        DisplayedAssessments = ShowPastAssessments ? Assessments : [.. Assessments.Where(assessment => assessment.Model.Reduce(AssessmentCalendarEvent.Empty).start >= DateTime.Today)];
+        DisplayedAssessments = ShowPastAssessments ? Assessments : 
+            [.. Assessments.Where(assessment => assessment.Model.Reduce(AssessmentCalendarEvent.Empty).start >= DateTime.Today)];
         HasAssessments = DisplayedAssessments.Count > 0;
     }
 

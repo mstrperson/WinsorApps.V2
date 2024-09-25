@@ -123,8 +123,10 @@ public partial class StudentAssessmentService :
         return success;
     }
 
-    public async Task<AssessmentPass?> RequestLatePass(string assessmentId, ErrorAction onError)
+    public async Task<AssessmentPass?> RequestLatePass(string assessmentId, ErrorAction onError, MakeupTime? makeupTime = null)
     {
+        makeupTime ??= MakeupTime.Default;
+
         var result = await _api.SendAsync<AssessmentPass?>(HttpMethod.Post, $"api/assessment-calendar/students/passes/{assessmentId}",
             onError: onError);
 

@@ -49,11 +49,21 @@ namespace WinsorApps.Services.AssessmentCalendar.Models;
     /// <param name="assessmentId">Assessment for which you are using a pass.</param>
     /// <param name="studentId">your id</param>
     /// <param name="timeStamp">when you submitted this pass</param>
-    public readonly record struct AssessmentPass(string assessmentId, string studentId, DateTime timeStamp);
-
-public readonly record struct AssessmentPassDetail(AssessmentCalendarEvent assessment, UserRecord student, DateTime timeStamp)
+    public readonly record struct AssessmentPass(string assessmentId, string studentId, DateTime timeStamp, MakeupTime makeupTime)
 {
-    public static readonly AssessmentPassDetail Empty = new(AssessmentCalendarEvent.Empty, UserRecord.Empty, DateTime.Now);
+
+    public AssessmentPass(string assessmentId, string studentId, DateTime timeStamp) :
+        this(assessmentId, studentId, timeStamp, MakeupTime.Default)
+    { }
+}
+public readonly record struct MakeupTime(DateTime? makeupTime = null, string? note = null)
+{
+    public static readonly MakeupTime Default = new(note: "Not Scheduled");
+}
+
+public readonly record struct AssessmentPassDetail(AssessmentCalendarEvent assessment, UserRecord student, DateTime timeStamp, MakeupTime makeupTime)
+{
+    public static readonly AssessmentPassDetail Empty = new(AssessmentCalendarEvent.Empty, UserRecord.Empty, DateTime.Now, MakeupTime.Default);
 }
 
     /// <summary>

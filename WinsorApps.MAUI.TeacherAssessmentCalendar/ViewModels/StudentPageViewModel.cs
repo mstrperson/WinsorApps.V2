@@ -112,12 +112,11 @@ public partial class AllMyStudentsViewModel :
 
         await _registrar.WaitForUniqueNames();
         
-        var students = _service.MyStudents;
+        var students = _registrar.StudentList.Select(u => (StudentRecordShort)u);
 
         MyStudents = [.. 
             students
             .Select(StudentViewModel.Get)
-            .Where(student => student.ClassName.StartsWith("Class V"))
             .OrderBy(student => student.ClassName)
             .ThenBy(student => student.UserInfo.Model.Reduce(UserRecord.Empty).lastName)];
         foreach (var student in MyStudents)

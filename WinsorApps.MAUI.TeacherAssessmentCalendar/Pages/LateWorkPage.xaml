@@ -241,8 +241,10 @@
                                                                 Padding="0">
                                                                 <Label
                                                                         Text="{Binding Marked, StringFormat='{0:d MMMM}'}" />
-                                                                <Label
-                                                                        Text="{Binding Details}" />
+                                                                <Editor
+                                                                    IsReadOnly="True"
+                                                                    WidthRequest="500"
+                                                                    Text="{Binding Details}" />
                                                                 <Image
                                                                         StyleClass="RedFlagSignifier"
                                                                         IsVisible="{Binding IsResolved, Converter={StaticResource Invert}}" />
@@ -296,21 +298,23 @@
                                                         WidthRequest="750">
                                                         <BoxView StyleClass="Bar" HeightRequest="1" />
                                                         <Grid
-                                                                Margin="0"
-                                                                Padding="0"
-                                                                RowDefinitions="*"
-                                                                ColumnDefinitions="*,150">
+                                                            Margin="0"
+                                                            Padding="0"
+                                                            RowDefinitions="*"
+                                                            ColumnDefinitions="*,150">
                                                             <HorizontalStackLayout
                                                                     Grid.Column="0"
                                                                     Margin="0"
                                                                     Padding="0">
                                                                 <Label
-                                                                        Text="{Binding Marked, StringFormat='{0:d MMMM}'}" />
-                                                                <Label
-                                                                        Text="{Binding Details}" />
+                                                                    Text="{Binding Marked, StringFormat='{0:d MMMM}'}" />
+                                                                <Editor
+                                                                    IsReadOnly="True"
+                                                                    WidthRequest="500"
+                                                                    Text="{Binding Details}" />
                                                                 <Image
-                                                                        StyleClass="RedFlagSignifier"
-                                                                        IsVisible="{Binding IsResolved, Converter={StaticResource Invert}}" />
+                                                                    StyleClass="RedFlagSignifier"
+                                                                    IsVisible="{Binding IsResolved, Converter={StaticResource Invert}}" />
                                                             </HorizontalStackLayout>
                                                             <HorizontalStackLayout
                                                                     Margin="0"

@@ -48,7 +48,7 @@ public partial class StudentLatePassCollectionViewModel :
         var pass = await _service.RequestPassForStudent(Student.Id, assessment.id, OnError.DefaultBehavior(this));
         if(pass.HasValue)
         {
-            var detail = new AssessmentPassDetail(assessment, Student.Model.Reduce(UserRecord.Empty), pass.Value.timeStamp);
+            var detail = new AssessmentPassDetail(assessment, Student.Model.Reduce(UserRecord.Empty), pass.Value.timeStamp, MakeupTime.Default);
             TeacherLatePassViewModel vm = LatePassViewModel.Get(detail);
             vm.Withdrawn += (_, _) => LatePasses.Remove(vm);
             LatePasses.Add(vm);
