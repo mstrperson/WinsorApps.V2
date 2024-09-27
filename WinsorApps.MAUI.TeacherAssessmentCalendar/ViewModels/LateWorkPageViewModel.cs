@@ -260,6 +260,7 @@ public partial class SectionLateWorkCollection :
         LoadLateWork().SafeFireAndForget(e => e.LogException());
         LoadAssessments().SafeFireAndForget(e => e.LogException());
         CreateLateAssessment.Submitted += async (_, _) => await LoadLateWork();
+        CreateLateAssessment.OnError += (sender, e) => OnError?.Invoke(sender, e);
         CreatePattern = new(Section);
         CreatePattern.Submitted += async (_, _) => await LoadLateWork();
     }
