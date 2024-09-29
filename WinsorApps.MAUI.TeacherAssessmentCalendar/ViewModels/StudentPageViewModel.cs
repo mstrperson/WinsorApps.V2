@@ -172,6 +172,8 @@ public partial class StudentViewModel :
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "";
 
+    public static implicit operator UserViewModel(StudentViewModel student) => student.UserInfo;
+    
     private async Task<ImmutableArray<AssessmentCalendarEvent>> GetStudentCalendar() =>
         await _service.GetStudentCalendar(
             OnError.DefaultBehavior(this), Model.Reduce(UserRecord.Empty).id, 

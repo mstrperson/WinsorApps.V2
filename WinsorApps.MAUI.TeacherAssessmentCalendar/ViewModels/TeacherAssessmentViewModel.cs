@@ -16,7 +16,7 @@ public partial class StudentAssessmentRosterEntry :
     ObservableObject,
     ISelectable<StudentAssessmentRosterEntry>
 {
-    [ObservableProperty] UserViewModel student = UserViewModel.Empty;
+    [ObservableProperty] StudentViewModel student = StudentViewModel.Get(UserRecord.Empty);
     [ObservableProperty] bool latePassUsed;
     [ObservableProperty] DateTime latePassTimeStamp;
     [ObservableProperty] bool hasConflicts;
@@ -26,7 +26,7 @@ public partial class StudentAssessmentRosterEntry :
     [ObservableProperty] bool passAvailable;
 
     public event EventHandler<StudentAssessmentRosterEntry>? Selected;
-
+    
     public void Select()
     {
         IsSelected = !IsSelected;
@@ -86,6 +86,24 @@ public partial class AssessmentDetailsViewModel :
 
     public AssessmentDetailsViewModel() { }
 
+    [RelayCommand]
+    public async Task UseLatePassFor(StudentViewModel student)
+    {
+       await student.LatePassCollection.RequestNewPassFor(Model.Reduce(AssessmentCalendarEvent.Empty));
+       
+       LoadAssessmentDetails();
+    }
+
+    [RelayCommand]
+    public async Task WithdrawPassFor(StudentViewModel student)
+    {
+        var pass = Passess.FirstOrDefault(pass => pass.Student.Id == student.UserInfo.Id);
+        if (pass is not null)
+            await _assessmentService.WithdrawLatePassForStudent(student.UserInfo.Id,
+                pass.Model.Reduce(AssessmentPassDetail.Empty).assessment.id,
+                err => OnError?.Invoke(this, err));
+    }
+    
     public void SelectStudent(string studentId)
     {
         var result = Students.FirstOrDefault(student => student.Student.Model.Reduce(UserRecord.Empty).id == studentId);

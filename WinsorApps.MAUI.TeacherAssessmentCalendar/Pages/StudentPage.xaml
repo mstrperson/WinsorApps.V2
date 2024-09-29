@@ -451,7 +451,6 @@
                                                                 StyleClass="H3"
                                                                 Text="{Binding Title}" />
                                                         </HorizontalStackLayout>
-                                                        <Button IsVisible={Binding 
                                                     </VerticalStackLayout>
                                                 </DataTemplate>
                                             </CollectionView.ItemTemplate>

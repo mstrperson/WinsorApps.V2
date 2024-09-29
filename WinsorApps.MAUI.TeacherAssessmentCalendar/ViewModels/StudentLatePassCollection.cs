@@ -41,7 +41,7 @@ public partial class StudentLatePassCollectionViewModel :
             pass.PropertyChanged += ((IBusyViewModel)this).BusyChangedCascade;
         }
     }
-
+    
     [RelayCommand]
     public async Task RequestNewPassFor(AssessmentCalendarEvent assessment)
     {
