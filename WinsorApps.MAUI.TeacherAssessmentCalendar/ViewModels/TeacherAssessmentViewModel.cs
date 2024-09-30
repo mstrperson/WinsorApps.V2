@@ -27,6 +27,7 @@ public partial class StudentAssessmentRosterEntry :
 
     public event EventHandler<StudentAssessmentRosterEntry>? Selected;
     
+    [RelayCommand]
     public void Select()
     {
         IsSelected = !IsSelected;

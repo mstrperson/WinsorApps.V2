@@ -47,11 +47,15 @@
                                     VerticalTextAlignment="Center"
                                     HeightRequest="75"
                                     FontAttributes="Bold"
-                                    Text="{Binding Student.DisplayName}" />
+                                    Text="{Binding Student.UserInfo.DisplayName}" />
                                 <Button
                                     IsVisible="{Binding PassAvailable}" 
                                     Text="Use Late Pass"
-                                    Command="{Binding }"/>
+                                    Command="{Binding SelectCommand}"/>
+                                <Button
+                                    IsVisible="{Binding LatePassUsed}" 
+                                    Text="Withdraw Pass"
+                                    Command="{Binding SelectCommand}"/>
                             </HorizontalStackLayout>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
