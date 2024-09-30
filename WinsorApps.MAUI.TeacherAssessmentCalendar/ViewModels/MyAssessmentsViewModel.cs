@@ -30,6 +30,7 @@ public partial class AssessmentGroupViewModel :
     public event EventHandler<AssessmentGroupViewModel>? Selected;
     public event EventHandler<AssessmentDetailsViewModel>? SectionSelected;
     public event EventHandler<AssessmentDetailsViewModel>? ShowDetailsRequested;
+    public event EventHandler<AssessmentDetailsViewModel>? ShowDetailsPageRequested;
     public event EventHandler<StudentAssessmentRosterEntry>? StudentSelected;
 
     public static AssessmentGroupViewModel Empty = new AssessmentGroupViewModel();
@@ -78,6 +79,7 @@ public partial class AssessmentGroupViewModel :
         foreach (var entry in Assessments)
         {
             entry.ShowDetailsRequested += (sender, details) => ShowDetailsRequested?.Invoke(sender, details);
+            entry.Selected += (sender, details) => ShowDetailsPageRequested?.Invoke(sender, details);
             entry.StudentSelected += (sender, e) => StudentSelected?.Invoke(this, e);
         }
 
@@ -279,6 +281,7 @@ public partial class MyAssessmentsCollectionViewModel :
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<AssessmentDetailsViewModel>? ShowDetailsRequested;
+    public event EventHandler<AssessmentDetailsViewModel>? ShowDetailsPageRequested;
     public event EventHandler<StudentAssessmentRosterEntry>? StudentSelected;
 
     public async Task Initialize(ErrorAction onError)
@@ -317,6 +320,7 @@ public partial class MyAssessmentsCollectionViewModel :
             group.OnError += (sender, e) => OnError?.Invoke(sender, e);
 
             group.ShowDetailsRequested += (sender, e) => ShowDetailsRequested?.Invoke(group, e);
+            group.ShowDetailsPageRequested += (sender, e) => ShowDetailsPageRequested?.Invoke(sender, e);
             group.StudentSelected += (sender, e) => StudentSelected?.Invoke(sender, e);
         }
     }

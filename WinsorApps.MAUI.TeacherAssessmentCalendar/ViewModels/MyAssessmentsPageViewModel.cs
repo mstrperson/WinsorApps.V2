@@ -33,6 +33,8 @@ public partial class MyAssessmentsPageViewModel :
     public event EventHandler<ContentPage>? PageRequested;
 
     public event EventHandler<AssessmentEditorViewModel>? SectionAssessmentSelected;
+    public event EventHandler<AssessmentDetailsViewModel>? DetailsRequested;
+    public event EventHandler<AssessmentDetailsViewModel>? ShowDetailsPageRequested;
     public event EventHandler<ErrorRecord>? OnError;
 
     public MyAssessmentsPageViewModel(MyAssessmentsCollectionViewModel assessmentCollection, TeacherAssessmentService service, RegistrarService registrar)
@@ -45,6 +47,8 @@ public partial class MyAssessmentsPageViewModel :
             SelectedDetails = details;
         };
 
+        AssessmentCollection.ShowDetailsPageRequested += (sender, details) => ShowDetailsPageRequested?.Invoke(sender, details);
+
         AssessmentCollection.StudentSelected += async (sender, e) =>
         {
             var studentPage = ServiceHelper.GetService<StudentPage>();
@@ -52,6 +56,7 @@ public partial class MyAssessmentsPageViewModel :
             await studentPage.ViewModel.SearchStudents();
             PageRequested?.Invoke(this, studentPage);
         };
+
 
         _service = service;
         _registrar = registrar;

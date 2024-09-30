@@ -206,6 +206,13 @@
                                                     <Image
                                                         StyleClass="RedFlagSignifier"
                                                         IsVisible="{Binding HasRedFlags}" />
+
+                                                    <Label
+                                                        Text="Load Details">
+                                                        <Label.GestureRecognizers>
+                                                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                                        </Label.GestureRecognizers>
+                                                    </Label>
                                                 </HorizontalStackLayout>
                                             </DataTemplate>
                                         </CollectionView.ItemTemplate>

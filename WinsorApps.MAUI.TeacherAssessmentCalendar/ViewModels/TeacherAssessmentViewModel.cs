@@ -39,7 +39,8 @@ public partial class AssessmentDetailsViewModel :
     ObservableObject,
     IModelCarrier<AssessmentDetailsViewModel, AssessmentCalendarEvent>,
     IErrorHandling,
-    ISelectable<AssessmentDetailsViewModel>
+    ISelectable<AssessmentDetailsViewModel>,
+    IBusyViewModel
 {
     public event EventHandler? LoadComplete;
     public event EventHandler<ErrorRecord>? OnError;
@@ -91,6 +92,8 @@ public partial class AssessmentDetailsViewModel :
     [ObservableProperty] bool showConflicts;
     [ObservableProperty] bool hasRedFlags;
     [ObservableProperty] bool isSelected;
+    [ObservableProperty] bool busy;
+    [ObservableProperty] string busyMessage = "";
 
     private static readonly double ROW_HEIGHT = 65;
     private static readonly double HEADER_HEIGHT = 80;
@@ -102,9 +105,12 @@ public partial class AssessmentDetailsViewModel :
     [RelayCommand]
     public async Task UseLatePassFor(StudentViewModel student)
     {
-       await student.LatePassCollection.RequestNewPassFor(Model.Reduce(AssessmentCalendarEvent.Empty));
-       
-       LoadAssessmentDetails();
+        Busy = true;
+        BusyMessage = "Submitting Late Pass...";
+        await student.LatePassCollection.RequestNewPassFor(Model.Reduce(AssessmentCalendarEvent.Empty));
+
+        LoadAssessmentDetails();
+        Busy = false;
     }
 
     [RelayCommand]
@@ -134,6 +140,8 @@ public partial class AssessmentDetailsViewModel :
     [RelayCommand]
     public async Task WithdrawPassFor(StudentViewModel student)
     {
+        Busy = true;
+        BusyMessage = "Withdrawing Late Pass...";
         var pass = Passess.FirstOrDefault(pass => pass.Student.Id == student.UserInfo.Id);
         if (pass is not null)
         {
@@ -142,6 +150,8 @@ public partial class AssessmentDetailsViewModel :
                 err => OnError?.Invoke(this, err));
             LoadAssessmentDetails();
         }
+
+        Busy = false;
     }
     
     public void SelectStudent(string studentId)

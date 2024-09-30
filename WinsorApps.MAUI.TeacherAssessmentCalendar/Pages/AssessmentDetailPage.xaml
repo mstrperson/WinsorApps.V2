@@ -15,7 +15,8 @@
     <ContentPage.Content>
         <ScrollView>
             <VerticalStackLayout
-                WidthRequest="1500">
+                WidthRequest="1500"
+                IsEnabled="{Binding Busy, Converter={StaticResource Invert}}">
                 <Label 
                     StyleClass="Header"
                     Text="{Binding Title}" />
@@ -24,6 +25,17 @@
                     Text="{Binding Subtitle}"/>
                 <Label
                     Text="{Binding DateLabel}" />
+                <HorizontalStackLayout
+                    Margin="0"
+                    Padding="0"
+                    WidthRequest="1500"
+                    IsVisible="{Binding Busy}">
+                    <Label 
+                        StyleClass="H3"
+                        Text="{Binding BusyMessage}" />
+                    <Image
+                        StyleClass="loading_symbol" />
+                </HorizontalStackLayout>
                 <BoxView StyleClass="Bar" />
                 <HorizontalStackLayout
                     Margin="0"

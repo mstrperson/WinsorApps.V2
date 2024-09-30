@@ -17,6 +17,11 @@ public partial class MyAssessmentsPage : ContentPage
 		BindingContext = vm;
 
 		vm.PageRequested += (_, page) => Navigation.PushAsync(page);
+		vm.ShowDetailsPageRequested += (sender, e) =>
+		{
+			var page = new AssessmentDetailPage(e);
+			Navigation.PushAsync(page);
+		};
 		InitializeComponent();
 		this.Appearing += (_, _) => vm.Refresh().SafeFireAndForget(e => e.LogException());
 	}
