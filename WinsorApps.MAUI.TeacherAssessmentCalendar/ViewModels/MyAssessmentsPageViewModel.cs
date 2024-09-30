@@ -48,7 +48,7 @@ public partial class MyAssessmentsPageViewModel :
         AssessmentCollection.StudentSelected += async (sender, e) =>
         {
             var studentPage = ServiceHelper.GetService<StudentPage>();
-            studentPage.ViewModel.SearchText = e.Student.DisplayName;
+            studentPage.ViewModel.SearchText = e.Student.UserInfo.DisplayName;
             await studentPage.ViewModel.SearchStudents();
             PageRequested?.Invoke(this, studentPage);
         };

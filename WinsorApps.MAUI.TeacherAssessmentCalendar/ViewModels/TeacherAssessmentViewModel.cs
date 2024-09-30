@@ -16,7 +16,7 @@ public partial class StudentAssessmentRosterEntry :
     ObservableObject,
     ISelectable<StudentAssessmentRosterEntry>
 {
-    [ObservableProperty] StudentViewModel student = StudentViewModel.Get(UserRecord.Empty);
+    [ObservableProperty] StudentViewModel student;
     [ObservableProperty] bool latePassUsed;
     [ObservableProperty] DateTime latePassTimeStamp;
     [ObservableProperty] bool hasConflicts;
@@ -71,17 +71,29 @@ public partial class AssessmentDetailsViewModel :
 
     [ObservableProperty]
     ObservableCollection<StudentAssessmentRosterEntry> students = [];
+
+    [ObservableProperty] double studentHeightRequest;
     
     [ObservableProperty]
     ObservableCollection<StudentConflictViewModel> conflicts = [];
 
+    [ObservableProperty] double conflictHeightRequest;
+
     [ObservableProperty]
     ObservableCollection<LatePassViewModel> passess = [];
 
+    [ObservableProperty] double passessHeightRequest;
+
+    [ObservableProperty] bool showStudents = true;
     [ObservableProperty] bool hasLatePasses;
+    [ObservableProperty] bool showLatePasses;
     [ObservableProperty] bool hasConflicts;
+    [ObservableProperty] bool showConflicts;
     [ObservableProperty] bool hasRedFlags;
     [ObservableProperty] bool isSelected;
+
+    private static readonly double ROW_HEIGHT = 65;
+    private static readonly double HEADER_HEIGHT = 80;
 
     [ObservableProperty] StudentAssessmentRosterEntry selectedStudent = new();
 
@@ -96,13 +108,40 @@ public partial class AssessmentDetailsViewModel :
     }
 
     [RelayCommand]
+    public void ToggleShowStudents()
+    {
+        ShowStudents = true;
+        ShowConflicts = false;
+        ShowLatePasses = false;
+    }
+
+    [RelayCommand]
+    public void ToggleShowConflicts()
+    {
+        ShowStudents = false;
+        ShowConflicts = true;
+        ShowLatePasses = false;
+    }
+
+    [RelayCommand]
+    public void ToggleShowLatePasses()
+    {
+        ShowStudents = false;
+        ShowConflicts = false;
+        ShowLatePasses = true;
+    }
+
+    [RelayCommand]
     public async Task WithdrawPassFor(StudentViewModel student)
     {
         var pass = Passess.FirstOrDefault(pass => pass.Student.Id == student.UserInfo.Id);
         if (pass is not null)
+        {
             await _assessmentService.WithdrawLatePassForStudent(student.UserInfo.Id,
                 pass.Model.Reduce(AssessmentPassDetail.Empty).assessment.id,
                 err => OnError?.Invoke(this, err));
+            LoadAssessmentDetails();
+        }
     }
     
     public void SelectStudent(string studentId)
@@ -154,22 +193,30 @@ public partial class AssessmentDetailsViewModel :
             DateLabel = $"{exam.startDateTime:ddd dd MMM hh:mm tt} - {exam.endDateTime:hh:mm tt}";
 
             ListLabel = "Students";
-            Students =
-            [ ..
+        Students =
+        [ ..
                 UserViewModel.GetClonedViewModels(
                     _registrarService.StudentList
                     .Where(student => exam.studentIds.Contains(student.id)))
                     .Select(student => new StudentAssessmentRosterEntry()
                     {
-                        Student = student
+                        Student = StudentViewModel.Get(student)
                     })
-            ];
+        ];
 
             foreach (var student in Students)
                 student.Selected += (_, selected) => StudentSelected?.Invoke(this, selected);
 
+            SetSizeRequests();
             LoadComplete?.Invoke(this, EventArgs.Empty);
         });
+    }
+
+    private void SetSizeRequests()
+    {
+        StudentHeightRequest = HEADER_HEIGHT + Students.Count * ROW_HEIGHT;
+        ConflictHeightRequest = HEADER_HEIGHT + Conflicts.Count * ROW_HEIGHT;
+        PassessHeightRequest = HEADER_HEIGHT + Passess.Count * ROW_HEIGHT;
     }
 
     private void LoadAssessmentDetails()
@@ -199,7 +246,7 @@ public partial class AssessmentDetailsViewModel :
                     .Where(student => details.section.students.Any(stu => stu.id == student.id)))
                     .Select(student => new StudentAssessmentRosterEntry()
                     {
-                        Student = student,
+                        Student = StudentViewModel.Get(student),
                         LatePassUsed = details.studentsUsingPasses.Any(pass => pass.student.id == student.Id),
                         LatePassTimeStamp = details.studentsUsingPasses.FirstOrDefault(pass => pass.student.id == student.Id).timeStamp,
                         HasConflicts = details.studentConflicts.Any(conflict => conflict.student.id == student.Id),
@@ -220,6 +267,7 @@ public partial class AssessmentDetailsViewModel :
             HasConflicts = Conflicts.Any();
             HasRedFlags = Conflicts.Any(conflict => conflict.RedFlag);
 
+            SetSizeRequests();
             LoadComplete?.Invoke(this, EventArgs.Empty);
         });
     }
@@ -249,7 +297,7 @@ public partial class AssessmentDetailsViewModel :
                     .Where(student => details.section.students.Any(stu => stu.id == student.id)))
                     .Select(student => new StudentAssessmentRosterEntry()
                     {
-                        Student = student,
+                        Student = StudentViewModel.Get(student),
                         LatePassUsed = details.studentsUsingPasses.Any(pass => pass.student.id == student.Id),
                         LatePassTimeStamp = details.studentsUsingPasses.FirstOrDefault(pass => pass.student.id == student.Id).timeStamp,
                         HasConflicts = details.studentConflicts.Any(conflict => conflict.student.id == student.Id),
@@ -266,6 +314,8 @@ public partial class AssessmentDetailsViewModel :
 
         vm.HasConflicts = vm.Conflicts.Any();
         vm.HasRedFlags = vm.Conflicts.Any(conflict => conflict.RedFlag);
+
+        vm.SetSizeRequests();
         return vm;
     }
 

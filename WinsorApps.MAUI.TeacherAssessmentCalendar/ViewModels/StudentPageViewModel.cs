@@ -29,6 +29,8 @@ public partial class StudentPageViewModel :
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "";
 
+    public event EventHandler<AssessmentDetailsViewModel>? AssessmentSelected;
+
     public StudentPageViewModel(AllMyStudentsViewModel myStudents)
     {
         this.myStudents = myStudents;
@@ -41,6 +43,9 @@ public partial class StudentPageViewModel :
             ShowStudentSelection = false;
             Busy = false;
         };
+
+        foreach (var student in MyStudents.MyStudents)
+            student.AssessmentSelected += (sender, evt) => AssessmentSelected?.Invoke(sender, evt);
 
         MyStudents.PropertyChanged += ((IBusyViewModel)this).BusyChangedCascade;
     }
@@ -141,10 +146,10 @@ public partial class StudentViewModel :
     ISelectable<StudentViewModel>,
     IBusyViewModel
 {
-    private readonly TeacherAssessmentService   _service    = ServiceHelper.GetService<TeacherAssessmentService>();
-    private readonly CycleDayCollection         _cycleDays  = ServiceHelper.GetService<CycleDayCollection>();
-    private readonly LocalLoggingService        _logging    = ServiceHelper.GetService<LocalLoggingService>();
-    private readonly RegistrarService           _registrar  = ServiceHelper.GetService<RegistrarService>();
+    private readonly TeacherAssessmentService _service = ServiceHelper.GetService<TeacherAssessmentService>();
+    private readonly CycleDayCollection _cycleDays = ServiceHelper.GetService<CycleDayCollection>();
+    private readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
+    private readonly RegistrarService _registrar = ServiceHelper.GetService<RegistrarService>();
 
     [ObservableProperty] UserViewModel userInfo = UserViewModel.Empty;
     [ObservableProperty] string advisorName = "";
@@ -164,7 +169,7 @@ public partial class StudentViewModel :
     [ObservableProperty] bool showSelectedSection;
 
     [ObservableProperty] ObservableCollection<LateWorkViewModel> lateWork = [];
-    [ObservableProperty] bool showLateWork; 
+    [ObservableProperty] bool showLateWork;
     [ObservableProperty] bool includeResolvedLateWork;
 
     [ObservableProperty] bool isSelected;
@@ -173,17 +178,25 @@ public partial class StudentViewModel :
     [ObservableProperty] string busyMessage = "";
 
     public static implicit operator UserViewModel(StudentViewModel student) => student.UserInfo;
-    
+
     private async Task<ImmutableArray<AssessmentCalendarEvent>> GetStudentCalendar() =>
         await _service.GetStudentCalendar(
-            OnError.DefaultBehavior(this), Model.Reduce(UserRecord.Empty).id, 
-            DateOnly.FromDateTime(AssessmentCalendar.Month.AddMonths(-1)), 
+            OnError.DefaultBehavior(this), Model.Reduce(UserRecord.Empty).id,
+            DateOnly.FromDateTime(AssessmentCalendar.Month.AddMonths(-1)),
             DateOnly.FromDateTime(AssessmentCalendar.Month.AddMonths(2)));
 
     public OptionalStruct<StudentRecordShort> Model { get; set; } = OptionalStruct<StudentRecordShort>.None();
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<StudentViewModel>? Selected;
+
+    public event EventHandler<AssessmentDetailsViewModel>? AssessmentSelected;
+
+    public static StudentViewModel Get(UserViewModel user)
+    {
+        var student = (StudentRecordShort)user.Model.Reduce(UserRecord.Empty);
+        return Get(student);
+    }
 
     public static StudentViewModel Get(StudentRecordShort model)
     {
@@ -212,6 +225,8 @@ public partial class StudentViewModel :
         {
             vm.SelectedSection = section;
             await section.LoadAssessments();
+            foreach (var assessment in vm.SelectedSection.Assessments)
+                assessment.Selected += (_, _) => vm.AssessmentSelected?.Invoke(vm, assessment);
             vm.ShowSelectedSection = true;
         };
         return vm;
@@ -335,6 +350,7 @@ public partial class StudentViewModel :
             _service.GetStudentCalendar(OnError.DefaultBehavior(this),
              UserInfo.Id, DateOnly.FromDateTime(month), DateOnly.FromDateTime(month.AddMonths(1)))); 
         AssessmentCalendar.PropertyChanged += ((IBusyViewModel)this).BusyChangedCascade;
+        AssessmentCalendar.EventSelected += (sender, e) => AssessmentSelected?.Invoke(sender, AssessmentDetailsViewModel.Get(e.Model.Reduce(AssessmentCalendarEvent.Empty)));
     }
 
     [RelayCommand]

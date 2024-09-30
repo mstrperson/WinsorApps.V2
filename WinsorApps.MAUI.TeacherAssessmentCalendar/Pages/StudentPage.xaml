@@ -262,6 +262,9 @@
                                                                                 <VerticalStackLayout
                                                                                         Margin="0"
                                                                                         Padding="0">
+                                                                                    <VerticalStackLayout.GestureRecognizers>
+                                                                                        <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                                                                    </VerticalStackLayout.GestureRecognizers>
                                                                                     <Grid
                                                                                             RowDefinitions="25"
                                                                                             ColumnDefinitions="80,220"
@@ -269,9 +272,6 @@
                                                                                             IsVisible="{Binding AllDay, Converter={StaticResource Invert}}"
                                                                                             Margin="0"
                                                                                             Padding="0">
-                                                                                        <Grid.GestureRecognizers>
-                                                                                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
-                                                                                        </Grid.GestureRecognizers>
                                                                                         <Label
                                                                                                 Grid.Column="0"
                                                                                                 Text="{Binding Start,StringFormat='{0:hh:mm tt}'}" />
@@ -444,6 +444,9 @@
                                                             Margin="0"
                                                             Padding="0"
                                                             Spacing="30">
+                                                            <HorizontalStackLayout.GestureRecognizers>
+                                                                <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                                            </HorizontalStackLayout.GestureRecognizers>
                                                             <Label 
                                                                 StyleClass="H3"
                                                                 Text="{Binding DateLabel}" />
@@ -488,7 +491,7 @@
                                                         <HorizontalStackLayout
                                                                 WidthRequest="750">
                                                             <Label
-                                                                Text="{Binding Student.DisplayName}"
+                                                                Text="{Binding Student.UserInfo.DisplayName}"
                                                                 WidthRequest="400"/>
                                                             <Image
                                                                 StyleClass="PassSignifier"

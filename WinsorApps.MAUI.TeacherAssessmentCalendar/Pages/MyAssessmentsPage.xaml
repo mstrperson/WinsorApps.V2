@@ -257,7 +257,7 @@
                                 <HorizontalStackLayout
                                     WidthRequest="750">
                                     <Label
-                                        Text="{Binding Student.DisplayName}"
+                                        Text="{Binding Student.UserInfo.DisplayName}"
                                         WidthRequest="400"/>
                                     <Image
                                         StyleClass="PassSignifier"

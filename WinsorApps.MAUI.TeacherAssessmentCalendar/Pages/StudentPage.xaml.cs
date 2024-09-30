@@ -10,7 +10,13 @@ public partial class StudentPage : ContentPage
 	{
 		vm.OnError += this.DefaultOnErrorHandler();
 		BindingContext = vm;
-
+        vm.AssessmentSelected += Vm_AssessmentSelected;
 		InitializeComponent();
 	}
+
+    private void Vm_AssessmentSelected(object? sender, AssessmentDetailsViewModel e)
+    {
+		var page = new AssessmentDetailPage(e);
+		Navigation.PushAsync(page);
+    }
 }
