@@ -22,6 +22,10 @@ public partial class StudentPageViewModel :
     [ObservableProperty] AllMyStudentsViewModel myStudents;
     [ObservableProperty] string searchText = "";
     [ObservableProperty] ObservableCollection<StudentViewModel> searchResults = [];
+    [ObservableProperty] double searchResultsHeight;
+    private readonly double SEARCH_ROW_HEIGHT = 35;
+    private readonly double SEARCH_HEADER_HEIGHT = 45;
+
     [ObservableProperty] StudentViewModel selectedStudent = new();
     [ObservableProperty] bool showStudent;
     [ObservableProperty] bool showStudentSelection;
@@ -67,6 +71,8 @@ public partial class StudentPageViewModel :
         }
 
         ShowStudentSelection = SearchResults.Count > 1;
+
+        SearchResultsHeight = SEARCH_ROW_HEIGHT * SearchResults.Count + SEARCH_HEADER_HEIGHT;
 
         if (SearchResults.Count == 1)
         {

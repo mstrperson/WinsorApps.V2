@@ -29,11 +29,19 @@ public partial class StudentLatePassCollectionViewModel :
     [ObservableProperty] ObservableCollection<TeacherLatePassViewModel> latePasses = [];
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] bool showPast;
+
+    [RelayCommand]
+    public async Task ToggleShowPast()
+    {
+        ShowPast = !ShowPast;
+        await LoadPasses();
+    }
 
     [RelayCommand]
     public async Task LoadPasses()
     {
-        var passes = await _service.GetStudentPassess(Student.Id, OnError.DefaultBehavior(this));
+        var passes = await _service.GetStudentPassess(Student.Id, OnError.DefaultBehavior(this), ShowPast);
         LatePasses = [.. passes.Select(LatePassViewModel.Get)];
         foreach(var pass in LatePasses)
         {

@@ -1,9 +1,11 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using AsyncAwaitBestPractices;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.AssessmentCalendar.Models;
+using WinsorApps.Services.AssessmentCalendar.Services;
 using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
@@ -14,7 +16,8 @@ namespace WinsorApps.MAUI.Shared.AssessmentCalendar.ViewModels;
 public partial class AssessmentCalendarEventViewModel :
     ObservableObject,
     IModelCarrier<AssessmentCalendarEventViewModel, AssessmentCalendarEvent>,
-    ISelectable<AssessmentCalendarEventViewModel>
+    ISelectable<AssessmentCalendarEventViewModel>,
+    IErrorHandling
 {
     [ObservableProperty] string id = "";
     [ObservableProperty] AssessmentType type = AssessmentType.Assessment;
@@ -32,21 +35,47 @@ public partial class AssessmentCalendarEventViewModel :
 
 
     public event EventHandler<AssessmentCalendarEventViewModel>? Selected;
+    public event EventHandler<ErrorRecord>? OnError;
 
-    public static AssessmentCalendarEventViewModel Get(AssessmentCalendarEvent model) => new()
+    public static AssessmentCalendarEventViewModel Get(AssessmentCalendarEvent model)
     {
-        Id = model.id,
-        Type = model.type,
-        Summary = model.summary,
-        Description = model.description,
-        Start = model.start,
-        End = model.end,
-        AllDay = model.allDay,
-        AffectedClasses = [.. model.affectedClasses],
-        PassUsed = model.passUsed ?? false,
-        PassAvailable = model.passAvailable ?? false,
-        Model = OptionalStruct<AssessmentCalendarEvent>.Some(model)
-    };
+        var vm = new AssessmentCalendarEventViewModel()
+        {
+            Id = model.id,
+            Type = model.type,
+            Summary = model.summary,
+            Description = model.description,
+            Start = model.start,
+            End = model.end,
+            AllDay = model.allDay,
+            AffectedClasses = [.. model.affectedClasses],
+            PassUsed = model.passUsed ?? false,
+            PassAvailable = model.passAvailable ?? false,
+            Model = OptionalStruct<AssessmentCalendarEvent>.Some(model)
+        };
+
+        vm.LoadAssessmentDetails().SafeFireAndForget(e => e.LogException());
+
+        return vm;
+    }
+
+    [RelayCommand]
+    public async Task LoadAssessmentDetails()
+    {
+
+
+        if (Type == AssessmentType.Assessment)
+        {
+            var teacherService = ServiceHelper.GetService<TeacherAssessmentService>();
+
+            var details = await teacherService.GetAssessmentDetails(Model.Reduce(AssessmentCalendarEvent.Empty).id, OnError.DefaultBehavior(this));
+
+            if(details.HasValue)
+            {
+                Description += $" [{details.Value.section.teachers.First().lastName}]";
+            }
+        }
+    }
 
     [RelayCommand]
     public void Select()

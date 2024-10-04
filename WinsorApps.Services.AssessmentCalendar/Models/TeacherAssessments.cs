@@ -52,11 +52,16 @@ public readonly record struct AssessmentEntryRecord(string groupId, string asses
                 assessment.section.students.Select(student =>
                     new StudentAssessmentRosterEntry(student,
                         assessment.studentsUsingPasses.Any(pass => pass.student.id == student.id),
-                        assessment.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.id).conflictCount)
+                        assessment.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.id).count)
                 ).ToImmutableArray());
     }
 
-    public readonly record struct StudentConflictCount(StudentRecordShort student, int conflictCount, bool latePass, bool redFlag);
+    public readonly record struct StudentConflictCount(StudentRecordShort student, int count, bool latePass, bool redFlag, ImmutableArray<string> assessmentIds)
+{
+    public static readonly StudentConflictCount Empty = new(UserRecord.Empty, 0, false, false, []);
+}
+
+    
 
     public readonly record struct AssessmentPassListItem(StudentRecordShort student, DateTime timeStamp);
 

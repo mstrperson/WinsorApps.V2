@@ -134,7 +134,8 @@
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="vm:StudentConflictViewModel">
                             <HorizontalStackLayout
-                                WidthRequest="1500">
+                                WidthRequest="1500"
+                                ToolTipProperties.Text="{Binding ConflictList}">
                                 <Label
                                     Text="{Binding Student.DisplayName}"
                                     VerticalTextAlignment="Center"
@@ -145,7 +146,7 @@
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
-                <!-- Conflicts List -->
+                <!-- Late Pass List -->
                 <CollectionView
                     IsVisible="{Binding ShowLatePasses}"
                     ItemsSource="{Binding Passess}"

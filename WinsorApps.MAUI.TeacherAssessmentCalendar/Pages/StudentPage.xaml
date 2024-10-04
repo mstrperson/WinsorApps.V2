@@ -45,10 +45,11 @@
                     <VerticalStackLayout
                         IsVisible="{Binding ShowStudentSelection}"
                         Margin="0"
-                        Padding="0">
+                        Padding="0"
+                        HeightRequest="{Binding SearchResultsHeight}">
                         <CollectionView
                             ItemsSource="{Binding SearchResults}"
-                            HeightRequest="800">
+                            HeightRequest="{Binding SearchResultsHeight}">
                             <CollectionView.Header>
                                 <Label 
                                     StyleClass="SubHeader"
@@ -304,9 +305,18 @@
                             WidthRequest="750"
                             IsVisible="{Binding ShowLatePasses}">
                             <HorizontalStackLayout>
+                                <HorizontalStackLayout.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding LatePassCollection.ToggleShowPastCommand}" />
+                                </HorizontalStackLayout.GestureRecognizers>
                                 <Label
                                     StyleClass="Header" 
-                                    Text="Late Passes"/>
+                                    Text="Open Late Passes"
+                                    IsVisible="{Binding LatePassCollection.ShowPast, Converter={StaticResource Invert}}"/>
+                                <Label
+                                    StyleClass="Header" 
+                                    Text="All Late Passes"
+                                    IsVisible="{Binding LatePassCollection.ShowPast}"/>
+                                <Image StyleClass="RefreshButton" />
                             </HorizontalStackLayout>
                             <CollectionView
                                 WidthRequest="750"
@@ -326,12 +336,12 @@
                                                     StyleClass="H3"
                                                     WidthRequest="300"
                                                     Text="{Binding LatePass.CourseName}" />
-                                                <Image
+                                                <Label
                                                     StyleClass="DeleteButton">
-                                                    <Image.GestureRecognizers>
+                                                    <Label.GestureRecognizers>
                                                         <TapGestureRecognizer Command="{Binding WithdrawPassCommand}" />
-                                                    </Image.GestureRecognizers>
-                                                </Image>
+                                                    </Label.GestureRecognizers>
+                                                </Label>
                                             </HorizontalStackLayout>
                                             <HorizontalStackLayout
                                                 Margin="0"
@@ -534,11 +544,11 @@
                                         </HorizontalStackLayout.GestureRecognizers>
                                         <Label
                                             StyleClass="H3"
-                                            Text="Show Resolved"
+                                            Text="Show Unresolved Only"
                                             IsVisible="{Binding IncludeResolvedLateWork, Converter={StaticResource Invert}}" />
                                         <Label
                                             StyleClass="H3"
-                                            Text="Show Outstanding Only"
+                                            Text="Show All Late Work"
                                             IsVisible="{Binding IncludeResolvedLateWork}" />
                                         <Image
                                             StyleClass="RefreshButton" />

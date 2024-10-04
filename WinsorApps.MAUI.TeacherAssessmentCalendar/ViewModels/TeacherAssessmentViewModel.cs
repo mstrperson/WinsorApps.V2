@@ -9,6 +9,7 @@ using WinsorApps.Services.Global.Services;
 using WinsorApps.Services.Global;
 using WinsorApps.MAUI.Shared;
 using CommunityToolkit.Mvvm.Input;
+using AsyncAwaitBestPractices;
 
 namespace WinsorApps.MAUI.TeacherAssessmentCalendar.ViewModels;
 
@@ -260,7 +261,7 @@ public partial class AssessmentDetailsViewModel :
                         LatePassUsed = details.studentsUsingPasses.Any(pass => pass.student.id == student.Id),
                         LatePassTimeStamp = details.studentsUsingPasses.FirstOrDefault(pass => pass.student.id == student.Id).timeStamp,
                         HasConflicts = details.studentConflicts.Any(conflict => conflict.student.id == student.Id),
-                        ConflictCount = details.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.Id).conflictCount,
+                        ConflictCount = details.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.Id).count,
                         RedFlag = details.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.Id).redFlag,
                         PassAvailable = details.studentsWithPassAvailable.Any(stu => stu.id == student.Id)
                     })
@@ -274,12 +275,21 @@ public partial class AssessmentDetailsViewModel :
 
             Conflicts = [.. details.studentConflicts.Select(StudentConflictViewModel.Get)];
 
+            LoadConflicts().SafeFireAndForget(e => e.LogException());
+
             HasConflicts = Conflicts.Any();
             HasRedFlags = Conflicts.Any(conflict => conflict.RedFlag);
 
             SetSizeRequests();
             LoadComplete?.Invoke(this, EventArgs.Empty);
         });
+    }
+
+    [RelayCommand]
+    public async Task LoadConflicts()
+    {
+        foreach (var conflict in Conflicts)
+            await conflict.LoadConflictingAssessments();
     }
 
     public static AssessmentDetailsViewModel Get(AssessmentEntryRecord details)
@@ -311,7 +321,7 @@ public partial class AssessmentDetailsViewModel :
                         LatePassUsed = details.studentsUsingPasses.Any(pass => pass.student.id == student.Id),
                         LatePassTimeStamp = details.studentsUsingPasses.FirstOrDefault(pass => pass.student.id == student.Id).timeStamp,
                         HasConflicts = details.studentConflicts.Any(conflict => conflict.student.id == student.Id),
-                        ConflictCount = details.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.Id).conflictCount,
+                        ConflictCount = details.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.Id).count,
                         RedFlag = details.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.Id).redFlag,
                         PassAvailable = details.studentsWithPassAvailable.Any(stu => stu.id == student.Id)
                     })
@@ -321,6 +331,8 @@ public partial class AssessmentDetailsViewModel :
         vm.HasLatePasses = vm.Passess.Any();
 
         vm.Conflicts = [.. details.studentConflicts.Select(StudentConflictViewModel.Get)];
+
+        vm.LoadConflicts().SafeFireAndForget(e => e.LogException());
 
         vm.HasConflicts = vm.Conflicts.Any();
         vm.HasRedFlags = vm.Conflicts.Any(conflict => conflict.RedFlag);
@@ -342,14 +354,20 @@ public partial class AssessmentDetailsViewModel :
 
 public partial class StudentConflictViewModel : 
     ObservableObject,
-    IModelCarrier<StudentConflictViewModel, StudentConflictCount>
+    IModelCarrier<StudentConflictViewModel, StudentConflictCount>, 
+    IErrorHandling
 {
     private readonly RegistrarService _regsitrar = ServiceHelper.GetService<RegistrarService>();
+    private readonly TeacherAssessmentService _calendar = ServiceHelper.GetService<TeacherAssessmentService>();
 
     [ObservableProperty] UserViewModel student = UserViewModel.Empty;
     [ObservableProperty] int conflictCount;
     [ObservableProperty] bool latePassUsed;
     [ObservableProperty] bool redFlag;
+    [ObservableProperty] ObservableCollection<AssessmentDetailsViewModel> conflictingAssessments = [];
+    [ObservableProperty] string conflictList = "";
+
+    public event EventHandler<ErrorRecord>? OnError;
 
     public OptionalStruct<StudentConflictCount> Model { get; private set; } = OptionalStruct<StudentConflictCount>.None();
 
@@ -357,9 +375,28 @@ public partial class StudentConflictViewModel :
     {
         Model = OptionalStruct<StudentConflictCount>.Some(conflict);
         Student = UserViewModel.Get(conflict.student.GetUserRecord(_regsitrar));
-        ConflictCount = conflict.conflictCount;
+        ConflictCount = conflict.count;
         LatePassUsed = conflict.latePass;
         RedFlag = conflict.redFlag;
+    }
+
+    [RelayCommand]
+    public async Task LoadConflictingAssessments()
+    {
+        var assessmentIds = Model.Reduce(StudentConflictCount.Empty).assessmentIds;
+
+        ConflictingAssessments = [];
+
+        foreach(var id in assessmentIds)
+        {
+            var details = await _calendar.GetAssessmentDetails(id, OnError.DefaultBehavior(this));
+            if (!details.HasValue)
+                continue;
+
+            ConflictingAssessments.Add(AssessmentDetailsViewModel.Get(details.Value));
+        }
+
+        ConflictList = ConflictingAssessments.Select(details => $"{details.Title} - {details.Subtitle}").DelimeteredList(Environment.NewLine);
     }
 
     public static StudentConflictViewModel Get(StudentConflictCount model) => new(model);
