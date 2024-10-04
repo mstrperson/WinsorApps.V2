@@ -96,6 +96,8 @@ public partial class AssessmentDetailsViewModel :
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "";
 
+    [ObservableProperty] DateTime submitted;
+
     private static readonly double ROW_HEIGHT = 65;
     private static readonly double HEADER_HEIGHT = 80;
 
@@ -243,6 +245,7 @@ public partial class AssessmentDetailsViewModel :
             }
 
             var details = result.Value;
+            Submitted = details.submitted;
             Title = string.IsNullOrEmpty(Model.Reduce(AssessmentCalendarEvent.Empty).description) ? 
                 Model.Reduce(AssessmentCalendarEvent.Empty).summary : 
                 Model.Reduce(AssessmentCalendarEvent.Empty).description;

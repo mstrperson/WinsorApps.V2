@@ -31,9 +31,10 @@ public readonly record struct AssessmentConflictRecord(string studentId, Immutab
 /// List of students with other assessments scheduled on the same day and how many assessments they have.
 /// </param>
 public readonly record struct AssessmentEntryRecord(string groupId, string assessmentId, SectionRecord section, DateTime assessmentDateTime,
-    ImmutableArray<AssessmentPassListItem> studentsUsingPasses, ImmutableArray<StudentConflictCount> studentConflicts, ImmutableArray<StudentRecordShort> studentsWithPassAvailable)
+    ImmutableArray<AssessmentPassListItem> studentsUsingPasses, ImmutableArray<StudentConflictCount> studentConflicts, 
+    ImmutableArray<StudentRecordShort> studentsWithPassAvailable, DateTime submitted)
 {
-    public static readonly AssessmentEntryRecord Empty = new("", "", SectionRecord.Empty, DateTime.Now, [], [], []);
+    public static readonly AssessmentEntryRecord Empty = new("", "", SectionRecord.Empty, DateTime.Now, [], [], [], DateTime.MaxValue);
 
     public AssessmentCalendarEvent ToCalendarEvent(AssessmentGroup group) => 
         new(assessmentId, AssessmentType.Assessment, group.course, group.note, assessmentDateTime, assessmentDateTime.AddMinutes(75), false, []);

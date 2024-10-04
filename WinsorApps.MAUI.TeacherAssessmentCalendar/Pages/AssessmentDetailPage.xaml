@@ -25,6 +25,8 @@
                     Text="{Binding Subtitle}"/>
                 <Label
                     Text="{Binding DateLabel}" />
+                <Label
+                    Text="{Binding Submitted, StringFormat='Assessment Submitted: {0:d, MMMM hh:mm tt}'}" />
                 <HorizontalStackLayout
                     Margin="0"
                     Padding="0"
