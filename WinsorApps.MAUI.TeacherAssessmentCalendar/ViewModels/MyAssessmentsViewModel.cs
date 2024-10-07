@@ -48,7 +48,9 @@ public partial class AssessmentGroupViewModel :
 
     public static async Task<AssessmentGroupViewModel> CreateFor(CourseViewModel course)
     {
+        course.MySectionsOnly = true;
         AssessmentGroupViewModel vm = new() { Course = course, IsSelected = true, IsNew = true };
+       
         await vm.Course.LoadSections();
         vm.Assessments = [.. vm.Course.CurrentSections.Select(AssessmentEditorViewModel.Create)];
         foreach(var entry in vm.Assessments)

@@ -4,6 +4,9 @@ using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.Services.Global.Models;
 
+public readonly record struct BlockMeetingTime(BlockRecord block, DateTime start, DateTime end);
+public readonly record struct FreeBlockCollection(ImmutableArray<BlockMeetingTime> freeBlocks, DateRange inRange);
+
 /// <summary>
 /// An entry in your schedule of any kind.
 /// </summary>

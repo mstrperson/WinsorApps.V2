@@ -27,6 +27,7 @@ public partial class CourseViewModel :
     [ObservableProperty] string courseCode = "";
     [ObservableProperty] ObservableCollection<SectionViewModel> sections = [];
     [ObservableProperty] ObservableCollection<SectionViewModel> currentSections = [];
+    [ObservableProperty] bool mySectionsOnly;
 
     public OptionalStruct<CourseRecord> Model { get; init; } = OptionalStruct<CourseRecord>.None();
 
@@ -38,6 +39,20 @@ public partial class CourseViewModel :
     public bool isSelected;
 
     public event EventHandler<CourseViewModel>? Selected;
+
+    [RelayCommand]
+    public async Task ToggleMySectionsOnly()
+    {
+        MySectionsOnly = !MySectionsOnly;
+        if(!MySectionsOnly)
+        {
+            await LoadSections();
+            return;
+        }
+
+        Sections = [.. Sections.Where(sec => sec.PrimaryTeacher.Id == _registrar.Me.id)];
+        CurrentSections = [.. Sections.Where(sec => sec.IsCurrent)];
+    }
 
     [RelayCommand]
     public async Task LoadSections()
@@ -63,7 +78,15 @@ public partial class CourseViewModel :
                 sec.block?.name ?? "",
                 sec.displayName,
                 sec.isCurrent)))];
+
+        
+        if (MySectionsOnly)
+        {
+            Sections = [.. Sections.Where(sec => sec.PrimaryTeacher.Id == _registrar.Me.id)];
+        }
+
         CurrentSections = [.. Sections.Where(sec => sec.IsCurrent)];
+
     }
 
     public static CourseViewModel Get(CourseRecord model)

@@ -152,6 +152,8 @@ public class Month
 /// <param name="end"></param>
 public record struct DateRange(DateOnly start, DateOnly end) : IEnumerable<DateOnly>
 {
+    public DateRange(DateTime start, DateTime end) : this(DateOnly.FromDateTime(start), DateOnly.FromDateTime(end)) { }
+
     public bool Contains(DateOnly date) => date >= start && date <= end;
 
     public static DateRange MonthOf(int month, int year = -1) => MonthOf(month, year);
