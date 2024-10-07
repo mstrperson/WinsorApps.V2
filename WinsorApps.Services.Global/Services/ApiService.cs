@@ -82,10 +82,13 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
     public async Task Initialize(ErrorAction onError)
     {
         Started = true;
+
         var savedCredential = await SavedCredential.GetSavedCredential();
         if (savedCredential is not null)
         {
             AutoLoginInProgress = true;
+
+            CheckForStuckLogin().SafeFireAndForget(e => e.LogException(_logging));
             if (!string.IsNullOrEmpty(savedCredential.JWT) && !string.IsNullOrEmpty(savedCredential.RefreshToken))
             {
                 AuthorizedUser = new AuthResponse("", savedCredential.JWT, default, savedCredential.RefreshToken);
@@ -130,6 +133,25 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
             }
         }
         AutoLoginInProgress = false;
+    }
+
+    private async Task CheckForStuckLogin()
+    {
+        DateTime started = DateTime.Now;
+
+        while(AutoLoginInProgress)
+        {
+            await Task.Delay(250);
+
+            if(DateTime.Now - started > TimeSpan.FromMinutes(1))
+            {
+                _logging.LogMessage(LocalLoggingService.LogLevel.Error, "Auto Login Was Hung for more than 1 minute");
+                SavedCredential.DeleteSavedCredential();
+                return;
+            }
+        }
+
+        _logging.LogMessage(LocalLoggingService.LogLevel.Information, "Auto Login Was Successful...");
     }
 
     public async Task RefreshInBackground(CancellationToken cancellationToken, ErrorAction onError)

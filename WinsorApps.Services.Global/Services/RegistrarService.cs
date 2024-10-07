@@ -31,10 +31,9 @@ namespace WinsorApps.Services.Global.Services
             _sectionsByCourse = [];
         }
 
-        public async Task<FreeBlockCollection> GetFreeBlocksFor(string userId, ErrorAction onError, DateRange inRange = default)
+        public async Task<FreeBlockCollection> GetFreeBlocksFor(string userId, DateRange inRange, ErrorAction onError)
         {
-            if (inRange == default)
-                inRange = new(DateTime.Today.AddDays(1), DateTime.Today.AddDays(3));
+
             var result = await _api.SendAsync<FreeBlockCollection?>(HttpMethod.Get, $"api/schedule/free-blocks/for/{userId}?inRange={inRange}", onError: onError);
             if(result.HasValue)
                 return result.Value;
