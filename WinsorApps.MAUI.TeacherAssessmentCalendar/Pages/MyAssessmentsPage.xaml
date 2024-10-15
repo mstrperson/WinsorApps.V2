@@ -131,6 +131,8 @@
                                             Spacing="10">
                                             <CheckBox
                                                 IsChecked="{Binding IsSelected}" />
+                                            <Label
+                                                Text="{Binding Section.PrimaryTeacher.DisplayName}" />
                                             <Label 
                                                 Text="{Binding Section.Block, StringFormat='Block: {0}'}" />
                                             <DatePicker

@@ -31,6 +31,8 @@ public partial class AssessmentCalendarEventViewModel :
     [ObservableProperty] bool passAvailable;
     [ObservableProperty] bool isSelected;
 
+    public AssessmentEntryRecord? Details { get; private set; } = null;
+
     public OptionalStruct<AssessmentCalendarEvent> Model { get; private set; } = OptionalStruct<AssessmentCalendarEvent>.None();
 
 
@@ -62,17 +64,17 @@ public partial class AssessmentCalendarEventViewModel :
     [RelayCommand]
     public async Task LoadAssessmentDetails()
     {
-
-
         if (Type == AssessmentType.Assessment)
         {
             var teacherService = ServiceHelper.GetService<TeacherAssessmentService>();
+            if (teacherService is null)
+                return;
 
-            var details = await teacherService.GetAssessmentDetails(Model.Reduce(AssessmentCalendarEvent.Empty).id, OnError.DefaultBehavior(this));
+            Details = await teacherService.GetAssessmentDetails(Model.Reduce(AssessmentCalendarEvent.Empty).id, OnError.DefaultBehavior(this));
 
-            if(details.HasValue)
+            if(Details.HasValue)
             {
-                Description += $" [{details.Value.section.teachers.First().lastName}]";
+                Description += $" [{Details.Value.section.teachers.First().lastName}]";
             }
         }
     }

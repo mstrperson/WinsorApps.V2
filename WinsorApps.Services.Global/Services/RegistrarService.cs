@@ -34,7 +34,7 @@ namespace WinsorApps.Services.Global.Services
         public async Task<FreeBlockCollection> GetFreeBlocksFor(string userId, DateRange inRange, ErrorAction onError)
         {
 
-            var result = await _api.SendAsync<FreeBlockCollection?>(HttpMethod.Get, $"api/schedule/free-blocks/for/{userId}?inRange={inRange}", onError: onError);
+            var result = await _api.SendAsync<DateRange, FreeBlockCollection?>(HttpMethod.Get, $"api/schedule/free-blocks/for/{userId}", inRange, onError: onError);
             if(result.HasValue)
                 return result.Value;
 

@@ -98,6 +98,20 @@
                                     StyleClass="H3"
                                     Text="{Binding Timestamp, StringFormat='{0:ddd dd MMMM - hh:mm tt}'}" />
                             </HorizontalStackLayout>
+                            <HorizontalStackLayout
+                                ToolTipProperties.Text="{Binding MakeupTime.Note}">
+                                <Label
+                                    Text="Makeup Time:"
+                                    StyleClass="H3" />
+                                <Label
+                                    IsVisible="{Binding MakeupTime.IsScheduled}"
+                                    Text="{Binding MakeupTime.Sheduled, StringFormat='Scheduled: {0:dddd, dd MMMM} at {0:hh:mm tt}'}"
+                                    StyleClass="H3" />
+                                <Label
+                                    IsVisible="{Binding MakeupTime.IsScheduled, Converter={StaticResource Invert}}"
+                                    StyleClass="H3"
+                                    Text="Not Scheduled." />
+                            </HorizontalStackLayout>
                             <BoxView StyleClass="Bar"/>
                         </VerticalStackLayout>
                     </DataTemplate>

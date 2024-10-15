@@ -141,7 +141,7 @@
                                                             Text="Use Late Pass"
                                                             TextColor="White"
                                                             IsVisible="{Binding Event.PassAvailable}" 
-                                                            Command="{Binding UseLatePassCommand}"/>
+                                                            Command="{Binding RequestLatePassCommand}"/>
                                                         <Button
                                                             BackgroundColor="{AppThemeBinding Dark={DynamicResource SlateLight}, Light={DynamicResource SlateDark}}"
                                                             FontFamily="Serif"

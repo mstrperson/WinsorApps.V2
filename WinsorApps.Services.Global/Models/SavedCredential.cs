@@ -113,6 +113,13 @@ public record SavedCredential(
 
         string json = Encoding.UTF8.GetString(credBytes);
         json = json.Substring(0, json.IndexOf("}") + 1);
+
+        if (!json.StartsWith('{') || !json.EndsWith('}'))
+        {
+            DeleteSavedCredential();
+            return null;
+        }
+
         var credential = JsonSerializer.Deserialize<SavedCredential>(json);
 
         return credential;

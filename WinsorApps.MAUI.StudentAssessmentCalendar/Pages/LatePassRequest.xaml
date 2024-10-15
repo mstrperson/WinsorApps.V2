@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="WinsorApps.MAUI.StudentAssessmentCalendar.Pages.LatePassRequest"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.StudentAssessmentCalendar.ViewModels"
+             xmlns:svm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels;assembly=WinsorApps.MAUI.Shared"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             x:DataType="vm:StudentAssessmentViewModel"
+             Title="{Binding Event.Description, StringFormat='Late Pass for {0}'}">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.Content>
+        <VerticalStackLayout>
+            <HorizontalStackLayout
+                HorizontalOptions="Center"
+                Spacing="30">
+                <Label
+                    StyleClass="Header"
+                    Text="{Binding ClassName}" />
+                <Label
+                    StyleClass="Header"
+                    Text="{Binding TeacherName}" />
+            </HorizontalStackLayout>
+            <HorizontalStackLayout
+                HorizontalOptions="Center">
+                <Label
+                    StyleClass="SubHeader"
+                    Text="{Binding Event.Description}" />
+            </HorizontalStackLayout>
+            <HorizontalStackLayout
+                HorizontalOptions="Center">
+                <Label
+                    Text="{Binding Event.Start, StringFormat='{0:dddd dd MMMM - hh:mm tt}'}" 
+                    IsVisible="{Binding Event.AllDay,Converter={StaticResource Invert}}"/>
+                <Label
+                    Text="{Binding Event.Start, StringFormat='{0:dddd dd MMMM}'}" 
+                    IsVisible="{Binding Event.AllDay}"/>
+            </HorizontalStackLayout>
+            <!--Manual Input or Load FreeBlocks-->
+            <VerticalStackLayout
+                Margin="0"
+                Padding="0"
+                IsVisible="{Binding LatePass.ShowFreeBlockLookup, Converter={StaticResource Invert}}">
+                <HorizontalStackLayout
+                    HorizontalOptions="Center"
+                    Spacing="30"
+                    IsVisible="{Binding LatePass.MakeupTime.IsScheduled, Converter={StaticResource Invert}}">
+                    <Label
+                        StyleClass="H3"
+                        Text="Schedule Makeup Time">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding LatePass.ToggleShowFreeBlockLookupCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                    <Label
+                        StyleClass="H3"
+                        Text="Manually Enter a Makeup Time"
+                        IsVisible="{Binding LatePass.ShowManualInput, Converter={StaticResource Invert}}">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding LatePass.ToggleManualInputCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </HorizontalStackLayout>
+                <VerticalStackLayout
+                    Margin="0"
+                    Padding="0"
+                    IsVisible="{Binding LatePass.ShowManualInput}">
+                    <HorizontalStackLayout
+                        HorizontalOptions="Center"
+                        Spacing="30">
+                        <Label
+                            StyleClass="H3"
+                            Text="Makeup Time" />
+                        <DatePicker
+                            Date="{Binding LatePass.MakeupTime.Sheduled}" />
+                        <TimePicker
+                            Time="{Binding LatePass.MakeupTime.Sheduled}" />
+                        <Image
+                            StyleClass="SaveButton">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SubmitLatePassCommand}" />
+                            </Image.GestureRecognizers>
+                        </Image>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout
+                        HorizontalOptions="Center">
+                        <Entry
+                            WidthRequest="300"
+                            HeightRequest="150"
+                            Text="{Binding LatePass.MakeupTime.Note}" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+            <!-- Show Free Block Selection -->
+            <VerticalStackLayout
+                IsVisible="{Binding LatePass.ShowFreeBlockLookup}"
+                HorizontalOptions="Center">
+                <BoxView StyleClass="Bar"/>
+                <CollectionView
+                    BackgroundColor="Transparent"
+                    WidthRequest="500"
+                    HeightRequest="800"
+                    ItemsSource="{Binding LatePass.FreeBlockLookup.FreeBlocks}">
+                    <CollectionView.Header>
+                        <HorizontalStackLayout
+                            Margin="0"
+                            Padding="0"
+                            HorizontalOptions="Center"
+                            Spacing="15">
+                            <Label
+                                StyleClass="H3"
+                                Text="{Binding LatePass.FreeBlockLookup.Start, StringFormat='Free Blocks between {0:ddd, dd MMM}'}"/>
+                            <Label
+                                StyleClass="H3"
+                                Text="{Binding LatePass.FreeBlockLookup.End, StringFormat='and {0:ddd, dd MMM}'}"/>
+                            <Image
+                                StyleClass="BackButton">
+                                <Image.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding LatePass.ToggleShowFreeBlockLookupCommand}" />
+                                </Image.GestureRecognizers>
+                            </Image>
+                        </HorizontalStackLayout>
+                    </CollectionView.Header>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="svm:FreeBlockViewModel">
+                            <Border
+                                StrokeThickness="2">
+                                <HorizontalStackLayout
+                                    Margin="0"
+                                    Padding="0"
+                                    Spacing="15">
+                                    <HorizontalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                    </HorizontalStackLayout.GestureRecognizers>
+                                    <Label
+                                        Text="{Binding Start, StringFormat='{0:dddd, dd MMM}'}" />
+                                    <Label
+                                        Text="{Binding BlockName, StringFormat='{0} Block'}" />
+                                    <Label
+                                        Text="{Binding Start, StringFormat='at {0:hh:mm tt}'}" />
+                                </HorizontalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ContentPage.Content>
+</ContentPage>

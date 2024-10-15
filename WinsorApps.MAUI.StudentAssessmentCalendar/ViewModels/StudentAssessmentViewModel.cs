@@ -7,6 +7,7 @@ using WinsorApps.MAUI.Shared.AssessmentCalendar.ViewModels;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.AssessmentCalendar.Models;
 using WinsorApps.Services.AssessmentCalendar.Services;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 
@@ -19,8 +20,12 @@ public partial class StudentAssessmentViewModel :
     ISelectable<StudentAssessmentViewModel>
 {
     private readonly StudentAssessmentService _service = ServiceHelper.GetService<StudentAssessmentService>();
+    private readonly RegistrarService _registrar = ServiceHelper.GetService<RegistrarService>();
+
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<StudentAssessmentViewModel>? Selected;
+    public event EventHandler<StudentAssessmentViewModel>? LatePassRequested;
+    public event EventHandler<StudentAssessmentViewModel>? LatePassSubmitted;
 
     [ObservableProperty] AssessmentCalendarEventViewModel @event;
     [ObservableProperty] bool busy;
@@ -31,6 +36,8 @@ public partial class StudentAssessmentViewModel :
     [ObservableProperty] string latePassMessage = "";
     [ObservableProperty] bool isAssessment;
     [ObservableProperty] bool isSelected;
+
+    [ObservableProperty] LatePassViewModel latePass;
 
     public static implicit operator StudentAssessmentViewModel(AssessmentCalendarEventViewModel evt) => new(evt);
 
@@ -48,6 +55,9 @@ public partial class StudentAssessmentViewModel :
         {
             ClassName = @event.Summary;
         }
+
+        latePass = LatePassViewModel.CreateEmpty(UserViewModel.Get(_registrar.Me), @event);
+        
 
         _service.OnCacheRefreshed += (_, _) =>
         {
@@ -93,15 +103,19 @@ public partial class StudentAssessmentViewModel :
     }
 
     [RelayCommand]
-    public async Task UseLatePass()
+    public void RequestLatePass() => LatePassRequested?.Invoke(this, this);
+
+    [RelayCommand]
+    public async Task SubmitLatePass()
     {
         Busy = true;
         BusyMessage = "Requesting Late Pass";
-        var result = await _service.RequestLatePass(Event.Id, OnError.DefaultBehavior(this));
+        var result = await _service.RequestLatePass(Event.Id, OnError.DefaultBehavior(this), LatePass.MakeupTime);
         if(result.HasValue)
         {
             Event.PassAvailable = false;
             Event.PassUsed = true;
+            LatePassSubmitted?.Invoke(this, this);
         }
         Busy = false;
     }

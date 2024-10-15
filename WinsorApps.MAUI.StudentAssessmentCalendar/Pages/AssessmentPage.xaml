@@ -45,7 +45,7 @@
                 <Button
                     Text="Use Late Pass"
                     IsVisible="{Binding Event.PassAvailable}" 
-                    Command="{Binding UseLatePassCommand}"/>
+                    Command="{Binding RequestLatePassCommand}"/>
                 <Button
                     Text="Withdraw Late Pass"
                     IsVisible="{Binding Event.PassUsed}"
