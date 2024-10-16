@@ -24,6 +24,7 @@
                 HorizontalOptions="Center"
                 WidthRequest="1500">
                 <VerticalStackLayout
+                    HeightRequest="1500"
                     IsVisible="{Binding ShowStudent, Converter={StaticResource Invert}}">
                     <Label
                         StyleClass="SubHeader"
@@ -46,10 +47,12 @@
                         IsVisible="{Binding ShowStudentSelection}"
                         Margin="0"
                         Padding="0"
+                        WidthRequest="1500"
                         HeightRequest="{Binding SearchResultsHeight}">
                         <CollectionView
                             ItemsSource="{Binding SearchResults}"
-                            HeightRequest="{Binding SearchResultsHeight}">
+                            HeightRequest="{Binding SearchResultsHeight}"
+                            WidthRequest="1500">
                             <CollectionView.Header>
                                 <Label 
                                     StyleClass="SubHeader"
