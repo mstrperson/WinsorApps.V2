@@ -197,6 +197,7 @@
                                                     <HorizontalStackLayout.GestureRecognizers>
                                                         <TapGestureRecognizer Command="{Binding ShowDetailsCommand}" />
                                                     </HorizontalStackLayout.GestureRecognizers>
+                                                    <Label Text="{Binding Section.PrimaryTeacher.DisplayName}" />
                                                     <Label Text="{Binding Section.Block, StringFormat='Block: {0}'}" />
                                                     <Label Text="{Binding Date, StringFormat='{0:ddd dd MMMM}'}" />
                                                     <Image
