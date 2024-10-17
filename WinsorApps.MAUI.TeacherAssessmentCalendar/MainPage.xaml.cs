@@ -52,9 +52,9 @@ namespace WinsorApps.MAUI.TeacherAssessmentCalendar
             {
                 Navigation.PopAsync();
                 vm.UserVM = UserViewModel.Get(api.UserInfo!.Value);
+                Navigation.PushAsync(new AppLoadingPage(vm));
             };
 
-            Navigation.PushAsync(new AppLoadingPage(vm));
 
             vm.OnCompleted += Vm_OnCompleted;
             Navigation.PushAsync(loginPage);

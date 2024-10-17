@@ -59,10 +59,10 @@ public partial class MainPage : ContentPage
         {
             Navigation.PopAsync();
             vm.UserVM = UserViewModel.Get(api.UserInfo!.Value);
-        };
 
-        Navigation.PushAsync(new AppLoadingPage(vm));
-        vm.OnCompleted += Vm_OnCompleted;
+            Navigation.PushAsync(new AppLoadingPage(vm));
+            vm.OnCompleted += Vm_OnCompleted;
+        };
 
         Navigation.PushAsync(loginPage);
 
