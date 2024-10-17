@@ -53,7 +53,7 @@ namespace WinsorApps.MAUI.TeacherAssessmentCalendar
                 //Navigation.PopAsync();
                 vm.UserVM = UserViewModel.Get(api.UserInfo!.Value);
                 Navigation.PushAsync(new AppLoadingPage(vm));
-                vm.OnCompleted += Vm_OnCompleted;
+                vm.LoadReadyContent += Vm_OnCompleted;
             };
 
 
@@ -67,7 +67,6 @@ namespace WinsorApps.MAUI.TeacherAssessmentCalendar
         {
             if (!ViewModel.UpdateAvailable)
             {
-                Thread.Sleep(2000);
                 var page = ServiceHelper.GetService<MyAssessmentsPage>();
                 Navigation.PushAsync(page);
             }

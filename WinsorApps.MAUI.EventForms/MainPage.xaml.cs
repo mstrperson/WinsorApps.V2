@@ -61,7 +61,7 @@ public partial class MainPage : ContentPage
             vm.UserVM = UserViewModel.Get(api.UserInfo!.Value);
 
             Navigation.PushAsync(new AppLoadingPage(vm));
-            vm.OnCompleted += Vm_OnCompleted;
+            vm.LoadReadyContent += Vm_OnCompleted;
         };
 
         Navigation.PushAsync(loginPage);
@@ -74,7 +74,6 @@ public partial class MainPage : ContentPage
     {
         if (!ViewModel.UpdateAvailable)
         {
-            Thread.Sleep(2000);
             var page = ServiceHelper.GetService<MyEventsList>();
             Navigation.PushAsync(page);
         }

@@ -33,7 +33,14 @@ public partial class MainPageViewModel : ObservableObject, IBusyViewModel, IErro
 
     public event EventHandler<SplashPageViewModel>? OnSplashPageReady;
     public event EventHandler? OnCompleted;
+    public event EventHandler? LoadReadyContent;
     public event EventHandler<ErrorRecord>? OnError;
+
+    public async Task InitialContentReady()
+    {
+        await Task.Delay(2000);
+        LoadReadyContent?.Invoke(this, EventArgs.Empty);
+    }
 
     public MainPageViewModel(List<ServiceAwaiterViewModel> postLoginServices, AppService appService, ApiService api, LocalLoggingService logging)
     {
