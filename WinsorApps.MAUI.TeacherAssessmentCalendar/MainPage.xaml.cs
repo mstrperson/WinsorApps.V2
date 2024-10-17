@@ -67,6 +67,7 @@ namespace WinsorApps.MAUI.TeacherAssessmentCalendar
         {
             if (!ViewModel.UpdateAvailable)
             {
+                Thread.Sleep(2000);
                 var page = ServiceHelper.GetService<MyAssessmentsPage>();
                 Navigation.PushAsync(page);
             }

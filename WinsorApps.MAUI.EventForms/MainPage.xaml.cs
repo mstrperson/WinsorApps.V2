@@ -74,6 +74,7 @@ public partial class MainPage : ContentPage
     {
         if (!ViewModel.UpdateAvailable)
         {
+            Thread.Sleep(2000);
             var page = ServiceHelper.GetService<MyEventsList>();
             Navigation.PushAsync(page);
         }
