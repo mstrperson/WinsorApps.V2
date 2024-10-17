@@ -30,7 +30,7 @@ public partial class EventFormViewModel :
     [ObservableProperty] string id = "";
     [ObservableProperty] string summary = "";
     [ObservableProperty] string description = "";
-    [ObservableProperty] EventTypeSelectionViewModel typeSelection = new();
+    [ObservableProperty] EventTypeSelectionViewModel typeSelection = new() { Selected = EventTypeViewModel.Get("default") };
     [ObservableProperty] EventTypeViewModel type = EventTypeViewModel.Get("default");
     [ObservableProperty] ApprovalStatusSelectionViewModel statusSelection = new();
     [ObservableProperty] DateTime startDate = DateTime.Today;
@@ -324,10 +324,7 @@ public partial class EventFormViewModel :
             return;
         }
 
-        if(Type == "Field Trip")
-        {
-            IsFieldTrip = true;
-        }
+        
 
         Busy = true;
 
@@ -342,7 +339,13 @@ public partial class EventFormViewModel :
             Id = result.Value.id;
             IsFieldTrip = result.Value.type.StartsWith("Field", StringComparison.InvariantCultureIgnoreCase);
             StatusSelection.Select(result.Value.status);
-            Attachments = new(result.Value);
+            Attachments = new(result.Value); 
+            
+            if (Type == "Field Trip")
+            {
+                IsFieldTrip = true;
+                await LoadFieldTrip();
+            }
         }
 
         Busy = false;
@@ -710,8 +713,9 @@ public partial class EventFormViewModel :
     public async Task LoadFieldTrip()
     {
         Busy = true;
-        if (string.IsNullOrEmpty(FieldTrip.Model.eventId) && !FieldTrip.HasLoaded)
-        {
+
+        if (string.IsNullOrEmpty(FieldTrip.Model.eventId) && !FieldTrip.HasLoaded && Model.Reduce(EventFormBase.Empty).hasFieldTripInfo)
+        { 
             var sub = await _service.GetFieldTripDetails(Id, OnError.DefaultBehavior(this));
             if (!sub.HasValue)
             {
@@ -724,6 +728,7 @@ public partial class EventFormViewModel :
             FieldTrip.Load(sub.Value);
             IsFieldTrip = true;
         }
+
         Busy = false;
         FieldTripRequested?.Invoke(this, FieldTrip);
     }
