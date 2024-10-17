@@ -54,13 +54,16 @@ public partial class MainPage : ContentPage
 
         BindingContext = vm;
         vm.OnError += this.DefaultOnErrorHandler();
-        vm.OnCompleted += Vm_OnCompleted;
         LoginPage loginPage = new LoginPage(logging, vm.LoginVM);
         loginPage.OnLoginComplete += (_, _) =>
         {
             Navigation.PopAsync();
             vm.UserVM = UserViewModel.Get(api.UserInfo!.Value);
         };
+
+        Navigation.PushAsync(new AppLoadingPage(vm));
+        vm.OnCompleted += Vm_OnCompleted;
+
         Navigation.PushAsync(loginPage);
 
 
