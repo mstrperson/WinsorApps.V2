@@ -36,7 +36,7 @@ public partial class MainPage : ContentPage
         LoginPage loginPage = new LoginPage(logging, vm.LoginVM);
         loginPage.OnLoginComplete += (_, _) =>
         {
-            Navigation.PopAsync();
+            //Navigation.PopAsync();
             vm.UserVM = UserViewModel.Get(api.UserInfo!.Value);
 
             Navigation.PushAsync(new AppLoadingPage(vm));

@@ -67,6 +67,12 @@
                     <HorizontalStackLayout
                         Margin="0"
                         Padding="0">
+                        <Label Text="Local Log Location: " />
+                        <Label Text="{Binding StoragePath}" />
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout
+                        Margin="0"
+                        Padding="0">
                         <Label
                             Text="Last Version Updated: " />
                         <Label
