@@ -513,7 +513,15 @@ public static partial class Extensions
     /// <typeparam name="T"></typeparam>
     /// <param name="task"></param>
     /// <param name="continuation"></param>
-    public static void WhenCompleted<T>(this Task<T> task, Action continuation) => task.GetAwaiter().OnCompleted(continuation);
+    public static void WhenCompleted<T>(this Task<T> task, Action continuation, Action? taskCanceledAction = null)
+    {
+        if(task.IsCanceled)
+        {
+            taskCanceledAction?.Invoke();
+            return;
+        }
+        task.GetAwaiter().OnCompleted(continuation);
+    }
 
     /// <summary>
     /// Short-hand overload for .GetAwaiter().OnCompleted(...)

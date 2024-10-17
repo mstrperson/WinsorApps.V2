@@ -67,12 +67,25 @@ namespace WinsorApps.Services.EventForms.Services
             {
                 EventForms = allEventsTask.Result ?? [];
                 Progress += (1.0 / 7);
+
+            },
+            () => 
+            {
+                _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Downloading `allEventsTask` ended with a Canceled state...");
+                EventForms = [];
+                Progress += (1.0 / 7);
             });
             allEventsTask.SafeFireAndForget(e => e.LogException(_logging));
 
             cateringTask.WhenCompleted(() =>
             {
                 CateringEvents = cateringTask.Result ?? [];
+                Progress += (1.0 / 7);
+            },
+            () =>
+            {
+                _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Downloading `cateringTask` ended with a Canceled state...");
+                EventForms = [];
                 Progress += (1.0 / 7);
             });
             cateringTask.SafeFireAndForget(e => e.LogException(_logging));
@@ -81,12 +94,24 @@ namespace WinsorApps.Services.EventForms.Services
             {
                 FacilitiesEvents = facilitiesTask.Result ?? [];
                 Progress += (1.0 / 7);
+            },
+            () =>
+            {
+                _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Downloading `facilitiesTask` ended with a Canceled state...");
+                EventForms = [];
+                Progress += (1.0 / 7);
             });
             facilitiesTask.SafeFireAndForget(e => e.LogException(_logging));
 
             technologyTask.WhenCompleted(() =>
             {
                 TechEvents = technologyTask.Result ?? [];
+                Progress += (1.0 / 7);
+            },
+            () =>
+            {
+                _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Downloading `technologyTask` ended with a Canceled state...");
+                EventForms = [];
                 Progress += (1.0 / 7);
             });
             technologyTask.SafeFireAndForget(e => e.LogException(_logging));
@@ -95,6 +120,12 @@ namespace WinsorApps.Services.EventForms.Services
             {
                 TheaterEvents = theaterTask.Result ?? [];
                 Progress += (1.0 / 7);
+            },
+            () =>
+            {
+                _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Downloading `theaterTask` ended with a Canceled state...");
+                EventForms = [];
+                Progress += (1.0 / 7);
             });
             theaterTask.SafeFireAndForget(e => e.LogException(_logging));
 
@@ -102,12 +133,24 @@ namespace WinsorApps.Services.EventForms.Services
             {
                 MarCommEvents = marcomTask.Result ?? [];
                 Progress += (1.0 / 7);
+            },
+            () =>
+            {
+                _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Downloading `marcomTask` ended with a Canceled state...");
+                EventForms = [];
+                Progress += (1.0 / 7);
             });
             marcomTask.SafeFireAndForget(e => e.LogException(_logging));
 
             fieldTripTask.WhenCompleted(() =>
             {
                 FieldTripEvents = fieldTripTask.Result ?? [];
+                Progress += (1.0 / 7);
+            },
+            () =>
+            {
+                _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Downloading `fieldTripTask` ended with a Canceled state...");
+                EventForms = [];
                 Progress += (1.0 / 7);
             });
             fieldTripTask.SafeFireAndForget(e => e.LogException(_logging));
