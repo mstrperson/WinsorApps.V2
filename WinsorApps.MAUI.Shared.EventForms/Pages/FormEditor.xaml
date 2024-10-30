@@ -183,14 +183,18 @@
                                     SearchCommand="{Binding LeaderSearch.SearchCommand}"/>
                                 <CollectionView
                                     ItemsSource="{Binding LeaderSearch.Options}"
-                                    IsVisible="{Binding LeaderSearch.ShowOptions}">
+                                    IsVisible="{Binding LeaderSearch.ShowOptions}"
+                                    HeightRequest="300"
+                                    WidthRequest="500">
                                     <CollectionView.ItemTemplate>
                                         <DataTemplate x:DataType="svm:UserViewModel">
-                                            <Label Text="{Binding DisplayName}">
-                                                <Label.GestureRecognizers>
+                                            <HorizontalStackLayout
+                                                WidthRequest="500">
+                                                <HorizontalStackLayout.GestureRecognizers>
                                                     <TapGestureRecognizer Command="{Binding SelectCommand}" />
-                                                </Label.GestureRecognizers>
-                                            </Label>
+                                                </HorizontalStackLayout.GestureRecognizers>
+                                                <Label Text="{Binding DisplayName}"/>
+                                            </HorizontalStackLayout>
                                         </DataTemplate>
                                     </CollectionView.ItemTemplate>
                                 </CollectionView>

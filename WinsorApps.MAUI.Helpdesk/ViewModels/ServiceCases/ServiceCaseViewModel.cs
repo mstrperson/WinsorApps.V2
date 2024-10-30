@@ -242,7 +242,7 @@ public partial class ServiceCaseViewModel :
             {
                 try
                 {
-                    Process.Start(new ProcessStartInfo("msedge.exe", result.FilePath)
+                    Process.Start(new ProcessStartInfo("msedge.exe", Uri.EscapeDataString(result.FilePath))
                     {
                         UseShellExecute = true
                     });
