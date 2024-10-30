@@ -1,5 +1,6 @@
 ﻿using AsyncAwaitBestPractices;
 using System.Collections.Immutable;
+using System.Text.Json;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Services;
@@ -15,6 +16,29 @@ namespace WinsorApps.Services.EventForms.Services
 
         public event EventHandler? OnCacheRefreshed;
 
+        public string CacheFileName => ".contacts.cache";
+        public void SaveCache()
+        {
+            var json = JsonSerializer.Serialize(MyContacts);
+            File.WriteAllText($"{_logging.AppStoragePath}{CacheFileName}", json);
+        }
+
+        public bool LoadCache()
+        {
+            if (!File.Exists($"{_logging.AppStoragePath}{CacheFileName}"))
+                return false;
+
+            try
+            {
+                var json = File.ReadAllText($"{_logging.AppStoragePath}{CacheFileName}");
+                MyContacts = JsonSerializer.Deserialize<ImmutableArray<Contact>>(json);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
         public ContactService(LocalLoggingService logging, ApiService api)
         {
             _logging = logging;
@@ -53,8 +77,11 @@ namespace WinsorApps.Services.EventForms.Services
                 return;
 
             Started = true;
-            MyContacts = await _api.SendAsync<ImmutableArray<Contact>?>(HttpMethod.Get, "api/users/self/contacts", onError: onError) ?? [];
-
+            if (!LoadCache())
+            {
+                MyContacts = await _api.SendAsync<ImmutableArray<Contact>?>(HttpMethod.Get, "api/users/self/contacts", onError: onError) ?? [];
+                SaveCache();
+            }
             Progress = 1;
             Ready = true;
         }
@@ -63,6 +90,7 @@ namespace WinsorApps.Services.EventForms.Services
         {
             MyContacts = await _api.SendAsync<ImmutableArray<Contact>?>(HttpMethod.Get, "api/users/self/contacts", onError: onError) ?? [];
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
+            SaveCache();
         }
 
         public async Task WaitForInit(ErrorAction onError)

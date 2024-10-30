@@ -1,5 +1,6 @@
 ﻿using AsyncAwaitBestPractices;
 using System.Collections.Immutable;
+using System.Text.Json;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Services;
@@ -42,8 +43,11 @@ namespace WinsorApps.Services.EventForms.Services
                 return;
 
             Started = true;
-
-            MenuCategories = await _api.SendAsync<ImmutableArray<CateringMenuCategory>?>(HttpMethod.Get, "api/events/catering/menu") ?? [];
+            if (!LoadCache())
+            {
+                MenuCategories = await _api.SendAsync<ImmutableArray<CateringMenuCategory>?>(HttpMethod.Get, "api/events/catering/menu") ?? [];
+                SaveCache();
+            }
             Progress = 1;
             Ready = true;
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
@@ -53,12 +57,36 @@ namespace WinsorApps.Services.EventForms.Services
         {
             MenuCategories = await _api.SendAsync<ImmutableArray<CateringMenuCategory>?>(HttpMethod.Get, "api/events/catering/menu") ?? [];
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
+            SaveCache();
         }
 
         public async Task WaitForInit(ErrorAction onError)
         {
             while (!Ready)
                 await Task.Delay(250);
+        }
+        public string CacheFileName => ".catering-menu.cache";
+        public void SaveCache()
+        {
+            var json = JsonSerializer.Serialize(MenuCategories);
+            File.WriteAllText($"{_logging.AppStoragePath}{CacheFileName}", json);
+        }
+
+        public bool LoadCache()
+        {
+            if (!File.Exists($"{_logging.AppStoragePath}{CacheFileName}"))
+                return false;
+
+            try
+            {
+                var json = File.ReadAllText($"{_logging.AppStoragePath}{CacheFileName}");
+                MenuCategories = JsonSerializer.Deserialize<ImmutableArray<CateringMenuCategory>>(json);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Text.Json;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.Global.Services;
 
@@ -7,12 +8,16 @@ namespace WinsorApps.Services.EventForms.Services
     public class BudgetCodeService : IAsyncInitService, ICacheService
     {
         private readonly ApiService _api;
+        private readonly LocalLoggingService _logging;
 
         public event EventHandler? OnCacheRefreshed;
 
-        public BudgetCodeService(ApiService api)
+
+
+        public BudgetCodeService(ApiService api, LocalLoggingService logging)
         {
             _api = api;
+            _logging = logging;
         }
 
         public ImmutableArray<BudgetCode> BudgetCodes { get; private set; } = [];
@@ -38,6 +43,7 @@ namespace WinsorApps.Services.EventForms.Services
 
         public double Progress { get; private set; } = 0;
 
+
         public async Task Initialize(ErrorAction  onError)
         {
             Started = true;
@@ -46,15 +52,23 @@ namespace WinsorApps.Services.EventForms.Services
                 await Task.Delay(250);
             }
             Progress = 0;
-
-            BudgetCodes = await _api.SendAsync<ImmutableArray<BudgetCode>?>(HttpMethod.Get, "api/budget-codes", onError: onError) ?? [];
+            if (!LoadCache())
+            {
+                BudgetCodes = await _api.SendAsync<ImmutableArray<BudgetCode>?>(HttpMethod.Get, "api/budget-codes", onError: onError) ?? [];
+                SaveCache();
+            }
             Progress = 1;
             Ready = true;
         }
 
         public async Task Refresh(ErrorAction onError)
         {
-            await Initialize(onError);
+            var result = await _api.SendAsync<ImmutableArray<BudgetCode>?>(HttpMethod.Get, "api/budget-codes", onError: onError) ?? [];
+            if (!result.SequenceEqual(BudgetCodes))
+            {
+                BudgetCodes = result;
+                SaveCache();
+            }
         }
 
         public async Task WaitForInit(ErrorAction onError)
@@ -65,6 +79,30 @@ namespace WinsorApps.Services.EventForms.Services
             while(!Ready)
             {
                 await Task.Delay(250);
+            }
+        }
+
+        public string CacheFileName => ".budget-code.cache";
+        public void SaveCache()
+        {
+            var json = JsonSerializer.Serialize(BudgetCodes);
+            File.WriteAllText($"{_logging.AppStoragePath}{CacheFileName}", json);
+        }
+
+        public bool LoadCache()
+        {
+            if (!File.Exists($"{_logging.AppStoragePath}{CacheFileName}"))
+                return false;
+
+            try
+            {
+                var json = File.ReadAllText($"{_logging.AppStoragePath}{CacheFileName}");
+                BudgetCodes = JsonSerializer.Deserialize<ImmutableArray<BudgetCode>>(json);
+                return true;
+            }
+            catch
+            {
+                return false;
             }
         }
     }

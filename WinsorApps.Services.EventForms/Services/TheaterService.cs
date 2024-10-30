@@ -1,5 +1,6 @@
 ﻿using AsyncAwaitBestPractices;
 using System.Collections.Immutable;
+using System.Text.Json;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Services;
@@ -10,7 +11,29 @@ namespace WinsorApps.Services.EventForms.Services
     {
         private readonly ApiService _api;
         private readonly LocalLoggingService _logging;
+        public string CacheFileName => ".theater.cache";
+        public void SaveCache()
+        {
+            var json = JsonSerializer.Serialize(AvailableMenus);
+            File.WriteAllText($"{_logging.AppStoragePath}{CacheFileName}", json);
+        }
 
+        public bool LoadCache()
+        {
+            if (!File.Exists($"{_logging.AppStoragePath}{CacheFileName}"))
+                return false;
+
+            try
+            {
+                var json = File.ReadAllText($"{_logging.AppStoragePath}{CacheFileName}");
+                AvailableMenus = JsonSerializer.Deserialize<ImmutableArray<TheaterMenuCategory>>(json);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
         public ImmutableArray<TheaterMenuCategory> AvailableMenus { get; private set; } = [];
 
         public TheaterService(ApiService api, LocalLoggingService logging)
@@ -36,10 +59,12 @@ namespace WinsorApps.Services.EventForms.Services
                 return;
 
             Started = true;
-
-            AvailableMenus = await _api.SendAsync<ImmutableArray<TheaterMenuCategory>?>(HttpMethod.Get,
-                "api/events/theater/menu", onError: onError) ?? [];
-
+            if (!LoadCache())
+            {
+                AvailableMenus = await _api.SendAsync<ImmutableArray<TheaterMenuCategory>?>(HttpMethod.Get,
+                    "api/events/theater/menu", onError: onError) ?? [];
+                SaveCache();
+            }
             Progress = 1;
             Ready = true;
         }
@@ -49,6 +74,7 @@ namespace WinsorApps.Services.EventForms.Services
 
             AvailableMenus = await _api.SendAsync<ImmutableArray<TheaterMenuCategory>?>(HttpMethod.Get,
                 "api/events/theater/menu", onError: onError) ?? [];
+            SaveCache();
         }
 
         public async Task WaitForInit(ErrorAction onError)

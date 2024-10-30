@@ -33,7 +33,32 @@ public partial class EventsAdminService :
 
     public ImmutableArray<EventFormBase> PendingEvents => [.. AllEvents.Where(evt => evt.status == ApprovalStatusLabel.Pending)];
     public ImmutableArray<EventFormBase> WaitingForRoom => [.. AllEvents.Where(evt => evt.status == ApprovalStatusLabel.RoomNotCleared)];
+    public string CacheFileName => ".events-admin.cache";
+    public void SaveCache()
+    {
+        var json = JsonSerializer.Serialize(AllEvents);
+        File.WriteAllText($"{_logging.AppStoragePath}{CacheFileName}", json);
+    }
 
+    public bool LoadCache()
+    {
+        if (!File.Exists($"{_logging.AppStoragePath}{CacheFileName}"))
+            return false;
+
+        try
+        {
+            _lastUpdated = File.GetLastWriteTime($"{_logging.AppStoragePath}{CacheFileName}");
+            var json = File.ReadAllText($"{_logging.AppStoragePath}{CacheFileName}");
+            AllEvents = JsonSerializer.Deserialize<ImmutableArray<EventFormBase>>(json);
+            CacheStartDate = AllEvents.Select(evt => evt.start).Min();
+            CacheEndDate = AllEvents.Select(evt => evt.start).Max();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 
     public bool Started { get; protected set; }
 
@@ -54,15 +79,23 @@ public partial class EventsAdminService :
             await Task.Delay(100);
         Started = true;
 
-        var start = DateTime.Today.MonthOf().MondayOf();
-        var end = start.AddMonths(1).MondayOf().AddDays(6);
-        CacheStartDate = DateTime.Today;
-        CacheEndDate = DateTime.Today;
-        _ = await GetAllEvents(onError, start, end);
-        Progress = 0.33;
-        _ = await GetPendingEventsAsync(onError);
-        Progress = 0.66;
-        _ = await GetRoomPendingEvents(onError);
+        if (!LoadCache())
+        {
+            var start = DateTime.Today.MonthOf().MondayOf();
+            var end = start.AddMonths(1).MondayOf().AddDays(6);
+            CacheStartDate = DateTime.Today;
+            CacheEndDate = DateTime.Today;
+            _ = await GetAllEvents(onError, start, end);
+            Progress = 0.33;
+            _ = await GetPendingEventsAsync(onError);
+            Progress = 0.66;
+            _ = await GetRoomPendingEvents(onError);
+            SaveCache();
+        }
+        else
+        {
+            Refresh(onError).SafeFireAndForget(e => e.LogException(_logging));
+        }
         Progress = 1;
         Ready = true;
         _lastUpdated = DateTime.Now;
@@ -83,6 +116,8 @@ public partial class EventsAdminService :
         }
         
         _ = await GetAllEvents(_logging.LogError, schoolYear.startDate.ToDateTime(default), CacheStartDate, true);
+
+        SaveCache();
     }
 
     private DateTime _lastUpdated;
@@ -94,6 +129,7 @@ public partial class EventsAdminService :
         {
             ComputeChangesAndUpdates(result.Value);   
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
+            SaveCache();
         }
         _lastUpdated = DateTime.Now;
     }
@@ -112,6 +148,7 @@ public partial class EventsAdminService :
         AllEvents = [.. AllEvents.Except(toReplace).Union(changes).Union(newEvents)];
         if(!suppressRefresh)
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
+        SaveCache();
     }
 
     public async Task WaitForInit(ErrorAction onError)
