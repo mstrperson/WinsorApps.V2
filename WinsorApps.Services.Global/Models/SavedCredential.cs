@@ -51,11 +51,20 @@ public record SavedCredential(
             File.Delete(CredFilePath);
     }
 
-    public static async void SaveJwt(string jwt, string refreshToken) =>
-        await WriteFileData(new SavedCredential(JWT: jwt, RefreshToken: refreshToken));
+    public static async void SaveJwt(string jwt, string refreshToken)
+    {
+        var saved = await GetSavedCredential();
+        if (saved is null)
+            saved = new();
 
-    public static async void Save(string email, string password) =>
-        await WriteFileData(new SavedCredential(email, password));
+        saved = saved with { JWT = jwt, RefreshToken = refreshToken };
+
+        await WriteFileData(saved);
+    }
+        
+
+    public static async void Save(string email, string password, string jwt = "", string refreshToken = "") =>
+        await WriteFileData(new SavedCredential(email, password, jwt, refreshToken));
 
     public static async Task WriteFileData(SavedCredential credential)
     {

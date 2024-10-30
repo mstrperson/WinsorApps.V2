@@ -11,6 +11,10 @@ namespace WinsorApps.Services.Global.Services
         private readonly ApiService _api;
         private readonly LocalLoggingService _logging;
 
+        public string CacheFileName => VersionFilePath;
+
+        public void SaveCache() { }
+        public bool LoadCache() => true;
         public bool Allowed { get; private set; }
 
         public bool UpdateAvailable { get; private set; }

@@ -2,6 +2,16 @@ namespace WinsorApps.Services.Global.Services;
 
 public interface IAsyncInitService
 {
+    public string CacheFileName { get; }
+
+    public void SaveCache();
+
+    /// <summary>
+    /// Attempt to Load Cache from file.  returns success status.
+    /// </summary>
+    /// <returns></returns>
+    public bool LoadCache();
+
     public Task Initialize(ErrorAction onError);
 
     public Task WaitForInit(ErrorAction onError);

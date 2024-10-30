@@ -63,6 +63,11 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
         OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
     }
 
+    public string CacheFileName => ".login.cred";
+
+    public void SaveCache() { }
+    public bool LoadCache() => true;
+
     public async Task WaitForInit(ErrorAction onError)
     {
         if (Ready) return;
@@ -99,9 +104,21 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
                     {
                         onError(err);
                         success = false;
-                    }); 
-                    if(success)
+                    });
+
+                    if (!success && !string.IsNullOrWhiteSpace(savedCredential.SavedPassword))
+                    {
+                        success = true;
+                        await Login(savedCredential.SavedEmail, savedCredential.SavedPassword, onError: err =>
+                        {
+                            onError(err);
+                            success = false;
+                        });
+                    }
+
+                    if (success)
                         UserInfo = await SendAsync<UserRecord>(HttpMethod.Get, "api/users/self", onError: onError);
+
                 }
                 catch (Exception ex)
                 {
@@ -199,10 +216,12 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
                 JsonSerializer.Serialize(login), false, onError);
             if (AuthorizedUser is not null)
             {
+
                 UserInfo = await SendAsync<UserRecord>(HttpMethod.Get, "api/users/self", onError: onError);
                 _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Login Successful:  {email}");
                 Ready = true;
-                SavedCredential.SaveJwt(AuthorizedUser.jwt, AuthorizedUser.refreshToken);
+
+                SavedCredential.Save(email, password, AuthorizedUser.jwt, AuthorizedUser.refreshToken);
                 OnLoginSuccess?.Invoke(this, EventArgs.Empty);
                 FirstLogin = false;
             }
@@ -277,13 +296,25 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
                 AuthorizedUser = await SendAsync<AuthResponse>(HttpMethod.Get,
                     $"api/auth/renew?refreshToken={AuthorizedUser.refreshToken}", authorize: true, onError: err =>
                     {
+                        _logging.LogError(err);
                         failed = true;
-                        onError(err);
                     });
 
                 if (failed)
                 {
-                    Refreshing = false;
+                    var savedCred = await SavedCredential.GetSavedCredential();
+                    if(savedCred is not null && !string.IsNullOrWhiteSpace(savedCred.SavedPassword))
+                    {
+                        failed = false;
+                        await Login(savedCred.SavedEmail, savedCred.SavedPassword, onError: err =>
+                        {
+                            _logging.LogError(err);
+                            failed = true;
+                        });
+                    }
+
+                    if(failed)
+                        Refreshing = false;
                     
                 }
                 if(AuthorizedUser is null)
