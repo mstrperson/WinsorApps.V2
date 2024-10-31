@@ -94,7 +94,7 @@ public partial class AssessmentGroupViewModel :
                 {
                     var vm = Assessments.First(ent => ent.Section.Model.Reduce(SectionRecord.Empty).sectionId == detail.Value.section.sectionId);
                     vm.Model = OptionalStruct<AssessmentEntryRecord>.Some(detail.Value);
-                    vm.LoadDetails();
+                    //vm.LoadDetails();
                     vm.IsSelected = true;
                     vm.Date = detail.Value.assessmentDateTime;
                 });
@@ -300,6 +300,9 @@ public partial class MyAssessmentsCollectionViewModel :
             .Select(grp => new AssessmentGroupViewModel(grp))
         ];
 
+        foreach(var assessment in MyAssessmentGroups.SelectMany(grp => grp.Assessments))
+            assessment.LoadDetails();
+        
         foreach(var group in MyAssessmentGroups)
         {
             group.Deleted += (_, _) =>

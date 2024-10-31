@@ -56,7 +56,7 @@ public partial class AssessmentCalendarEventViewModel :
             Model = OptionalStruct<AssessmentCalendarEvent>.Some(model)
         };
 
-        vm.LoadAssessmentDetails().SafeFireAndForget(e => e.LogException());
+        //vm.LoadAssessmentDetails().SafeFireAndForget(e => e.LogException());
 
         return vm;
     }
