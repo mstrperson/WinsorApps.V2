@@ -234,6 +234,8 @@ public partial class AssessmentDetailsViewModel :
 
     private void LoadAssessmentDetails()
     {
+        Busy = true;
+        BusyMessage = "Loading Assessment Details.";
         var getTask = _assessmentService.GetAssessmentDetails(Model.Reduce(AssessmentCalendarEvent.Empty).id, OnError.DefaultBehavior(this));
         getTask.WhenCompleted(() =>
         {
@@ -285,14 +287,18 @@ public partial class AssessmentDetailsViewModel :
 
             SetSizeRequests();
             LoadComplete?.Invoke(this, EventArgs.Empty);
+            Busy = false;
         });
     }
 
     [RelayCommand]
     public async Task LoadConflicts()
     {
+        Busy = true;
+        BusyMessage = "Checking for Conflicts";
         foreach (var conflict in Conflicts)
             await conflict.LoadConflictingAssessments();
+        Busy = false;
     }
 
     public static AssessmentDetailsViewModel Get(AssessmentEntryRecord details)

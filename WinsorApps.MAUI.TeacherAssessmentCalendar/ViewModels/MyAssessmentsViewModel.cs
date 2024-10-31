@@ -274,6 +274,7 @@ public partial class MyAssessmentsCollectionViewModel :
 {
     private readonly TeacherAssessmentService _service = ServiceHelper.GetService<TeacherAssessmentService>();
     private readonly RegistrarService _registrar = ServiceHelper.GetService<RegistrarService>();
+    private readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
 
     [ObservableProperty] ObservableCollection<AssessmentGroupViewModel> myAssessmentGroups = [];
     [ObservableProperty] AssessmentGroupViewModel selectedAssessmentGroup = AssessmentGroupViewModel.Empty;
@@ -329,6 +330,8 @@ public partial class MyAssessmentsCollectionViewModel :
 
     public async Task AddGroupFor(CourseViewModel course)
     {
+        Busy = true;
+        BusyMessage = $"Starting Assessment for {course.DisplayName}";
         var newGroup = await AssessmentGroupViewModel.CreateFor(course);
 
         newGroup.Deleted += (_, _) =>
@@ -360,13 +363,16 @@ public partial class MyAssessmentsCollectionViewModel :
 
         SelectedAssessmentGroup = newGroup;
         ShowSelectedGroup = true;
+        Busy = false;
     }
 
     [RelayCommand]
     public async Task Refresh()
     {
+        using DebugTimer _ = new("Refreshing My Assessments", _logging);
         Busy = true;
         BusyMessage = "Refreshing";
+        await _service.Refresh(OnError.DefaultBehavior(this));
         await Initialize(OnError.DefaultBehavior(this));
 
         foreach (var group in MyAssessmentGroups)
