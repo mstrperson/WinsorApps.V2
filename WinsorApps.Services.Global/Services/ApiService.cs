@@ -3,6 +3,7 @@
 
 using AsyncAwaitBestPractices;
 using System.Net;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using WinsorApps.Services.Global.Models;
@@ -209,6 +210,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
 
     public async Task Login(string email, string password, ErrorAction onError)
     {
+        using DebugTimer _ = new($"Logging in {email}", _logging);
         Login login = new(email, password);
         try
         {
@@ -235,6 +237,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
 
     public async Task ForgotPassword(string email, string password, Action<string> onCompleteAction, ErrorAction onError)
     {
+        using DebugTimer _ = new($"Submitting forgot password for {email}", _logging);
         Login login = new Login(email, password);
 
         try
@@ -251,6 +254,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
 
     public async Task Register(string email, string password, Action<string> onCompleteAction, ErrorAction onError)
     {
+        using DebugTimer _ = new($"Registering {email}", _logging);
         Login login = new Login(email, password);
 
         try
@@ -274,7 +278,8 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
 
     public async Task RenewTokenAsync(bool repeat = false, ErrorAction? onError = null)
     {
-        if(Refreshing)
+        using DebugTimer _ = new($"Renewing Login Token", _logging);
+        if (Refreshing)
         {
             while(Refreshing)
             {
@@ -424,6 +429,9 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
         ErrorAction? onError = null, bool isReAuth = false,
         FileStreamWrapper? stream = null)
     {
+
+        using DebugTimer _ = new($"Send Async to {endpoint} with jsonContent {jsonContent}", _logging);
+
         onError ??= err => _logging.LogMessage(LocalLoggingService.LogLevel.Error, err.error);
         var request = await BuildRequest(method, endpoint, jsonContent, authorize, stream);
 
@@ -451,6 +459,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
 
     public async Task<DocumentHeader?> UploadDocument(string endpoint, DocumentHeader header, byte[] fileContent, ErrorAction onError, bool isReAuth = false)
     {
+        using DebugTimer _ = new($"Uploading document to {endpoint} with content {header.fileName} [{fileContent.Length} bytes]", _logging);
         using var request = await BuildRequest(HttpMethod.Post, endpoint);
         using MemoryStream ms = new(fileContent);
         var content = new MultipartFormDataContent
@@ -480,6 +489,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
     public async Task<Stream> DownloadStream(string endpoint, string jsonContent = "", bool authorize = true,
         ErrorAction? onError = null, bool isReAuth = false, FileStreamWrapper? stream = null)
     {
+        using DebugTimer _ = new($"Downloading stream from {endpoint} with jsonContent {jsonContent}", _logging);
         onError ??= err => _logging.LogMessage(LocalLoggingService.LogLevel.Error, err.error);
         var request = await BuildRequest(HttpMethod.Get, endpoint, jsonContent, authorize, stream);
         var response = await client.SendAsync(request);
@@ -507,6 +517,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
         bool authorize = true,
         ErrorAction? onError = null, bool isReAuth = false, FileStreamWrapper? stream = null)
     {
+        using DebugTimer _ = new($"Downloading File to {endpoint} with jsonContent {jsonContent}", _logging);
         onError ??= err => _logging.LogMessage(LocalLoggingService.LogLevel.Error, err.error);
         var request = await BuildRequest(HttpMethod.Get, endpoint, jsonContent, authorize, stream);
          var response = await client.SendAsync(request);
@@ -533,6 +544,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
         ErrorAction? onError = null, bool isReAuth = false,
         FileStreamWrapper? inStream = null)
     {
+        using DebugTimer _ = new($"Downloading file to {endpoint} with jsonContent {jsonContent}", _logging);
         onError ??= _logging.LogError;
         var request = await BuildRequest(
             (string.IsNullOrEmpty(jsonContent) && inStream is null) ? HttpMethod.Get : HttpMethod.Post,
@@ -571,6 +583,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
     public async Task<T?> SendAsync<T>(HttpMethod method, string endpoint, string jsonContent = "",
         bool authorize = true, ErrorAction? onError = null, bool isReAuth = false)
     {
+        using DebugTimer _ = new($"Send Async to {endpoint} with jsonContent {jsonContent}", _logging);
         onError ??= err => _logging.LogMessage(LocalLoggingService.LogLevel.Error, err.error);
         var request = await BuildRequest(method, endpoint, jsonContent, authorize);
         var response = await client.SendAsync(request);
