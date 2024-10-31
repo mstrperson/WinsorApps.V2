@@ -71,29 +71,7 @@ public record SavedCredential(
         var json = JsonSerializer.Serialize(credential);
         byte[] credBytes = Encoding.UTF8.GetBytes(json);
 
-        int mult = 1;
-        for (; mult * ApplicationGuid.Length < credBytes.Length; mult++) ;
-
-        byte[] outputBytes = new byte[credBytes.Length + ApplicationGuid.Length * mult];
-
-        for (int i = 0, j = 0, k = 0; i < outputBytes.Length; i++)
-        {
-            if (i % 2 == 0 && j < credBytes.Length)
-            {
-                outputBytes[i] = credBytes[j++];
-            }
-            else
-            {
-                outputBytes[i] = ApplicationGuid[(k++) % ApplicationGuid.Length];
-            }
-        }
-
-        for (int i = 0; i < outputBytes.Length; i++)
-        {
-            outputBytes[i] = (byte)(outputBytes[i] ^ ApplicationGuid[i % ApplicationGuid.Length]);
-        }
-
-        await File.WriteAllBytesAsync(CredFilePath, outputBytes);
+        await File.WriteAllBytesAsync(CredFilePath, credBytes);
     }
 
     public static async Task<SavedCredential?> GetSavedCredential()
@@ -108,19 +86,8 @@ public record SavedCredential(
         }
 
         byte[] outputBytes = await File.ReadAllBytesAsync(CredFilePath);
-
-        for (int i = 0; i < outputBytes.Length; i++)
-        {
-            outputBytes[i] = (byte)(outputBytes[i] ^ ApplicationGuid[i % ApplicationGuid.Length]);
-        }
-
-        byte[] credBytes = new byte[outputBytes.Length / 2];
-        for (int i = 0; i < credBytes.Length; i++)
-        {
-            credBytes[i] = outputBytes[2 * i];
-        }
-
-        string json = Encoding.UTF8.GetString(credBytes);
+   
+        string json = Encoding.UTF8.GetString(outputBytes);
         json = json.Substring(0, json.IndexOf("}") + 1);
 
         if (!json.StartsWith('{') || !json.EndsWith('}'))
