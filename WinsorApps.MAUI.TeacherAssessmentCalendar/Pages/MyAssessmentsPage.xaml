@@ -23,11 +23,18 @@
         <Grid
             RowDefinitions="*"
             ColumnDefinitions="750,750"
-            HorizontalOptions="Center">
+            HorizontalOptions="Center"
+            IsEnabled="{Binding Busy, Converter={StaticResource Invert}}">
             <!-- Left column - My Assessments -->
             <ScrollView
                 Grid.Column="0">
                 <VerticalStackLayout>
+                    <HorizontalStackLayout
+                        IsVisible="{Binding Busy}">
+                        <Label StyleClass="Header"
+                               Text="{Binding BusyMessage}" />
+                        <Image StyleClass="loading_symbol" />
+                    </HorizontalStackLayout>
                     <!-- Course Selection -->
                     <VerticalStackLayout
                         IsVisible="{Binding AssessmentCollection.ShowSelectedGroup, Converter={StaticResource Invert}}">

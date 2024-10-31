@@ -17,6 +17,12 @@
             <VerticalStackLayout
                 WidthRequest="1500"
                 IsEnabled="{Binding Busy, Converter={StaticResource Invert}}">
+                <HorizontalStackLayout
+                    IsVisible="{Binding Busy}">
+                    <Label StyleClass="Header" 
+                           Text="{Binding BusyMessage}"/>
+                    <Image StyleClass="loading_symbol" />
+                </HorizontalStackLayout>
                 <Label 
                     StyleClass="Header"
                     Text="{Binding Title}" />
