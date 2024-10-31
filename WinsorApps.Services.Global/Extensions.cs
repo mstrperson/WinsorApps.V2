@@ -515,12 +515,16 @@ public static partial class Extensions
     /// <param name="continuation"></param>
     public static void WhenCompleted<T>(this Task<T> task, Action continuation, Action? taskCanceledAction = null)
     {
-        if(task.IsCanceled)
+        
+        task.GetAwaiter().OnCompleted(() =>
         {
-            taskCanceledAction?.Invoke();
-            return;
-        }
-        task.GetAwaiter().OnCompleted(continuation);
+            if (!task.IsCompletedSuccessfully)
+            {
+                taskCanceledAction?.Invoke();
+                return;
+            }
+            continuation?.Invoke();
+        });
     }
 
     /// <summary>
