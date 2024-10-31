@@ -29,7 +29,7 @@ namespace WinsorApps.Services.Global.Services
 
             Dictionary<string, byte[]> result = new Dictionary<string, byte[]>();
 
-            var logFiles = Directory.GetFiles(AppDataPath)
+            var logFiles = Directory.GetFiles($"{AppDataPath}logs")
                 .Where(path => path.EndsWith(".log") && File.GetLastWriteTime(path) >= since && File.GetLastWriteTime(path) <= until);
 
             foreach (var logFile in logFiles)
