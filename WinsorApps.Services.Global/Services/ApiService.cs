@@ -20,6 +20,39 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
     public bool Started { get; private set; }
 
     public bool AutoLoginInProgress { get; private set; } = true;
+
+    private static readonly int MaxConcurrentApiCalls = 10;
+
+    private readonly object _apiCountLock = new();
+    private int _openApiCalls = 0;
+
+    private void IncrementApiCount()
+    {
+        lock(_apiCountLock)
+        {
+            _openApiCalls++;
+        }
+    }
+
+    private void DecrementApiCount()
+    {
+        lock (_apiCountLock)
+        {
+            _openApiCalls--;
+        }
+    }
+
+    private async Task WaitForApiSpace()
+    {
+        using DebugTimer _ = new($"Thread {Thread.CurrentThread.ManagedThreadId} waiting for api space", _logging);
+        while(_pauseApiCalls)
+        {
+            await Task.Delay(50);
+        }
+    }
+
+    private bool _pauseApiCalls => _openApiCalls >= MaxConcurrentApiCalls;
+
     
     public event EventHandler? OnLoginSuccess;
     public event EventHandler? OnCacheRefreshed;
@@ -429,13 +462,16 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
         ErrorAction? onError = null, bool isReAuth = false,
         FileStreamWrapper? stream = null)
     {
+        await WaitForApiSpace();
 
         using DebugTimer _ = new($"Send Async to {endpoint} with jsonContent {jsonContent}", _logging);
 
         onError ??= err => _logging.LogMessage(LocalLoggingService.LogLevel.Error, err.error);
         var request = await BuildRequest(method, endpoint, jsonContent, authorize, stream);
 
+        IncrementApiCount();
         var response = await client.SendAsync(request);
+        DecrementApiCount();
         if (await CheckReAuth(response, () => BuildRequest(method, endpoint, jsonContent, authorize, stream).Result))
         {
             onError(new("Unauthorized Access", "Current user is not authorized to access this endpoint."));
@@ -447,18 +483,21 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
             await ProcessHttpResponse(response, onError);
             return "";
         }
-        
+
         if (response.StatusCode == System.Net.HttpStatusCode.NoContent ||
             response.StatusCode == HttpStatusCode.Accepted)
+        {
+            
             return "";
-
+        }
         var message = await response.Content.ReadAsStringAsync();
-
+        DecrementApiCount();
         return message;
     }
 
     public async Task<DocumentHeader?> UploadDocument(string endpoint, DocumentHeader header, byte[] fileContent, ErrorAction onError, bool isReAuth = false)
     {
+        await WaitForApiSpace();
         using DebugTimer _ = new($"Uploading document to {endpoint} with content {header.fileName} [{fileContent.Length} bytes]", _logging);
         using var request = await BuildRequest(HttpMethod.Post, endpoint);
         using MemoryStream ms = new(fileContent);
@@ -471,8 +510,10 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
             }
         };
 
-        var response = await client.SendAsync(request); 
-        
+        IncrementApiCount();
+        var response = await client.SendAsync(request);
+        DecrementApiCount();
+
         if (!response.IsSuccessStatusCode)
         {
             if (!isReAuth && response.StatusCode == System.Net.HttpStatusCode.Unauthorized &&
@@ -489,26 +530,28 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
     public async Task<Stream> DownloadStream(string endpoint, string jsonContent = "", bool authorize = true,
         ErrorAction? onError = null, bool isReAuth = false, FileStreamWrapper? stream = null)
     {
+        await WaitForApiSpace();
         using DebugTimer _ = new($"Downloading stream from {endpoint} with jsonContent {jsonContent}", _logging);
         onError ??= err => _logging.LogMessage(LocalLoggingService.LogLevel.Error, err.error);
         var request = await BuildRequest(HttpMethod.Get, endpoint, jsonContent, authorize, stream);
+        IncrementApiCount();
         var response = await client.SendAsync(request);
-            if (!response.IsSuccessStatusCode)
+        DecrementApiCount();
+        if (!response.IsSuccessStatusCode)
+        {
+            if (!isReAuth && response.StatusCode == System.Net.HttpStatusCode.Unauthorized &&
+                AuthorizedUser is not null)
             {
-                if (!isReAuth && response.StatusCode == System.Net.HttpStatusCode.Unauthorized &&
-                    AuthorizedUser is not null)
-                {
-                    await RenewTokenAsync(onError: onError);
-                    return await DownloadStream(endpoint, jsonContent, authorize, onError, true);
-                }
-
-                await ProcessHttpResponse(response, onError);
-                return new MemoryStream();
+                await RenewTokenAsync(onError: onError);
+                return await DownloadStream(endpoint, jsonContent, authorize, onError, true);
             }
 
+            await ProcessHttpResponse(response, onError);
+            return new MemoryStream();
+        }
 
-            return await response.Content.ReadAsStreamAsync();
-        
+        return await response.Content.ReadAsStreamAsync();
+
     }
 
 
@@ -517,60 +560,65 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
         bool authorize = true,
         ErrorAction? onError = null, bool isReAuth = false, FileStreamWrapper? stream = null)
     {
+        await WaitForApiSpace();
         using DebugTimer _ = new($"Downloading File to {endpoint} with jsonContent {jsonContent}", _logging);
         onError ??= err => _logging.LogMessage(LocalLoggingService.LogLevel.Error, err.error);
         var request = await BuildRequest(HttpMethod.Get, endpoint, jsonContent, authorize, stream);
-         var response = await client.SendAsync(request);
-            if (!response.IsSuccessStatusCode)
+        IncrementApiCount();
+        var response = await client.SendAsync(request);
+        DecrementApiCount();
+        if (!response.IsSuccessStatusCode)
+        {
+            if (!isReAuth && response.StatusCode == System.Net.HttpStatusCode.Unauthorized &&
+                AuthorizedUser is not null)
             {
-                if (!isReAuth && response.StatusCode == System.Net.HttpStatusCode.Unauthorized &&
-                    AuthorizedUser is not null)
-                {
-                    await RenewTokenAsync();
-                    return await DownloadFileExt(endpoint, jsonContent, authorize, onError, true);
-                }
-
-                await ProcessHttpResponse(response, onError);
-                return null;
+                await RenewTokenAsync();
+                return await DownloadFileExt(endpoint, jsonContent, authorize, onError, true);
             }
 
-            var fileName = response.Content.Headers.ContentDisposition?.FileNameStar ?? string.Empty;
-            var contentType = response.Content.Headers.ContentType?.MediaType ?? string.Empty;
-            return new(await response.Content.ReadAsStreamAsync(), contentType, fileName);
-        
+            await ProcessHttpResponse(response, onError);
+            return null;
+        }
+
+        var fileName = response.Content.Headers.ContentDisposition?.FileNameStar ?? string.Empty;
+        var contentType = response.Content.Headers.ContentType?.MediaType ?? string.Empty;
+        return new(await response.Content.ReadAsStreamAsync(), contentType, fileName);
+
     }
 
     public async Task<byte[]> DownloadFile(string endpoint, string jsonContent = "", bool authorize = true,
         ErrorAction? onError = null, bool isReAuth = false,
         FileStreamWrapper? inStream = null)
     {
+        await WaitForApiSpace();
         using DebugTimer _ = new($"Downloading file to {endpoint} with jsonContent {jsonContent}", _logging);
         onError ??= _logging.LogError;
         var request = await BuildRequest(
             (string.IsNullOrEmpty(jsonContent) && inStream is null) ? HttpMethod.Get : HttpMethod.Post,
             endpoint, jsonContent, authorize, inStream);
-        
-            var response = await client.SendAsync(request);
-            if (!response.IsSuccessStatusCode)
-            {
-                if (!isReAuth && response.StatusCode == System.Net.HttpStatusCode.Unauthorized &&
-                    AuthorizedUser is not null)
-                {
-                    await RenewTokenAsync();
-                    return await DownloadFile(endpoint, jsonContent, authorize, onError, true);
-                }
 
-                await ProcessHttpResponse(response, onError);
-                return [];
+        IncrementApiCount();
+        var response = await client.SendAsync(request);
+        DecrementApiCount();
+        if (!response.IsSuccessStatusCode)
+        {
+            if (!isReAuth && response.StatusCode == System.Net.HttpStatusCode.Unauthorized &&
+                AuthorizedUser is not null)
+            {
+                await RenewTokenAsync();
+                return await DownloadFile(endpoint, jsonContent, authorize, onError, true);
             }
 
-            using MemoryStream ms = new();
-            var stream = await response.Content.ReadAsStreamAsync();
+            await ProcessHttpResponse(response, onError);
+            return [];
+        }
 
-            await stream.CopyToAsync(ms);
+        using MemoryStream ms = new();
+        var stream = await response.Content.ReadAsStreamAsync();
 
-            return ms.ToArray();
-        
+        await stream.CopyToAsync(ms);
+        return ms.ToArray();
+
     }
 
     public async Task<TOut?> SendAsync<TIn, TOut>(HttpMethod method, string endpoint, TIn content,
@@ -583,10 +631,13 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
     public async Task<T?> SendAsync<T>(HttpMethod method, string endpoint, string jsonContent = "",
         bool authorize = true, ErrorAction? onError = null, bool isReAuth = false)
     {
+        await WaitForApiSpace();
         using DebugTimer _ = new($"Send Async to {endpoint} with jsonContent {jsonContent}", _logging);
         onError ??= err => _logging.LogMessage(LocalLoggingService.LogLevel.Error, err.error);
         var request = await BuildRequest(method, endpoint, jsonContent, authorize);
+        IncrementApiCount();
         var response = await client.SendAsync(request);
+        DecrementApiCount();
         if (endpoint!="api/auth" && await CheckReAuth(response, () => BuildRequest(method, endpoint, jsonContent, authorize).Result))
         {
             onError(new("Unauthorized Access", "Current user is not authorized to access this endpoint."));
