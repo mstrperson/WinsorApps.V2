@@ -1,5 +1,6 @@
 using AsyncAwaitBestPractices;
 using System.Collections.Immutable;
+using System.Text.Json;
 using WinsorApps.Services.AssessmentCalendar.Models;
 using WinsorApps.Services.Global.Services;
 
@@ -26,7 +27,38 @@ public partial class StudentAssessmentService :
         _api = api;
         _logging = logging;
     }
+    public string CacheFileName => ".student-assessment-calendar.cache";
 
+    private readonly record struct CacheStructure(ImmutableArray<AssessmentCalendarEvent> assessments, ImmutableArray<AssessmentPassDetail> latePasses);
+
+    public void SaveCache()
+    {
+        var cache = new CacheStructure(MyCalendar, MyLatePasses);
+        File.WriteAllText($"{_logging.AppStoragePath}{CacheFileName}", JsonSerializer.Serialize(cache));
+    }
+
+    public bool LoadCache()
+    {
+        if (!File.Exists($"{_logging.AppStoragePath}{CacheFileName}"))
+            return false;
+
+        try
+        {
+            var json = File.ReadAllText($"{_logging.AppStoragePath}{CacheFileName}");
+            var cache = JsonSerializer.Deserialize<CacheStructure>(json);
+
+            MyCalendar = cache.assessments;
+            MyLatePasses = cache.latePasses;
+            CacheStartDate = MyCalendar.Select(cd => cd.start).Min();
+            CacheEndDate = MyCalendar.Select(cd => cd.start).Max();
+        }
+        catch
+        {
+            return false;
+        }
+
+        return true;
+    }
     public DateTime CacheStartDate = DateTime.Today;
     public DateTime CacheEndDate = DateTime.Today;
 
@@ -44,6 +76,7 @@ public partial class StudentAssessmentService :
         {
             MyCalendar = [.. MyCalendar.Merge(result, (a, b) => a.id == b.id && a.type == b.type)];
             OnCacheRefreshed?.Invoke(this, StudentAssessmentCacheRefreshedEventArgs.CalendarRefreshed);
+            SaveCache();
         }
 
         return result;
@@ -89,6 +122,7 @@ public partial class StudentAssessmentService :
         if (result.Any())
             OnCacheRefreshed?.Invoke(this, StudentAssessmentCacheRefreshedEventArgs.CalendarRefreshed);
 
+        SaveCache();
         return result;
     }
 
@@ -100,6 +134,8 @@ public partial class StudentAssessmentService :
         MyLatePasses = [.. MyLatePasses.Merge(result, (a, b) => a.assessment.id == b.assessment.id && a.assessment.type == b.assessment.type)];
         if(result.Any())
             OnCacheRefreshed?.Invoke(this, StudentAssessmentCacheRefreshedEventArgs.PassesRefreshed);
+
+        SaveCache();
         return result;
     }
     public async Task<bool> WithdrawLatePass(string assessmentId, ErrorAction onError)
@@ -120,6 +156,7 @@ public partial class StudentAssessmentService :
             OnCacheRefreshed?.Invoke(this, StudentAssessmentCacheRefreshedEventArgs.PassesRefreshed);
         }
 
+        SaveCache();
         return success;
     }
 
@@ -136,6 +173,7 @@ public partial class StudentAssessmentService :
             var oldAssessment = MyCalendar.First(evt => evt.type == AssessmentType.Assessment && evt.id == assessmentId);
             MyCalendar = MyCalendar.Replace(oldAssessment, oldAssessment with { passAvailable = false, passUsed = true });
             OnCacheRefreshed?.Invoke(this, StudentAssessmentCacheRefreshedEventArgs.PassesRefreshed);
+            SaveCache();
         }
 
         return result;
@@ -146,19 +184,21 @@ public partial class StudentAssessmentService :
         await _api.WaitForInit(onError);
 
         Started = true;
+        if (!LoadCache())
+        {
+            var myPasses = GetMyPasses(onError);
+            myPasses.WhenCompleted(() => Progress += 0.5);
+            myPasses.SafeFireAndForget(e => e.LogException(_logging));
 
-        var myPasses = GetMyPasses(onError);
-        myPasses.WhenCompleted(() => Progress += 0.5);
-        myPasses.SafeFireAndForget(e => e.LogException(_logging));
 
+            var thisMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var myCalendar = GetMyCalendarInRange(onError, thisMonth, thisMonth.AddMonths(1));
+            myCalendar.WhenCompleted(() => Progress += 0.5);
+            myCalendar.SafeFireAndForget(e => e.LogException(_logging));
 
-        var thisMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-        var myCalendar = GetMyCalendarInRange(onError, thisMonth, thisMonth.AddMonths(1));
-        myCalendar.WhenCompleted(() => Progress += 0.5);
-        myCalendar.SafeFireAndForget(e => e.LogException(_logging));
-
-        await Task.WhenAll(myPasses, myCalendar);
-
+            await Task.WhenAll(myPasses, myCalendar);
+            SaveCache();
+        }
         Progress = 1;
         Ready = true;
     }

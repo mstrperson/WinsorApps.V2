@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Immutable;
+using System.Text.Json;
 using AsyncAwaitBestPractices;
 using WinsorApps.Services.AssessmentCalendar.Models;
 using WinsorApps.Services.Global.Models;
@@ -19,6 +20,31 @@ public partial class ReadonlyCalendarService :
 
     public double Progress { get; protected set; } = 0;
 
+    public string CacheFileName => ".assessment-calendar-ro.cache";
+
+    public void SaveCache()
+    {
+        File.WriteAllText($"{_logging.AppStoragePath}{CacheFileName}", JsonSerializer.Serialize(AssessmentCalendar));
+    }
+
+    public bool LoadCache()
+    {
+        if (!File.Exists($"{_logging.AppStoragePath}{CacheFileName}"))
+            return false;
+
+        try
+        {
+            var json = File.ReadAllText($"{_logging.AppStoragePath}{CacheFileName}");
+            AssessmentCalendar = JsonSerializer.Deserialize<ImmutableArray<AssessmentCalendarEvent>>(json);
+        }
+        catch
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     public ImmutableArray<AssessmentCalendarEvent> AssessmentCalendar { get; private set; } = [];
 
     public bool Started { get; private set; }
@@ -29,6 +55,7 @@ public partial class ReadonlyCalendarService :
             .Merge(result, (a, b) => a.id == b.id)
             .OrderBy(evt => evt.start)
             .ToImmutableArray();
+        SaveCache();
     }
     public ReadonlyCalendarService(ApiService api, LocalLoggingService logging, CycleDayCollection cycleDays)
     {
@@ -45,21 +72,33 @@ public partial class ReadonlyCalendarService :
             await Task.Delay(250);
         }
 
-        AssessmentCalendar = await GetAssessmentsByMonth(DateTime.Today.Month, onError);
-        Ready = true;
-        var backgroundTask = Task.Run(async () =>
+        if (!LoadCache())
         {
-            await RefreshYearCache(onError);
-            retryCount = 0;
-            while (AssessmentCalendar.Length == 0 && retryCount < 5)
-            {
-                await Task.Delay(250);
-                await RefreshYearCache(onError);
-            }
-        });
-        backgroundTask.WhenCompleted(() => FullYearCacheComplete?.Invoke(this, EventArgs.Empty));
-        backgroundTask.SafeFireAndForget(e => e.LogException(_logging));
+            AssessmentCalendar = await GetAssessmentsByMonth(DateTime.Today.Month, onError);
+            
 
+            Ready = true;
+            var backgroundTask = Task.Run(async () =>
+            {
+                await RefreshYearCache(onError);
+                retryCount = 0;
+                while (AssessmentCalendar.Length == 0 && retryCount < 5)
+                {
+                    await Task.Delay(250);
+                    await RefreshYearCache(onError);
+                }
+            });
+            backgroundTask.WhenCompleted(() => FullYearCacheComplete?.Invoke(this, EventArgs.Empty));
+            backgroundTask.SafeFireAndForget(e => e.LogException(_logging)); 
+            SaveCache();
+        }
+        else
+        {
+            RefreshYearCache(onError).SafeFireAndForget(e => e.LogException(_logging));
+        }
+
+
+        Ready = true;
     }
 
     public async Task<ImmutableArray<AssessmentEntryRecord>> GetAssessmentsFor(string sectionId, ErrorAction onError)
@@ -163,7 +202,7 @@ public partial class ReadonlyCalendarService :
 
     public async Task Refresh(ErrorAction onError)
     {
-        await Initialize(onError);
+        await RefreshYearCache(onError);
     }
 }
 
@@ -186,6 +225,40 @@ public class CycleDayCollection :
 
     public event EventHandler? OnCacheRefreshed;
 
+    private readonly record struct CacheStructure(SchoolYear schoolYear, ImmutableArray<CycleDay> cycleDays);
+    public string CacheFileName => ".cycle-days.cache";
+
+    public void SaveCache()
+    {
+        var cache = new CacheStructure(SchoolYear, _cycleDays);
+        File.WriteAllText($"{_logging.AppStoragePath}{CacheFileName}", JsonSerializer.Serialize(cache));
+    }
+
+    public bool LoadCache()
+    {
+        if (!File.Exists($"{_logging.AppStoragePath}{CacheFileName}"))
+            return false;
+
+        try
+        {
+            var json = File.ReadAllText($"{_logging.AppStoragePath}{CacheFileName}");
+            var cache = JsonSerializer.Deserialize<CacheStructure>(json);
+
+            if (cache.schoolYear.endDate.ToDateTime(default) < DateTime.Today)
+                return false;
+
+            SchoolYear = cache.schoolYear;
+            _cycleDays = cache.cycleDays;
+            CacheStartDate = _cycleDays.Select(cd => cd.date).Min();
+            CacheEndDate = _cycleDays.Select(cd => cd.date).Max();
+        }
+        catch
+        {
+            return false;
+        }
+
+        return true;
+    }
     public DateOnly CacheStartDate { get; private set; } = DateOnly.FromDateTime(DateTime.Today);
     public DateOnly CacheEndDate { get; private set; } = DateOnly.FromDateTime(DateTime.Today);
 
@@ -229,23 +302,26 @@ public class CycleDayCollection :
     public async Task<bool> Initialize(ErrorAction onError)
     {
         Started = true;
-
-        var schoolYear = await _api.SendAsync<SchoolYear?>(HttpMethod.Get, "api/schedule/school-year",
-                onError: onError);
-
-        Progress = 1;
-
-        if (!schoolYear.HasValue)
+        if (!LoadCache())
         {
-            _cycleDays = Array.Empty<CycleDay>().ToImmutableArray();
-            Ready = true;
-            return false;
+            var schoolYear = await _api.SendAsync<SchoolYear?>(HttpMethod.Get, "api/schedule/school-year",
+                    onError: onError);
+
+
+            if (!schoolYear.HasValue)
+            {
+                _cycleDays = Array.Empty<CycleDay>().ToImmutableArray();
+                Ready = true;
+                return false;
+            }
+
+            SchoolYear = schoolYear.Value;
+
+            _ = await GetCycleDays(schoolYear.Value.startDate, schoolYear.Value.endDate, onError);
+            SaveCache();
         }
-
-        SchoolYear = schoolYear.Value;
-
-        _ = await GetCycleDays(schoolYear.Value.startDate, schoolYear.Value.endDate, onError);
         Ready = true;
+        Progress = 1;
         return true;
     }
 
