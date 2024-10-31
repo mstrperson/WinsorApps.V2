@@ -194,15 +194,27 @@ public partial class TeacherAssessmentService :
     {
         var query = "";
         if (start == default)
-            return await _api.SendAsync<ImmutableArray<AssessmentGroup>>(HttpMethod.Get,
+        {
+            var res = await _api.SendAsync<ImmutableArray<AssessmentGroup>?>(HttpMethod.Get,
                 "api/assessment-calendar/teachers",
                 onError: onError);
+
+            if (res.HasValue)
+            {
+                _myAssessments = _myAssessments.Merge(res.Value, (oldgrp, newgrp) => oldgrp.id == newgrp.id);
+                OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
+            }
+
+            return res ?? [];
+        }
         query += $"?start={start:yyyy-MM-dd}";
         if (end != default)
             query += $"&end={end:yyyy-MM-dd}";
 
-        return await _api.SendAsync<ImmutableArray<AssessmentGroup>>(HttpMethod.Get, $"api/assessment-calendar/teachers{query}",
+        var result = await _api.SendAsync<ImmutableArray<AssessmentGroup>?>(HttpMethod.Get, $"api/assessment-calendar/teachers{query}",
             onError: onError);
+
+        return result ?? [];
     }
 
     public async Task<ImmutableArray<AssessmentCalendarEvent>> GetCalendarByClassOn(string[] classes, DateTime date, ErrorAction onError)
