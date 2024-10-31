@@ -73,10 +73,10 @@ namespace WinsorApps.Services.Global.Services
             if(LogFileNames is null)
                 LogFileNames = new Dictionary<LogLevel, string>()
                 {
-                    { LogLevel.Information, $"{AppDataPath}{separator}info_{now}.log" },
-                    { LogLevel.Warning, $"{AppDataPath}{separator}warning_{now}.log" },
-                    { LogLevel.Error, $"{AppDataPath}{separator}error_{now}.log" },
-                    { LogLevel.Debug, $"{AppDataPath}{separator}debug_{now}.log" },
+                    { LogLevel.Information, $"{AppDataPath}logs{separator}info_{now}.log" },
+                    { LogLevel.Warning, $"{AppDataPath}logs{separator}warning_{now}.log" },
+                    { LogLevel.Error, $"{AppDataPath}logs{separator}error_{now}.log" },
+                    { LogLevel.Debug, $"{AppDataPath}logs{separator}debug_{now}.log" },
                 };
         }
         public string ValidExecutableType => Environment.OSVersion.Platform == PlatformID.Win32NT ? "exe" : "pkg";
