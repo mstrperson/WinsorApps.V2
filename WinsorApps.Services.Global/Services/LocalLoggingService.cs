@@ -56,7 +56,9 @@ namespace WinsorApps.Services.Global.Services
             }
         }
 
-        public static readonly string AppDataPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.Personal)}{Path.DirectorySeparatorChar}.WinsorApps";
+        public static readonly string AppDataPath =
+            
+            $"{Environment.GetFolderPath(Environment.SpecialFolder.Personal)}{Path.DirectorySeparatorChar}.WinsorApps";
         public static readonly string AppDataPathOld = 
             $"{Environment.GetFolderPath(Environment.SpecialFolder.Personal)}";
 
@@ -68,16 +70,18 @@ namespace WinsorApps.Services.Global.Services
 
             var now = $"{DateTime.Now:yyyy_MM_dd_HH_mm_ss}";
 
-            if (!Directory.Exists($"{AppDataPath}logs")) { Directory.CreateDirectory($"{AppDataPath}logs"); }
+            if(!Directory.Exists(AppDataPath))
+                Directory.CreateDirectory(AppDataPath);
+            
+            if (!Directory.Exists($"{AppDataPath}{separator}logs")) { Directory.CreateDirectory($"{AppDataPath}{separator}logs"); }
 
-            if(LogFileNames is null)
-                LogFileNames = new Dictionary<LogLevel, string>()
-                {
-                    { LogLevel.Information, $"{AppDataPath}logs{separator}info_{now}.log" },
-                    { LogLevel.Warning, $"{AppDataPath}logs{separator}warning_{now}.log" },
-                    { LogLevel.Error, $"{AppDataPath}logs{separator}error_{now}.log" },
-                    { LogLevel.Debug, $"{AppDataPath}logs{separator}debug_{now}.log" },
-                };
+            LogFileNames ??= new Dictionary<LogLevel, string>()
+            {
+                {LogLevel.Information, $"{AppDataPath}{separator}logs{separator}info_{now}.log"},
+                {LogLevel.Warning, $"{AppDataPath}{separator}logs{separator}warning_{now}.log"},
+                {LogLevel.Error, $"{AppDataPath}{separator}logs{separator}error_{now}.log"},
+                {LogLevel.Debug, $"{AppDataPath}{separator}logs{separator}debug_{now}.log"},
+            };
 
         }
         public string ValidExecutableType => Environment.OSVersion.Platform == PlatformID.Win32NT ? "exe" : "pkg";
