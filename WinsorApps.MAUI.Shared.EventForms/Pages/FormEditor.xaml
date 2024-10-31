@@ -40,7 +40,8 @@
             Text="Template"
             Command="{Binding TemplateCommand}" />
     </ContentPage.ToolbarItems>
-    <ContentPage.Content>
+    <ContentPage.Content
+                IsEnabled="{Binding Busy, Converter={StaticResource Invert}}">
         <ScrollView>
             <!-- Container that controls enablement of the form based on Busy Status -->
             <VerticalStackLayout

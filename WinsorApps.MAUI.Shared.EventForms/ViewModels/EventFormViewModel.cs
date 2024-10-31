@@ -253,7 +253,7 @@ public partial class EventFormViewModel :
         new(
             vm.Summary,
             vm.Description,
-            vm.Type,
+            vm.Type ?? EventTypeViewModel.Get("default"),
             vm.StartDate.Add(vm.StartTime),
             vm.EndDate.Add(vm.EndTime),
             _api.AuthUserId ?? "",
@@ -339,7 +339,8 @@ public partial class EventFormViewModel :
             Id = result.Value.id;
             IsFieldTrip = result.Value.type.StartsWith("Field", StringComparison.InvariantCultureIgnoreCase);
             StatusSelection.Select(result.Value.status);
-            Attachments = new(result.Value); 
+            Attachments = new(result.Value);
+            Type = EventTypeViewModel.Get(result.Value.type);
             
             if (Type == "Field Trip")
             {
