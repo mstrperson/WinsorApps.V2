@@ -121,8 +121,20 @@ public partial class TeacherAssessmentService :
             await LoadManually(onError);
         }
 
+        LoadCachedAssessmentDetails(onError).SafeFireAndForget(e => e.LogException(_logging));
+
         Progress = 1;
         Ready = true;
+    }
+
+    private async Task LoadCachedAssessmentDetails(ErrorAction onError, bool reloadCache = false)
+    {
+        var assessmentIds = _calendar.AssessmentCalendar
+            .Where(ent => ent.type == AssessmentType.Assessment)
+            .Select(ent => ent.id)
+            .ToImmutableArray();
+
+        _ = await GetAssessmentDetails(assessmentIds, onError, reloadCache);
     }
 
     private async Task LoadManually(ErrorAction onError)
@@ -259,6 +271,40 @@ public partial class TeacherAssessmentService :
         }
         SaveCache();
         return result;
+    }
+
+    public async Task<ImmutableArray<AssessmentEntryRecord>> GetAssessmentDetails(ImmutableArray<string> assessmentIds, ErrorAction onError, bool refresheCache = false)
+    {
+        var output = new List<AssessmentEntryRecord>();
+
+        if(!refresheCache)
+        {
+            foreach(var id in assessmentIds)
+            {
+                if(AssessmentDetailsCache.TryGetValue(id, out var entry))
+                    output.Add(entry);
+            }
+
+            assessmentIds = [.. assessmentIds.Except(output.Select(ent => ent.assessmentId))];
+        }
+
+        var result = await _api.SendAsync<ImmutableArray<string>, ImmutableArray<AssessmentEntryRecord>?>(
+            HttpMethod.Get, $"api/assessment-calendar/teachers/assessment-details", assessmentIds,
+            onError: onError);
+
+        if (result.HasValue)
+        {
+            output = [.. output, .. result];
+            foreach(var entry in result)
+            {
+                if (!AssessmentDetailsCache.ContainsKey(entry.assessmentId))
+                    AssessmentDetailsCache.Add(entry.assessmentId, entry);
+                else
+                    AssessmentDetailsCache[entry.assessmentId] = entry;
+            }
+        }
+        SaveCache();
+        return [..output];
     }
 
     public async Task<ImmutableArray<CourseRecord>> GetMyCourseList(ErrorAction onError) =>
