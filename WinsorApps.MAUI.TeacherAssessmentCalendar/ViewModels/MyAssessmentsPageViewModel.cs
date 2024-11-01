@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using AsyncAwaitBestPractices;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared;
@@ -60,6 +61,8 @@ public partial class MyAssessmentsPageViewModel :
 
         _service = service;
         _registrar = registrar;
+
+        Refresh().SafeFireAndForget(e => e.LogException());
     }
 
     [RelayCommand]

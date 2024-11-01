@@ -94,7 +94,7 @@ public partial class AssessmentGroupViewModel :
                 {
                     var vm = Assessments.First(ent => ent.Section.Model.Reduce(SectionRecord.Empty).sectionId == detail.Value.section.sectionId);
                     vm.Model = OptionalStruct<AssessmentEntryRecord>.Some(detail.Value);
-                    //vm.LoadDetails();
+                    vm.LoadDetails();
                     vm.IsSelected = true;
                     vm.Date = detail.Value.assessmentDateTime;
                 });
@@ -225,7 +225,14 @@ public partial class AssessmentEditorViewModel :
     {
         if (string.IsNullOrEmpty(entry.assessmentId))
             return;
-        Model = OptionalStruct<AssessmentEntryRecord>.Some(entry);
+
+        if(entry == default)
+        {
+            LoadDetails();
+            entry = Model.Reduce(AssessmentEntryRecord.Empty);
+        }
+        else
+            Model = OptionalStruct<AssessmentEntryRecord>.Some(entry);
         Details = AssessmentDetailsViewModel.Get(entry);
         Details.StudentSelected += (sender, e) => StudentSelected?.Invoke(this, e);
         HasConflicts = entry.studentConflicts.Any();

@@ -242,7 +242,7 @@ public partial class TeacherAssessmentService :
 
     public Dictionary<string, AssessmentEntryRecord> AssessmentDetailsCache { get; private set; } = [];
 
-    public async Task<AssessmentEntryRecord?> GetAssessmentDetails(string assessmentId, ErrorAction onError, bool refresheCache = true)
+    public async Task<AssessmentEntryRecord?> GetAssessmentDetails(string assessmentId, ErrorAction onError, bool refresheCache = false)
     {
         if(!refresheCache && AssessmentDetailsCache.TryGetValue(assessmentId, out var details)) 
             return details;

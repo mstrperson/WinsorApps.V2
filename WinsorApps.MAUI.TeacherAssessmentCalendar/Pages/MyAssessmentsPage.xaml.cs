@@ -23,7 +23,7 @@ public partial class MyAssessmentsPage : ContentPage
 			Navigation.PushAsync(page);
 		};
 		InitializeComponent();
-		this.Appearing += (_, _) => vm.Refresh().SafeFireAndForget(e => e.LogException());
+		//this.Appearing += (_, _) => vm.Refresh().SafeFireAndForget(e => e.LogException());
 	}
 
 

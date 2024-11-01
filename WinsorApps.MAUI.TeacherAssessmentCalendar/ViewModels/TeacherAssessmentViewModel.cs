@@ -125,11 +125,12 @@ public partial class AssessmentDetailsViewModel :
     }
 
     [RelayCommand]
-    public void ToggleShowConflicts()
+    public async Task ToggleShowConflicts()
     {
         ShowStudents = false;
         ShowConflicts = true;
         ShowLatePasses = false;
+        await LoadConflicts();
     }
 
     [RelayCommand]
@@ -341,7 +342,7 @@ public partial class AssessmentDetailsViewModel :
 
         vm.Conflicts = [.. details.studentConflicts.Select(StudentConflictViewModel.Get)];
 
-        vm.LoadConflicts().SafeFireAndForget(e => e.LogException());
+        //vm.LoadConflicts().SafeFireAndForget(e => e.LogException());
 
         vm.HasConflicts = vm.Conflicts.Any();
         vm.HasRedFlags = vm.Conflicts.Any(conflict => conflict.RedFlag);

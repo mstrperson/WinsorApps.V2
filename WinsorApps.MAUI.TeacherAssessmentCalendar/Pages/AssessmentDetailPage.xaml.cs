@@ -12,7 +12,6 @@ public partial class AssessmentDetailPage : ContentPage
     public AssessmentDetailPage(AssessmentDetailsViewModel viewModel)
     {
         BindingContext = viewModel; 
-        
         foreach (var studentEntry in viewModel.Students)
             studentEntry.Selected += async (sender, ent) =>
             {
