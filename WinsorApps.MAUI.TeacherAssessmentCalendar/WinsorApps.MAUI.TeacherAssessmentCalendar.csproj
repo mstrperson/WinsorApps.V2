@@ -46,6 +46,11 @@
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 		<Company>The Winsor School</Company>
 		<Product>Teacher Assessment Calendar</Product>
+		<LangVersion>12</LangVersion>
+		<PackageId>edu.winsor.teacher-assessment-calendar</PackageId>
+		<Version>1.1.0</Version>
+		<Authors>Jason Cox; Susan Zuo</Authors>
+		<PackageIcon>Resources\Images\logo_withwordmark_red.png</PackageIcon>
 	</PropertyGroup>
 	
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-maccatalyst|AnyCPU'">
