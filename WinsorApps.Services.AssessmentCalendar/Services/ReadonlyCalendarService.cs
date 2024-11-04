@@ -9,7 +9,8 @@ using WinsorApps.Services.Global.Services;
 namespace WinsorApps.Services.AssessmentCalendar.Services;
 
 public partial class ReadonlyCalendarService :
-    IAsyncInitService
+    IAsyncInitService,
+    ICacheService
 {
     private readonly ApiService _api;
     private readonly LocalLoggingService _logging;
@@ -17,6 +18,7 @@ public partial class ReadonlyCalendarService :
     public readonly CycleDayCollection CycleDays;
 
     public event EventHandler? FullYearCacheComplete;
+    public event EventHandler? OnCacheRefreshed;
 
     public double Progress { get; protected set; } = 0;
 
@@ -56,6 +58,7 @@ public partial class ReadonlyCalendarService :
             .OrderBy(evt => evt.start)
             .ToImmutableArray();
         SaveCache();
+        OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
     }
     public ReadonlyCalendarService(ApiService api, LocalLoggingService logging, CycleDayCollection cycleDays)
     {
@@ -124,6 +127,7 @@ public partial class ReadonlyCalendarService :
         }
 
         AssessmentCalendar = calendarCache.ToImmutableArray();
+        OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
     }
 
     public async Task<ImmutableArray<AssessmentCalendarEvent>> GetAssessmentsByMonth(Month month, ErrorAction onError)

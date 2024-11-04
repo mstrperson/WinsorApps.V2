@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using AsyncAwaitBestPractices;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
@@ -35,6 +36,7 @@ public partial class MonthlyCalendarViewModel :
     {
         _service = service;
         _logging = logging;
+        _service.OnCacheRefreshed += (_, _) => Refresh().SafeFireAndForget(e => e.LogException());
     }
 
     public async Task Initialize(ErrorAction onError)

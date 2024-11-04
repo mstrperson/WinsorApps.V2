@@ -382,7 +382,7 @@ public partial class MyAssessmentsCollectionViewModel :
         using DebugTimer _ = new("Refreshing My Assessments", _logging);
         Busy = true;
         BusyMessage = "Refreshing";
-        await _service.Refresh(OnError.DefaultBehavior(this));
+        //await _service.Refresh(OnError.DefaultBehavior(this));
         await Initialize(OnError.DefaultBehavior(this));
 
         foreach (var group in MyAssessmentGroups)

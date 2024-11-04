@@ -10,7 +10,7 @@ namespace WinsorApps.Services.AssessmentCalendar.Services;
 
 public partial class TeacherAssessmentService : 
     IAsyncInitService,
-    ICacheService
+    IAutoRefreshingCacheService
 {
     private readonly ApiService _api;
     private readonly LocalLoggingService _logging;
@@ -123,6 +123,8 @@ public partial class TeacherAssessmentService :
 
         LoadCachedAssessmentDetails(onError).SafeFireAndForget(e => e.LogException(_logging));
 
+        RefreshInBackground(CancellationToken.None, onError).SafeFireAndForget(e => e.LogException(_logging));
+
         Progress = 1;
         Ready = true;
     }
@@ -134,6 +136,7 @@ public partial class TeacherAssessmentService :
             .Select(ent => ent.id)
             .ToImmutableArray();
 
+        using DebugTimer __ = new($"Loading Cached assessment details for {assessmentIds.Length} assessments", _logging);
         _ = await GetAssessmentDetails(assessmentIds, onError, reloadCache);
     }
 
@@ -212,9 +215,12 @@ public partial class TeacherAssessmentService :
                 onError: onError);
 
             if (res.HasValue)
-            {
-                _myAssessments = _myAssessments.Merge(res.Value, (oldgrp, newgrp) => oldgrp.id == newgrp.id);
-                OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
+            { 
+                if (res!.Value.ExceptBy(_myAssessments.Select(grp => grp.id), grp => grp.id).Any())
+                {
+                    _myAssessments = _myAssessments.Merge(res.Value, (oldgrp, newgrp) => oldgrp.id == newgrp.id);
+                    OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
+                }
             }
 
             return res ?? [];
@@ -253,6 +259,10 @@ public partial class TeacherAssessmentService :
     }
 
     public Dictionary<string, AssessmentEntryRecord> AssessmentDetailsCache { get; private set; } = [];
+
+    public TimeSpan RefreshInterval => TimeSpan.FromMinutes(30);
+
+    public bool Refreshing { get; private set; }
 
     public async Task<AssessmentEntryRecord?> GetAssessmentDetails(string assessmentId, ErrorAction onError, bool refresheCache = false)
     {
@@ -337,9 +347,12 @@ public partial class TeacherAssessmentService :
             HttpMethod.Post, $"api/assessment-calendar/teachers", newAssessment,
             onError: onError);
 
-        if (!result.HasValue) return result;
+        if (!result.HasValue) 
+            return result;
+
         _myAssessments.Add(result.Value);
-        _calendar.Initialize(onError).SafeFireAndForget(e => e.LogException(_logging));
+        // TODO: This is awful. stop.
+        _calendar.Refresh(onError).SafeFireAndForget(e => e.LogException(_logging));
         OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         SaveCache();
         return result;
@@ -358,6 +371,7 @@ public partial class TeacherAssessmentService :
         else
             _myAssessments.Add(result.Value);
 
+        // TODO: This is awful!! STOP
         _calendar.Refresh(onError).SafeFireAndForget(e => e.LogException(_logging));
         OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         SaveCache();
@@ -388,5 +402,18 @@ public partial class TeacherAssessmentService :
     public async Task Refresh(ErrorAction onError)
     {
         await LoadManually(onError);
+        await LoadCachedAssessmentDetails(onError);
+        OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
+    }
+
+    public async Task RefreshInBackground(CancellationToken token, ErrorAction onError)
+    {
+        while(!token.IsCancellationRequested)
+        {
+            await Task.Delay(RefreshInterval);
+            await LoadManually(onError);
+            await LoadCachedAssessmentDetails(onError, true);
+            OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
+        }
     }
 }

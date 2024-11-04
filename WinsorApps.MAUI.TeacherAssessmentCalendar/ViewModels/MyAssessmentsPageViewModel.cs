@@ -62,6 +62,9 @@ public partial class MyAssessmentsPageViewModel :
         _service = service;
         _registrar = registrar;
 
+        _service.OnCacheRefreshed += (_, _) => 
+            Refresh().SafeFireAndForget(e => e.LogException());
+
         Refresh().SafeFireAndForget(e => e.LogException());
     }
 

@@ -910,7 +910,7 @@ public partial class EventTypeViewModel :
 
     [ObservableProperty] bool isSelected;
     
-    public static implicit operator string(EventTypeViewModel vm) => vm.Type;
+    public static implicit operator string(EventTypeViewModel vm) => vm?.Type ?? "default";
 
     public override string ToString() => Type;
 
