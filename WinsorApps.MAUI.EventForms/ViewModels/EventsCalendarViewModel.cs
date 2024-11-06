@@ -39,6 +39,8 @@ public partial class EventsCalendarViewModel :
         _calendarService = calendarService;
         _logging = logging;
 
+        _calendarService.OnCacheRefreshed += async (_, _) => await Refresh();
+
         Calendar = new()
         {
             Month = DateTime.Today.MonthOf(),

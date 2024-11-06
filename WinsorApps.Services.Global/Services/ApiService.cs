@@ -21,10 +21,13 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
 
     public bool AutoLoginInProgress { get; private set; } = true;
 
-    private static readonly int MaxConcurrentApiCalls = 10;
+    private static readonly int MaxConcurrentApiCalls = 100;
 
     private readonly object _apiCountLock = new();
     private int _openApiCalls = 0;
+
+    private DateTime _lastCallTime = DateTime.Now;
+    private DateTime _lastReleaseTime = DateTime.Now;
 
     private void IncrementApiCount()
     {
@@ -32,6 +35,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
         {
             _openApiCalls++;
         }
+        _lastCallTime = DateTime.Now;
     }
 
     private void DecrementApiCount()
@@ -40,6 +44,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
         {
             _openApiCalls--;
         }
+        _lastReleaseTime = DateTime.Now;
     }
 
     private async Task WaitForApiSpace()
@@ -48,6 +53,13 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
         while(_pauseApiCalls)
         {
             await Task.Delay(50);
+
+            if(_lastReleaseTime - DateTime.Now > TimeSpan.FromSeconds(30))
+            {
+                _logging.LogMessage(LocalLoggingService.LogLevel.Debug, "Releasing Timer for Counting API Threads...");
+                _openApiCalls = 0;
+                return;
+            }
         }
     }
 

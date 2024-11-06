@@ -104,6 +104,8 @@ namespace WinsorApps.Services.EventForms.Services
 
             Progress = 1;
             Ready = true;
+
+            RefreshInBackground(CancellationToken.None, onError).SafeFireAndForget(e => e.LogException(_logging));
         }
 
         private async Task ManualLoadData(ErrorAction onError)
