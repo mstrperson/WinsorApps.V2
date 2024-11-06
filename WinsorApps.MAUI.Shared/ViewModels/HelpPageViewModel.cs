@@ -41,7 +41,31 @@ namespace WinsorApps.MAUI.Shared.ViewModels
         public async Task SubmitLogs()
         {
             var logs = _logging.GetRecentLogs(LogStart, LogEnd);
-            await _api.SendAsync<Dictionary<string, byte[]>, string>(HttpMethod.Post, "api/users/self/submit-logs", logs, onError: OnError.DefaultBehavior(this));
+            if (logs.Select(kvp => kvp.Value.Length).Sum() < 5_000_000) // if the logs are less than 5MiB in size...
+            {
+                await _api.SendAsync<Dictionary<string, byte[]>, string>(HttpMethod.Post, "api/users/self/submit-logs", logs, onError: OnError.DefaultBehavior(this));
+                return;
+            }
+
+            List<Dictionary<string, byte[]>> chunks = [  ];
+
+            while (logs.Count > 0)
+            {
+                var chunk = new Dictionary<string, byte[]>();
+                while (chunk.Select(kvp => kvp.Value.Length).Sum() < 5_000_000 && logs.Count > 0)
+                {
+                    var log = logs.First();
+                    logs.Remove(log.Key);
+                    chunk.Add(log.Key, log.Value);
+                }
+
+                chunks.Add(chunk);
+            }
+
+            foreach (var chunk in chunks)
+            {
+                await _api.SendAsync<Dictionary<string, byte[]>, string>(HttpMethod.Post, "api/users/self/submit-logs", chunk, onError: OnError.DefaultBehavior(this));
+            }
         }
     }
 }
