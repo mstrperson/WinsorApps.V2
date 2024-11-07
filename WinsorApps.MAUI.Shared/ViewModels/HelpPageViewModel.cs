@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Immutable;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 
@@ -25,13 +26,19 @@ namespace WinsorApps.MAUI.Shared.ViewModels
         private void Api_OnLoginSuccess(object? sender, EventArgs e)
         {
             LoggedInUser = UserViewModel.Get(_api.UserInfo!.Value);
+            var roleTask = _api.UserInfo.Value.GetRoles(_api);
+            roleTask.WhenCompleted(() =>
+            {
+                var roles = roleTask.Result;
+                CanMasquerade = roles.Any(role => role.StartsWith("System Admin", StringComparison.InvariantCultureIgnoreCase));
+            });
         }
 
         [ObservableProperty] private ImmutableArray<ServiceAwaiterViewModel> services = [];
         [ObservableProperty] private DateTime logStart = DateTime.Today.AddDays(-14);
         [ObservableProperty] private DateTime logEnd = DateTime.Today.AddDays(1);
         [ObservableProperty] private UserViewModel loggedInUser = UserViewModel.Empty;
-
+        [ObservableProperty] bool canMasquerade;
         public string StoragePath => _logging.AppStoragePath;
         public DateTime LastUpdated => _app.LastVersionUpdated;
         public string Architecture => _logging.ValidArchitecture;
