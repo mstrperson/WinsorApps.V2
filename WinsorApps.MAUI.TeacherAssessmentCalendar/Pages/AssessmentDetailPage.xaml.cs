@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.TeacherAssessmentCalendar.ViewModels;
 
 namespace WinsorApps.MAUI.TeacherAssessmentCalendar.Pages;
@@ -11,6 +12,7 @@ public partial class AssessmentDetailPage : ContentPage
 {
     public AssessmentDetailPage(AssessmentDetailsViewModel viewModel)
     {
+        viewModel.OnError += this.DefaultOnErrorHandler();
         BindingContext = viewModel; 
         foreach (var studentEntry in viewModel.Students)
             studentEntry.Selected += async (sender, ent) =>
@@ -37,6 +39,7 @@ public partial class AssessmentDetailPage : ContentPage
                     else if (ent.LatePassUsed)
                     {
                         await viewModel.WithdrawPassFor(ent.Student);
+
                     }
                 };
         };

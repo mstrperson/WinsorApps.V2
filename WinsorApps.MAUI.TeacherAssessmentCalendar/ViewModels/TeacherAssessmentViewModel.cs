@@ -152,6 +152,7 @@ public partial class AssessmentDetailsViewModel :
             await _assessmentService.WithdrawLatePassForStudent(student.UserInfo.Id,
                 pass.Model.Reduce(AssessmentPassDetail.Empty).assessment.id,
                 err => OnError?.Invoke(this, err));
+            Passess.Remove(pass);
             LoadAssessmentDetails();
         }
 
@@ -237,7 +238,7 @@ public partial class AssessmentDetailsViewModel :
     {
         Busy = true;
         BusyMessage = "Loading Assessment Details.";
-        var getTask = _assessmentService.GetAssessmentDetails(Model.Reduce(AssessmentCalendarEvent.Empty).id, OnError.DefaultBehavior(this));
+        var getTask = _assessmentService.GetAssessmentDetails(Model.Reduce(AssessmentCalendarEvent.Empty).id, OnError.DefaultBehavior(this), true);
         getTask.WhenCompleted(() =>
         {
             var result = getTask.Result;

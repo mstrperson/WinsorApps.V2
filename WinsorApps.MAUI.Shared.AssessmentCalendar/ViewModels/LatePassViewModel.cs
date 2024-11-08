@@ -70,7 +70,11 @@ namespace WinsorApps.MAUI.Shared.AssessmentCalendar.ViewModels
                 {
                     Student = student,
                     CourseName = assessment.section.displayName,
-                    Timestamp = latePass.timeStamp
+                    Timestamp = latePass.timeStamp,
+                    Model = OptionalStruct<AssessmentPassDetail>.Some(
+                        new(new(assessment.assessmentId, AssessmentType.Assessment, "", "", 
+                        assessment.assessmentDateTime, assessment.assessmentDateTime, false, []), 
+                        student.Model.Reduce(UserRecord.Empty), latePass.timeStamp, new()))
                 });
             }
 
