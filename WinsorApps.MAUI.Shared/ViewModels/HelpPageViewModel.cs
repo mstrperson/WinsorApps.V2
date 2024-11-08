@@ -1,26 +1,37 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.Shared.ViewModels
 {
-    public partial class HelpPageViewModel : ObservableObject
+    public partial class HelpPageViewModel : 
+        ObservableObject,
+        IBusyViewModel
     {
         private readonly LocalLoggingService _logging;
         private readonly ApiService _api;
         private readonly AppService _app;
+        private readonly RegistrarService _registrar;
 
         public event EventHandler<ErrorRecord>? OnError;
 
-        public HelpPageViewModel(LocalLoggingService logging, ApiService api, AppService app)
+        public HelpPageViewModel(LocalLoggingService logging, ApiService api, AppService app, RegistrarService registrar)
         {
             _logging = logging;
             _api = api;
             api.OnLoginSuccess += Api_OnLoginSuccess;
             _app = app;
+            _registrar = registrar;
+            _registrar.WaitForInit(OnError.DefaultBehavior(this)).WhenCompleted(() =>
+            {
+                MasqSearch.SetAvailableUsers(_registrar.EmployeeList);
+                MasqSearch.OnSingleResult += (_, selected) =>
+                    MasqSelection = selected;
+            });
         }
 
         private void Api_OnLoginSuccess(object? sender, EventArgs e)
@@ -32,18 +43,53 @@ namespace WinsorApps.MAUI.Shared.ViewModels
                 var roles = roleTask.Result;
                 CanMasquerade = roles.Any(role => role.StartsWith("System Admin", StringComparison.InvariantCultureIgnoreCase));
             });
+
         }
 
-        [ObservableProperty] private ImmutableArray<ServiceAwaiterViewModel> services = [];
+        [ObservableProperty] private ObservableCollection<ServiceAwaiterViewModel> services = [];
         [ObservableProperty] private DateTime logStart = DateTime.Today.AddDays(-14);
         [ObservableProperty] private DateTime logEnd = DateTime.Today.AddDays(1);
         [ObservableProperty] private UserViewModel loggedInUser = UserViewModel.Empty;
         [ObservableProperty] bool canMasquerade;
+        [ObservableProperty] bool isMasqing;
+        [ObservableProperty] UserSearchViewModel masqSearch = new();
+        [ObservableProperty] UserViewModel masqSelection = UserViewModel.Empty;
+        [ObservableProperty] bool busy;
+        [ObservableProperty] string busyMessage = "";
+
         public string StoragePath => _logging.AppStoragePath;
         public DateTime LastUpdated => _app.LastVersionUpdated;
         public string Architecture => _logging.ValidArchitecture;
 
+        [RelayCommand]
+        public async Task Masquerade()
+        {
+            Busy = true;
+            BusyMessage = $"Masquerading as {MasqSelection.DisplayName}";
+            if(!string.IsNullOrEmpty(MasqSelection.Id) &&
+                await _api.Masquerade(MasqSelection.Id, OnError.DefaultBehavior(this)))
+            {
+                IsMasqing = true;
+                LoggedInUser = UserViewModel.Get(_api.UserInfo!.Value);
+                foreach(var service in Services)
+                {
+                    service.Refresh();
+                }
+            }
+            Busy = false;
+        }
 
+        [RelayCommand]
+        public async Task DropMasq()
+        {
+            Busy = true;
+            BusyMessage = $"Dropping Masqerade as {MasqSelection.DisplayName}";
+            await _api.DropMasq();
+            IsMasqing = false;
+            LoggedInUser = UserViewModel.Get(_api.UserInfo!.Value);
+            Busy = false;
+        }
+        
         [RelayCommand]
         public async Task SubmitLogs()
         {

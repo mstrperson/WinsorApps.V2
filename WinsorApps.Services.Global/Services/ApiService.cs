@@ -54,7 +54,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
         {
             await Task.Delay(50);
 
-            if(_lastReleaseTime - DateTime.Now > TimeSpan.FromSeconds(30))
+            if(_lastCallTime - DateTime.Now > TimeSpan.FromSeconds(30))
             {
                 _logging.LogMessage(LocalLoggingService.LogLevel.Debug, "Releasing Timer for Counting API Threads...");
                 _openApiCalls = 0;
@@ -101,7 +101,9 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
 
     }
 
-    public AuthResponse? MasqueradingAdminCred { get; private set; }
+    public bool IsMasqing => MasqueradingAdminCred is not null;
+
+    private AuthResponse? MasqueradingAdminCred { get; set; }
 
     public async Task Refresh(ErrorAction onError)
     {

@@ -68,6 +68,9 @@ namespace WinsorApps.MAUI.TeacherAssessmentCalendar
             var helpPage = ServiceHelper.GetService<HelpPageViewModel>();
             helpPage.Services =
             [
+                new(ServiceHelper.GetService<ReadonlyCalendarService>(), "Read Only Calendar Service"),
+                new(ServiceHelper.GetService<TeacherAssessmentService>(), "Teacher Calendar Service"),
+                new(ServiceHelper.GetService<RegistrarService>(), "Registrar Service"),
             ];
 
             logging.LogMessage(LocalLoggingService.LogLevel.Information, "App Built Successfully!");

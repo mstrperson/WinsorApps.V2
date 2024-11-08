@@ -67,6 +67,15 @@ public partial class MainPageViewModel : ObservableObject, IBusyViewModel, IErro
         BackgroundAwaiter().SafeFireAndForget(e => OnError?.Invoke(this, new("Initialization Error", e.Message)));
     }
 
+    [RelayCommand]
+    public void ReloadAllServices()
+    {
+        foreach(var  serv in PostLoginServices)
+        {
+            serv.Refresh();
+        }
+    }
+
     private void LoginVMOnOnForgotPassword(object? sender, string e)
     {
     }

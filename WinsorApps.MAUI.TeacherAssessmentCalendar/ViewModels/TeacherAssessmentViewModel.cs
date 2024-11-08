@@ -281,7 +281,7 @@ public partial class AssessmentDetailsViewModel :
 
             Conflicts = [.. details.studentConflicts.Select(StudentConflictViewModel.Get)];
 
-            LoadConflicts().SafeFireAndForget(e => e.LogException());
+            //LoadConflicts().SafeFireAndForget(e => e.LogException());
 
             HasConflicts = Conflicts.Any();
             HasRedFlags = Conflicts.Any(conflict => conflict.RedFlag);

@@ -92,7 +92,9 @@ public partial class AssessmentGroupViewModel :
             {
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    var vm = Assessments.First(ent => ent.Section.Model.Reduce(SectionRecord.Empty).sectionId == detail.Value.section.sectionId);
+                    var vm = Assessments.FirstOrDefault(ent => ent.Section.Model.Reduce(SectionRecord.Empty).sectionId == detail.Value.section.sectionId);
+                    if (vm is null)
+                        return;
                     vm.Model = OptionalStruct<AssessmentEntryRecord>.Some(detail.Value);
                     vm.LoadDetails();
                     vm.IsSelected = true;

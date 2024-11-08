@@ -9,6 +9,7 @@
     <ContentPage.Resources>
         <ResourceDictionary>
             <conv:DateTimeConverter x:Key="DateConverter" />
+            <conv:BoolInverter x:Key="Invert" />
         </ResourceDictionary>
     </ContentPage.Resources>
     <ScrollView>
@@ -100,7 +101,38 @@
                         HorizontalOptions="Center"
                         Text="Send Logs to Tech"
                         Command="{Binding SubmitLogsCommand}" />
-
+                    <BoxView StyleClass="Bar" />
+                    <VerticalStackLayout
+                        IsVisible="{Binding CanMasquerade}">
+                        <Label StyleClass="H3" Text="Masquerade" />
+                        <HorizontalStackLayout
+                            Margin="0"
+                            Padding="0"
+                            IsVisible="{Binding Busy}">
+                            <Label StyleClass="H3" Text="{Binding BusyMessage}" />
+                            <Image StyleClass="loading_symbol" />
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout
+                            Margin="0"
+                            Padding="0"
+                            IsVisible="{Binding IsMasqing, Converter={StaticResource Invert}}">
+                            <SearchBar 
+                                WidthRequest="180"
+                                Text="{Binding MasqSearch.SearchText}" 
+                                SearchCommand="{Binding MasqSearch.SearchCommand}"/>
+                            <Button
+                                Text="Masquerade"
+                                Command="{Binding MasqueradeCommand}" />
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout
+                            Margin="0"
+                            Padding="0"
+                            IsVisible="{Binding IsMasqing}">
+                            <Button
+                                Text="{Binding MasqSelection.DisplayName, StringFormat='Drop Masqerade as {0}'}" 
+                                Command="{Binding DropMasqCommand}" />
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
                 </VerticalStackLayout>
             </Grid>
         </VerticalStackLayout>
