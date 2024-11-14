@@ -112,7 +112,7 @@ public partial class AssessmentDetailsViewModel :
         BusyMessage = "Submitting Late Pass...";
         await student.LatePassCollection.RequestNewPassFor(Model.Reduce(AssessmentCalendarEvent.Empty));
 
-        LoadAssessmentDetails();
+        LoadAssessmentDetails(true);
         Busy = false;
     }
 
@@ -153,7 +153,7 @@ public partial class AssessmentDetailsViewModel :
                 pass.Model.Reduce(AssessmentPassDetail.Empty).assessment.id,
                 err => OnError?.Invoke(this, err));
             Passess.Remove(pass);
-            LoadAssessmentDetails();
+            LoadAssessmentDetails(true);
         }
 
         Busy = false;
@@ -234,11 +234,11 @@ public partial class AssessmentDetailsViewModel :
         PassessHeightRequest = HEADER_HEIGHT + Passess.Count * ROW_HEIGHT;
     }
 
-    private void LoadAssessmentDetails()
+    private void LoadAssessmentDetails(bool refreshCache = false)
     {
         Busy = true;
         BusyMessage = "Loading Assessment Details.";
-        var getTask = _assessmentService.GetAssessmentDetails(Model.Reduce(AssessmentCalendarEvent.Empty).id, OnError.DefaultBehavior(this), true);
+        var getTask = _assessmentService.GetAssessmentDetails(Model.Reduce(AssessmentCalendarEvent.Empty).id, OnError.DefaultBehavior(this), refreshCache);
         getTask.WhenCompleted(() =>
         {
             var result = getTask.Result;
