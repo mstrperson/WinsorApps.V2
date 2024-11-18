@@ -74,6 +74,8 @@ public record SavedCredential(
         await File.WriteAllBytesAsync(CredFilePath, credBytes);
     }
 
+    public static bool HasSavedCred => File.Exists(CredFilePath);
+
     public static async Task<SavedCredential?> GetSavedCredential()
     {
         if (!File.Exists(CredFilePath) && !File.Exists(CredFilePathOld))

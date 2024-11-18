@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.WorkoutSignIn.ViewModels"
+             xmlns:svm="clr-namespace:WinsorApps.MAUI.Shared.WorkoutSignin.ViewModels;assembly=WinsorApps.MAUI.Shared.WorkoutSignin"
+             xmlns:gvm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels;assembly=WinsorApps.MAUI.Shared"
+             x:Class="WinsorApps.MAUI.WorkoutSignIn.MainPage"
+             x:DataType="vm:WorkoutListPageViewModel">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Sign In" IsEnabled="{Binding ShowSignIn, Converter={StaticResource Invert}}" />
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <VerticalStackLayout>
+            <VerticalStackLayout
+                Margin="0"
+                Padding="0"
+                IsVisible="{Binding ShowSignIn}">
+                <HorizontalStackLayout
+                    Margin="0"
+                    Padding="0"
+                    Spacing="25">
+                    <Label 
+                        StyleClass="H3"
+                        Text="Name:" />
+                    <SearchBar
+                        Text="{Binding SignInViewModel.StudentSearch.SearchText}"
+                        SearchCommand="{Binding SignInViewModel.StudentSearch.SearchCommand}"
+                        Unfocused="SearchBar_Unfocused"
+                        IsVisible="{Binding SignInViewModel.IsSelected, Converter={StaticResource Invert}}"/>
+                    <Label 
+                        StyleClass="H3"
+                        Text="{Binding SignInViewModel.SelectedStudent.DisplayName}"
+                        IsVisible="{Binding SignInViewModel.IsSelected}">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SignInViewModel.ClearCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                    <Button
+                        Text="Sign In"
+                        IsVisible="{Binding SignInViewModel.IsSelected}" 
+                        Command="{Binding SignInViewModel.SignInCommand}"/>
+                </HorizontalStackLayout>
+                <CollectionView
+                    ItemsSource="{Binding SignInViewModel.StudentSearch.Options}"
+                    IsVisible="{Binding SignInViewModel.StudentSearch.ShowOptions}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="gvm:UserViewModel">
+                            <HorizontalStackLayout>
+                                <HorizontalStackLayout.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                </HorizontalStackLayout.GestureRecognizers>
+                                <Label
+                                    Text="{Binding DisplayName}" />
+                            </HorizontalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+            <CollectionView
+                ItemsSource="{Binding OpenWorkouts}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="svm:WorkoutViewModel">
+                        <HorizontalStackLayout
+                            Spacing="25"
+                            Padding="0,0,0,10">
+                            <Label
+                                StyleClass="H3"
+                                WidthRequest="300"
+                                Text="{Binding Student.DisplayName}" />
+                            <Label
+                                StyleClass="H3"
+                                WidthRequest="100"
+                                Text="{Binding TimeIn, StringFormat='{0:hh:mm tt}'}" />
+                            <Button
+                                Text="Sign Out"
+                                Command="{Binding SignOutCommand}"/>
+                        </HorizontalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+    </ContentPage.Content>
+</ContentPage>
