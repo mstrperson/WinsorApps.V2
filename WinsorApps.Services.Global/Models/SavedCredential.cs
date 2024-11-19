@@ -14,7 +14,7 @@ public record SavedCredential(
     private static string GuidFilePath => $"{LocalLoggingService.AppDataPath}{Path.DirectorySeparatorChar}.forms-app.guid";
     private static string GuidFilePathOld => $"{LocalLoggingService.AppDataPathOld}{Path.DirectorySeparatorChar}forms-app.guid";
 
-
+    public static bool SavedCredExists => File.Exists(CredFilePath);
 
     private static byte[] ApplicationGuid
     {
