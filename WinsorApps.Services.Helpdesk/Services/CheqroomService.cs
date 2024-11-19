@@ -26,6 +26,7 @@ public class CheqroomService : IAsyncInitService, IAutoRefreshingCacheService
 
     public TimeSpan RefreshInterval => TimeSpan.FromMinutes(5);
 
+    public string CacheFileName => throw new NotImplementedException();
 
     public event EventHandler? OnCacheRefreshed;
 
@@ -152,5 +153,15 @@ public class CheqroomService : IAsyncInitService, IAutoRefreshingCacheService
             await Task.Delay(RefreshInterval, token);
             await Refresh(onError);
         }
+    }
+
+    public void SaveCache()
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool LoadCache()
+    {
+        throw new NotImplementedException();
     }
 }

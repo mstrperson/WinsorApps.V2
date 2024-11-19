@@ -77,6 +77,8 @@ public class ServiceCaseService : IAsyncInitService, IAutoRefreshingCacheService
 
     public bool Refreshing { get; private set; }
 
+    public string CacheFileName => throw new NotImplementedException();
+
     public async Task Refresh(ErrorAction onError)
     {
         Refreshing = true;
@@ -235,5 +237,15 @@ public class ServiceCaseService : IAsyncInitService, IAutoRefreshingCacheService
         {
             await Task.Delay(RefreshInterval, token);
         }
+    }
+
+    public void SaveCache()
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool LoadCache()
+    {
+        throw new NotImplementedException();
     }
 }

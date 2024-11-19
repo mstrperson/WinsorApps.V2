@@ -145,6 +145,15 @@ public class Month
     public override string ToString() => $"{MonthNames[_month - 1]}";
 }
 
+public readonly record struct DateRangeWrapper(DateOnly start, DateOnly end)
+{
+    public static implicit operator DateRange(DateRangeWrapper wrapper) => new(wrapper.start, wrapper.end);
+    public static implicit operator DateRangeWrapper(DateRange range) => new(range.start, range.end);
+
+    public DateRangeWrapper(DateTime start, DateTime end) : this(DateOnly.FromDateTime(start), DateOnly.FromDateTime(end)) { }
+}
+
+
 /// <summary>
 /// Enumerable range of dates.
 /// </summary>
@@ -155,6 +164,7 @@ public record struct DateRange(DateOnly start, DateOnly end) : IEnumerable<DateO
     public DateRange(DateTime start, DateTime end) : this(DateOnly.FromDateTime(start), DateOnly.FromDateTime(end)) { }
 
     public bool Contains(DateOnly date) => date >= start && date <= end;
+    public bool Contains(DateTime date) => DateOnly.FromDateTime(date) >= start && DateOnly.FromDateTime(date) <= end;
 
     public static DateRange MonthOf(int month, int year = -1) => MonthOf(month, year);
     public static DateRange MonthOf(int month, DateTime starting)

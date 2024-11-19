@@ -31,6 +31,8 @@ public class StudentBookstoreService : IAsyncInitService
 
     public double Progress { get; private set; }
 
+    public string CacheFileName => throw new NotImplementedException();
+
     /// <summary>
     /// Get Data from Cache. This data is populated during initialization and does not need to be refreshed (theoretically...)
     /// </summary>
@@ -215,5 +217,15 @@ public class StudentBookstoreService : IAsyncInitService
 
         await Task.WhenAll(taskList);
 
+    }
+
+    public void SaveCache()
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool LoadCache()
+    {
+        throw new NotImplementedException();
     }
 }
