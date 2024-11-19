@@ -95,6 +95,8 @@ public class BookService : IAsyncInitService
 
     public double Progress { get; private set; }
 
+    public string CacheFileName => throw new NotImplementedException();
+
     public async Task Refresh(ErrorAction onError)
     {
         var cache = await _api.SendAsync<List<BookDetail>>(HttpMethod.Get,
@@ -198,5 +200,13 @@ public class BookService : IAsyncInitService
             await Task.Delay(250);
     }
 
+    public void SaveCache()
+    {
+        throw new NotImplementedException();
+    }
 
+    public bool LoadCache()
+    {
+        throw new NotImplementedException();
+    }
 }

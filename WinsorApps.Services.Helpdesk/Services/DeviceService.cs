@@ -71,6 +71,8 @@ public sealed class DeviceService : IAsyncInitService
 
     public double Progress { get; private set; } = 0;
 
+    public string CacheFileName => throw new NotImplementedException();
+
     public async Task WaitForInit(ErrorAction onError)
     {
         if (Ready) return;
@@ -248,5 +250,15 @@ public sealed class DeviceService : IAsyncInitService
         var dev = DeviceCache.First(d => d.id == id);
         _deviceCache!.Replace(dev, result.Value);
         return true;
+    }
+
+    public void SaveCache()
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool LoadCache()
+    {
+        throw new NotImplementedException();
     }
 }

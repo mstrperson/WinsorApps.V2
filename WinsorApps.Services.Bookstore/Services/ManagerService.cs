@@ -45,6 +45,8 @@ public partial class BookstoreManagerService :
 
     public bool Refreshing { get; private set; }
 
+    public string CacheFileName => throw new NotImplementedException();
+
     public BookstoreManagerService(RegistrarService registrar, LocalLoggingService logging,
             ApiService api, BookService bookService, TeacherBookstoreService teacherBookstoreService)
     {
@@ -313,5 +315,15 @@ public partial class BookstoreManagerService :
             await Task.Delay(RefreshInterval);
             await Refresh(onError);
         }
+    }
+
+    public void SaveCache()
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool LoadCache()
+    {
+        throw new NotImplementedException();
     }
 }

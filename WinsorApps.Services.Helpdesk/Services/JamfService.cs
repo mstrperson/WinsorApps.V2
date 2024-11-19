@@ -44,6 +44,8 @@ public class JamfService : IAsyncInitService
     public bool Started { get; private set; }
     public double Progress { get; private set; } = 0;
 
+    public string CacheFileName => throw new NotImplementedException();
+
     public async Task Refresh(ErrorAction onError)
     {
         Started = false;
@@ -91,4 +93,14 @@ public class JamfService : IAsyncInitService
     }
 
     public Department GetDepartmentByName(string name) => Departments.First(dept => dept.name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
+
+    public void SaveCache()
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool LoadCache()
+    {
+        throw new NotImplementedException();
+    }
 }
