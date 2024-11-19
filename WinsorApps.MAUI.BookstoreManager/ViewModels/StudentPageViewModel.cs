@@ -46,6 +46,8 @@ public partial class StudentPageViewModel :
     [ObservableProperty] double progress;
     [ObservableProperty] bool started;
 
+    public string CacheFileName => throw new NotImplementedException();
+
     public StudentPageViewModel(BookstoreManagerService manager, LocalLoggingService logging, RegistrarService registrar)
     {
         _manager = manager;
@@ -166,6 +168,16 @@ public partial class StudentPageViewModel :
     {
         while (!Ready)
             await Task.Delay(250);
+    }
+
+    public void SaveCache()
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool LoadCache()
+    {
+        throw new NotImplementedException();
     }
 }
 
