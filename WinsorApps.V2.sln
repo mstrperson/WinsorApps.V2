@@ -56,6 +56,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinsorApps.MAUI.TeacherAsse
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinsorApps.MAUI.EventsAdmin", "WinsorApps.MAUI.EventsAdmin\WinsorApps.MAUI.EventsAdmin.csproj", "{5A54DF48-9699-487F-BA59-2E76DADB3BE0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinsorApps.Services.Athletics", "WinsorApps.Services.Athletics\WinsorApps.Services.Athletics.csproj", "{299229F5-16D6-4DFA-B2AA-FDCB88EDCBEA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -156,6 +158,10 @@ Global
 		{5A54DF48-9699-487F-BA59-2E76DADB3BE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A54DF48-9699-487F-BA59-2E76DADB3BE0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5A54DF48-9699-487F-BA59-2E76DADB3BE0}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{299229F5-16D6-4DFA-B2AA-FDCB88EDCBEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{299229F5-16D6-4DFA-B2AA-FDCB88EDCBEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{299229F5-16D6-4DFA-B2AA-FDCB88EDCBEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{299229F5-16D6-4DFA-B2AA-FDCB88EDCBEA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -182,6 +188,7 @@ Global
 		{C6F5F881-0EC6-4385-96A7-8B1ED0F6BDD4} = {FC3004BF-B329-4BCE-BDE9-ED055008E277}
 		{FEFD19F2-5EE2-4750-8B92-3FFB5BBF8C09} = {FC3004BF-B329-4BCE-BDE9-ED055008E277}
 		{5A54DF48-9699-487F-BA59-2E76DADB3BE0} = {FC3004BF-B329-4BCE-BDE9-ED055008E277}
+		{299229F5-16D6-4DFA-B2AA-FDCB88EDCBEA} = {0199C9DF-CE60-4C52-B67D-8B9DA716AB1B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {93BB8C21-5802-4E69-B338-B7EA30A80BFD}
