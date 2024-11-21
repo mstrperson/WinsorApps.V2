@@ -183,6 +183,9 @@ public partial class CateringMenuViewModel :
     [ObservableProperty] bool isFieldTrip;
     [ObservableProperty] bool isDeleted;
     [ObservableProperty] bool isSelected;
+    [ObservableProperty] double menuHeightRequest;
+
+    private static readonly double MenuRowHeight = 100;
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<CateringMenuViewModel>? Selected;
@@ -203,6 +206,7 @@ public partial class CateringMenuViewModel :
             IsDeleted = category.isDeleted
         };
 
+        vm.MenuHeightRequest = MenuRowHeight * vm.Items.Count;
         foreach(var item in vm.Items)
         {
             item.OnError += (sender, e) => vm.OnError?.Invoke(sender, e);
