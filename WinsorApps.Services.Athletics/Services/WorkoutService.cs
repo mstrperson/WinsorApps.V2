@@ -34,7 +34,8 @@ public class WorkoutService :
 
     public async Task Initialize(ErrorAction onError)
     {
-        await _api.WaitForInit(onError);
+        while (!_api.Ready)
+            await Task.Delay(250);
 
         Started = true;
 

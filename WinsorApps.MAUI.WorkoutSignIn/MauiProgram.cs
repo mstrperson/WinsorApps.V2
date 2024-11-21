@@ -1,11 +1,12 @@
 ﻿global using ErrorAction = System.Action<WinsorApps.Services.Global.Models.ErrorRecord>;
-using AndroidX.SavedState;
+
 using AsyncAwaitBestPractices;
 using CommunityToolkit.Maui.Core;
 using Microsoft.Extensions.Logging;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.Athletics;
 using WinsorApps.MAUI.Shared.ViewModels;
+using WinsorApps.MAUI.WorkoutSignIn.ViewModels;
 using WinsorApps.Services.Athletics.Services;
 using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
@@ -34,6 +35,7 @@ namespace WinsorApps.MAUI.WorkoutSignIn
                 .AddGlobalServices()
                 .AddWorkoutServices();
 
+            builder.Services.AddSingleton<SignInPageViewModel>();
 #if DEBUG
     		builder.Logging.AddDebug();
 #endif
@@ -52,12 +54,21 @@ namespace WinsorApps.MAUI.WorkoutSignIn
             ServiceHelper.GetService<ApiService>().Initialize(err => logging.LogMessage(LocalLoggingService.LogLevel.Error,
                 err.type, err.error)).SafeFireAndForget(e => e.LogException(logging));
 
+            var workoutService = ServiceHelper.GetService<WorkoutService>();
+            workoutService.Initialize(logging.LogError).SafeFireAndForget(e => e.LogException(logging));
+
+            var registrarService = ServiceHelper.GetService<RegistrarService>();
+
             var helpPage = ServiceHelper.GetService<HelpPageViewModel>();
+
+
             helpPage.Services =
             [
-                new(ServiceHelper.GetService<RegistrarService>(), "Registrar Service"),
-                new(ServiceHelper.GetService<WorkoutService>(), "Workout Service")
+                new(registrarService, "Registrar Service"),
+                new(workoutService, "Workout Service")
             ];
+
+
 
             logging.LogMessage(LocalLoggingService.LogLevel.Information, "App Built Successfully!");
             return app;

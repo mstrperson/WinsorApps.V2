@@ -1,24 +1,24 @@
-﻿namespace WinsorApps.MAUI.WorkoutSignIn
+﻿using AsyncAwaitBestPractices;
+using WinsorApps.MAUI.Shared;
+using WinsorApps.MAUI.WorkoutSignIn.ViewModels;
+
+namespace WinsorApps.MAUI.WorkoutSignIn
 {
     public partial class MainPage : ContentPage
     {
-        int count = 0;
+        public SignInPageViewModel ViewModel => (SignInPageViewModel)BindingContext;
 
-        public MainPage()
+
+        public MainPage(SignInPageViewModel vm)
         {
+            vm.OnError += this.DefaultOnErrorHandler(() => vm.Refresh().SafeFireAndForget(e => e.LogException()));
+            this.BindingContext = vm;
             InitializeComponent();
         }
 
-        private void OnCounterClicked(object sender, EventArgs e)
+        private void SearchBar_Unfocused(object sender, FocusEventArgs e)
         {
-            count++;
-
-            if (count == 1)
-                CounterBtn.Text = $"Clicked {count} time";
-            else
-                CounterBtn.Text = $"Clicked {count} times";
-
-            SemanticScreenReader.Announce(CounterBtn.Text);
+            ViewModel.NewSignIn.StudentSearch.Search();
         }
     }
 
