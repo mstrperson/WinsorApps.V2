@@ -102,12 +102,12 @@ public partial class BookstoreManagerService :
     public async Task<ImmutableArray<SectionRecord>> GetTeacherSections(string teacherId, ErrorAction onError, bool forceUpdate = false)
     {
         if (!forceUpdate && SectionsByTeacher.ContainsKey(teacherId))
-            return SectionsByTeacher[teacherId].ToImmutableArray();
+            return [.. SectionsByTeacher[teacherId]];
 
         var result = await _api.SendAsync<ImmutableArray<SectionRecord>>(HttpMethod.Get,
             $"api/book-orders/teachers/{teacherId}/sections", onError: onError);
 
-        SectionsByTeacher[teacherId] = result.ToList();
+        SectionsByTeacher[teacherId] = [.. result];
         return result;
     }
 
@@ -255,9 +255,9 @@ public partial class BookstoreManagerService :
 
         List<TeacherBookOrderCollection> output = new();
         foreach (var teacher in dict.Keys)
-            output.Add(new(teacher, dict[teacher].ToImmutableArray()));
+            output.Add(new(teacher, [.. dict[teacher]]));
 
-        return output.ToImmutableArray();
+        return [.. output];
     }
 
     public async Task<ImmutableArray<BookOrderReportEntry>> GetBookOrderReport(ErrorAction onError)

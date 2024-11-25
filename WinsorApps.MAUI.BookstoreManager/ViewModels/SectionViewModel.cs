@@ -68,7 +68,7 @@ public partial class SectionViewModel :
         Busy = true;
         BusyMessage = "Getting Book Orders";
         var groups = await _managerService.GetGroupedOrders(Id, OnError.DefaultBehavior(this));
-        RequestGroups = BookRequestOptionGroupViewModel.GetClonedViewModels(groups).ToImmutableArray();
+        RequestGroups = [.. BookRequestOptionGroupViewModel.GetClonedViewModels(groups)];
         Busy = false;
     }
 
@@ -163,7 +163,7 @@ public partial class SectionByTeacherCollectionViewModel :
         vm = new()
         {
             Teacher = UserViewModel.Get(model),
-            Sections = SectionViewModel.GetClonedViewModels(_managerService.SectionsByTeacher[model.id]).ToImmutableArray()
+            Sections = [.. SectionViewModel.GetClonedViewModels(_managerService.SectionsByTeacher[model.id])]
         };
         ViewModelCache.Add(vm);
         return vm.Clone();
@@ -208,11 +208,11 @@ public partial class SectionByDepartmentCollectionViewModel :
         vm = new()
         {
             Department = dept,
-            Sections = SectionViewModel.GetClonedViewModels(
+            Sections = [.. SectionViewModel.GetClonedViewModels(
                 _managerService
                     .ProtoSections
                     .Where(sec => courses.Any(c => c.courseId == sec.course.courseId))
-                ).ToImmutableArray()
+                )]
         };
         ViewModelCache.Add(vm);
         return vm.Clone();

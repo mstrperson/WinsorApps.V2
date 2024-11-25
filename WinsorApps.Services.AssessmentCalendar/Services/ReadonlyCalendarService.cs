@@ -53,10 +53,9 @@ public partial class ReadonlyCalendarService :
 
     public void MergeNewAssessments(IEnumerable<AssessmentCalendarEvent> result)
     {
-        AssessmentCalendar = AssessmentCalendar.ToList()
+        AssessmentCalendar = [.. AssessmentCalendar.ToList()
             .Merge(result, (a, b) => a.id == b.id)
-            .OrderBy(evt => evt.start)
-            .ToImmutableArray();
+            .OrderBy(evt => evt.start)];
         SaveCache();
         OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
     }
@@ -126,7 +125,7 @@ public partial class ReadonlyCalendarService :
             Progress = progressTime.Ticks / totalTime.Ticks;
         }
 
-        AssessmentCalendar = calendarCache.ToImmutableArray();
+        AssessmentCalendar = [.. calendarCache];
         OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
     }
 
@@ -134,10 +133,9 @@ public partial class ReadonlyCalendarService :
     {
         DateRange monthRange = DateRange.MonthOf(month, CycleDays.SchoolYear.startDate);
         var result = await GetAssessmentCalendarInRange(onError, monthRange.start, monthRange.end);
-        AssessmentCalendar = AssessmentCalendar.ToList()
+        AssessmentCalendar = [.. AssessmentCalendar.ToList()
             .Merge(result, (a, b) => a.id == b.id)
-            .OrderBy(evt => evt.start)
-            .ToImmutableArray();
+            .OrderBy(evt => evt.start)];
         return result;
     }
 
@@ -146,10 +144,9 @@ public partial class ReadonlyCalendarService :
         var result = await _api.SendAsync<ImmutableArray<AssessmentCalendarEvent>>(HttpMethod.Get,
             $"api/assessment-calendar?date={date:yyyy-MM-dd}", onError: onError);
 
-        AssessmentCalendar = AssessmentCalendar.ToList()
+        AssessmentCalendar = [.. AssessmentCalendar.ToList()
             .Merge(result, (a, b) => a.id == b.id)
-            .OrderBy(evt => evt.start)
-            .ToImmutableArray();
+            .OrderBy(evt => evt.start)];
         return result;
     }
 
@@ -161,10 +158,9 @@ public partial class ReadonlyCalendarService :
             $"api/assessment-calendar?start={start:yyyy-MM-dd}{param}",
             onError: onError);
 
-        AssessmentCalendar = AssessmentCalendar.ToList()
+        AssessmentCalendar = [.. AssessmentCalendar.ToList()
             .Merge(result, (a, b) => a.id == b.id)
-            .OrderBy(evt => evt.start)
-            .ToImmutableArray();
+            .OrderBy(evt => evt.start)];
         return result;
     }
 
@@ -314,7 +310,7 @@ public class CycleDayCollection :
 
             if (!schoolYear.HasValue)
             {
-                _cycleDays = Array.Empty<CycleDay>().ToImmutableArray();
+                _cycleDays = [];
                 Ready = true;
                 return false;
             }

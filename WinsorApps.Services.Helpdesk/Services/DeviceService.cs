@@ -1,3 +1,4 @@
+using System.Text.Json;
 using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Services;
 using WinsorApps.Services.Helpdesk.Models;
@@ -19,7 +20,7 @@ public sealed class DeviceService : IAsyncInitService
             if (!Ready || _loaners is null)
                 throw new ServiceNotReadyException(_logging, "Device Cache has not been populated yet.");
 
-            return _loaners.ToImmutableList();
+            return [.. _loaners];
         }
     }
 
@@ -31,7 +32,7 @@ public sealed class DeviceService : IAsyncInitService
             if (!Ready || _deviceCache is null)
                 throw new ServiceNotReadyException(_logging, "Device Cache has not been populated yet.");
 
-            return _deviceCache.ToImmutableList();
+            return [.. _deviceCache];
         }
     }
 
@@ -44,11 +45,11 @@ public sealed class DeviceService : IAsyncInitService
             if (!Ready || _winsorDeviceCache is null)
                 throw new ServiceNotReadyException(_logging, "Device Cache has not been populated yet.");
 
-            return _winsorDeviceCache.ToImmutableList();
+            return [.. _winsorDeviceCache];
         }
     }
 
-    private ImmutableArray<DeviceCategoryRecord>? _categories;
+    private ImmutableArray<DeviceCategoryRecord> _categories = [];
 
     public DeviceService(ApiService api, LocalLoggingService logging)
     {
@@ -63,7 +64,7 @@ public sealed class DeviceService : IAsyncInitService
             if (!Ready)
                 throw new ServiceNotReadyException(_logging, "Categories have not yet been populated.");
 
-            return _categories!.Value;
+            return _categories;
         }
     }
 
@@ -71,7 +72,7 @@ public sealed class DeviceService : IAsyncInitService
 
     public double Progress { get; private set; } = 0;
 
-    public string CacheFileName => throw new NotImplementedException();
+    public string CacheFileName => ".devices.cache";
 
     public async Task WaitForInit(ErrorAction onError)
     {
@@ -89,7 +90,8 @@ public sealed class DeviceService : IAsyncInitService
     {
         Started = false;
         Progress = 0;
-        await Initialize(onError);
+        await ReloadCache(onError);
+        SaveCache();
     }
 
     public async Task Initialize(ErrorAction onError)
@@ -99,8 +101,19 @@ public sealed class DeviceService : IAsyncInitService
 
         Started = true;
 
+        if (!LoadCache())
+        {
+            await ReloadCache(onError);
+            SaveCache();
+        }
+        Progress = 1;
+        Ready = true;
+    }
+
+    private async Task ReloadCache(ErrorAction onError)
+    {
         var loanersTask = _api.SendAsync<List<DeviceRecord>>(HttpMethod.Get,
-            "api/devices/loaners", onError: onError)!;
+                        "api/devices/loaners", onError: onError)!;
         loanersTask.WhenCompleted(() =>
         {
             Progress += 1 / 4.0;
@@ -128,7 +141,7 @@ public sealed class DeviceService : IAsyncInitService
 
 
         var winsorDeviceCache = _api.SendAsync<List<WinsorDeviceRecord>>(HttpMethod.Get, "api/devices/winsor-devices?isActive=true", onError: onError);
-        
+
 
         winsorDeviceCache.WhenCompleted(() =>
         {
@@ -137,11 +150,7 @@ public sealed class DeviceService : IAsyncInitService
         });
 
         await Task.WhenAll(loanersTask, devicesTask, categoriesTask, winsorDeviceCache);
-
-        Progress = 1;
-        Ready = true;
     }
-
 
     public async Task<DeviceRecord?> UpdateDevice(string deviceId, UpdateDeviceRecord update, ErrorAction onError)
     {
@@ -170,6 +179,7 @@ public sealed class DeviceService : IAsyncInitService
             }
         }
 
+        SaveCache();
         return result;
     }
 
@@ -183,6 +193,7 @@ public sealed class DeviceService : IAsyncInitService
         else if (result.HasValue)
             _deviceCache!.Add(result.Value);
 
+        SaveCache();
         return result;
     }
     public async Task<DeviceRecord?> SearchDevices(string identifier, ErrorAction onError)
@@ -222,6 +233,7 @@ public sealed class DeviceService : IAsyncInitService
                 _deviceCache!.Add(result);
         }
 
+        SaveCache();
         return results.First();
     }
 
@@ -237,6 +249,7 @@ public sealed class DeviceService : IAsyncInitService
             $"api/devices/{id}/winsor-device-info", onError: onError);
         if (result.HasValue)
             _winsorDeviceCache?.Add(result.Value);
+        SaveCache();
         return result;
     }
 
@@ -249,16 +262,45 @@ public sealed class DeviceService : IAsyncInitService
 
         var dev = DeviceCache.First(d => d.id == id);
         _deviceCache!.Replace(dev, result.Value);
+        SaveCache();
         return true;
     }
 
+    private readonly record struct CacheSchema(
+        ImmutableArray<DeviceRecord> devices, 
+        ImmutableArray<WinsorDeviceRecord> winsorDevices,
+        ImmutableArray<DeviceRecord> loaners,
+        ImmutableArray<DeviceCategoryRecord> categories
+    );
+
     public void SaveCache()
     {
-        throw new NotImplementedException();
+        var cacheFilePath = $"{_logging.AppStoragePath}{Path.DirectorySeparatorChar}{CacheFileName}";
+        var cache = new CacheSchema([.. _deviceCache], [.._winsorDeviceCache], [.._loaners], [.._categories]);
+        var json = JsonSerializer.Serialize(cache);
+        File.WriteAllText(cacheFilePath, json);
     }
 
     public bool LoadCache()
     {
-        throw new NotImplementedException();
+        var cacheFilePath = $"{_logging.AppStoragePath}{Path.DirectorySeparatorChar}{CacheFileName}";
+        if (!File.Exists(cacheFilePath))
+            return false;
+
+        var json = File.ReadAllText(cacheFilePath);
+
+        try
+        {
+            var cache = JsonSerializer.Deserialize<CacheSchema>(json);
+            _deviceCache = [..cache.devices];
+            _winsorDeviceCache = [..cache.winsorDevices];
+            _loaners = [..cache.loaners];
+            _categories = [..cache.categories];
+            return true;
+        }
+        catch 
+        { 
+            return false; 
+        }
     }
 }
