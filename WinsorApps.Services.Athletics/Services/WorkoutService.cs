@@ -46,7 +46,7 @@ public class WorkoutService :
 
     public async Task<ImmutableArray<Workout>> GetOpenWorkouts(ErrorAction onError)
     {
-        var result = await _api.SendAsync<ImmutableArray<Workout>?>(HttpMethod.Get, "athletics/open-workouts", onError: onError);
+        var result = await _api.SendAsync<ImmutableArray<Workout>?>(HttpMethod.Get, "api/athletics/open-workouts", onError: onError);
         if (!result.HasValue)
             return [];
 
@@ -55,7 +55,7 @@ public class WorkoutService :
 
     public async Task<Workout?> SignIn(string studentId, ErrorAction onError)
     {
-        var result = await _api.SendAsync<Workout?>(HttpMethod.Post, $"athletics/{studentId}/sign-in", onError: onError);
+        var result = await _api.SendAsync<Workout?>(HttpMethod.Post, $"api/athletics/{studentId}/sign-in", onError: onError);
         if (result.HasValue)
             OpenWorkouts = [.. OpenWorkouts, result.Value];
 
@@ -64,7 +64,7 @@ public class WorkoutService :
 
     public async Task<Workout?> SignOut(string workoutId, ErrorAction onError)
     {
-        var result = await _api.SendAsync<Workout?>(HttpMethod.Post, $"athletics/{workoutId}/sign-out", onError: onError);
+        var result = await _api.SendAsync<Workout?>(HttpMethod.Post, $"api/athletics/{workoutId}/sign-out", onError: onError);
         if (result.HasValue)
         {
             var exisiting = OpenWorkouts.FirstOrDefault(wk => wk.id == workoutId);
@@ -80,7 +80,7 @@ public class WorkoutService :
     public async Task<bool> InvalidateWorkout(string workoutId, ErrorAction onError)
     {
         var success = true;
-        await _api.SendAsync(HttpMethod.Delete, $"athletics/{workoutId}/invalidate", onError: err =>
+        await _api.SendAsync(HttpMethod.Delete, $"api/athletics/{workoutId}/invalidate", onError: err =>
         {
             success = false;
             onError(err);
