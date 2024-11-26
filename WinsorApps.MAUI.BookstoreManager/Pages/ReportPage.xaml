@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.BookstoreManager.ViewModels"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             x:Class="WinsorApps.MAUI.BookstoreManager.Pages.ReportPage"
+             x:DataType="vm:ReportsPageViewModel"
+             Title="Report Page">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <VerticalStackLayout>
+        <Label
+            StyleClass="Header"
+            Text="Report Generator" />
+        <Border
+            StrokeThickness="1">
+            <HorizontalStackLayout
+                Spacing="25">
+                <Switch 
+                    IsToggled="{Binding SpringTerm}"
+                    WidthRequest="80"/>
+                <Label 
+                    StyleClass="H3"
+                    Text="Fall or Full Year"
+                    IsVisible="{Binding SpringTerm, Converter={StaticResource Invert}}" />
+                <Label 
+                    StyleClass="H3"
+                    Text="Spring Term Only"
+                    IsVisible="{Binding SpringTerm}" />
+                <Label
+                    StyleClass="H3"
+                    Text="|" />
+                <CheckBox
+                    IsChecked="{Binding ByIsbn}" />
+                <Label 
+                    StyleClass="H3"
+                    Text="By Teacher/Course"
+                    IsVisible="{Binding ByIsbn, Converter={StaticResource Invert}}" />
+                <Label 
+                    StyleClass="H3"
+                    Text="By ISBN"
+                    IsVisible="{Binding ByIsbn}" />
+            </HorizontalStackLayout>
+        </Border>
+        <HorizontalStackLayout
+            HorizontalOptions="Center"
+            IsVisible="{Binding Busy, Converter={StaticResource Invert}}">
+            <Button
+                Text="Download Report"
+                Command="{Binding GetBookOrdersCommand}" />
+        </HorizontalStackLayout>
+        <HorizontalStackLayout
+            IsVisible="{Binding Busy}">
+            <Label
+                StyleClass="SubHeader"
+                Text="{Binding BusyMessage}" />
+            <Image
+                StyleClass="loading_symbol" />
+        </HorizontalStackLayout>
+    </VerticalStackLayout>
+</ContentPage>

@@ -18,5 +18,8 @@
         Title="Student Orders"
         ContentTemplate="{DataTemplate pages:StudentCheckout}"
         Route="StudentCheckout" />
-
+    <ShellContent
+        Title="Report Page"
+        ContentTemplate="{DataTemplate pages:ReportPage}"
+        Route="ReportPage" />
 </Shell>

@@ -54,7 +54,7 @@
                 Grid.Row="2"
                 Grid.Column="1"
                 Grid.ColumnSpan="3"
-                SelectedUser="{Binding Owner}" />
+                BindingContext="{Binding OwnerSearch}" />
             <Label
                 Grid.Row="3"
                 Grid.Column="0"

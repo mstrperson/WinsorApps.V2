@@ -24,7 +24,7 @@
 		<ApplicationTitle>Bookstore Manager</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.winsorapps.maui.bookstoremanager</ApplicationId>
+		<ApplicationId>edu.winsor.bookstoremanager</ApplicationId>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -126,6 +126,9 @@
 
 	<ItemGroup>
 	  <MauiXaml Update="Pages\ManagerBookEditor.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\ReportPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\StudentCheckout.xaml">
