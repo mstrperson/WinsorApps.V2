@@ -258,20 +258,18 @@ public partial class SectionViewModel :
             }
         });
 
-        teachers = UserViewModel
+        teachers = [.. UserViewModel
             .GetClonedViewModels(
                 registrar.TeacherList
-                .Where(t => section.teachers.Any(tch => t.id == tch)))
-            .ToImmutableArray();
+                .Where(t => section.teachers.Any(tch => t.id == tch)))];
 
         foreach (var teacher in Teachers)
             teacher.Selected += (sender, tch) => TeacherSelected?.Invoke(sender, tch);
 
-        students = UserViewModel
+        students = [.. UserViewModel
             .GetClonedViewModels(
                 registrar.StudentList
-                .Where(s => section.students.Any(stu => stu == s.id)))
-            .ToImmutableArray();
+                .Where(s => section.students.Any(stu => stu == s.id)))];
 
         foreach (var student in Students)
             student.Selected += (sender, stu) => StudentSelected?.Invoke(sender, stu);
@@ -295,21 +293,19 @@ public partial class SectionViewModel :
         IsCurrent = section.isCurrent;
         // Get data about the teachers of this section
         // and create UserViewModels for each of them
-        teachers = UserViewModel
+        teachers = [.. UserViewModel
             .GetClonedViewModels(
                 registrar.TeacherList
-                .Where(t => Model.Reduce(SectionRecord.Empty).teachers.Any(tch => t.id == tch.id)))
-            .ToImmutableArray();
+                .Where(t => Model.Reduce(SectionRecord.Empty).teachers.Any(tch => t.id == tch.id)))];
         
         // 
         foreach (var teacher in Teachers)
             teacher.Selected += (sender, tch) => TeacherSelected?.Invoke(sender, tch);
         
-        students = UserViewModel
+        students = [.. UserViewModel
             .GetClonedViewModels(
                 registrar.StudentList
-                .Where(s => Model.Reduce(SectionRecord.Empty).students.Any(stu => stu.id == s.id)))
-            .ToImmutableArray();
+                .Where(s => Model.Reduce(SectionRecord.Empty).students.Any(stu => stu.id == s.id)))];
         
         foreach (var student in Students)
             student.Selected += (sender, stu) => StudentSelected?.Invoke(sender, stu);

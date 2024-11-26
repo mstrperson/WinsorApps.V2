@@ -126,7 +126,7 @@ public partial class TeacherBookstoreService
             if (!Ready)
                 throw new ServiceNotReadyException(_logging, "Cannot retrieve My Orders because the service is not ready yet.");
 
-            return _myOrders!.ToImmutableArray();
+            return [.. _myOrders!];
         }
     }
 
@@ -143,7 +143,7 @@ public partial class TeacherBookstoreService
             if (MySections.All(sec => sec.id != result.Value.id))
             {
                 _myProtoSections!.Add(result.Value);
-                _myOrders!.Add(new(result.Value.id, result.Value.schoolYearId, result.Value.createdTimeStamp, Array.Empty<TeacherBookRequest>().ToImmutableArray()));
+                _myOrders!.Add(new(result.Value.id, result.Value.schoolYearId, result.Value.createdTimeStamp, []));
             }
         }
 

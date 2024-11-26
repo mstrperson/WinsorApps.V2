@@ -32,6 +32,7 @@ public partial class DeviceViewModel :
 
     [ObservableProperty] private string id;
     [ObservableProperty] private string serialNumber;
+    [ObservableProperty] UserSearchViewModel ownerSearch = new();
     [ObservableProperty] private UserViewModel owner = UserViewModel.Empty;
     [ObservableProperty] private bool unicorn;
     [ObservableProperty] private DateTime firstSeen;
@@ -50,13 +51,18 @@ public partial class DeviceViewModel :
 
     public DeviceViewModel()
     {
-        _deviceService = ServiceHelper.GetService<DeviceService>()!;
+        _deviceService = ServiceHelper.GetService<DeviceService>();
+        var registrar = ServiceHelper.GetService<RegistrarService>();
+        ownerSearch.SetAvailableUsers(registrar.AllUsers);
+        ownerSearch.OnSingleResult += (_, user) => 
+            Owner = user;
         _device = new();
         displayName = "New Device";
         id = "";
         type = "";
         serialNumber = "";
         winsorDevice = new();
+
     }
 
     private DeviceViewModel(DeviceRecord device)

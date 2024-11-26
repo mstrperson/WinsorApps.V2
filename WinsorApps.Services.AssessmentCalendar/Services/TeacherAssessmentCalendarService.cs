@@ -50,7 +50,7 @@ public partial class TeacherAssessmentService :
         {
             if (!Ready)
                 throw new ServiceNotReadyException(_logging, "Cannot Retrieve MyAssessments yet.");
-            return _myAssessments.ToImmutableArray();
+            return [.. _myAssessments];
         }
 
     }
@@ -165,7 +165,7 @@ public partial class TeacherAssessmentService :
         var assessmentTask = GetMyAssessments(onError, DateTime.Today, DateTime.Today.AddYears(1));
         assessmentTask.WhenCompleted(() =>
         {
-            _myAssessments = assessmentTask.Result.ToList();
+            _myAssessments = [.. assessmentTask.Result];
             Progress += 0.25;
         },
         () =>

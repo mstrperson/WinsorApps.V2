@@ -74,7 +74,8 @@
                             </Image>
                             <CollectionView
                                 ItemsSource="{Binding BudgetCodeSearch.Options}"
-                                IsVisible="{Binding BudgetCodeSearch.ShowOptions}">
+                                IsVisible="{Binding BudgetCodeSearch.ShowOptions}"
+                                HeightRequest="100">
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate x:DataType="vm:BudgetCodeViewModel">
                                         <HorizontalStackLayout
@@ -156,27 +157,31 @@
                 <!-- Menu Selection -->
                 <CollectionView
                     ItemsSource="{Binding Menu.Menus}"
-                    ItemsLayout="VerticalGrid"
+                    ItemsLayout="HorizontalGrid, 4"
+                    HeightRequest="180"
                     BackgroundColor="Transparent"
                     IsVisible="{Binding Menu.ShowMenus}">
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="vm:CateringMenuViewModel">
-                            <HorizontalStackLayout
-                                WidthRequest="350">
-                                <HorizontalStackLayout.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding SelectCommand}" />
-                                </HorizontalStackLayout.GestureRecognizers>
-                                <Label
-                                    Text="{Binding Title}"
-                                    StyleClass="H3"
-                                    IsVisible="{Binding IsSelected, Converter={StaticResource Invert}}"/>
-                                <Label
-                                    Text="{Binding Title}"
-                                    StyleClass="SubHeader"
-                                    FontAttributes="Bold"
-                                    TextColor="{AppThemeBinding Light={DynamicResource WinsorRed}, Dark=White}"
-                                    IsVisible="{Binding IsSelected}"/>
-                            </HorizontalStackLayout>
+                            <Border 
+                                StrokeThickness="1">                                
+                                <HorizontalStackLayout
+                                    WidthRequest="350">
+                                    <HorizontalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                    </HorizontalStackLayout.GestureRecognizers>
+                                    <Label
+                                        Text="{Binding Title}"
+                                        StyleClass="H3"
+                                        IsVisible="{Binding IsSelected, Converter={StaticResource Invert}}"/>
+                                    <Label
+                                        Text="{Binding Title}"
+                                        StyleClass="SubHeader"
+                                        FontAttributes="Bold"
+                                        TextColor="{AppThemeBinding Light={DynamicResource WinsorRed}, Dark=White}"
+                                        IsVisible="{Binding IsSelected}"/>
+                                </HorizontalStackLayout>
+                            </Border>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
@@ -195,6 +200,7 @@
                     </Label>
                     <CollectionView
                         ItemsSource="{Binding Menu.SelectedMenu.Items}"
+                        HeightRequest="{Binding Menu.SelectedMenu.MenuHeightRequest}"
                         BackgroundColor="Transparent"
                         Margin="0">
                         <CollectionView.ItemTemplate>

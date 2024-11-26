@@ -143,8 +143,8 @@ public readonly record struct SectionDetailRecord(string sectionId, CourseRecord
 
     public static implicit operator SectionRecord(SectionDetailRecord sec) =>
         new(sec.sectionId, sec.course.courseId, sec.primaryTeacher.id,
-            sec.teachers.ToImmutableArray(),
-            sec.students.ToImmutableArray(),
+            [.. sec.teachers],
+            [.. sec.students],
             sec.term.termId, sec.room?.name ?? "", sec.block?.name ?? "", sec.displayName, sec.isCurrent);
 }
 

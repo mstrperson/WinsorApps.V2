@@ -75,7 +75,7 @@ public class BookService : IAsyncInitService
             if (_bookCache is null)
                 throw new ServiceNotReadyException(_logging, $"Book service has not yet been fully initialized");
 
-            return _bookCache.ToImmutableArray();
+            return [.. _bookCache];
         }
     }
 

@@ -69,7 +69,7 @@ public class ServiceCaseService : IAsyncInitService, IAutoRefreshingCacheService
     }
 
     public ImmutableArray<ServiceCase> OpenCases =>
-        Ready ? _openCasesCache.ToImmutableArray() : [];
+        Ready ? [.. _openCasesCache] : [];
 
     public bool Started { get; private set; }
 

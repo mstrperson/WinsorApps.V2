@@ -42,6 +42,8 @@ namespace WinsorApps.MAUI.BookstoreManager
             builder.Services.AddSingleton<BookSearchPage>();
             builder.Services.AddSingleton<StudentPageViewModel>();
             builder.Services.AddSingleton<StudentCheckout>(); 
+            builder.Services.AddSingleton<ReportsPageViewModel>();
+            builder.Services.AddSingleton<ReportPage>();
 
 #if DEBUG
             builder.Logging.AddDebug();
