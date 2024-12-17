@@ -113,10 +113,7 @@ public record SavedCredential(
             File.Delete(CredFilePathOld);
         }
 
-        byte[] outputBytes = await File.ReadAllBytesAsync(CredFilePath);
-   
-        string json = Encoding.UTF8.GetString(outputBytes);
-        json = json.Substring(0, json.IndexOf("}") + 1);
+        string json = File.ReadAllText(CredFilePath).Trim();
 
         if (!json.StartsWith('{') || !json.EndsWith('}'))
         {
