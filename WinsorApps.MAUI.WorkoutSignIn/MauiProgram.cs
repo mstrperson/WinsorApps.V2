@@ -46,9 +46,11 @@ namespace WinsorApps.MAUI.WorkoutSignIn
 
             var logging = ServiceHelper.GetService<LocalLoggingService>();
 
-            if(!SavedCredential.SavedCredExists)
+            var credManager = ServiceHelper.GetService<CredentialManager>() ?? SavedCredential.Default;
+
+            if(!credManager.SavedCredExists)
             {
-                SavedCredential.Save("athletics.signin@winsor.edu", "#&#FYQ055zbk");
+                credManager.Save("athletics.signin@winsor.edu", "#&#FYQ055zbk");
             }
 
             ServiceHelper.GetService<ApiService>().Initialize(err => logging.LogMessage(LocalLoggingService.LogLevel.Error,

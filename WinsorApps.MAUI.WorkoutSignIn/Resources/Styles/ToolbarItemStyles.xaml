@@ -19,7 +19,7 @@
             Property="IconImageSource"
             Value="{FontImage 
                 FontFamily=Serif, 
-                Color=White,
+                Color=Black,
                 Glyph=⎹}" />
     </Style>
     <Style TargetType="Shell" ApplyToDerivedTypes="True">

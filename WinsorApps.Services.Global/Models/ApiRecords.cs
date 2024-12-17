@@ -39,7 +39,11 @@ public sealed class ApiException : Exception
     /// <param name="password"></param>
     public readonly record struct Login(string email, string password);
 
-    public sealed record AuthResponse(string userId = "", string jwt = "", DateTime expires = default, string refreshToken = "")
+    public sealed record AuthResponse(
+        string userId = "", 
+        string jwt = "", 
+        DateTime expires = default, 
+        string refreshToken = "")
     {
         public JwtSecurityToken? GetJwt()
         {

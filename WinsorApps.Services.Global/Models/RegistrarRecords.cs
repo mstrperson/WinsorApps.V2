@@ -67,7 +67,13 @@ public readonly record struct UserRecord(string id = "", int blackbaudId = -1, s
 
     public async Task<ImmutableArray<string>> GetRoles(ApiService api) => await api.SendAsync<ImmutableArray<string>>(HttpMethod.Get, "api/users/self/roles");
 }
-public readonly record struct StudentRecordShort(string id, string displayName, string email, int gradYear, string className, string advisorName)
+public readonly record struct StudentRecordShort(
+    string id, 
+    string displayName, 
+    string email, 
+    int gradYear, 
+    string className, 
+    string advisorName)
 {
     public static implicit operator StudentRecordShort(UserRecord student) =>
         student.studentInfo is null ? 

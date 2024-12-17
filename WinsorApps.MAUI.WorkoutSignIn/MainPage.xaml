@@ -6,7 +6,9 @@
              xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.Athletics.ViewModels;assembly=WinsorApps.MAUI.Shared.Athletics"
              xmlns:svm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels;assembly=WinsorApps.MAUI.Shared"
              x:Class="WinsorApps.MAUI.WorkoutSignIn.MainPage"
-             x:DataType="pvm:SignInPageViewModel">
+             x:DataType="pvm:SignInPageViewModel"
+             Shell.FlyoutBehavior="Disabled"
+             Title="Fitness Room Sign-In">
     <ContentPage.Resources>
         <ResourceDictionary>
             <conv:BoolInverter x:Key="Invert" />
@@ -17,12 +19,17 @@
             Text="Sign In"
             Command="{Binding ToggleShowNewSigninCommand}" />
         <ToolbarItem
+            StyleClass="Separator" />
+        <ToolbarItem
             Text="Refresh"
+            StyleClass="RefreshButton"
             Command="{Binding RefreshCommand}" />
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <ScrollView>
-            <VerticalStackLayout>
+            <VerticalStackLayout
+                HorizontalOptions="Center"
+                IsEnabled="{Binding Busy, Converter={StaticResource Invert}}">
                 <HorizontalStackLayout
                     IsVisible="{Binding Busy}">
                     <Label 
@@ -33,15 +40,23 @@
                 <VerticalStackLayout
                     Margin="0"
                     Padding="0"
+                    HorizontalOptions="Center"
+                    WidthRequest="1200"
                     IsVisible="{Binding ShowNewSignin}">
                     <HorizontalStackLayout
                         Margin="0"
                         Padding="0"
+                        Spacing="30"
+                        HorizontalOptions="Center"
                         IsVisible="{Binding NewSignIn.IsSelected, Converter={StaticResource Invert}}">
                         <Label
-                            StyleClass="H3"
+                            StyleClass="Header"
+                            VerticalTextAlignment="Center"
+                            TranslationY="4.5"
                             Text="Sign In:" />
                         <SearchBar
+                            HeightRequest="35"
+                            WidthRequest="300"
                             Text="{Binding NewSignIn.StudentSearch.SearchText}"
                             Placeholder="Enter your Last Name"
                             SearchCommand="{Binding NewSignIn.StudentSearch.SearchCommand}"
@@ -62,7 +77,50 @@
                         <Button
                             Text="Sign In"
                             Command="{Binding NewSignIn.SignInCommand}" />
+                        <HorizontalStackLayout
+                            Margin="0"
+                            Padding="0"
+                            IsVisible="{Binding NewSignIn.ShowForCredit}">
+                            <HorizontalStackLayout.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding NewSignIn.ToggleForCreditCommand}" />
+                            </HorizontalStackLayout.GestureRecognizers>
+                            <Switch
+                                IsToggled="{Binding NewSignIn.ForCredit}"
+                                IsEnabled="False" />
+                            <Label
+                                IsVisible="{Binding NewSignIn.ForCredit}"
+                                Text="For Credit" />
+                            <Label
+                                IsVisible="{Binding NewSignIn.ForCredit, Converter={StaticResource Invert}}"
+                                Text="For Fun" />
+                        </HorizontalStackLayout>
                     </HorizontalStackLayout>
+                    <CollectionView
+                        IsVisible="{Binding NewSignIn.ForCredit}"
+                        ItemsSource="{Binding NewSignIn.Details}"
+                        ItemsLayout="HorizontalGrid"
+                        WidthRequest="1200"
+                        BackgroundColor="Transparent">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate
+                                x:DataType="svm:SelectableLabelViewModel">
+                                <HorizontalStackLayout
+                                    WidthRequest="180">
+                                    <HorizontalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                    </HorizontalStackLayout.GestureRecognizers>
+                                    <CheckBox IsChecked="{Binding IsSelected}" />
+                                    <Label 
+                                        Text="{Binding Label}"
+                                        IsVisible="{Binding IsSelected, Converter={StaticResource Invert}}"/>
+                                    <Label 
+                                        Text="{Binding Label}"
+                                        FontAttributes="Bold"
+                                        IsVisible="{Binding IsSelected}"/>
+                                </HorizontalStackLayout>                                   
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
                     <CollectionView
                         IsVisible="{Binding NewSignIn.StudentSearch.ShowOptions}"
                         ItemsSource="{Binding NewSignIn.StudentSearch.Options}">
@@ -80,43 +138,66 @@
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
+                    <BoxView 
+                        WidthRequest="800"
+                        StyleClass="Bar" />
                 </VerticalStackLayout>
                 <!--End New Sign In-->
                 <CollectionView
-                    ItemsSource="{Binding OpenWorkouts}">
+                    ItemsSource="{Binding OpenWorkouts}"
+                    BackgroundColor="Transparent"
+                    WidthRequest="1500"
+                    HorizontalOptions="Center"
+                    IsVisible="{Binding ShowNewSignin, Converter={StaticResource Invert}}">
                     <CollectionView.Header>
                         <Grid
-                            ColumnDefinitions="500, 100, 100">
+                            ColumnDefinitions="700, 200, 600"
+                            RowDefinitions="*,5">
                             <Label
                                 Grid.Column="0"
-                                StyleClass="H3"
+                                StyleClass="SubHeader"
+                                HorizontalTextAlignment="Center"
                                 Text="Student" />
                             <Label
                                 Grid.Column="1"
-                                StyleClass="H3"
+                                StyleClass="SubHeader"
+                                HorizontalTextAlignment="Center"
                                 Text="Time In" />
                             <Label
                                 Grid.Column="2"
-                                StyleClass="H3"
+                                StyleClass="SubHeader"
                                 Text="" />
+                            <BoxView
+                                    StyleClass="Bar"
+                                    Margin="0"
+                                    Grid.Row="1"
+                                    Grid.ColumnSpan="3" />
                         </Grid>
                     </CollectionView.Header>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="vm:WorkoutViewModel">
                             <Grid
-                                ColumnDefinitions="500, 100, 100">
+                                ColumnDefinitions="700, 200, 600"
+                                RowDefinitions="*,5">
                                 <Label
                                     Grid.Column="0"
                                     StyleClass="H3"
+                                    HorizontalTextAlignment="Center"
                                     Text="{Binding Student.DisplayName}" />
                                 <Label
                                     Grid.Column="1"
                                     StyleClass="H3"
+                                    HorizontalTextAlignment="Center"
                                     Text="{Binding TimeIn, StringFormat='{0:hh:mm tt}'}" />
                                 <Button
                                     Grid.Column="2"
                                     Text="Sign Out"
                                     Command="{Binding SignOutCommand}"/>
+                                <BoxView
+                                    StyleClass="Bar"
+                                    Margin="0"
+                                    Grid.Row="1"
+                                    Grid.ColumnSpan="3" />
                             </Grid>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>

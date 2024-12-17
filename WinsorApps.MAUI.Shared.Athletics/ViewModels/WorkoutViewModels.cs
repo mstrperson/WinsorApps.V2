@@ -12,6 +12,8 @@ using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 using WinsorApps.Services.Athletics.Services;
 using CommunityToolkit.Mvvm.Input;
+using System.Collections.ObjectModel;
+using System.Collections.Immutable;
 
 namespace WinsorApps.MAUI.Shared.Athletics.ViewModels;
 
@@ -44,7 +46,8 @@ public partial class WorkoutViewModel :
     {
         Busy = true;
         var time = DateTime.Now;
-        BusyMessage = $"Signing Out {Student.DisplayName} at {time:hh:mm tt} [Workout Time: {(time - TimeIn):hh:mm}].";
+        var duration = time - TimeIn;
+        BusyMessage = $"Signing Out {Student.DisplayName} at {time:hh:mm tt} [Workout Time: {duration.TotalMinutes:#} Minutes].";
 
         var result = await _workoutService.SignOut(Id, OnError.DefaultBehavior(this));
         if (result.HasValue)
@@ -74,15 +77,13 @@ public partial class WorkoutViewModel :
 
     public static WorkoutViewModel Get(Workout model)
     {
-        var registrar = ServiceHelper.GetService<RegistrarService>();
-
         var vm = new WorkoutViewModel()
         {
             Id = model.id,
             IsOpen = model.timeOut.HasValue,
             TimeIn = model.timeIn,
             TimeOut = model.timeOut ?? default,
-            Student = UserViewModel.Get(model.student.GetUserRecord(registrar)),
+            Student = UserViewModel.Get(model.user),
             Model = OptionalStruct<Workout>.Some(model)
         };
 
@@ -108,23 +109,33 @@ public partial class NewWorkoutViewModel :
         _registrar.WaitForUniqueNames()
             .WhenCompleted(() =>
             {
-                StudentSearch.Available = [.. UserViewModel.GetClonedViewModels(_registrar.StudentList)];
+                StudentSearch.SetAvailableUsers(_registrar.AllUsers);
             });
         StudentSearch.OnError += (sender, err) => OnError?.Invoke(sender, err);
         StudentSearch.OnSingleResult += (_, student) =>
         {
             SelectedStudent = student;
             IsSelected = true;
+            ShowForCredit = student.Model.Reduce(UserRecord.Empty).studentInfo.HasValue;
         };
+
+        _workoutService.WaitForInit(err => { })
+            .WhenCompleted(() =>
+            {
+                Details = [.. _workoutService.Tags.Select(tag => new SelectableLabelViewModel() { Label = tag })];
+            });
+
     }
 
     [RelayCommand]
     public void Clear()
     {
-
         StudentSearch.ClearSelection();
         SelectedStudent = UserViewModel.Empty;
         IsSelected = false;
+        ClearTags();
+        ShowForCredit = false;
+        ForCredit = false;
     }
 
     [RelayCommand]
@@ -134,9 +145,12 @@ public partial class NewWorkoutViewModel :
 
         Busy = true;
         BusyMessage = $"Signing In {SelectedStudent.DisplayName} at {DateTime.Now:hh:mm tt}";
-        var result = await _workoutService.SignIn(SelectedStudent.Id, OnError.DefaultBehavior(this));
+        var selected = Details.Where(item => item.IsSelected).ToImmutableArray();
+        ImmutableArray<string> tags = selected.Length > 0 ? [.. selected.Select(item => item.Label)] : [];
+        var result = await _workoutService.SignIn(SelectedStudent.Id, tags, OnError.DefaultBehavior(this));
         if (result.HasValue)
         {
+            
             NewSignIn?.Invoke(this, WorkoutViewModel.Get(result.Value));
             Clear();
         }
@@ -144,11 +158,30 @@ public partial class NewWorkoutViewModel :
         Busy = false;
     }
 
+    private void ClearTags()
+    {
+        foreach (var tag in Details)
+            tag.IsSelected = false;
+    }
+
+    [RelayCommand]
+    public void ToggleForCredit()
+    {
+        ForCredit = !ForCredit;
+        if(!ForCredit)
+        {
+            ClearTags();
+        }
+    }
+
     [ObservableProperty] UserSearchViewModel studentSearch = new();
     [ObservableProperty] UserViewModel selectedStudent = UserViewModel.Empty;
     [ObservableProperty] bool isSelected;
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] ObservableCollection<SelectableLabelViewModel> details = [];
+    [ObservableProperty] bool forCredit;
+    [ObservableProperty] bool showForCredit;
 
     public event EventHandler<ErrorRecord>? OnError;
 }

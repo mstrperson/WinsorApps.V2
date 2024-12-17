@@ -16,6 +16,8 @@ public class WorkoutService :
     private readonly ApiService _api;
     private readonly LocalLoggingService _logging;
 
+    public ImmutableArray<string> Tags { get; private set; } = [];
+
     public ImmutableArray<Workout> OpenWorkouts { get; private set; } = [];
 
     public WorkoutService(ApiService api, LocalLoggingService logging)
@@ -40,6 +42,9 @@ public class WorkoutService :
         Started = true;
 
         OpenWorkouts = await GetOpenWorkouts(onError);
+
+        Tags = await _api.SendAsync<ImmutableArray<string>>(HttpMethod.Get, "api/athletics/tags/list", onError: onError);
+
         Progress = 1;
         Ready = true;
     }
@@ -53,9 +58,9 @@ public class WorkoutService :
         return result.Value;
     }
 
-    public async Task<Workout?> SignIn(string studentId, ErrorAction onError)
+    public async Task<Workout?> SignIn(string studentId, ImmutableArray<string> tags, ErrorAction onError)
     {
-        var result = await _api.SendAsync<Workout?>(HttpMethod.Post, $"api/athletics/{studentId}/sign-in", onError: onError);
+        var result = await _api.SendAsync<ImmutableArray<string>,Workout?>(HttpMethod.Post, $"api/athletics/{studentId}/sign-in", tags, onError: onError);
         if (result.HasValue)
             OpenWorkouts = [.. OpenWorkouts, result.Value];
 

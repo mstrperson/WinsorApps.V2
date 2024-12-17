@@ -44,7 +44,9 @@ public partial class SignInPageViewModel :
             workout.OnError += (sender, e) => OnError?.Invoke(sender, e);
             workout.Invalidated += (_, _) => OpenWorkouts.Remove(workout);
             workout.SignedOut += (_, _) => OpenWorkouts.Remove(workout);
+            workout.PropertyChanged += ((IBusyViewModel)this).BusyChangedCascade;
             NewSignIn.Clear();
+            ShowNewSignin = false;
         };
         _registrar = registrar;
     }
@@ -64,6 +66,7 @@ public partial class SignInPageViewModel :
             workout.OnError += (sender, e) => OnError?.Invoke(sender, e);
             workout.Invalidated += (_, _) => OpenWorkouts.Remove(workout);
             workout.SignedOut += (_, _) => OpenWorkouts.Remove(workout);
+            workout.PropertyChanged += ((IBusyViewModel)this).BusyChangedCascade;
         }
         Busy = false;
     }
@@ -80,13 +83,21 @@ public partial class SignInPageViewModel :
             workout.OnError += (sender, e) => OnError?.Invoke(sender, e);
             workout.Invalidated += (_, _) => OpenWorkouts.Remove(workout);
             workout.SignedOut += (_, _) => OpenWorkouts.Remove(workout);
+            workout.PropertyChanged += ((IBusyViewModel)this).BusyChangedCascade;
         }
 
         Busy = false;
     }
 
     [RelayCommand]
-    public void ToggleShowNewSignin() => ShowNewSignin = !ShowNewSignin;
+    public void ToggleShowNewSignin()
+    {
+        ShowNewSignin = !ShowNewSignin;
+        if(!ShowNewSignin)
+        {
+            NewSignIn.Clear();
+        }
+    }
 
     public event EventHandler<ErrorRecord>? OnError;
 }

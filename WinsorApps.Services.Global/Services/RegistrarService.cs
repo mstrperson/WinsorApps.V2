@@ -76,6 +76,11 @@ public class RegistrarService : IAsyncInitService
                 return false;
             }
 
+            if (cache.students.Length == 0)
+            {
+                return false;
+            }
+
             MyRoles = [.. cache.roles];
             SchoolYears = [.. cache.schoolYears];
             _myAcademicSchedule = [.. cache.myAcademicSchedule];
@@ -428,7 +433,10 @@ public class RegistrarService : IAsyncInitService
         {
             if (_students.IsEmpty)
             {
-                _students = [..await _api.SendAsync<ImmutableArray<UserRecord>>(HttpMethod.Get, "api/users/students")];
+                var result = await _api.SendAsync<ImmutableArray<UserRecord>>(HttpMethod.Get, "api/users/students");
+                _students = [..
+                    result
+                    ];
             }
         }
         catch (Exception ex)

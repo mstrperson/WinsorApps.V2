@@ -8,7 +8,7 @@ using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.Services.Athletics.Models;
-public readonly record struct Workout(string id, StudentRecordShort student, DateTime timeIn, DateTime? timeOut);
+public readonly record struct Workout(string id, UserRecord user, DateTime timeIn, DateTime? timeOut, ImmutableArray<string> workoutDetails);
 
 public readonly record struct WorkoutListItem(string id, DateTime timeIn, DateTime timeOut, bool signedOut)
 {
