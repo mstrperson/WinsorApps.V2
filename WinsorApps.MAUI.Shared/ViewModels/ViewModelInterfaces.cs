@@ -19,7 +19,7 @@ public interface IBusyViewModel
 
             if (e.PropertyName == "Busy")
             {
-                Busy = busyBee.Busy;
+                this.Busy = busyBee.Busy;
             }
         }
     }
@@ -41,11 +41,6 @@ public interface ISelectable<T> where T : ObservableObject
 public interface IErrorHandling
 {
     public event EventHandler<ErrorRecord>? OnError;
-}
-
-public interface ILinkedList<T> where T : ObservableObject
-{
-    public T Next();
 }
 
 public interface IAsyncSubmit

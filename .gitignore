@@ -18,3 +18,4 @@ obj
 .DS_Store
 WinsorApps.MAUI.CDRE/WinsorApps.MAUI.CDRE.csproj.user
 *.user
+*.tmp

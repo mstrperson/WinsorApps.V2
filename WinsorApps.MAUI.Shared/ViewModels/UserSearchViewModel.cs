@@ -39,8 +39,6 @@ public partial class UserSearchViewModel :
         }
     }
 
-
-
     public void SetAvailableUsers(IEnumerable<UserRecord> users)
     {
         ClearSelection();
@@ -110,6 +108,8 @@ public partial class UserSearchViewModel :
     [RelayCommand]
     public void Search()
     {
+        SearchText = SearchText.Trim();
+
         var possible = Available
             .Where(user => 
                 user.DisplayName.Contains(SearchText, StringComparison.InvariantCultureIgnoreCase)
