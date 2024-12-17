@@ -62,9 +62,10 @@ namespace WinsorApps.MAUI.TeacherAssessmentCalendar
             ServiceHelper.Initialize(app.Services);
 
             var logging = ServiceHelper.GetService<LocalLoggingService>();
-            ServiceHelper.GetService<ApiService>().Initialize(err => logging.LogMessage(LocalLoggingService.LogLevel.Error,
-                err.type, err.error)).SafeFireAndForget(e => e.LogException(logging));
-
+            
+            app.InitializeGlobalServices();
+            
+            
             var helpPage = ServiceHelper.GetService<HelpPageViewModel>();
             helpPage.Services =
             [

@@ -103,6 +103,15 @@ public static class Extensions
 
     public static void InitializeGlobalServices(this MauiApp app)
     {
+        var iSavedCredential = ServiceHelper.GetService<ISavedCredential>();
+
+        if (iSavedCredential is CredentialManager manager)
+        {
+            var task = manager.CheckSavedCredentials();
+            task.Wait();
+        }
+        
+        
         var api = ServiceHelper.GetService<ApiService>()!;
         api.OnLoginSuccess += (_, _) =>
         {

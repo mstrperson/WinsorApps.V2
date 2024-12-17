@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using AsyncAwaitBestPractices;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.MAUI.Shared
@@ -12,6 +14,21 @@ namespace WinsorApps.MAUI.Shared
     {
         private static readonly string credKey = "edu.winsor.forms_credential";
 
+        public async Task CheckSavedCredentials()
+        {
+            var thisCred = await GetSavedCredential();
+            if (thisCred.HasValue) return;
+            
+            SavedCredential sc = new();
+            if (!sc.SavedCredExists) return;
+            
+            var result = await sc.GetSavedCredential();
+            if (!result.HasValue) return;
+            
+            var cred = result.Value;
+            await Save(cred.SavedEmail, cred.SavedPassword, cred.JWT, cred.RefreshToken);
+        }
+        
         public bool SavedCredExists { get; private set; } = false;
 
         public async Task DeleteSavedCredential()
