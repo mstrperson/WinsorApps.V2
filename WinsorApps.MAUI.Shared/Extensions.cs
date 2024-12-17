@@ -88,6 +88,7 @@ public static class Extensions
 
     public static MauiAppBuilder AddGlobalServices(this MauiAppBuilder builder)
     {
+        builder.Services.AddSingleton<ISavedCredential, CredentialManager>();
         builder.Services.AddSingleton<ApiService>();
         builder.Services.AddSingleton<RegistrarService>();
         builder.Services.AddSingleton<AppService>();

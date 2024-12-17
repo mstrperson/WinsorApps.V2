@@ -13,6 +13,8 @@ namespace WinsorApps.Services.Global.Services;
 
 public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
 {
+    private readonly ISavedCredential _credentialManager;
+
     public TimeSpan RefreshInterval => TimeSpan.FromMinutes(2);
     public bool Refreshing { get; private set; }
     public bool BypassRefreshing { get; private set; }
@@ -93,9 +95,10 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
 
     private readonly LocalLoggingService _logging;
 
-    public ApiService(LocalLoggingService localLogging)
+    public ApiService(LocalLoggingService localLogging, ISavedCredential credManager)
     {
         _logging = localLogging;
+        _credentialManager = credManager;
 
         RefreshInBackground(CancellationToken.None, err => _logging.LogError(err)).SafeFireAndForget(e => e.LogException(_logging));
 
@@ -136,15 +139,15 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
     {
         Started = true;
 
-        var savedCredential = await SavedCredential.GetSavedCredential();
-        if (savedCredential is not null)
+        var savedCredential = await _credentialManager.GetSavedCredential();
+        if (savedCredential.HasValue)
         {
             AutoLoginInProgress = true;
 
             CheckForStuckLogin().SafeFireAndForget(e => e.LogException(_logging));
-            if (!string.IsNullOrEmpty(savedCredential.JWT) && !string.IsNullOrEmpty(savedCredential.RefreshToken))
+            if (!string.IsNullOrEmpty(savedCredential.Value.JWT) && !string.IsNullOrEmpty(savedCredential.Value.RefreshToken))
             {
-                AuthorizedUser = new AuthResponse("", savedCredential.JWT, default, savedCredential.RefreshToken);
+                AuthorizedUser = new AuthResponse("", savedCredential.Value.JWT, default, savedCredential.Value.RefreshToken);
                 try
                 {
                     var success = true;
@@ -154,10 +157,10 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
                         success = false;
                     });
 
-                    if (!success && !string.IsNullOrWhiteSpace(savedCredential.SavedPassword))
+                    if (!success && !string.IsNullOrWhiteSpace(savedCredential.Value.SavedPassword))
                     {
                         success = true;
-                        await Login(savedCredential.SavedEmail, savedCredential.SavedPassword, onError: err =>
+                        await Login(savedCredential.Value.SavedEmail, savedCredential.Value.SavedPassword, onError: err =>
                         {
                             onError(err);
                             success = false;
@@ -172,7 +175,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
                 {
                     _logging.LogMessage(LocalLoggingService.LogLevel.Error, "Failed to log in automatically",
                         ex.Message);
-                    _logging.LogMessage(LocalLoggingService.LogLevel.Debug, ex.StackTrace);
+                    _logging.LogMessage(LocalLoggingService.LogLevel.Debug, ex.StackTrace ?? "No Stack Trace");
                     onError(new("Auto Login Failed", ex.Message));
                     AutoLoginInProgress = false;
                     return;
@@ -185,9 +188,9 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
 
             try
             {
-                await Login(savedCredential.SavedEmail, savedCredential.SavedPassword, onError);
+                await Login(savedCredential.Value.SavedEmail, savedCredential.Value.SavedPassword, onError);
                 _logging.LogMessage(LocalLoggingService.LogLevel.Information,
-                    $"Auto Login Successful:  {savedCredential.SavedEmail}");
+                    $"Auto Login Successful:  {savedCredential.Value.SavedEmail}");
             }
             catch (Exception ex)
             {
@@ -211,7 +214,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
             if(DateTime.Now - started > TimeSpan.FromMinutes(1))
             {
                 _logging.LogMessage(LocalLoggingService.LogLevel.Error, "Auto Login Was Hung for more than 1 minute");
-                SavedCredential.DeleteSavedCredential();
+                await _credentialManager.DeleteSavedCredential();
                 return;
             }
         }
@@ -270,7 +273,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
                 _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Login Successful:  {email}");
                 Ready = true;
 
-                SavedCredential.Save(email, password, AuthorizedUser.jwt, AuthorizedUser.refreshToken);
+                await _credentialManager.Save(email, password, AuthorizedUser.jwt, AuthorizedUser.refreshToken);
                 OnLoginSuccess?.Invoke(this, EventArgs.Empty);
                 FirstLogin = false;
             }
@@ -316,11 +319,11 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
         }
     }
 
-    public void Logout()
+    public async Task Logout()
     {
         AuthorizedUser = null;
         UserInfo = null;
-        SavedCredential.DeleteSavedCredential();
+        await _credentialManager.DeleteSavedCredential();
     }
 
     public async Task RenewTokenAsync(bool repeat = false, ErrorAction? onError = null)
@@ -354,9 +357,10 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
 
                 if (failed)
                 {
-                    var savedCred = await SavedCredential.GetSavedCredential();
-                    if(savedCred is not null && !string.IsNullOrWhiteSpace(savedCred.SavedPassword))
+                    var saved = await _credentialManager.GetSavedCredential();
+                    if(saved.HasValue && !string.IsNullOrWhiteSpace(saved.Value.SavedPassword))
                     {
+                        var savedCred = saved.Value;
                         failed = false;
                         await Login(savedCred.SavedEmail, savedCred.SavedPassword, onError: err =>
                         {
@@ -379,21 +383,21 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
                 if (!failed && AuthorizedUser is not null)
                 {
                     _logging.LogMessage(LocalLoggingService.LogLevel.Information, "Renewed security token.");
-                    SavedCredential.SaveJwt(AuthorizedUser.jwt, AuthorizedUser.refreshToken);
+                    await _credentialManager.SaveJwt(AuthorizedUser.jwt, AuthorizedUser.refreshToken);
                 }
             }
             else
             {
-                var savedCred = await SavedCredential.GetSavedCredential();
-                if (savedCred is null)
+                var savedCred = await _credentialManager.GetSavedCredential();
+                if (!savedCred.HasValue)
                     throw new InvalidOperationException("Cannot renew a token without logging in first.");
 
-                if (!repeat && !string.IsNullOrEmpty(savedCred.JWT) && !string.IsNullOrEmpty(savedCred.RefreshToken))
+                if (!repeat && !string.IsNullOrEmpty(savedCred.Value.JWT) && !string.IsNullOrEmpty(savedCred.Value.RefreshToken))
                 {
-                    AuthorizedUser = new(jwt: savedCred.JWT, refreshToken: savedCred.RefreshToken);
+                    AuthorizedUser = new(jwt: savedCred.Value.JWT, refreshToken: savedCred.Value.RefreshToken);
                 }
-                if (!string.IsNullOrWhiteSpace(savedCred.SavedPassword))
-                    await Login(savedCred.SavedEmail, savedCred.SavedPassword, onError);
+                if (!string.IsNullOrWhiteSpace(savedCred?.SavedPassword))
+                    await Login(savedCred.Value.SavedEmail, savedCred.Value.SavedPassword, onError);
                 else
                 {
                     Refreshing = false;

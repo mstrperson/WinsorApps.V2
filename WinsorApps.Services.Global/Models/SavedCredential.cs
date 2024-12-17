@@ -2,21 +2,48 @@
 using System.Text.Json;
 using WinsorApps.Services.Global.Services;
 
+
 namespace WinsorApps.Services.Global.Models;
-public record SavedCredential(
+
+public interface ISavedCredential
+{
+    public bool SavedCredExists { get; }
+
+    public Task DeleteSavedCredential();
+    public Task SaveJwt(string jwt, string refreshToken);
+    public Task Save(string email, string password, string jwt = "", string refreshToken = "");
+    public Task<Credential?> GetSavedCredential();
+
+}
+
+public readonly record struct Credential(
         string SavedEmail = "",
         string SavedPassword = "",
         string JWT = "",
         string RefreshToken = "")
 {
-    private static byte[]? _appGuid;
+    public static implicit operator Credential(SavedCredential sc) => new(sc.SavedEmail, sc.SavedPassword, sc.JWT, sc.RefreshToken);
+    public static implicit operator SavedCredential(Credential sc) => new(sc.SavedEmail, sc.SavedPassword, sc.JWT, sc.RefreshToken);
+}
 
-    private static string GuidFilePath => $"{LocalLoggingService.AppDataPath}{Path.DirectorySeparatorChar}.forms-app.guid";
-    private static string GuidFilePathOld => $"{LocalLoggingService.AppDataPathOld}{Path.DirectorySeparatorChar}forms-app.guid";
+[Obsolete("Using the CredentialManager object now!")]
+public record SavedCredential(
+        string SavedEmail = "",
+        string SavedPassword = "",
+        string JWT = "",
+        string RefreshToken = "") : ISavedCredential
+{
+    private static SavedCredential _default = new();
+    public static ISavedCredential Default => _default;
 
+    private byte[]? _appGuid;
 
+    private string GuidFilePath => $"{LocalLoggingService.AppDataPath}{Path.DirectorySeparatorChar}.forms-app.guid";
+    private string GuidFilePathOld => $"{LocalLoggingService.AppDataPathOld}{Path.DirectorySeparatorChar}forms-app.guid";
 
-    private static byte[] ApplicationGuid
+    public bool SavedCredExists => File.Exists(CredFilePath);
+
+    private byte[] ApplicationGuid
     {
         get
         {
@@ -42,20 +69,20 @@ public record SavedCredential(
         }
     }
 
-    private static string CredFilePath => $"{LocalLoggingService.AppDataPath}{Path.DirectorySeparatorChar}.login.cred";
-    private static string CredFilePathOld => $"{LocalLoggingService.AppDataPathOld}{Path.DirectorySeparatorChar}login.cred";
+    private string CredFilePath => $"{LocalLoggingService.AppDataPath}{Path.DirectorySeparatorChar}.login.cred";
+    private string CredFilePathOld => $"{LocalLoggingService.AppDataPathOld}{Path.DirectorySeparatorChar}login.cred";
 
-    public static void DeleteSavedCredential()
+    public  async Task DeleteSavedCredential()
     {
         if (File.Exists(CredFilePath))
             File.Delete(CredFilePath);
+
+        await Task.CompletedTask;
     }
 
-    public static async void SaveJwt(string jwt, string refreshToken)
+    public async Task SaveJwt(string jwt, string refreshToken)
     {
-        var saved = await GetSavedCredential();
-        if (saved is null)
-            saved = new();
+        var saved = await GetSavedCredential() ?? new();
 
         saved = saved with { JWT = jwt, RefreshToken = refreshToken };
 
@@ -63,18 +90,19 @@ public record SavedCredential(
     }
         
 
-    public static async void Save(string email, string password, string jwt = "", string refreshToken = "") =>
+    public  async Task Save(string email, string password, string jwt = "", string refreshToken = "") =>
         await WriteFileData(new SavedCredential(email, password, jwt, refreshToken));
 
-    public static async Task WriteFileData(SavedCredential credential)
+    public  async Task WriteFileData(SavedCredential credential)
     {
+
         var json = JsonSerializer.Serialize(credential);
         byte[] credBytes = Encoding.UTF8.GetBytes(json);
 
         await File.WriteAllBytesAsync(CredFilePath, credBytes);
     }
 
-    public static async Task<SavedCredential?> GetSavedCredential()
+    public  async Task<Credential?> GetSavedCredential()
     {
         if (!File.Exists(CredFilePath) && !File.Exists(CredFilePathOld))
             return null;
@@ -92,12 +120,15 @@ public record SavedCredential(
 
         if (!json.StartsWith('{') || !json.EndsWith('}'))
         {
-            DeleteSavedCredential();
+            await DeleteSavedCredential();
             return null;
         }
 
-        var credential = JsonSerializer.Deserialize<SavedCredential>(json);
-
-        return credential;
+        try
+        {
+            var credential = JsonSerializer.Deserialize<Credential>(json);
+            return credential;
+        }
+        catch { return null; }
     }
 }
