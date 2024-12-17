@@ -110,25 +110,12 @@ public static class Extensions
             var task = manager.CheckSavedCredentials();
             task.Wait();
         }
-        
-        
+
+        var logging = ServiceHelper.GetService<LocalLoggingService>()!;
+
         var api = ServiceHelper.GetService<ApiService>()!;
-        api.OnLoginSuccess += (_, _) =>
-        {
-            var registrar = ServiceHelper.GetService<RegistrarService>()!;
-            var logging = ServiceHelper.GetService<LocalLoggingService>()!;
-            registrar.Initialize(err =>
-                    logging.LogMessage(LocalLoggingService.LogLevel.Error,
-                        err.type, err.error))
-                .SafeFireAndForget(e => e.LogException(logging));
-
-            UserViewModel.Initialize(registrar, err =>
-                    logging.LogMessage(LocalLoggingService.LogLevel.Error,
-                        err.type, err.error))
-                .SafeFireAndForget(e => e.LogException(logging));
-        };
-
-
+        
+        api.Initialize(logging.LogError).SafeFireAndForget(e => e.LogException());
     }
 }
 

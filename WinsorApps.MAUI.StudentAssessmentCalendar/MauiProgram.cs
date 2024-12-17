@@ -49,12 +49,7 @@ namespace WinsorApps.MAUI.StudentAssessmentCalendar
             var app = builder.Build();
 
             ServiceHelper.Initialize(app.Services);
-
-            var api = ServiceHelper.GetService<ApiService>();
-
-            var logging = ServiceHelper.GetService<LocalLoggingService>();
-            api.Initialize(logging.LogError)
-                .SafeFireAndForget(e => e.LogException());
+            app.InitializeGlobalServices();
 
             return app;
         }
