@@ -6,7 +6,8 @@ using WinsorApps.Services.Helpdesk.Services;
 
 #region Service Declarations
 LocalLoggingService logging = new();
-ApiService api = new(logging);
+SavedCredential sc = new();
+ApiService api = new(logging, sc);
 RegistrarService registrar = new RegistrarService(api, logging);
 DeviceService deviceService = new(api, logging);
 CheqroomService cheqroomService = new(api, logging);

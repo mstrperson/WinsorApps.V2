@@ -1,13 +1,12 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
              xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.Athletics.ViewModels;assembly=WinsorApps.MAUI.Shared.Athletics"
              xmlns:svm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels;assembly=WinsorApps.MAUI.Shared"
-             x:Class="WinsorApps.MAUI.WorkoutSignIn.MainPage"
+             x:Class="WinsorApps.MAUI.WorkoutAdmin.Pages.OpenWorkouts"
              x:DataType="vm:SignInPageViewModel"
-             Shell.FlyoutBehavior="Disabled"
-             Title="Fitness Room Sign-In">
+             Title="Open Workouts">
     <ContentPage.Resources>
         <ResourceDictionary>
             <conv:BoolInverter x:Key="Invert" />
@@ -15,14 +14,14 @@
     </ContentPage.Resources>
     <ContentPage.ToolbarItems>
         <ToolbarItem
-            Text="Sign In"
-            Command="{Binding ToggleShowNewSigninCommand}" />
+        Text="Sign In"
+        Command="{Binding ToggleShowNewSigninCommand}" />
         <ToolbarItem
-            StyleClass="Separator" />
+        StyleClass="Separator" />
         <ToolbarItem
-            Text="Refresh"
-            StyleClass="RefreshButton"
-            Command="{Binding RefreshCommand}" />
+        Text="Refresh"
+        StyleClass="RefreshButton"
+        Command="{Binding RefreshCommand}" />
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <ScrollView>
@@ -84,8 +83,8 @@
                                 <TapGestureRecognizer Command="{Binding NewSignIn.ToggleForCreditCommand}" />
                             </HorizontalStackLayout.GestureRecognizers>
                             <Switch
-                                IsToggled="{Binding NewSignIn.ForCredit}" />
-
+                                IsToggled="{Binding NewSignIn.ForCredit}"
+                                IsEnabled="False" />
                             <Label
                                 IsVisible="{Binding NewSignIn.ForCredit}"
                                 Text="For Credit" />
@@ -141,10 +140,10 @@
                                 StyleClass="SubHeader"
                                 Text="" />
                             <BoxView
-                                    StyleClass="Bar"
-                                    Margin="0"
-                                    Grid.Row="1"
-                                    Grid.ColumnSpan="3" />
+                                StyleClass="Bar"
+                                Margin="0"
+                                Grid.Row="1"
+                                Grid.ColumnSpan="3" />
                         </Grid>
                     </CollectionView.Header>
                     <CollectionView.ItemTemplate>
@@ -162,10 +161,18 @@
                                     StyleClass="H3"
                                     HorizontalTextAlignment="Center"
                                     Text="{Binding TimeIn, StringFormat='{0:hh:mm tt}'}" />
-                                <Button
-                                    Grid.Column="2"
-                                    Text="Sign Out"
-                                    Command="{Binding SignOutCommand}"/>
+                                <HorizontalStackLayout
+                                    Spacing="30"
+                                    Margin="0"
+                                    Padding="0"
+                                    Grid.Column="2">
+                                    <Button
+                                        Text="Sign Out"
+                                        Command="{Binding SignOutCommand}"/>
+                                    <Button
+                                        Text="Invalidate"
+                                        Command="{Binding InvalidateCommand}" />
+                                </HorizontalStackLayout>
                                 <BoxView
                                     StyleClass="Bar"
                                     Margin="0"

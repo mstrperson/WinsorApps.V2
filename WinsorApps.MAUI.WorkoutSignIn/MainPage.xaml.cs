@@ -1,6 +1,6 @@
 ﻿using AsyncAwaitBestPractices;
 using WinsorApps.MAUI.Shared;
-using WinsorApps.MAUI.WorkoutSignIn.ViewModels;
+using WinsorApps.MAUI.Shared.Athletics.ViewModels;
 
 namespace WinsorApps.MAUI.WorkoutSignIn
 {

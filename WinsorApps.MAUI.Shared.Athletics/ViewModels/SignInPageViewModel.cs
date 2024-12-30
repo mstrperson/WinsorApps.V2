@@ -1,4 +1,5 @@
-﻿using AsyncAwaitBestPractices;
+﻿
+using AsyncAwaitBestPractices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
@@ -7,17 +8,14 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WinsorApps.MAUI.Shared;
-using WinsorApps.MAUI.Shared.Athletics.ViewModels;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Athletics.Services;
-using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 
-namespace WinsorApps.MAUI.WorkoutSignIn.ViewModels;
+namespace WinsorApps.MAUI.Shared.Athletics.ViewModels;
 
-public partial class SignInPageViewModel : 
+public partial class SignInPageViewModel :
     ObservableObject,
     IErrorHandling,
     IBusyViewModel
@@ -35,7 +33,7 @@ public partial class SignInPageViewModel :
     {
         this.newSignIn = newSignIn;
         _service = service;
-
+        _registrar = registrar;
         Initailize().SafeFireAndForget(e => e.LogException());
 
         NewSignIn.NewSignIn += (_, workout) =>
@@ -48,7 +46,14 @@ public partial class SignInPageViewModel :
             NewSignIn.Clear();
             ShowNewSignin = false;
         };
-        _registrar = registrar;
+    }
+    private async Task RefreshInBackground(CancellationToken token)
+    {
+        while (!token.IsCancellationRequested)
+        {
+            await Task.Delay(TimeSpan.FromMinutes(5));
+            await Refresh();
+        }
     }
 
     private async Task Initailize()
@@ -58,7 +63,10 @@ public partial class SignInPageViewModel :
         while (!_service.Ready)
             await Task.Delay(500);
 
-        await _registrar.Initialize(OnError.DefaultBehavior(this));
+        if (!_registrar.Started)
+            await _registrar.Initialize(OnError.DefaultBehavior(this));
+        else
+            await _registrar.WaitForUniqueNames();
 
         OpenWorkouts = [.. _service.OpenWorkouts.Select(WorkoutViewModel.Get)];
         foreach (var workout in OpenWorkouts)
@@ -69,6 +77,8 @@ public partial class SignInPageViewModel :
             workout.PropertyChanged += ((IBusyViewModel)this).BusyChangedCascade;
         }
         Busy = false;
+
+        RefreshInBackground(CancellationToken.None).SafeFireAndForget(e => e.LogException());
     }
 
     [RelayCommand]
@@ -93,7 +103,7 @@ public partial class SignInPageViewModel :
     public void ToggleShowNewSignin()
     {
         ShowNewSignin = !ShowNewSignin;
-        if(!ShowNewSignin)
+        if (!ShowNewSignin)
         {
             NewSignIn.Clear();
         }

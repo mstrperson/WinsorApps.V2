@@ -14,7 +14,7 @@
 	<true/>
 	<key>keychain-access-groups</key>
 	<array>
-		<string>$(AppIdentifierPrefix)edu.winsor.teacher-assessment-calendar</string>
+		<string>$(AppIdentifierPrefix)edu.winsor.athletics-admin</string>
 	</array>
 </dict>
 </plist>

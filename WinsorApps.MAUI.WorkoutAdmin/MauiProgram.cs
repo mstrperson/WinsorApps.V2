@@ -3,16 +3,18 @@
 using AsyncAwaitBestPractices;
 using CommunityToolkit.Maui.Core;
 using Microsoft.Extensions.Logging;
+using Microsoft.Maui.Handlers;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.Athletics;
-using WinsorApps.MAUI.Shared.Athletics.ViewModels;
 using WinsorApps.MAUI.Shared.ViewModels;
+using WinsorApps.MAUI.WorkoutAdmin.Pages;
+using WinsorApps.MAUI.WorkoutAdmin.ViewModels;
 using WinsorApps.Services.Athletics.Services;
 using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 
-namespace WinsorApps.MAUI.WorkoutSignIn
+namespace WinsorApps.MAUI.WorkoutAdmin
 {
     public static class MauiProgram
     {
@@ -35,10 +37,13 @@ namespace WinsorApps.MAUI.WorkoutSignIn
                 .AddGlobalServices()
                 .AddWorkoutServices();
 
-            builder.Services.AddSingleton<SignInPageViewModel>();
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
+
+            builder.Services.AddSingleton<OpenWorkouts>();
+            builder.Services.AddSingleton<ReportBuilderViewModel>();
+            builder.Services.AddSingleton<MainPage>();
 
             var app = builder.Build();
 
@@ -48,7 +53,7 @@ namespace WinsorApps.MAUI.WorkoutSignIn
 
             var credManager = ServiceHelper.GetService<ISavedCredential>() ?? SavedCredential.Default;
 
-            if(!credManager.SavedCredExists)
+            if (!credManager.SavedCredExists)
             {
                 credManager.Save("athletics.signin@winsor.edu", "#&#FYQ055zbk");
             }

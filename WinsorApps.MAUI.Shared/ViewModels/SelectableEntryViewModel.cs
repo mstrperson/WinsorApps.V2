@@ -4,7 +4,8 @@ using CommunityToolkit.Mvvm.Input;
 namespace WinsorApps.MAUI.Shared.ViewModels
 {
     public partial class SelectableEntryViewModel<T> : 
-        ObservableObject, ISelectable<SelectableEntryViewModel<T>>
+        ObservableObject, 
+        ISelectable<SelectableEntryViewModel<T>>
     {
         [ObservableProperty] T value;
         [ObservableProperty] bool isSelected;
@@ -26,5 +27,6 @@ namespace WinsorApps.MAUI.Shared.ViewModels
         }
 
         public static implicit operator SelectableEntryViewModel<T>(T value) => new(value);
+        public static implicit operator T(SelectableEntryViewModel<T> value) => value.Value;
     }
 }

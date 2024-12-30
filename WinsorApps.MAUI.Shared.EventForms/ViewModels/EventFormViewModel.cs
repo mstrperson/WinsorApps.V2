@@ -388,6 +388,10 @@ public partial class EventFormViewModel :
         clone.StatusSelection.Select("Draft");
         clone.HasLoadedOnce = false;
         clone.StartDate = StartDate < DateTime.Today.AddMonths(-1) ? StartDate.AddYears(1) : StartDate.AddDays(7);
+        while(clone.StartDate < DateTime.Today.AddDays(7))
+        {
+            clone.StartDate = clone.StartDate.AddDays(7);
+        }
         clone.EndDate = clone.StartDate.Add(EndDate - StartDate);
         clone.Leader = LeaderSearch.Selected;
         

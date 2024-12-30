@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xaml-comp compile="true" ?>
+<ResourceDictionary 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <Color x:Key="WinsorRed">#a81c32</Color>
+    <Color x:Key="DarkBlue">#1c355e</Color>
+    <Color x:Key="Blue">#0063a6</Color>
+    <Color x:Key="LightBlue">#6aaae4</Color>
+    <Color x:Key="Black">Black</Color>
+    <Color x:Key="White">White</Color>
+    <Color x:Key="CoolGrey">#D7D2CB</Color>
+    <Color x:Key="WarmGrey">#D9D8D6</Color>
+    <Color x:Key="SlateDark">#525564</Color>
+    <Color x:Key="SlateLight">#74828F</Color>
+    <SolidColorBrush x:Key="WinsorRedBrush" Color="{StaticResource WinsorRed}"/>
+    <SolidColorBrush x:Key="DarkBlueBrush" Color="{StaticResource DarkBlue}"/>
+    <SolidColorBrush x:Key="BlueBrush" Color="{StaticResource Blue}"/>
+    <SolidColorBrush x:Key="LightBlueBrush" Color="{StaticResource LightBlue}"/>
+    <SolidColorBrush x:Key="BlackBrush" Color="{StaticResource Black}"/>
+    <SolidColorBrush x:Key="CoolGreyBrush" Color="{StaticResource CoolGrey}"/>
+    <SolidColorBrush x:Key="WarmGreyBrush" Color="{StaticResource WarmGrey}"/>
+
+    <Image x:Key="wordmark_oneline_white" Source="wordmark_oneline_white_03.png"/>
+    <Image x:Key="wordmark_oneline_red" Source="wordmark_oneline_red_01.png"/>
+</ResourceDictionary>

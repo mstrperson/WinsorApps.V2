@@ -116,10 +116,24 @@ public class WorkoutService :
         // Don't Cache this service....
     }
 
-    public async Task WaitForInit(Action<ErrorRecord> onError)
+    public async Task WaitForInit(ErrorAction onError)
     {
         while (!Ready)
             await Task.Delay(250);
+    }
+
+    public async Task<WorkoutLog> GetAllWorkoutLogs(DateOnly start, DateOnly end, ErrorAction onError)
+    {
+        var result = await _api.SendAsync<WorkoutLog?>(HttpMethod.Get, $"api/athletics/logs?start={start:yyyy-MM-dd}&end={end:yyyy-MM-dd}", onError: onError);
+
+        return result ?? new([], new(start, end));
+    }
+
+    public async Task<WorkoutLog> GetForCreditWorkouts(DateOnly start, DateOnly end, ErrorAction onError)
+    {
+        var result = await _api.SendAsync<WorkoutLog?>(HttpMethod.Get, $"api/athletics/logs?start={start:yyyy-MM-dd}&end={end:yyyy-MM-dd}&forCreditOnly=true", onError: onError);
+
+        return result ?? new([], new(start, end));
     }
 }
 

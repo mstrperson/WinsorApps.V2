@@ -32,6 +32,7 @@ public partial class WorkoutViewModel :
     [ObservableProperty] bool isOpen = true;
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] bool forCredit;
 
     public OptionalStruct<Workout> Model { get; private set; } = OptionalStruct<Workout>.None();
 
@@ -67,7 +68,8 @@ public partial class WorkoutViewModel :
     {
         Busy = true;
         var time = DateTime.Now;
-        BusyMessage = $"Invalidating {Student.DisplayName} at {time:hh:mm tt} [Workout Time: {(time - TimeIn):hh:mm}].";
+        var duration = (time - TimeIn).TotalHours;
+        BusyMessage = $"Invalidating {Student.DisplayName} at {time:hh:mm tt} [Workout Time: {duration:#.##}].";
 
         if (await _workoutService.InvalidateWorkout(Id, OnError.DefaultBehavior(this)))
             Invalidated?.Invoke(this, EventArgs.Empty);
@@ -80,11 +82,12 @@ public partial class WorkoutViewModel :
         var vm = new WorkoutViewModel()
         {
             Id = model.id,
-            IsOpen = model.timeOut.HasValue,
+            IsOpen = !model.timeOut.HasValue,
             TimeIn = model.timeIn,
             TimeOut = model.timeOut ?? default,
             Student = UserViewModel.Get(model.user),
-            Model = OptionalStruct<Workout>.Some(model)
+            Model = OptionalStruct<Workout>.Some(model),
+            ForCredit = model.workoutDetails.Any(tag => tag.Contains("credit", StringComparison.InvariantCultureIgnoreCase))
         };
 
         return vm;
@@ -118,13 +121,6 @@ public partial class NewWorkoutViewModel :
             IsSelected = true;
             ShowForCredit = student.Model.Reduce(UserRecord.Empty).studentInfo.HasValue;
         };
-
-        _workoutService.WaitForInit(err => { })
-            .WhenCompleted(() =>
-            {
-                Details = [.. _workoutService.Tags.Select(tag => new SelectableLabelViewModel() { Label = tag })];
-            });
-
     }
 
     [RelayCommand]
@@ -133,7 +129,6 @@ public partial class NewWorkoutViewModel :
         StudentSearch.ClearSelection();
         SelectedStudent = UserViewModel.Empty;
         IsSelected = false;
-        ClearTags();
         ShowForCredit = false;
         ForCredit = false;
     }
@@ -145,8 +140,7 @@ public partial class NewWorkoutViewModel :
 
         Busy = true;
         BusyMessage = $"Signing In {SelectedStudent.DisplayName} at {DateTime.Now:hh:mm tt}";
-        var selected = Details.Where(item => item.IsSelected).ToImmutableArray();
-        ImmutableArray<string> tags = selected.Length > 0 ? [.. selected.Select(item => item.Label)] : [];
+        ImmutableArray<string> tags = ForCredit ? [ "Credit" ] : [];
         var result = await _workoutService.SignIn(SelectedStudent.Id, tags, OnError.DefaultBehavior(this));
         if (result.HasValue)
         {
@@ -158,20 +152,10 @@ public partial class NewWorkoutViewModel :
         Busy = false;
     }
 
-    private void ClearTags()
-    {
-        foreach (var tag in Details)
-            tag.IsSelected = false;
-    }
-
     [RelayCommand]
     public void ToggleForCredit()
     {
         ForCredit = !ForCredit;
-        if(!ForCredit)
-        {
-            ClearTags();
-        }
     }
 
     [ObservableProperty] UserSearchViewModel studentSearch = new();
@@ -179,7 +163,6 @@ public partial class NewWorkoutViewModel :
     [ObservableProperty] bool isSelected;
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "";
-    [ObservableProperty] ObservableCollection<SelectableLabelViewModel> details = [];
     [ObservableProperty] bool forCredit;
     [ObservableProperty] bool showForCredit;
 

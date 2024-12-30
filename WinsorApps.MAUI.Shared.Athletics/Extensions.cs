@@ -11,6 +11,7 @@ public static class Extensions
     {
         builder.Services.AddSingleton<WorkoutService>();
         builder.Services.AddSingleton<NewWorkoutViewModel>();
+        builder.Services.AddSingleton<SignInPageViewModel>();
 
         return builder;
     }

@@ -62,6 +62,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinsorApps.MAUI.Shared.Athl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinsorApps.MAUI.WorkoutSignIn", "WinsorApps.MAUI.WorkoutSignIn\WinsorApps.MAUI.WorkoutSignIn.csproj", "{3C44D6B9-07D0-4576-8561-92700383635F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinsorApps.MAUI.WorkoutAdmin", "WinsorApps.MAUI.WorkoutAdmin\WinsorApps.MAUI.WorkoutAdmin.csproj", "{6176CFC5-785E-4EFF-83DC-9690A980EA1C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -175,6 +177,10 @@ Global
 		{3C44D6B9-07D0-4576-8561-92700383635F}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{3C44D6B9-07D0-4576-8561-92700383635F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3C44D6B9-07D0-4576-8561-92700383635F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6176CFC5-785E-4EFF-83DC-9690A980EA1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6176CFC5-785E-4EFF-83DC-9690A980EA1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6176CFC5-785E-4EFF-83DC-9690A980EA1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6176CFC5-785E-4EFF-83DC-9690A980EA1C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -204,6 +210,7 @@ Global
 		{299229F5-16D6-4DFA-B2AA-FDCB88EDCBEA} = {0199C9DF-CE60-4C52-B67D-8B9DA716AB1B}
 		{5D16A366-BBCE-4E08-854D-6CE40A037FA5} = {F1AE28A1-24F3-435A-80FB-66D3688D054B}
 		{3C44D6B9-07D0-4576-8561-92700383635F} = {FC3004BF-B329-4BCE-BDE9-ED055008E277}
+		{6176CFC5-785E-4EFF-83DC-9690A980EA1C} = {FC3004BF-B329-4BCE-BDE9-ED055008E277}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {93BB8C21-5802-4E69-B338-B7EA30A80BFD}

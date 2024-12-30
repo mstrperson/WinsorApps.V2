@@ -1,0 +1,157 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="WinsorApps.MAUI.WorkoutAdmin.MainPage"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.WorkoutAdmin.ViewModels"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             xmlns:svm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels;assembly=WinsorApps.MAUI.Shared"
+             xmlns:avm="clr-namespace:WinsorApps.MAUI.Shared.Athletics.ViewModels;assembly=WinsorApps.MAUI.Shared.Athletics"
+             x:DataType="vm:ReportBuilderViewModel"
+             Title="Fitness Room Reports">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.Content>
+        <ScrollView>
+            <VerticalStackLayout
+                IsEnabled="{Binding Busy, Converter={StaticResource Invert}}"
+                WidthRequest="1500"
+                HorizontalOptions="Center">
+                <HorizontalStackLayout
+                    Margin="0"
+                    Padding="0"
+                    HorizontalOptions="Center"
+                    Spacing="50"
+                    IsVisible="{Binding Busy}">
+                    <Label
+                        StyleClass="Header"
+                        Text="{Binding BusyMessage}" />
+                    <Image StyleClass="loading_symbol" />
+                </HorizontalStackLayout>
+                <Grid
+                    WidthRequest="1500"
+                    ColumnDefinitions="80,200,80,200,*"
+                    RowDefinitions="*">
+                    <Label
+                        StyleClass="H3"
+                        Text="Start" 
+                        Grid.Column="0" />
+                    <DatePicker
+                        Date="{Binding ReportStart}"
+                        Grid.Column="1" />
+                    <Label
+                        StyleClass="H3"
+                        Text="End"
+                        Grid.Column="2" />
+                    <DatePicker
+                        Date="{Binding ReportEnd}"
+                        Grid.Column="3" />
+                    <Button
+                        Grid.Column="4"
+                        Text="Load Workout Logs"
+                        Command="{Binding RequestLogsCommand}" />
+                </Grid>
+                <BoxView StyleClass="Bar" />
+                <VerticalStackLayout
+                    Margin="0"
+                    Padding="0">
+                    <CollectionView
+                        WidthRequest="1500"
+                        BackgroundColor="Transparent"
+                        ItemsSource="{Binding Log.FilteredWorkouts}">
+                        <CollectionView.Header>
+                            <Grid
+                                WidthRequest="1500"
+                                ColumnDefinitions="400,200,180,180,180,200">
+                                <Label
+                                    StyleClass="SubHeader"
+                                    Text="Student"
+                                    HorizontalTextAlignment="Center"
+                                    Grid.Column="0"/>
+                                <Label
+                                    StyleClass="SubHeader"
+                                    Text="Date"
+                                    HorizontalTextAlignment="Center"
+                                    Grid.Column="1"/>
+                                <Label
+                                    StyleClass="SubHeader"
+                                    Text="Time In"
+                                    HorizontalTextAlignment="Center"
+                                    Grid.Column="2"/>
+                                <Label
+                                    StyleClass="SubHeader"
+                                    Text="Time Out"
+                                    HorizontalTextAlignment="Center"
+                                    Grid.Column="3"/>
+                                <Label
+                                    StyleClass="SubHeader"
+                                    Text="For Credit"
+                                    HorizontalTextAlignment="Center"
+                                    Grid.Column="4"/>
+                                <Label
+                                    StyleClass="SubHeader"
+                                    Text="Actions"
+                                    HorizontalTextAlignment="Center"
+                                    Grid.Column="5"/>
+                            </Grid>
+                        </CollectionView.Header>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="avm:WorkoutViewModel">
+                                <Grid
+                                    WidthRequest="1500"
+                                    ColumnDefinitions="400,200,180,180,180,200"
+                                    RowDefinitions="*,*">
+
+                                    <Label
+                                        StyleClass="H3"
+                                        Text="{Binding Student.DisplayName}"
+                                        HorizontalTextAlignment="Center"
+                                        Grid.Column="0"/>
+                                    <Label
+                                        StyleClass="H3"
+                                        Text="{Binding TimeIn, StringFormat='{0:ddd d MMM}'}"
+                                        HorizontalTextAlignment="Center"
+                                        Grid.Column="1"/>
+                                    <Label
+                                        StyleClass="H3"
+                                        Text="{Binding TimeIn, StringFormat='{0:hh:mm tt}'}"
+                                        HorizontalTextAlignment="Center"
+                                        Grid.Column="2"/>
+                                    <Label
+                                        StyleClass="H3"
+                                        IsVisible="{Binding IsOpen, Converter={StaticResource Invert}}"
+                                        Text="{Binding TimeOut, StringFormat='{0:hh:mm tt}'}"
+                                        HorizontalTextAlignment="Center"
+                                        Grid.Column="3"/>
+                                    <Label
+                                        StyleClass="H3"
+                                        IsVisible="{Binding IsOpen}"
+                                        Text="Not Signed Out"
+                                        HorizontalTextAlignment="Center"
+                                        Grid.Column="3"/>
+                                    <Label
+                                        StyleClass="H3"
+                                        Text="Yes"
+                                        IsVisible="{Binding ForCredit}"
+                                        HorizontalTextAlignment="Center"
+                                        Grid.Column="4"/>
+                                    <Button
+                                        HorizontalOptions="Center"
+                                        Text="Invalidate"
+                                        Command="{Binding InvalidateCommand}"
+                                        Grid.Column="5"/>
+                                    <BoxView
+                                        StyleClass="Bar"
+                                        Grid.Row="1"
+                                        Grid.ColumnSpan="6" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>
