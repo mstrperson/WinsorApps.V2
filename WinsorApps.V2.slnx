@@ -37,15 +37,19 @@
       <Configuration Solution="Debug|Any CPU" Project="Debug|Any CPU|Deploy" />
       <Configuration Solution="Release|Any CPU" Project="Release|Any CPU|Deploy" />
     </Project>
+    <Project Path="WinsorApps.MAUI.WorkoutAdmin\WinsorApps.MAUI.WorkoutAdmin.csproj" Type="Classic C#" />
+    <Project Path="WinsorApps.MAUI.WorkoutSignIn\WinsorApps.MAUI.WorkoutSignIn.csproj" Type="Classic C#" />
   </Folder>
   <Folder Name="/MAUI/SharedControls/">
     <Project Path="WinsorApps.MAUI.Shared.AssessmentCalendar\WinsorApps.MAUI.Shared.AssessmentCalendar.csproj" />
     <Project Path="WinsorApps.MAUI.Shared.Bookstore\WinsorApps.MAUI.Shared.Bookstore.csproj" />
     <Project Path="WinsorApps.MAUI.Shared.EventForms\WinsorApps.MAUI.Shared.EventForms.csproj" />
     <Project Path="WinsorApps.MAUI.Shared\WinsorApps.MAUI.Shared.csproj" />
+    <File Path="WinsorApps.MAUI.Shared.Athletics\WinsorApps.MAUI.Shared.Athletics.csproj" />
   </Folder>
   <Folder Name="/Services/">
     <Project Path="WinsorApps.Services.AssessmentCalendar\WinsorApps.Services.AssessmentCalendar.csproj" />
+    <Project Path="WinsorApps.Services.Athletics\WinsorApps.Services.Athletics.csproj" Type="Classic C#" />
     <Project Path="WinsorApps.Services.Bookstore\WinsorApps.Services.Bookstore.csproj" />
     <Project Path="WinsorApps.Services.EventForms\WinsorApps.Services.EventForms.csproj" />
     <Project Path="WinsorApps.Services.Global\WinsorApps.Services.Global.csproj" />
