@@ -13,6 +13,11 @@
             <conv:BoolInverter x:Key="Invert" />
         </ResourceDictionary>
     </ContentPage.Resources>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem 
+            Text="Download"
+            Command="{Binding Log.SaveVisibleWorkoutsCommand}" />
+    </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <ScrollView>
             <VerticalStackLayout
@@ -54,6 +59,7 @@
                         Command="{Binding RequestLogsCommand}" />
                 </Grid>
                 <BoxView StyleClass="Bar" />
+                
                 <VerticalStackLayout
                     Margin="0"
                     Padding="0">
@@ -65,31 +71,103 @@
                             <Grid
                                 WidthRequest="1500"
                                 ColumnDefinitions="400,200,180,180,180,200">
+                                <!--Column 0-->
                                 <Label
                                     StyleClass="SubHeader"
                                     Text="Student"
                                     HorizontalTextAlignment="Center"
-                                    Grid.Column="0"/>
+                                    Grid.Column="0"
+                                    IsVisible="{Binding Log.Filter.ByUser, Converter={StaticResource Invert}}">
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Log.Filter.ToggleByUserCommand}" />
+                                    </Label.GestureRecognizers>
+                                </Label>
+                                <HorizontalStackLayout
+                                    Grid.Column="0"
+                                    Padding="0"
+                                    Margin="0"
+                                    Spacing="30"
+                                    HorizontalOptions="Center"
+                                    IsVisible="{Binding Log.Filter.ByUser}">
+                                    <VerticalStackLayout
+                                        Margin="0"
+                                        Padding="0"
+                                        IsVisible="{Binding Log.Filter.UserSearch.IsSelected, Converter={StaticResource Invert}}">
+                                        <SearchBar
+                                            Text="{Binding Log.Filter.UserSearch.SearchText}"
+                                            SearchCommand="{Binding Log.Filter.UserSearch.SearchCommand}"
+                                            WidthRequest="350"/>
+                                        <CollectionView
+                                            IsVisible="{Binding Log.Filter.UserSearch.ShowOptions}"
+                                            ItemsSource="{Binding Log.Filter.UserSearch.Options}">
+                                            <CollectionView.ItemTemplate>
+                                                <DataTemplate x:DataType="svm:UserViewModel">
+                                                    <HorizontalStackLayout
+                                                        Margin="0"
+                                                        Padding="0">
+                                                        <HorizontalStackLayout.GestureRecognizers>
+                                                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                                        </HorizontalStackLayout.GestureRecognizers>
+                                                        <Label Text="{Binding DisplayName}" />
+                                                    </HorizontalStackLayout>
+                                                </DataTemplate>
+                                            </CollectionView.ItemTemplate>
+                                        </CollectionView>
+                                    </VerticalStackLayout>
+                                    <Label
+                                        StyleClass="SubHeader"
+                                        Text="{Binding Log.Filter.UserSearch.Selected.DisplayName}">
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Log.Filter.UserSearch.ClearSelectionCommand}" />
+                                        </Label.GestureRecognizers>
+                                    </Label>
+                                    <Image 
+                                        StyleClass="BackButton">
+                                        <Image.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Log.Filter.ToggleByUserCommand}" />
+                                        </Image.GestureRecognizers>
+                                    </Image>
+                                </HorizontalStackLayout>
+                                <!--Column 1-->
                                 <Label
                                     StyleClass="SubHeader"
                                     Text="Date"
                                     HorizontalTextAlignment="Center"
                                     Grid.Column="1"/>
+                                <!--Column 2-->
                                 <Label
                                     StyleClass="SubHeader"
                                     Text="Time In"
                                     HorizontalTextAlignment="Center"
                                     Grid.Column="2"/>
+                                <!--Column 3-->
                                 <Label
                                     StyleClass="SubHeader"
                                     Text="Time Out"
                                     HorizontalTextAlignment="Center"
                                     Grid.Column="3"/>
+                                <!--Column 4-->
                                 <Label
                                     StyleClass="SubHeader"
                                     Text="For Credit"
                                     HorizontalTextAlignment="Center"
-                                    Grid.Column="4"/>
+                                    Grid.Column="4"
+                                    IsVisible="{Binding Log.Filter.ForCreditOnly, Converter={StaticResource Invert}}">
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Log.Filter.ToggleForCreditOnlyCommand}" />
+                                    </Label.GestureRecognizers>
+                                </Label>
+                                <Label
+                                    StyleClass="SubHeader"
+                                    Text="For Credit Only"
+                                    HorizontalTextAlignment="Center"
+                                    Grid.Column="4"
+                                    IsVisible="{Binding Log.Filter.ForCreditOnly}">
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Log.Filter.ToggleForCreditOnlyCommand}" />
+                                    </Label.GestureRecognizers>
+                                </Label>
+                                <!--Column 5-->
                                 <Label
                                     StyleClass="SubHeader"
                                     Text="Actions"

@@ -28,6 +28,9 @@ public struct OptionalStruct<T> where T : struct
     public Optional<TResult> MapObject<TResult>(Func<T, TResult> map) where TResult : class =>
         _value.HasValue ? Optional<TResult>.Some(map(_value.Value)) : Optional<TResult>.None();
 
+    public TResult MapObject<TResult>(Func<T, TResult> map, TResult defaultValue) where TResult : class =>
+        _value.HasValue ? map(_value.Value) : defaultValue;
+
     public readonly T Reduce(T @default) => _value ?? @default;
 }
 

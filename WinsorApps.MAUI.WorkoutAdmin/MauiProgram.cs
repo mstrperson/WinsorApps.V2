@@ -58,14 +58,21 @@ namespace WinsorApps.MAUI.WorkoutAdmin
                 credManager.Save("athletics.signin@winsor.edu", "#&#FYQ055zbk");
             }
 
-            ServiceHelper.GetService<ApiService>().Initialize(err => logging.LogMessage(LocalLoggingService.LogLevel.Error,
+            var api = ServiceHelper.GetService<ApiService>();
+            api.Initialize(err => logging.LogMessage(LocalLoggingService.LogLevel.Error,
                 err.type, err.error)).SafeFireAndForget(e => e.LogException(logging));
+
 
             var workoutService = ServiceHelper.GetService<WorkoutService>();
             workoutService.Initialize(logging.LogError).SafeFireAndForget(e => e.LogException(logging));
 
             var registrarService = ServiceHelper.GetService<RegistrarService>();
 
+            api.OnLoginSuccess += (_, _) =>
+            {
+                registrarService.Initialize(logging.LogError)
+                    .SafeFireAndForget(e => e.LogException());
+            };
             var helpPage = ServiceHelper.GetService<HelpPageViewModel>();
 
 

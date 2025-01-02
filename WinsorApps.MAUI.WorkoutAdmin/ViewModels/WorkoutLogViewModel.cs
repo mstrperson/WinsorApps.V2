@@ -1,5 +1,9 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿
+using AsyncAwaitBestPractices;
+using CommunityToolkit.Maui.Storage;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Csv;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -40,6 +44,8 @@ public partial class WorkoutLogViewModel :
 
         log.FilteredWorkouts = log.AllWorkouts;
 
+        log.Filter.ApplyRequested += (_, _) => log.ApplyFilter();
+
         foreach (var workout in log.AllWorkouts)
         {
             workout.Invalidated += (_, _) =>
@@ -56,6 +62,35 @@ public partial class WorkoutLogViewModel :
     {
         FilteredWorkouts = [.. AllWorkouts.Where(Filter.Matches)];
     }
+
+    [RelayCommand]
+    public async Task SaveVisibleWorkouts()
+    {
+        var output = new CSV();
+        foreach(var workout in FilteredWorkouts)
+        {
+            var row = workout.Model.MapObject(model => new Row()
+            {
+                { "Last Name", model.user.lastName },
+                { "First Name", model.user.firstName },
+                { "Preferred Name", model.user.nickname },
+                { "Class", model.user.studentInfo?.className ?? "" },
+                { "Date", $"{model.timeIn:yyyy-MM-dd}" },
+                { "Time In", $"{model.timeIn:hh:mm tt}" },
+                { "Time Out", model.timeOut.HasValue ? $"{model.timeOut.Value:hh:mm tt}" : "Not Signed Out" },
+                { "For Credit", workout.ForCredit ? "X" : "" }
+            }, []);
+
+            output.Add(row);
+        }
+
+        using MemoryStream ms = new();
+        output.Save(ms);
+        var data = ms.ToArray();
+
+        using var saveStream = new MemoryStream(data);
+        _ = await FileSaver.Default.SaveAsync("WorkoutLog.csv", saveStream);
+    }
 }
 
 public partial class LogFilter : ObservableObject
@@ -64,11 +99,18 @@ public partial class LogFilter : ObservableObject
 
     public LogFilter(RegistrarService registrar)
     {
-        registrar.WaitForInit(err => { })
-            .WhenCompleted(() =>
-            {
-                UserSearch.SetAvailableUsers(registrar.AllUsers);
-            });
+        WaitAndInit(registrar).SafeFireAndForget(e => e.LogException());
+        UserSearch.OnSingleResult += (_, _) => ApplyFilter();
+    }
+
+    private async Task WaitAndInit(RegistrarService registrar)
+    {
+        while (!registrar.UniqueNamesReady)
+        {
+            await Task.Delay(100);
+        }
+
+        UserSearch.SetAvailableUsers(registrar.StudentList);
     }
 
     [ObservableProperty] bool forCreditOnly;
@@ -81,7 +123,38 @@ public partial class LogFilter : ObservableObject
     {
         return (!ForCreditOnly || workout.ForCredit)
             && (!ByClass || Classes.Any(cn => cn.IsSelected && workout.Student.DisplayName.Contains(cn.Label)))
-            && (!ByUser || (UserSearch.IsSelected && UserSearch.Selected.BlackbaudId == workout.Student.BlackbaudId));
+            && (!ByUser || (UserSearch.IsSelected && UserSearch.Selected.Id == workout.Student.Id));
+    }
+
+    [RelayCommand]
+    public void ToggleByUser()
+    {
+        ByUser = !ByUser;
+        if (!ByUser)
+        {
+            UserSearch.ClearSelection();
+            ApplyFilter();
+        }
+    }
+
+    [RelayCommand]
+    public void ToggleByClass()
+    {
+        ByClass = !ByClass;
+        if (!ByClass)
+        {
+            foreach (var cn in Classes)
+                cn.IsSelected = false;
+            ApplyFilter();
+        }
+    }
+
+    [RelayCommand]
+    public void ToggleForCreditOnly()
+    {
+        ForCreditOnly = !ForCreditOnly;
+
+        ApplyFilter();
     }
 
     [RelayCommand]
@@ -93,8 +166,10 @@ public partial class LogFilter : ObservableObject
             item.IsSelected = false;
         ByUser = false;
         UserSearch.ClearSelection();
+        ApplyFilter();
     }
 
     [RelayCommand]
-    public void ApplyFilter() => ApplyRequested?.Invoke(this, EventArgs.Empty);
+    public void ApplyFilter() => 
+        ApplyRequested?.Invoke(this, EventArgs.Empty);
 }
