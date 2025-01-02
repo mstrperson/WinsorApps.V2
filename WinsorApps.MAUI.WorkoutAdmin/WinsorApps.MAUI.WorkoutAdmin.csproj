@@ -57,30 +57,30 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-maccatalyst|AnyCPU'">
-		<ApplicationTitle>Teacher Assessment Calendar</ApplicationTitle>
-		<ApplicationId>maccatalyst.edu.winsor.teacher-assessment-calendar</ApplicationId>
+		<ApplicationTitle>Fitness Center Admin</ApplicationTitle>
+		<ApplicationId>maccatalyst.edu.winsor.athletics-admin</ApplicationId>
 		<ApplicationIdGuid>P8CLK55JUH</ApplicationIdGuid>
 		<MtouchLink>SdkOnly</MtouchLink>
 		<EnableCodeSigning>True</EnableCodeSigning>
 		<EnablePackageSigning>true</EnablePackageSigning>
 		<CreatePackage>true</CreatePackage>
 		<CodesignKey>Developer ID Application: Jason Cox (P8CLK55JUH)</CodesignKey>
-		<CodesignProvision>Teacher Assessment Calendar</CodesignProvision>
+		<CodesignProvision>Fitness Center Admin</CodesignProvision>
 		<CodesignEntitlements>Platforms\MacCatalyst\Entitlements.plist</CodesignEntitlements>
 		<PackageSigningKey>Developer ID Installer: Jason Cox (P8CLK55JUH)</PackageSigningKey>
 		<UseHardenedRuntime>true</UseHardenedRuntime>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-maccatalyst|AnyCPU'">
-		<ApplicationTitle>Teacher Assessment Calendar</ApplicationTitle>
-		<ApplicationId>maccatalyst.edu.winsor.teacher-assessment-calendar</ApplicationId>
+		<ApplicationTitle>Fitness Center Admin</ApplicationTitle>
+		<ApplicationId>maccatalyst.edu.winsor.athletics-admin</ApplicationId>
 		<ApplicationIdGuid>P8CLK55JUH</ApplicationIdGuid>
 		<MtouchLink>SdkOnly</MtouchLink>
 		<EnableCodeSigning>True</EnableCodeSigning>
 		<EnablePackageSigning>true</EnablePackageSigning>
 		<CreatePackage>true</CreatePackage>
 		<CodesignKey>Developer ID Application: Jason Cox (P8CLK55JUH)</CodesignKey>
-		<CodesignProvision>Teacher Assessment Calendar</CodesignProvision>
+		<CodesignProvision>Fitness Center Admin</CodesignProvision>
 		<CodesignEntitlements>Platforms\MacCatalyst\Entitlements.plist</CodesignEntitlements>
 		<PackageSigningKey>Developer ID Installer: Jason Cox (P8CLK55JUH)</PackageSigningKey>
 		<UseHardenedRuntime>true</UseHardenedRuntime>

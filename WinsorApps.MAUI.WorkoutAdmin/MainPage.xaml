@@ -65,15 +65,19 @@
                     Padding="0">
                     <CollectionView
                         WidthRequest="1500"
+                        MaximumHeightRequest="800"
                         BackgroundColor="Transparent"
+                        VerticalScrollBarVisibility="Always"
+                        
                         ItemsSource="{Binding Log.FilteredWorkouts}">
                         <CollectionView.Header>
                             <Grid
                                 WidthRequest="1500"
+                                RowDefinitions="*,*"
                                 ColumnDefinitions="400,200,180,180,180,200">
                                 <!--Column 0-->
                                 <Label
-                                    StyleClass="SubHeader"
+                                    StyleClass="Header"
                                     Text="Student"
                                     HorizontalTextAlignment="Center"
                                     Grid.Column="0"
@@ -130,25 +134,25 @@
                                 </HorizontalStackLayout>
                                 <!--Column 1-->
                                 <Label
-                                    StyleClass="SubHeader"
+                                    StyleClass="Header"
                                     Text="Date"
                                     HorizontalTextAlignment="Center"
                                     Grid.Column="1"/>
                                 <!--Column 2-->
                                 <Label
-                                    StyleClass="SubHeader"
+                                    StyleClass="Header"
                                     Text="Time In"
                                     HorizontalTextAlignment="Center"
                                     Grid.Column="2"/>
                                 <!--Column 3-->
                                 <Label
-                                    StyleClass="SubHeader"
+                                    StyleClass="Header"
                                     Text="Time Out"
                                     HorizontalTextAlignment="Center"
                                     Grid.Column="3"/>
                                 <!--Column 4-->
                                 <Label
-                                    StyleClass="SubHeader"
+                                    StyleClass="Header"
                                     Text="For Credit"
                                     HorizontalTextAlignment="Center"
                                     Grid.Column="4"
@@ -169,10 +173,14 @@
                                 </Label>
                                 <!--Column 5-->
                                 <Label
-                                    StyleClass="SubHeader"
+                                    StyleClass="Header"
                                     Text="Actions"
                                     HorizontalTextAlignment="Center"
                                     Grid.Column="5"/>
+                                <BoxView
+                                    StyleClass="Bar"
+                                    Grid.Row="1"
+                                    Grid.ColumnSpan="6" />
                             </Grid>
                         </CollectionView.Header>
                         <CollectionView.ItemTemplate>
