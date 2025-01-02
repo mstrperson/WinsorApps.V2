@@ -15,6 +15,11 @@
     </ContentPage.Resources>
     <ContentPage.ToolbarItems>
         <ToolbarItem 
+            Text="Filter"
+            Command="{Binding Log.ToggleDisplayFilterCommand}" />
+        <ToolbarItem
+            StyleClass="Separator" />
+        <ToolbarItem 
             Text="Download"
             Command="{Binding Log.SaveVisibleWorkoutsCommand}" />
     </ContentPage.ToolbarItems>
@@ -59,7 +64,125 @@
                         Command="{Binding RequestLogsCommand}" />
                 </Grid>
                 <BoxView StyleClass="Bar" />
-                
+                <!--Filter View-->
+                <Grid
+                    Margin="0"
+                    Padding="0"
+                    WidthRequest="1500"
+                    ColumnDefinitions="750,750"
+                    RowDefinitions="*,*,*"
+                    IsVisible="{Binding Log.DisplayFilter}">
+                    <!--User Filter-->
+                    <Label
+                        Text="Filter By Student"
+                        StyleClass="SubHeader"
+                        HorizontalTextAlignment="Center"
+                        IsVisible="{Binding Log.Filter.ByUser, Converter={StaticResource Invert}}">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Log.Filter.ToggleByUserCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                    <HorizontalStackLayout
+                        Grid.Column="0"
+                        Grid.Row="0"
+                        Padding="0"
+                        Margin="0"
+                        Spacing="30"
+                        WidthRequest="560"
+                        HorizontalOptions="Center"
+                        IsVisible="{Binding Log.Filter.ByUser}">
+                        <VerticalStackLayout
+                            Margin="0"
+                            Padding="0"
+                            WidthRequest="560"
+                            IsVisible="{Binding Log.Filter.UserSearch.IsSelected, Converter={StaticResource Invert}}">
+                            <SearchBar
+                                Text="{Binding Log.Filter.UserSearch.SearchText}"
+                                SearchCommand="{Binding Log.Filter.UserSearch.SearchCommand}"
+                                WidthRequest="350"
+                                MaximumWidthRequest="350"/>
+                            
+                        </VerticalStackLayout>
+                        <Label
+                            StyleClass="SubHeader"
+                            Text="{Binding Log.Filter.UserSearch.Selected.DisplayName}">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Log.Filter.UserSearch.ClearSelectionCommand}" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <Image 
+                            StyleClass="BackButton">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Log.Filter.ToggleByUserCommand}" />
+                            </Image.GestureRecognizers>
+                        </Image>
+                    </HorizontalStackLayout>
+                    <CollectionView
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        WidthRequest="500"
+                        HeightRequest="200"
+                        VerticalScrollBarVisibility="Always"
+                        IsVisible="{Binding Log.Filter.UserSearch.ShowOptions}"
+                        ItemsSource="{Binding Log.Filter.UserSearch.Options}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="svm:UserViewModel">
+                                <HorizontalStackLayout
+                                    Margin="0"
+                                    Padding="0">
+                                    <HorizontalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                    </HorizontalStackLayout.GestureRecognizers>
+                                    <Label Text="{Binding DisplayName}" />
+                                </HorizontalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <!--By Class Filter-->
+                    <Label
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        HorizontalTextAlignment="Center"
+                        StyleClass="SubHeader"
+                        Text="Filter By Class"
+                        IsVisible="{Binding Log.Filter.ByClass, Converter={StaticResource Invert}}">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Log.Filter.ToggleByClassCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                    <CollectionView
+                        ItemsSource="{Binding Log.Filter.Classes}"
+                        Grid.RowSpan="2"
+                        Grid.Column="1"
+                        WidthRequest="500"
+                        IsVisible="{Binding Log.Filter.ByClass}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="svm:SelectableLabelViewModel">
+                                <HorizontalStackLayout
+                                    Margin="2">
+                                    <HorizontalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                    </HorizontalStackLayout.GestureRecognizers>
+                                    <CheckBox IsChecked="{Binding IsSelected}" />
+                                    <Label
+                                        StyleClass="H3"
+                                        Text="{Binding Label}"
+                                        IsVisible="{Binding IsSelected, Converter={StaticResource Invert}}" />
+                                    <Label
+                                        StyleClass="H3"
+                                        FontAttributes="Bold"
+                                        Text="{Binding Label}"
+                                        IsVisible="{Binding IsSelected}"/>
+                                </HorizontalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <BoxView
+                        StyleClass="Bar"
+                        Grid.Row="2"
+                        Grid.ColumnSpan="2" />
+                </Grid>
+                <!--Log View-->
                 <Border
                     StrokeThickness="2">
                     
@@ -86,60 +209,9 @@
                                         Text="Student"
                                         HorizontalTextAlignment="Center"
                                         Grid.Column="0"
-                                        IsVisible="{Binding Log.Filter.ByUser, Converter={StaticResource Invert}}">
-                                        <Label.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding Log.Filter.ToggleByUserCommand}" />
-                                        </Label.GestureRecognizers>
-                                    </Label>
-                                    <HorizontalStackLayout
-                                        Grid.Column="0"
-                                        Padding="0"
-                                        Margin="0"
-                                        Spacing="30"
-                                        WidthRequest="560"
-                                        HorizontalOptions="Center"
-                                        IsVisible="{Binding Log.Filter.ByUser}">
-                                        <VerticalStackLayout
-                                            Margin="0"
-                                            Padding="0"
-                                            WidthRequest="560"
-                                            IsVisible="{Binding Log.Filter.UserSearch.IsSelected, Converter={StaticResource Invert}}">
-                                            <SearchBar
-                                                Text="{Binding Log.Filter.UserSearch.SearchText}"
-                                                SearchCommand="{Binding Log.Filter.UserSearch.SearchCommand}"
-                                                WidthRequest="350"
-                                                MaximumWidthRequest="350"/>
-                                            <CollectionView
-                                                IsVisible="{Binding Log.Filter.UserSearch.ShowOptions}"
-                                                ItemsSource="{Binding Log.Filter.UserSearch.Options}">
-                                                <CollectionView.ItemTemplate>
-                                                    <DataTemplate x:DataType="svm:UserViewModel">
-                                                        <HorizontalStackLayout
-                                                            Margin="0"
-                                                            Padding="0">
-                                                            <HorizontalStackLayout.GestureRecognizers>
-                                                                <TapGestureRecognizer Command="{Binding SelectCommand}" />
-                                                            </HorizontalStackLayout.GestureRecognizers>
-                                                            <Label Text="{Binding DisplayName}" />
-                                                        </HorizontalStackLayout>
-                                                    </DataTemplate>
-                                                </CollectionView.ItemTemplate>
-                                            </CollectionView>
-                                        </VerticalStackLayout>
-                                        <Label
-                                            StyleClass="SubHeader"
-                                            Text="{Binding Log.Filter.UserSearch.Selected.DisplayName}">
-                                            <Label.GestureRecognizers>
-                                                <TapGestureRecognizer Command="{Binding Log.Filter.UserSearch.ClearSelectionCommand}" />
-                                            </Label.GestureRecognizers>
-                                        </Label>
-                                        <Image 
-                                            StyleClass="BackButton">
-                                            <Image.GestureRecognizers>
-                                                <TapGestureRecognizer Command="{Binding Log.Filter.ToggleByUserCommand}" />
-                                            </Image.GestureRecognizers>
-                                        </Image>
-                                    </HorizontalStackLayout>
+                                        IsVisible="{Binding Log.Filter.ByUser, Converter={StaticResource Invert}}"/>
+
+                                    
                                     <!--Column 1-->
                                     <Label
                                         StyleClass="Header"

@@ -28,6 +28,7 @@ public partial class WorkoutLogViewModel :
     [ObservableProperty] ObservableCollection<WorkoutViewModel> allWorkouts = [];
     [ObservableProperty] LogFilter filter = new(ServiceHelper.GetService<RegistrarService>());
     [ObservableProperty] ObservableCollection<WorkoutViewModel> filteredWorkouts;
+    [ObservableProperty] bool displayFilter;
 
 
     public OptionalStruct<WorkoutLog> Model { get; private set; }
@@ -55,6 +56,16 @@ public partial class WorkoutLogViewModel :
             };
         }
         return log;
+    }
+
+    [RelayCommand]
+    public void ToggleDisplayFilter()
+    {
+        DisplayFilter = !DisplayFilter;
+        if (!DisplayFilter)
+        {
+            Filter.Reset();
+        }
     }
 
     [RelayCommand]
@@ -101,6 +112,15 @@ public partial class LogFilter : ObservableObject
     {
         WaitAndInit(registrar).SafeFireAndForget(e => e.LogException());
         UserSearch.OnSingleResult += (_, _) => ApplyFilter();
+        foreach (var item in Classes)
+        {
+            item.Selected += (_, _) =>
+            {
+                if (Classes.All(it => !it.IsSelected))
+                    ByClass = false;
+                ApplyFilter();
+            };
+        }
     }
 
     private async Task WaitAndInit(RegistrarService registrar)
@@ -122,7 +142,7 @@ public partial class LogFilter : ObservableObject
     internal bool Matches(WorkoutViewModel workout)
     {
         return (!ForCreditOnly || workout.ForCredit)
-            && (!ByClass || Classes.Any(cn => cn.IsSelected && workout.Student.DisplayName.Contains(cn.Label)))
+            && (!ByClass || Classes.Any(cn => cn.IsSelected && workout.Student.DisplayName.Contains($"[{cn.Label}]")))
             && (!ByUser || (UserSearch.IsSelected && UserSearch.Selected.Id == workout.Student.Id));
     }
 

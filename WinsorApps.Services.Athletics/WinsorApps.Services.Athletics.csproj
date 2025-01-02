@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+
   <ItemGroup>
     <ProjectReference Include="..\WinsorApps.Services.Global\WinsorApps.Services.Global.csproj" />
   </ItemGroup>

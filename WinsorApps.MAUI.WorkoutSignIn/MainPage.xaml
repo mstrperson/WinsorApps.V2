@@ -56,6 +56,7 @@
                         <SearchBar
                             HeightRequest="35"
                             WidthRequest="300"
+                            x:Name="SignInSearch"
                             Text="{Binding NewSignIn.StudentSearch.SearchText}"
                             Placeholder="Enter your Last Name"
                             SearchCommand="{Binding NewSignIn.StudentSearch.SearchCommand}"
@@ -65,6 +66,7 @@
                         Margin="0"
                         Padding="0"
                         Spacing="50"
+                        HorizontalOptions="Center"
                         IsVisible="{Binding NewSignIn.IsSelected}">
                         <Label
                             StyleClass="H3"
@@ -88,13 +90,16 @@
 
                             <Label
                                 IsVisible="{Binding NewSignIn.ForCredit}"
+                                StyleClass="SubHeader"
                                 Text="For PE Credit" />
                             <Label
                                 IsVisible="{Binding NewSignIn.ForCredit, Converter={StaticResource Invert}}"
-                                Text="Personal Workout" />
+                                Text="Personal Workout" 
+                                StyleClass="SubHeader"/>
                         </HorizontalStackLayout>
                     </HorizontalStackLayout>
                     <CollectionView
+                        WidthRequest="500"
                         IsVisible="{Binding NewSignIn.StudentSearch.ShowOptions}"
                         ItemsSource="{Binding NewSignIn.StudentSearch.Options}">
                         <CollectionView.ItemTemplate>
@@ -102,11 +107,15 @@
                                 x:DataType="svm:UserViewModel">
                                 <HorizontalStackLayout
                                     Margin="0"
-                                    Padding="2">
+                                    Padding="2"
+                                    HorizontalOptions="Center">
                                     <HorizontalStackLayout.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding SelectCommand}" />
                                     </HorizontalStackLayout.GestureRecognizers>
-                                    <Label Text="{Binding DisplayName}" />
+                                    <Label 
+                                        HorizontalTextAlignment="Center"
+                                        HorizontalOptions="Center"
+                                        Text="{Binding DisplayName}" />
                                 </HorizontalStackLayout>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
