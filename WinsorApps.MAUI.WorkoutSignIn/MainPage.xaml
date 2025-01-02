@@ -88,10 +88,10 @@
 
                             <Label
                                 IsVisible="{Binding NewSignIn.ForCredit}"
-                                Text="For Credit" />
+                                Text="For PE Credit" />
                             <Label
                                 IsVisible="{Binding NewSignIn.ForCredit, Converter={StaticResource Invert}}"
-                                Text="For Fun" />
+                                Text="Personal Workout" />
                         </HorizontalStackLayout>
                     </HorizontalStackLayout>
                     <CollectionView

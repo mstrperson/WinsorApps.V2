@@ -60,183 +60,193 @@
                 </Grid>
                 <BoxView StyleClass="Bar" />
                 
-                <VerticalStackLayout
-                    Margin="0"
-                    Padding="0">
-                    <CollectionView
-                        WidthRequest="1500"
-                        MaximumHeightRequest="800"
-                        BackgroundColor="Transparent"
-                        VerticalScrollBarVisibility="Always"
-                        
-                        ItemsSource="{Binding Log.FilteredWorkouts}">
-                        <CollectionView.Header>
-                            <Grid
-                                WidthRequest="1500"
-                                RowDefinitions="*,*"
-                                ColumnDefinitions="400,200,180,180,180,200">
-                                <!--Column 0-->
-                                <Label
-                                    StyleClass="Header"
-                                    Text="Student"
-                                    HorizontalTextAlignment="Center"
-                                    Grid.Column="0"
-                                    IsVisible="{Binding Log.Filter.ByUser, Converter={StaticResource Invert}}">
-                                    <Label.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding Log.Filter.ToggleByUserCommand}" />
-                                    </Label.GestureRecognizers>
-                                </Label>
-                                <HorizontalStackLayout
-                                    Grid.Column="0"
-                                    Padding="0"
-                                    Margin="0"
-                                    Spacing="30"
+                <Border
+                    StrokeThickness="2">
+                    
+                    <VerticalStackLayout
+                        Margin="0"
+                        Padding="0"
+                        HorizontalOptions="Center">
+                        <CollectionView
+                            WidthRequest="1500"
+                            HeightRequest="800"
+                            BackgroundColor="Transparent"
+                            VerticalScrollBarVisibility="Always"
+                            ItemsUpdatingScrollMode="KeepItemsInView"
+                            ItemsSource="{Binding Log.FilteredWorkouts}">
+                            <CollectionView.Header>
+                                <Grid
                                     HorizontalOptions="Center"
-                                    IsVisible="{Binding Log.Filter.ByUser}">
-                                    <VerticalStackLayout
-                                        Margin="0"
-                                        Padding="0"
-                                        IsVisible="{Binding Log.Filter.UserSearch.IsSelected, Converter={StaticResource Invert}}">
-                                        <SearchBar
-                                            Text="{Binding Log.Filter.UserSearch.SearchText}"
-                                            SearchCommand="{Binding Log.Filter.UserSearch.SearchCommand}"
-                                            WidthRequest="350"/>
-                                        <CollectionView
-                                            IsVisible="{Binding Log.Filter.UserSearch.ShowOptions}"
-                                            ItemsSource="{Binding Log.Filter.UserSearch.Options}">
-                                            <CollectionView.ItemTemplate>
-                                                <DataTemplate x:DataType="svm:UserViewModel">
-                                                    <HorizontalStackLayout
-                                                        Margin="0"
-                                                        Padding="0">
-                                                        <HorizontalStackLayout.GestureRecognizers>
-                                                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
-                                                        </HorizontalStackLayout.GestureRecognizers>
-                                                        <Label Text="{Binding DisplayName}" />
-                                                    </HorizontalStackLayout>
-                                                </DataTemplate>
-                                            </CollectionView.ItemTemplate>
-                                        </CollectionView>
-                                    </VerticalStackLayout>
+                                    WidthRequest="1500"
+                                    RowDefinitions="*,*"
+                                    ColumnDefinitions="560,200,180,180,180,200">
+                                    <!--Column 0-->
                                     <Label
-                                        StyleClass="SubHeader"
-                                        Text="{Binding Log.Filter.UserSearch.Selected.DisplayName}">
+                                        StyleClass="Header"
+                                        Text="Student"
+                                        HorizontalTextAlignment="Center"
+                                        Grid.Column="0"
+                                        IsVisible="{Binding Log.Filter.ByUser, Converter={StaticResource Invert}}">
                                         <Label.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding Log.Filter.UserSearch.ClearSelectionCommand}" />
+                                            <TapGestureRecognizer Command="{Binding Log.Filter.ToggleByUserCommand}" />
                                         </Label.GestureRecognizers>
                                     </Label>
-                                    <Image 
-                                        StyleClass="BackButton">
-                                        <Image.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding Log.Filter.ToggleByUserCommand}" />
-                                        </Image.GestureRecognizers>
-                                    </Image>
-                                </HorizontalStackLayout>
-                                <!--Column 1-->
-                                <Label
-                                    StyleClass="Header"
-                                    Text="Date"
-                                    HorizontalTextAlignment="Center"
-                                    Grid.Column="1"/>
-                                <!--Column 2-->
-                                <Label
-                                    StyleClass="Header"
-                                    Text="Time In"
-                                    HorizontalTextAlignment="Center"
-                                    Grid.Column="2"/>
-                                <!--Column 3-->
-                                <Label
-                                    StyleClass="Header"
-                                    Text="Time Out"
-                                    HorizontalTextAlignment="Center"
-                                    Grid.Column="3"/>
-                                <!--Column 4-->
-                                <Label
-                                    StyleClass="Header"
-                                    Text="For Credit"
-                                    HorizontalTextAlignment="Center"
-                                    Grid.Column="4"
-                                    IsVisible="{Binding Log.Filter.ForCreditOnly, Converter={StaticResource Invert}}">
-                                    <Label.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding Log.Filter.ToggleForCreditOnlyCommand}" />
-                                    </Label.GestureRecognizers>
-                                </Label>
-                                <Label
-                                    StyleClass="SubHeader"
-                                    Text="For Credit Only"
-                                    HorizontalTextAlignment="Center"
-                                    Grid.Column="4"
-                                    IsVisible="{Binding Log.Filter.ForCreditOnly}">
-                                    <Label.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding Log.Filter.ToggleForCreditOnlyCommand}" />
-                                    </Label.GestureRecognizers>
-                                </Label>
-                                <!--Column 5-->
-                                <Label
-                                    StyleClass="Header"
-                                    Text="Actions"
-                                    HorizontalTextAlignment="Center"
-                                    Grid.Column="5"/>
-                                <BoxView
-                                    StyleClass="Bar"
-                                    Grid.Row="1"
-                                    Grid.ColumnSpan="6" />
-                            </Grid>
-                        </CollectionView.Header>
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="avm:WorkoutViewModel">
-                                <Grid
-                                    WidthRequest="1500"
-                                    ColumnDefinitions="400,200,180,180,180,200"
-                                    RowDefinitions="*,*">
-
+                                    <HorizontalStackLayout
+                                        Grid.Column="0"
+                                        Padding="0"
+                                        Margin="0"
+                                        Spacing="30"
+                                        WidthRequest="560"
+                                        HorizontalOptions="Center"
+                                        IsVisible="{Binding Log.Filter.ByUser}">
+                                        <VerticalStackLayout
+                                            Margin="0"
+                                            Padding="0"
+                                            WidthRequest="560"
+                                            IsVisible="{Binding Log.Filter.UserSearch.IsSelected, Converter={StaticResource Invert}}">
+                                            <SearchBar
+                                                Text="{Binding Log.Filter.UserSearch.SearchText}"
+                                                SearchCommand="{Binding Log.Filter.UserSearch.SearchCommand}"
+                                                WidthRequest="350"
+                                                MaximumWidthRequest="350"/>
+                                            <CollectionView
+                                                IsVisible="{Binding Log.Filter.UserSearch.ShowOptions}"
+                                                ItemsSource="{Binding Log.Filter.UserSearch.Options}">
+                                                <CollectionView.ItemTemplate>
+                                                    <DataTemplate x:DataType="svm:UserViewModel">
+                                                        <HorizontalStackLayout
+                                                            Margin="0"
+                                                            Padding="0">
+                                                            <HorizontalStackLayout.GestureRecognizers>
+                                                                <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                                            </HorizontalStackLayout.GestureRecognizers>
+                                                            <Label Text="{Binding DisplayName}" />
+                                                        </HorizontalStackLayout>
+                                                    </DataTemplate>
+                                                </CollectionView.ItemTemplate>
+                                            </CollectionView>
+                                        </VerticalStackLayout>
+                                        <Label
+                                            StyleClass="SubHeader"
+                                            Text="{Binding Log.Filter.UserSearch.Selected.DisplayName}">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Log.Filter.UserSearch.ClearSelectionCommand}" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                        <Image 
+                                            StyleClass="BackButton">
+                                            <Image.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Log.Filter.ToggleByUserCommand}" />
+                                            </Image.GestureRecognizers>
+                                        </Image>
+                                    </HorizontalStackLayout>
+                                    <!--Column 1-->
                                     <Label
-                                        StyleClass="H3"
-                                        Text="{Binding Student.DisplayName}"
-                                        HorizontalTextAlignment="Center"
-                                        Grid.Column="0"/>
-                                    <Label
-                                        StyleClass="H3"
-                                        Text="{Binding TimeIn, StringFormat='{0:ddd d MMM}'}"
+                                        StyleClass="Header"
+                                        Text="Date"
                                         HorizontalTextAlignment="Center"
                                         Grid.Column="1"/>
+                                    <!--Column 2-->
                                     <Label
-                                        StyleClass="H3"
-                                        Text="{Binding TimeIn, StringFormat='{0:hh:mm tt}'}"
+                                        StyleClass="Header"
+                                        Text="Time In"
                                         HorizontalTextAlignment="Center"
                                         Grid.Column="2"/>
+                                    <!--Column 3-->
                                     <Label
-                                        StyleClass="H3"
-                                        IsVisible="{Binding IsOpen, Converter={StaticResource Invert}}"
-                                        Text="{Binding TimeOut, StringFormat='{0:hh:mm tt}'}"
+                                        StyleClass="Header"
+                                        Text="Time Out"
                                         HorizontalTextAlignment="Center"
                                         Grid.Column="3"/>
+                                    <!--Column 4-->
                                     <Label
-                                        StyleClass="H3"
-                                        IsVisible="{Binding IsOpen}"
-                                        Text="Not Signed Out"
+                                        StyleClass="Header"
+                                        Text="For Credit"
                                         HorizontalTextAlignment="Center"
-                                        Grid.Column="3"/>
+                                        Grid.Column="4"
+                                        IsVisible="{Binding Log.Filter.ForCreditOnly, Converter={StaticResource Invert}}">
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Log.Filter.ToggleForCreditOnlyCommand}" />
+                                        </Label.GestureRecognizers>
+                                    </Label>
                                     <Label
-                                        StyleClass="H3"
-                                        Text="Yes"
-                                        IsVisible="{Binding ForCredit}"
+                                        StyleClass="SubHeader"
+                                        Text="For Credit Only"
                                         HorizontalTextAlignment="Center"
-                                        Grid.Column="4"/>
-                                    <Button
-                                        HorizontalOptions="Center"
-                                        Text="Invalidate"
-                                        Command="{Binding InvalidateCommand}"
+                                        Grid.Column="4"
+                                        IsVisible="{Binding Log.Filter.ForCreditOnly}">
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Log.Filter.ToggleForCreditOnlyCommand}" />
+                                        </Label.GestureRecognizers>
+                                    </Label>
+                                    <!--Column 5-->
+                                    <Label
+                                        StyleClass="Header"
+                                        Text="Actions"
+                                        HorizontalTextAlignment="Center"
                                         Grid.Column="5"/>
                                     <BoxView
                                         StyleClass="Bar"
                                         Grid.Row="1"
                                         Grid.ColumnSpan="6" />
                                 </Grid>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </VerticalStackLayout>
+                            </CollectionView.Header>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="avm:WorkoutViewModel">
+                                    <Grid
+                                        WidthRequest="1500"
+                                        HorizontalOptions="Center"
+                                        ColumnDefinitions="560,200,180,180,180,200"
+                                        RowDefinitions="*,*">
+
+                                        <Label
+                                            StyleClass="H3"
+                                            Text="{Binding Student.DisplayName}"
+                                            HorizontalTextAlignment="Center"
+                                            Grid.Column="0"/>
+                                        <Label
+                                            StyleClass="H3"
+                                            Text="{Binding TimeIn, StringFormat='{0:ddd d MMM}'}"
+                                            HorizontalTextAlignment="Center"
+                                            Grid.Column="1"/>
+                                        <Label
+                                            StyleClass="H3"
+                                            Text="{Binding TimeIn, StringFormat='{0:hh:mm tt}'}"
+                                            HorizontalTextAlignment="Center"
+                                            Grid.Column="2"/>
+                                        <Label
+                                            StyleClass="H3"
+                                            IsVisible="{Binding IsOpen, Converter={StaticResource Invert}}"
+                                            Text="{Binding TimeOut, StringFormat='{0:hh:mm tt}'}"
+                                            HorizontalTextAlignment="Center"
+                                            Grid.Column="3"/>
+                                        <Label
+                                            StyleClass="H3"
+                                            IsVisible="{Binding IsOpen}"
+                                            Text="Not Signed Out"
+                                            HorizontalTextAlignment="Center"
+                                            Grid.Column="3"/>
+                                        <Label
+                                            StyleClass="H3"
+                                            Text="Yes"
+                                            IsVisible="{Binding ForCredit}"
+                                            HorizontalTextAlignment="Center"
+                                            Grid.Column="4"/>
+                                        <Button
+                                            HorizontalOptions="Center"
+                                            Text="Invalidate"
+                                            Command="{Binding InvalidateCommand}"
+                                            Grid.Column="5"/>
+                                        <BoxView
+                                            StyleClass="Bar"
+                                            Grid.Row="1"
+                                            Grid.ColumnSpan="6" />
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Border>
             </VerticalStackLayout>
         </ScrollView>
     </ContentPage.Content>

@@ -45,6 +45,7 @@
                         Margin="0"
                         Padding="0"
                         Spacing="30"
+                        WidthRequest="1200"
                         HorizontalOptions="Center"
                         IsVisible="{Binding NewSignIn.IsSelected, Converter={StaticResource Invert}}">
                         <Label
@@ -54,7 +55,7 @@
                             Text="Sign In:" />
                         <SearchBar
                             HeightRequest="35"
-                            WidthRequest="300"
+                            WidthRequest="600"
                             Text="{Binding NewSignIn.StudentSearch.SearchText}"
                             Placeholder="Enter your Last Name"
                             SearchCommand="{Binding NewSignIn.StudentSearch.SearchCommand}"
@@ -64,6 +65,7 @@
                         Margin="0"
                         Padding="0"
                         Spacing="50"
+                        WidthRequest="1200"
                         IsVisible="{Binding NewSignIn.IsSelected}">
                         <Label
                             StyleClass="H3"
@@ -87,13 +89,14 @@
                                 IsEnabled="False" />
                             <Label
                                 IsVisible="{Binding NewSignIn.ForCredit}"
-                                Text="For Credit" />
+                                Text="For PE Credit" />
                             <Label
                                 IsVisible="{Binding NewSignIn.ForCredit, Converter={StaticResource Invert}}"
-                                Text="For Fun" />
+                                Text="Personal Workout" />
                         </HorizontalStackLayout>
                     </HorizontalStackLayout>
                     <CollectionView
+                        WidthRequest="1200"
                         IsVisible="{Binding NewSignIn.StudentSearch.ShowOptions}"
                         ItemsSource="{Binding NewSignIn.StudentSearch.Options}">
                         <CollectionView.ItemTemplate>
@@ -119,6 +122,7 @@
                     ItemsSource="{Binding OpenWorkouts}"
                     BackgroundColor="Transparent"
                     WidthRequest="1500"
+                    HeightRequest="900"
                     HorizontalOptions="Center"
                     IsVisible="{Binding ShowNewSignin, Converter={StaticResource Invert}}">
                     <CollectionView.Header>

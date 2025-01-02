@@ -6,7 +6,7 @@
     xmlns:pages="clr-namespace:WinsorApps.MAUI.WorkoutAdmin.Pages"
     xmlns:local="clr-namespace:WinsorApps.MAUI.WorkoutAdmin"
     Shell.FlyoutBehavior="Flyout"
-    Title="WinsorApps.MAUI.WorkoutAdmin">
+    Title="Fitness Center Admin">
 
     <ShellContent
         Title="Home"
