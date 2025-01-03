@@ -268,12 +268,12 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
                 JsonSerializer.Serialize(login), false, onError);
             if (AuthorizedUser is not null)
             {
+                await _credentialManager.Save(email, password, AuthorizedUser.jwt, AuthorizedUser.refreshToken);
 
                 UserInfo = await SendAsync<UserRecord>(HttpMethod.Get, "api/users/self", onError: onError);
                 _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Login Successful:  {email}");
                 Ready = true;
 
-                await _credentialManager.Save(email, password, AuthorizedUser.jwt, AuthorizedUser.refreshToken);
                 OnLoginSuccess?.Invoke(this, EventArgs.Empty);
                 FirstLogin = false;
             }
@@ -341,7 +341,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
 
         Refreshing = true;
         BypassRefreshing = true;
-        onError ??= err => _logging.LogMessage(LocalLoggingService.LogLevel.Error, err.error);
+        onError ??= _logging.LogError;
         try
         {
             if (AuthorizedUser is not null)
@@ -484,7 +484,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
 
         using DebugTimer _ = new($"Send Async to {endpoint} with jsonContent {jsonContent}", _logging);
 
-        onError ??= err => _logging.LogMessage(LocalLoggingService.LogLevel.Error, err.error);
+        onError ??= _logging.LogError;
         var request = await BuildRequest(method, endpoint, jsonContent, authorize, stream);
 
         IncrementApiCount();
@@ -550,7 +550,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
     {
         await WaitForApiSpace();
         using DebugTimer _ = new($"Downloading stream from {endpoint} with jsonContent {jsonContent}", _logging);
-        onError ??= err => _logging.LogMessage(LocalLoggingService.LogLevel.Error, err.error);
+        onError ??= _logging.LogError;
         var request = await BuildRequest(HttpMethod.Get, endpoint, jsonContent, authorize, stream);
         IncrementApiCount();
         var response = await client.SendAsync(request);
@@ -580,7 +580,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
     {
         await WaitForApiSpace();
         using DebugTimer _ = new($"Downloading File to {endpoint} with jsonContent {jsonContent}", _logging);
-        onError ??= err => _logging.LogMessage(LocalLoggingService.LogLevel.Error, err.error);
+        onError ??= _logging.LogError;
         var request = await BuildRequest(HttpMethod.Get, endpoint, jsonContent, authorize, stream);
         IncrementApiCount();
         var response = await client.SendAsync(request);
@@ -651,7 +651,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
     {
         await WaitForApiSpace();
         using DebugTimer _ = new($"Send Async to {endpoint} with jsonContent {jsonContent}", _logging);
-        onError ??= err => _logging.LogMessage(LocalLoggingService.LogLevel.Error, err.error);
+        onError ??= _logging.LogError;
         var request = await BuildRequest(method, endpoint, jsonContent, authorize);
         IncrementApiCount();
         var response = await client.SendAsync(request);

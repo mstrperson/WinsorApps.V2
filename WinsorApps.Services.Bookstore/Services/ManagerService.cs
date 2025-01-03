@@ -3,7 +3,7 @@ using AsyncAwaitBestPractices;
 using WinsorApps.Services.Bookstore.Models;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
-using SectionRecord = WinsorApps.Services.Bookstore.Models.SectionRecord;
+using ProtoSection = WinsorApps.Services.Bookstore.Models.ProtoSection;
 
 namespace WinsorApps.Services.Bookstore.Services;
 
@@ -19,7 +19,7 @@ public partial class BookstoreManagerService :
 
     public event EventHandler? OnCacheRefreshed;
 
-    public ImmutableArray<SectionRecord> ProtoSections { get; protected set; } = [];
+    public ImmutableArray<ProtoSection> ProtoSections { get; protected set; } = [];
 
     public ImmutableArray<TeacherBookOrder> OrderCache { get; protected set; } = [];
 
@@ -33,7 +33,7 @@ public partial class BookstoreManagerService :
         }
     }
 
-    public Dictionary<string, List<SectionRecord>> SectionsByTeacher => ProtoSections.SeparateByKeys(sec => sec.teacherId);
+    public Dictionary<string, List<ProtoSection>> SectionsByTeacher => ProtoSections.SeparateByKeys(sec => sec.teacherId);
 
     public bool Ready { get; private set; } = false;
 
@@ -71,7 +71,7 @@ public partial class BookstoreManagerService :
             _logging.LogMessage(LocalLoggingService.LogLevel.Information, "Bookstore Manager Task => OrderCache loaded.");
         });
 
-        var sectionTask = _api.SendAsync<ImmutableArray<SectionRecord>>(HttpMethod.Get, "api/book-orders/manager/sections", onError: onError);
+        var sectionTask = _api.SendAsync<ImmutableArray<ProtoSection>>(HttpMethod.Get, "api/book-orders/manager/sections", onError: onError);
         sectionTask.WhenCompleted(() =>
         {
             ProtoSections = sectionTask.Result;
@@ -99,12 +99,12 @@ public partial class BookstoreManagerService :
         return new TeacherBookOrderCollection(teacher, orders);
     }
 
-    public async Task<ImmutableArray<SectionRecord>> GetTeacherSections(string teacherId, ErrorAction onError, bool forceUpdate = false)
+    public async Task<ImmutableArray<ProtoSection>> GetTeacherSections(string teacherId, ErrorAction onError, bool forceUpdate = false)
     {
         if (!forceUpdate && SectionsByTeacher.ContainsKey(teacherId))
             return [.. SectionsByTeacher[teacherId]];
 
-        var result = await _api.SendAsync<ImmutableArray<SectionRecord>>(HttpMethod.Get,
+        var result = await _api.SendAsync<ImmutableArray<ProtoSection>>(HttpMethod.Get,
             $"api/book-orders/teachers/{teacherId}/sections", onError: onError);
 
         SectionsByTeacher[teacherId] = [.. result];
@@ -138,9 +138,9 @@ public partial class BookstoreManagerService :
         }
     }
 
-    public async Task<SectionRecord?> CreateSectionForTeacher(string teacherId, string courseId, ErrorAction onError)
+    public async Task<ProtoSection?> CreateSectionForTeacher(string teacherId, string courseId, ErrorAction onError)
     {
-        var newSection = await _api.SendAsync<SectionRecord?>(HttpMethod.Post,
+        var newSection = await _api.SendAsync<ProtoSection?>(HttpMethod.Post,
             $"api/book-orders/teachers/{teacherId}/sections?courseId={courseId}",
             onError: onError);
         if (!newSection.HasValue)
@@ -239,7 +239,7 @@ public partial class BookstoreManagerService :
         return GetBookOrderCollectionsByTeacher(sections);
     }
 
-    private ImmutableArray<TeacherBookOrderCollection> GetBookOrderCollectionsByTeacher(IEnumerable<SectionRecord> sections)
+    private ImmutableArray<TeacherBookOrderCollection> GetBookOrderCollectionsByTeacher(IEnumerable<ProtoSection> sections)
     {
         Dictionary<UserRecord, List<TeacherBookOrderDetail>> dict = new();
         foreach (var section in sections)
@@ -295,7 +295,7 @@ public partial class BookstoreManagerService :
             _logging.LogMessage(LocalLoggingService.LogLevel.Information, "Bookstore Manager Task => OrderCache loaded.");
         });
 
-        var sectionTask = _api.SendAsync<ImmutableArray<SectionRecord>>(HttpMethod.Get, "api/book-orders/manager/sections", onError: onError);
+        var sectionTask = _api.SendAsync<ImmutableArray<ProtoSection>>(HttpMethod.Get, "api/book-orders/manager/sections", onError: onError);
         sectionTask.WhenCompleted(() =>
         {
             ProtoSections = sectionTask.Result;

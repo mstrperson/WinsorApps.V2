@@ -22,22 +22,6 @@ public partial class LoginPage : ContentPage
         InitializeComponent();
     }
 
-    /// <summary>
-    /// TODO: WTF MATE why two constructors???
-    /// </summary>
-    /// <param name="logging"></param>
-    public LoginPage(LocalLoggingService logging)
-    {
-        _logging = logging;
-        var viewModel = new LoginViewModel();
-        viewModel.OnLogin += ViewModelOnOnLogin;
-        viewModel.OnLogout += ViewModelOnOnLogout;
-        viewModel.OnForgotPassword += ViewModelOnOnForgotPassword;
-        viewModel.OnError += ViewModelOnOnError;
-        BindingContext = viewModel;
-        InitializeComponent();
-    }
-
     private void ViewModelOnOnError(object? sender, ErrorRecord e)
     {
         _logging.LogMessage(LocalLoggingService.LogLevel.Error, e.type, e.error);

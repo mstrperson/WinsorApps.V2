@@ -111,7 +111,7 @@ public static class Extensions
             task.Wait();
         }
 
-        var logging = ServiceHelper.GetService<LocalLoggingService>()!;
+        var logging = ServiceHelper.GetService<LocalLoggingService>();
 
         var api = ServiceHelper.GetService<ApiService>()!;
         

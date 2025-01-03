@@ -21,8 +21,8 @@ public partial class LoginViewModel :
      * variables are changed.
      ***************************************/
     
-    [ObservableProperty] private string email;
-    [ObservableProperty] private string password;
+    [ObservableProperty] private string email = "";
+    [ObservableProperty] private string password = "";
     [ObservableProperty] private bool isLoggedIn = false;
     [ObservableProperty] private bool showPasswordField = true;
     [ObservableProperty] private string statusMessage;
@@ -106,9 +106,9 @@ public partial class LoginViewModel :
     /// So the View can update `when the user logs out ...`
     /// </summary>
     [RelayCommand]
-    public void Logout()
+    public async Task Logout()
     {
-        _api.Logout();
+        await _api.Logout();
         OnLogout?.Invoke(this, EventArgs.Empty);
     }
 
@@ -124,7 +124,7 @@ public partial class LoginViewModel :
         Busy = true;
         StatusMessage = "Submitting Forgot Password Request";
         bool success = true;
-        await _api.ForgotPassword(Email, "", 
+        await _api.ForgotPassword(Email, Password ?? "", 
             str => OnForgotPassword?.Invoke(this, str),
             err => { OnError?.Invoke(this, err); success = false; });
 

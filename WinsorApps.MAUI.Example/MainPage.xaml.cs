@@ -33,7 +33,7 @@ public partial class MainPage : ContentPage
     /// <param name="e"></param>
     private void Button_OnClicked(object? sender, EventArgs e)
     {
-        LoginPage page = new(_logging);
+        LoginPage page = new(_logging, new());
         page.ViewModel.OnLogin += ViewModelOnOnLogin;
         page.ViewModel.OnError += ViewModelOnOnError;
         Navigation.PushAsync(page);

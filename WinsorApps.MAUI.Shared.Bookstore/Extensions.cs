@@ -4,6 +4,8 @@ global using WinsorApps.Services.Global;
 using AsyncAwaitBestPractices;
 using WinsorApps.Services.Bookstore.Services;
 using WinsorApps.Services.Global.Services;
+using WinsorApps.MAUI.Shared.Bookstore.Pages;
+using WinsorApps.MAUI.Shared.Bookstore.ViewModels;
 
 namespace WinsorApps.MAUI.Shared.Bookstore;
 
@@ -15,6 +17,9 @@ public static partial class Extensions
         builder.Services.AddSingleton<TeacherBookstoreService>();
         builder.Services.AddSingleton<BookstoreManagerService>();
         builder.Services.AddSingleton<StudentBookstoreService>();
+        builder.Services.AddSingleton<BookSearchViewModel>();
+        builder.Services.AddSingleton<BookSearchPage>();
+
         return builder;
     }
 

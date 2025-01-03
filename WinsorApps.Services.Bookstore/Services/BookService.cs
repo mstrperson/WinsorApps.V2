@@ -114,6 +114,8 @@ public class BookService : IAsyncInitService
             $"api/books/isbn/search{filter}", onError: onError);
 
     public async Task<ImmutableArray<BookDetail>> SearchBooks(BookSearchFilter filter, ErrorAction onError) =>
+        BooksCache.Any(filter.IsMatchFor) ?
+        [.. BooksCache.Where(filter.IsMatchFor)] :
         await _api.SendAsync<ImmutableArray<BookDetail>>(HttpMethod.Get,
             $"api/books/search{filter}", onError: onError);
 

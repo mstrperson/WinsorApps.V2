@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.TeacherBookOrders.ViewModels"
+             xmlns:svm="clr-namespace:WinsorApps.MAUI.Shared.Bookstore.ViewModels;assembly=WinsorApps.MAUI.Shared.Bookstore"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             x:Class="WinsorApps.MAUI.TeacherBookOrders.Pages.BookOrdersByYear"
+             x:DataType="vm:TeacherBookOrderPageViewModel"
+             Title="BookOrdersByYear">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.Content>
+        <ScrollView>
+            <VerticalStackLayout>
+                <CollectionView 
+                    ItemsSource="{Binding Years}"
+                    BackgroundColor="Transparent">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:BookOrderYearCollectionViewModel">
+                            <VerticalStackLayout
+                                Margin="0"
+                                Padding="0">
+                                <HorizontalStackLayout
+                                    Margin="0"
+                                    Padding="0">
+                                    <Label 
+                                        Text="{Binding SchoolYear}"
+                                        StyleClass="SubHeader">
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding ToggleVisibleCommand}" />
+                                        </Label.GestureRecognizers>
+                                    </Label>
+                                    <Button 
+                                        StyleClass="AddButton" 
+                                        Clicked="NewSectionButton_Clicked" 
+                                        IsVisible="{Binding IsCurrent}" 
+                                        Margin="50,0,0,5"/>
+                                    <Button
+                                        StyleClass="RefreshButton"
+                                        Clicked="RefreshButton_Clicked" 
+                                        IsVisible="{Binding IsCurrent}"
+                                        Margin="50,0,0,5"/>
+                                </HorizontalStackLayout>
+                                <VerticalStackLayout
+                                    Margin="0"
+                                    Padding="0"
+                                    IsVisible="{Binding IsVisible}">
+                                    <Label Text="Fall Semester or Full Year" StyleClass="H3"/>
+                                    <CollectionView 
+                                        ItemsSource="{Binding FallOrders}"
+                                        BackgroundColor="Transparent">
+                                        <CollectionView.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:BookOrderViewModel">
+                                                <VerticalStackLayout
+                                                    Margin="0"
+                                                    Padding="0">
+                                                    
+
+                                                </VerticalStackLayout>
+                                            </DataTemplate>
+                                        </CollectionView.ItemTemplate>
+                                    </CollectionView>
+                                    <Label Text="Spring Semester Only" StyleClass="H3"/>
+                                    <CollectionView 
+                                        ItemsSource="{Binding SpringOrders}"
+                                        BackgroundColor="Transparent">
+                                        <CollectionView.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:BookOrderViewModel">
+                                                <VerticalStackLayout
+                                                    Margin="0"
+                                                    Padding="0"
+                                                    BackgroundColor="{AppThemeBinding Light={StaticResource WarmGrey}, Dark={StaticResource SlateLight}}">
+                                                    <Label Text="{Binding Description}" />
+                                                    
+                                                </VerticalStackLayout>
+                                            </DataTemplate>
+                                        </CollectionView.ItemTemplate>
+                                    </CollectionView>
+                                </VerticalStackLayout>
+                                <BoxView
+                                    HeightRequest="1"
+                                    BackgroundColor="{AppThemeBinding Dark={DynamicResource White}, Light={DynamicResource WinsorRed}}"
+                                    Margin="0, 20"/>
+                            </VerticalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

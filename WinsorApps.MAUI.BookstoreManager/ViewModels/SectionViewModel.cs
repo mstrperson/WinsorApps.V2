@@ -8,17 +8,17 @@ using WinsorApps.Services.Bookstore.Services;
 using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
-using SectionRecord = WinsorApps.Services.Bookstore.Models.SectionRecord;
+using ProtoSection = WinsorApps.Services.Bookstore.Models.ProtoSection;
 
 namespace WinsorApps.MAUI.BookstoreManager.ViewModels;
 
 public partial class SectionViewModel :
     ObservableObject,
-    ICachedViewModel<SectionViewModel, SectionRecord, BookstoreManagerService>,
+    ICachedViewModel<SectionViewModel, ProtoSection, BookstoreManagerService>,
     IDefaultValueViewModel<SectionViewModel>,
     IErrorHandling,
     IBusyViewModel,
-    IModelCarrier<SectionViewModel, SectionRecord>
+    IModelCarrier<SectionViewModel, ProtoSection>
 {
     private static readonly RegistrarService _registrar = ServiceHelper.GetService<RegistrarService>();
     private static readonly BookstoreManagerService _managerService = ServiceHelper.GetService<BookstoreManagerService>();
@@ -35,7 +35,7 @@ public partial class SectionViewModel :
 
     public event EventHandler<ErrorRecord>? OnError;
 
-    public OptionalStruct<SectionRecord> Model { get; private set; } = OptionalStruct<SectionRecord>.None();
+    public OptionalStruct<ProtoSection> Model { get; private set; } = OptionalStruct<ProtoSection>.None();
 
     public SectionViewModel()
     {
@@ -56,7 +56,7 @@ public partial class SectionViewModel :
             return;
         }
 
-        Model = OptionalStruct<SectionRecord>.Some(result.Value);
+        Model = OptionalStruct<ProtoSection>.Some(result.Value);
         this.Id = result.Value.id;
         this.SchoolYearId = result.Value.schoolYearId;
         Busy = false;
@@ -76,7 +76,7 @@ public partial class SectionViewModel :
 
     public static SectionViewModel Empty => new();
 
-    public static SectionViewModel Get(SectionRecord model)
+    public static SectionViewModel Get(ProtoSection model)
     {
         var vm = ViewModelCache.FirstOrDefault(sec => sec.Id == model.id);
         if(vm is null)
@@ -88,7 +88,7 @@ public partial class SectionViewModel :
                 Course = CourseViewModel.Get(model.course),
                 Teacher = UserViewModel.Get(_registrar.AllUsers.First(u => u.id == model.teacherId)),
                 Created = model.createdTimeStamp,
-                Model = OptionalStruct<SectionRecord>.Some(model)
+                Model = OptionalStruct<ProtoSection>.Some(model)
             };
             ViewModelCache.Add(vm);
         }
@@ -96,7 +96,7 @@ public partial class SectionViewModel :
         return vm.Clone();
     }
 
-    public static List<SectionViewModel> GetClonedViewModels(IEnumerable<SectionRecord> models)
+    public static List<SectionViewModel> GetClonedViewModels(IEnumerable<ProtoSection> models)
     {
         List<SectionViewModel> result = [];
         foreach(var model in models)

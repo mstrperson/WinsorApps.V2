@@ -19,7 +19,7 @@ public readonly record struct OrderOption(string id, string label, string descri
 /// <param name="schoolYearId">What School Year is this in</param>
 /// <param name="teacherId">UserId for the teacher of this section.</param>
 /// <param name="createdTimeStamp">When was this record created.</param>
-public readonly record struct SectionRecord(
+public readonly record struct ProtoSection(
     string id,
     CourseRecord course,
     string schoolYearId,
@@ -72,7 +72,7 @@ public readonly record struct TeacherBookOrder(
 }
 
 public readonly record struct TeacherBookOrderDetail(
-    SectionRecord section,
+    ProtoSection section,
     ImmutableArray<TeacherBookRequest> books)
 {
     public bool Fall => books.Any(req => req.fall);

@@ -11,4 +11,4 @@ public readonly record struct TeacherBookOrderCollection(UserRecord teacher,
 }
 
 public readonly record struct BookOrderReportEntry(
-    UserRecord teacher, SectionRecord protoSection, ImmutableArray<TeacherBookRequest> books);
+    UserRecord teacher, ProtoSection protoSection, ImmutableArray<TeacherBookRequest> books);

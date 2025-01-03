@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="WinsorApps.MAUI.TeacherBookOrders.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:WinsorApps.MAUI.TeacherBookOrders"
+    xmlns:spages="clr-namespace:WinsorApps.MAUI.Shared.Bookstore.Pages;assembly=WinsorApps.MAUI.Shared.Bookstore"
+    Shell.FlyoutBehavior="Flyout"
+    Title="Teacher Book Orders">
+
+    <ShellContent
+        Title="Home"
+        ContentTemplate="{DataTemplate local:MainPage}"
+        Route="MainPage" />
+    <ShellContent
+        Title="Search Books"
+        ContentTemplate="{DataTemplate spages:BookSearchPage}"
+        Route="BookSearchPage" />
+</Shell>
