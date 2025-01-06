@@ -125,7 +125,7 @@ public partial class WorkoutViewModel :
     [RelayCommand]
     public void AskForConfirmation()
     {
-        ConfirmInvalid = true;
+        ConfirmInvalid = !ConfirmInvalid;
     }
 
     [RelayCommand]

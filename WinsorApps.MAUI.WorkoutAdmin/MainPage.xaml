@@ -265,6 +265,10 @@
                             </CollectionView.Header>
                             <CollectionView.ItemTemplate>
                                 <DataTemplate x:DataType="avm:WorkoutViewModel">
+                                    <HorizontalStackLayout
+                                        Margin="0"
+                                        Padding="0"
+                                        HorizontalOptions="Center">
                                     <Grid
                                         WidthRequest="1500"
                                         HorizontalOptions="Center"
@@ -377,7 +381,7 @@
                                                 HorizontalOptions="Center"
                                                 IsVisible="{Binding Editable, Converter={StaticResource Invert}}">
                                                 <Image.GestureRecognizers>
-                                                    <TapGestureRecognizer Command="{Binding InvalidateCommand}"/>
+                                                    <TapGestureRecognizer Command="{Binding AskForConfirmationCommand}"/>
                                                 </Image.GestureRecognizers>
                                             </Image>
                                             <Image
@@ -407,6 +411,29 @@
                                             Grid.Row="1"
                                             Grid.ColumnSpan="6" />
                                     </Grid>
+                                        <VerticalStackLayout
+                                            Margin="0"
+                                            Padding="0"
+                                            HorizontalOptions="Center"
+                                            WidthRequest="1500"
+                                            IsVisible="{Binding ConfirmInvalid}">
+                                            <Label
+                                                StyleClass="Header"
+                                                HorizontalTextAlignment="Center"
+                                                Text="{Binding Student.DisplayName, StringFormat='Are you sure you want to Invalidate this workout for {0}?'}" />
+                                            <HorizontalStackLayout
+                                                HorizontalOptions="Center"
+                                                Spacing="100">
+                                                <Button
+                                                    Text="Yes"
+                                                    Command="{Binding InvalidateCommand}" />
+                                                <Button
+                                                    Text="No"
+                                                    Command="{Binding AskForConfirmationCommand}" />
+                                            </HorizontalStackLayout>
+                                            <BoxView StyleClass="Bar" WidthRequest="1500"/>
+                                        </VerticalStackLayout>
+                                    </HorizontalStackLayout>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
                         </CollectionView>
