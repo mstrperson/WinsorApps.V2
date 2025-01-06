@@ -310,36 +310,31 @@
                                                 Text="Not Signed Out"
                                                 HorizontalTextAlignment="Center"/>
                                         </HorizontalStackLayout>
-                                        <VerticalStackLayout
+                                        <TimePicker
+                                            Time="{Binding EditableTimeIn}"
+                                            IsVisible="{Binding Editable}"
+                                            HorizontalOptions="Center"
+                                            Grid.Column="2" />
+                                        <HorizontalStackLayout
                                             Margin="0"
                                             Padding="0"
-                                            Grid.Column="2"
-                                            Grid.ColumnSpan="2"
-                                            HorizontalOptions="Center"
-                                            VerticalOptions="Center"
-                                            IsVisible="{Binding Editable}">
+                                            IsVisible="{Binding Editable}"
+                                            Grid.Column="3">
+                                            <CheckBox
+                                                IsChecked="{Binding IsOpen}" />
+                                            <Label
+                                                StyleClass="H3"
+                                                Text="Not Signed Out"
+                                                IsVisible="{Binding IsOpen}">
+                                                <Label.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding ToggleIsOpenCommand}" />
+                                                </Label.GestureRecognizers>
+                                            </Label>
                                             <TimePicker
-                                                Time="{Binding EditableTimeIn}"
-                                                HorizontalOptions="Center" />
-                                            <HorizontalStackLayout
-                                                Margin="0"
-                                                Padding="0">
-                                                <CheckBox
-                                                    IsChecked="{Binding IsOpen}" />
-                                                <Label
-                                                    StyleClass="H3"
-                                                    Text="Not Signed Out"
-                                                    IsVisible="{Binding IsOpen}">
-                                                    <Label.GestureRecognizers>
-                                                        <TapGestureRecognizer Command="{Binding ToggleIsOpenCommand}" />
-                                                    </Label.GestureRecognizers>
-                                                </Label>
-                                                <TimePicker
-                                                    IsVisible="{Binding IsOpen, Converter={StaticResource Invert}}"
-                                                    Time="{Binding EditableTimeOut}" 
-                                                    HorizontalOptions="Center"/>
-                                            </HorizontalStackLayout>
-                                        </VerticalStackLayout>
+                                                IsVisible="{Binding IsOpen, Converter={StaticResource Invert}}"
+                                                Time="{Binding EditableTimeOut}" 
+                                                HorizontalOptions="Center"/>
+                                        </HorizontalStackLayout>
                                         <HorizontalStackLayout
                                             Margin="0"
                                             Padding="0"
@@ -370,29 +365,42 @@
                                                 IsVisible="{Binding ForCredit, Converter={StaticResource Invert}}"
                                                 Text="Personal" />
                                         </HorizontalStackLayout>
-                                        <VerticalStackLayout
+                                        <HorizontalStackLayout
                                             Margin="0"
                                             Padding="0"
                                             Grid.Column="5"
-                                            Spacing="-5">
-                                            <Button
-                                                HorizontalOptions="Center"
-                                                Text="Invalidate"
-                                                IsVisible="{Binding Editable, Converter={StaticResource Invert}}"
-                                                Command="{Binding InvalidateCommand}"/>
-                                            <Button
-                                                Text="Edit"
-                                                IsVisible="{Binding Editable, Converter={StaticResource Invert}}"
-                                                Command="{Binding ToggleEditableCommand}" />
-                                            <Button
+                                            HorizontalOptions="Center"
+                                            Spacing="50">
+                                            <Image
                                                 StyleClass="CancelButton"
-                                                IsVisible="{Binding Editable}"
-                                                Command="{Binding ToggleEditableCommand}" />
-                                            <Button
-                                                Text="Save Changes"
-                                                IsVisible="{Binding Editable}" 
-                                                Command="{Binding SubmitEditsCommand}"/>
-                                        </VerticalStackLayout>
+                                                HorizontalOptions="Center"
+                                                IsVisible="{Binding Editable, Converter={StaticResource Invert}}">
+                                                <Image.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding InvalidateCommand}"/>
+                                                </Image.GestureRecognizers>
+                                            </Image>
+                                            <Image
+                                                StyleClass="EditButton"
+                                                IsVisible="{Binding Editable, Converter={StaticResource Invert}}">
+                                                <Image.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding ToggleEditableCommand}"/>
+                                                </Image.GestureRecognizers>
+                                            </Image>
+                                            <Image
+                                                StyleClass="BackButton"
+                                                IsVisible="{Binding Editable}">
+                                                <Image.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding ToggleEditableCommand}"/>
+                                                </Image.GestureRecognizers>
+                                            </Image>
+                                            <Image
+                                                StyleClass="SaveButton"
+                                                IsVisible="{Binding Editable}" >
+                                                <Image.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding SubmitEditsCommand}"/>
+                                                </Image.GestureRecognizers>
+                                            </Image>
+                                        </HorizontalStackLayout>
                                         <BoxView
                                             StyleClass="Bar"
                                             Grid.Row="1"
