@@ -15,13 +15,16 @@ using WinsorApps.MAUI.Shared.Athletics.ViewModels;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Athletics.Models;
 using WinsorApps.Services.Global;
+using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.WorkoutAdmin.ViewModels;
 
 public partial class WorkoutLogViewModel :
     ObservableObject,
-    IModelCarrier<WorkoutLogViewModel, WorkoutLog>
+    IModelCarrier<WorkoutLogViewModel, WorkoutLog>,
+    IErrorHandling,
+    IBusyViewModel
 {
     [ObservableProperty] DateTime startDate;
     [ObservableProperty] DateTime endDate;
@@ -29,7 +32,10 @@ public partial class WorkoutLogViewModel :
     [ObservableProperty] LogFilter filter = new(ServiceHelper.GetService<RegistrarService>());
     [ObservableProperty] ObservableCollection<WorkoutViewModel> filteredWorkouts;
     [ObservableProperty] bool displayFilter;
+    [ObservableProperty] bool busy;
+    [ObservableProperty] string busyMessage = "";
 
+    public event EventHandler<ErrorRecord>? OnError;
 
     public OptionalStruct<WorkoutLog> Model { get; private set; }
 
@@ -49,6 +55,8 @@ public partial class WorkoutLogViewModel :
 
         foreach (var workout in log.AllWorkouts)
         {
+            workout.OnError += (sender, err) => log.OnError?.Invoke(sender, err);
+            workout.PropertyChanged += ((IBusyViewModel)log).BusyChangedCascade;
             workout.Invalidated += (_, _) =>
             {
                 log.AllWorkouts.Remove(workout);

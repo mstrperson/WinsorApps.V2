@@ -279,36 +279,120 @@
                                         <Label
                                             StyleClass="H3"
                                             Text="{Binding TimeIn, StringFormat='{0:ddd d MMM}'}"
+                                            IsVisible="{Binding Editable, Converter={StaticResource Invert}}"
                                             HorizontalTextAlignment="Center"
                                             Grid.Column="1"/>
+                                        <DatePicker
+                                            Grid.Column="1"
+                                            Date="{Binding TimeIn}"
+                                            IsVisible="{Binding Editable}"
+                                            HorizontalOptions="Center" />
                                         <Label
                                             StyleClass="H3"
                                             Text="{Binding TimeIn, StringFormat='{0:hh:mm tt}'}"
+                                            IsVisible="{Binding Editable, Converter={StaticResource Invert}}"
                                             HorizontalTextAlignment="Center"
                                             Grid.Column="2"/>
-                                        <Label
-                                            StyleClass="H3"
-                                            IsVisible="{Binding IsOpen, Converter={StaticResource Invert}}"
-                                            Text="{Binding TimeOut, StringFormat='{0:hh:mm tt}'}"
-                                            HorizontalTextAlignment="Center"
-                                            Grid.Column="3"/>
-                                        <Label
-                                            StyleClass="H3"
-                                            IsVisible="{Binding IsOpen}"
-                                            Text="Not Signed Out"
-                                            HorizontalTextAlignment="Center"
-                                            Grid.Column="3"/>
-                                        <Label
-                                            StyleClass="H3"
-                                            Text="Yes"
-                                            IsVisible="{Binding ForCredit}"
-                                            HorizontalTextAlignment="Center"
-                                            Grid.Column="4"/>
-                                        <Button
+                                        <HorizontalStackLayout
+                                            Margin="0"
+                                            Padding="0"
+                                            Grid.Column="3"
                                             HorizontalOptions="Center"
-                                            Text="Invalidate"
-                                            Command="{Binding InvalidateCommand}"
-                                            Grid.Column="5"/>
+                                            IsVisible="{Binding Editable, Converter={StaticResource Invert}}">
+                                            <Label
+                                                StyleClass="H3"
+                                                IsVisible="{Binding IsOpen, Converter={StaticResource Invert}}"
+                                                Text="{Binding TimeOut, StringFormat='{0:hh:mm tt}'}"
+                                                HorizontalTextAlignment="Center"/>
+                                            <Label
+                                                StyleClass="H3"
+                                                IsVisible="{Binding IsOpen}"
+                                                Text="Not Signed Out"
+                                                HorizontalTextAlignment="Center"/>
+                                        </HorizontalStackLayout>
+                                        <VerticalStackLayout
+                                            Margin="0"
+                                            Padding="0"
+                                            Grid.Column="2"
+                                            Grid.ColumnSpan="2"
+                                            HorizontalOptions="Center"
+                                            VerticalOptions="Center"
+                                            IsVisible="{Binding Editable}">
+                                            <TimePicker
+                                                Time="{Binding EditableTimeIn}"
+                                                HorizontalOptions="Center" />
+                                            <HorizontalStackLayout
+                                                Margin="0"
+                                                Padding="0">
+                                                <CheckBox
+                                                    IsChecked="{Binding IsOpen}" />
+                                                <Label
+                                                    StyleClass="H3"
+                                                    Text="Not Signed Out"
+                                                    IsVisible="{Binding IsOpen}">
+                                                    <Label.GestureRecognizers>
+                                                        <TapGestureRecognizer Command="{Binding ToggleIsOpenCommand}" />
+                                                    </Label.GestureRecognizers>
+                                                </Label>
+                                                <TimePicker
+                                                    IsVisible="{Binding IsOpen, Converter={StaticResource Invert}}"
+                                                    Time="{Binding EditableTimeOut}" 
+                                                    HorizontalOptions="Center"/>
+                                            </HorizontalStackLayout>
+                                        </VerticalStackLayout>
+                                        <HorizontalStackLayout
+                                            Margin="0"
+                                            Padding="0"
+                                            Grid.Column="4"
+                                            HorizontalOptions="Center"
+                                            IsVisible="{Binding Editable, Converter={StaticResource Invert}}">
+                                            <Label
+                                                StyleClass="H3"
+                                                Text="Yes"
+                                                IsVisible="{Binding ForCredit}"
+                                                HorizontalTextAlignment="Center"/>
+                                        </HorizontalStackLayout>
+                                        <HorizontalStackLayout
+                                            Margin="0"
+                                            Padding="0"
+                                            Grid.Column="4"
+                                            HorizontalOptions="Center"
+                                            IsVisible="{Binding Editable}">
+                                            <HorizontalStackLayout.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding ToggleForCreditCommand}" />
+                                            </HorizontalStackLayout.GestureRecognizers>
+                                            <Label
+                                                StyleClass="H3"
+                                                IsVisible="{Binding ForCredit}"
+                                                Text="PE Credit" />
+                                            <Label
+                                                StyleClass="H3"
+                                                IsVisible="{Binding ForCredit, Converter={StaticResource Invert}}"
+                                                Text="Personal" />
+                                        </HorizontalStackLayout>
+                                        <VerticalStackLayout
+                                            Margin="0"
+                                            Padding="0"
+                                            Grid.Column="5"
+                                            Spacing="-5">
+                                            <Button
+                                                HorizontalOptions="Center"
+                                                Text="Invalidate"
+                                                IsVisible="{Binding Editable, Converter={StaticResource Invert}}"
+                                                Command="{Binding InvalidateCommand}"/>
+                                            <Button
+                                                Text="Edit"
+                                                IsVisible="{Binding Editable, Converter={StaticResource Invert}}"
+                                                Command="{Binding ToggleEditableCommand}" />
+                                            <Button
+                                                StyleClass="CancelButton"
+                                                IsVisible="{Binding Editable}"
+                                                Command="{Binding ToggleEditableCommand}" />
+                                            <Button
+                                                Text="Save Changes"
+                                                IsVisible="{Binding Editable}" 
+                                                Command="{Binding SubmitEditsCommand}"/>
+                                        </VerticalStackLayout>
                                         <BoxView
                                             StyleClass="Bar"
                                             Grid.Row="1"

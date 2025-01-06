@@ -15,6 +15,7 @@ using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.Collections.Immutable;
 using Csv;
+using System.Threading;
 
 namespace WinsorApps.MAUI.Shared.Athletics.ViewModels;
 
@@ -30,10 +31,13 @@ public partial class WorkoutViewModel :
     [ObservableProperty] UserViewModel student = UserViewModel.Empty;
     [ObservableProperty] DateTime timeIn;
     [ObservableProperty] DateTime timeOut;
+    [ObservableProperty] TimeSpan editableTimeIn;
+    [ObservableProperty] TimeSpan editableTimeOut;
     [ObservableProperty] bool isOpen = true;
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "";
     [ObservableProperty] bool forCredit;
+    [ObservableProperty] bool editable;
 
     public OptionalStruct<Workout> Model { get; private set; } = OptionalStruct<Workout>.None();
 
@@ -65,6 +69,60 @@ public partial class WorkoutViewModel :
     }
 
     [RelayCommand]
+    public void ToggleEditable()
+    {
+        Editable = !Editable;
+        if (Editable)
+        {
+            EditableTimeIn = TimeIn - TimeIn.Date;
+            EditableTimeOut = TimeOut - TimeOut.Date;
+        }
+        if (!Editable)
+        {
+            var model = Model.Reduce(new());
+            
+            TimeIn = model.timeIn;
+            TimeOut = model.timeOut.HasValue ? model.timeOut.Value : default;
+            IsOpen = !model.timeOut.HasValue;
+        }
+    }
+
+
+    [RelayCommand]
+    public async Task SubmitEdits()
+    {
+        var student = Student.Model.Reduce(UserRecord.Empty);
+        if (string.IsNullOrEmpty(student.id))
+        {
+            OnError?.Invoke(this, new ErrorRecord("You must select at Student", ""));
+            return;
+        }
+
+        Busy = true;
+        BusyMessage = $"Submitting Changes...";
+
+        TimeOut = new(TimeIn.Year, TimeIn.Month, TimeIn.Day);
+        TimeOut = TimeOut.Add(EditableTimeOut);
+
+        TimeIn = new(TimeIn.Year, TimeIn.Month, TimeIn.Day);
+        TimeIn = TimeIn.Add(EditableTimeIn);
+
+        var workout = new Workout(Id, student, TimeIn, IsOpen ? null : TimeOut, ForCredit ? ["Credit"] : []);
+        var result = await _workoutService.CreateOrUpdateWorkout(workout, OnError.DefaultBehavior(this));
+        if (result.HasValue)
+        {
+            this.Model = OptionalStruct<Workout>.Some(result.Value);
+            Editable = false;
+            TimeIn = result.Value.timeIn;
+            TimeOut = result.Value.timeOut ?? default;
+            IsOpen = !result.Value.timeOut.HasValue;
+        }
+
+        Busy = false;
+    }
+
+
+    [RelayCommand]
     public async Task Invalidate()
     {
         Busy = true;
@@ -78,6 +136,17 @@ public partial class WorkoutViewModel :
         Busy = false;
     }
 
+    [RelayCommand]
+    public void ToggleIsOpen() => IsOpen = !IsOpen;
+
+    [RelayCommand]
+    public void ToggleForCredit()
+    {
+        ForCredit = !ForCredit;
+        Model = Model.Map(wk => wk with { workoutDetails = ForCredit ? ["Credit"] : [] });
+    }
+
+
     public static WorkoutViewModel Get(Workout model)
     {
         var vm = new WorkoutViewModel()
@@ -85,7 +154,11 @@ public partial class WorkoutViewModel :
             Id = model.id,
             IsOpen = !model.timeOut.HasValue,
             TimeIn = model.timeIn,
+            EditableTimeIn = model.timeIn - model.timeIn.Date,
             TimeOut = model.timeOut ?? default,
+            EditableTimeOut = model.timeOut.HasValue ? 
+                model.timeOut.Value - model.timeOut.Value.Date : 
+                model.timeIn - model.timeIn.Date,
             Student = UserViewModel.Get(model.user),
             Model = OptionalStruct<Workout>.Some(model),
             ForCredit = model.workoutDetails.Any(tag => tag.Contains("credit", StringComparison.InvariantCultureIgnoreCase))
@@ -152,6 +225,7 @@ public partial class NewWorkoutViewModel :
 
         Busy = false;
     }
+
 
     [RelayCommand]
     public void ToggleForCredit()

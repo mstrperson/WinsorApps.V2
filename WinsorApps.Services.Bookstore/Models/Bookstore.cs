@@ -99,3 +99,7 @@ public readonly record struct CreateTeacherBookOrder(
 
 public readonly record struct CreateTeacherBookRequest(string isbn, int quantity, bool fall, bool spring);
 public readonly record struct CreateTeacherBookOrderGroup(ImmutableArray<CreateTeacherBookRequest> isbns, string optionId = "");
+
+public readonly record struct SummerSectionRecord(string id, AdvisorRecord teacher, CourseRecord course, string schoolYear, DateTime submitted, ImmutableArray<SummerBookOrderListItem> books);
+
+public readonly record struct SummerBookOrderListItem(ISBNDetail isbn, int quantity);

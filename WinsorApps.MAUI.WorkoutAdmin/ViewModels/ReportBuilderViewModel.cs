@@ -49,6 +49,8 @@ public partial class ReportBuilderViewModel :
             OnError.DefaultBehavior(this));
 
         Log = WorkoutLogViewModel.Get(log);
+        Log.OnError += (sender, err) => OnError?.Invoke(sender, err);
+        Log.PropertyChanged += ((IBusyViewModel)this).BusyChangedCascade;
         Busy = false;
     }
 }

@@ -19,6 +19,7 @@ using ProtoSectionModel = WinsorApps.Services.Bookstore.Models.ProtoSection;
 
 namespace WinsorApps.MAUI.TeacherBookOrders.ViewModels;
 
+
 public partial class ProtoSectionViewModel :
     ObservableObject,
     IErrorHandling,
@@ -30,6 +31,7 @@ public partial class ProtoSectionViewModel :
     private readonly TeacherBookstoreService _service = ServiceHelper.GetService<TeacherBookstoreService>();    
 
     public event EventHandler<ErrorRecord>? OnError;
+
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "";
     [ObservableProperty] CourseViewModel course = CourseViewModel.Empty;
@@ -65,6 +67,79 @@ public partial class ProtoSectionViewModel :
         Teacher = UserViewModel.Get(_registrar.AllUsers.First(u => u.id == model.teacherId)),
         SchoolYear = _registrar.SchoolYears.First(sy => sy.id == model.schoolYearId).label
     };
+}
+
+public partial class SelectedBookViewModel :
+    ObservableObject,
+    IErrorHandling,
+    IBusyViewModel,
+    IModelCarrier<SelectedBookViewModel, TeacherBookOrderGroup>
+{
+    private readonly TeacherBookstoreService _service = ServiceHelper.GetService<TeacherBookstoreService>();
+    private static readonly BookService _bookService = ServiceHelper.GetService<BookService>();
+
+    public event EventHandler<ErrorRecord>? OnError;
+    public event EventHandler? Deleted;
+
+    [ObservableProperty] bool busy;
+    [ObservableProperty] string busyMessage = "";
+
+    [ObservableProperty] BookViewModel book = BookViewModel.Empty;
+    [ObservableProperty] ObservableCollection<IsbnViewModel> availableIsbns = [];
+    [ObservableProperty] string option = "";
+    [ObservableProperty] ObservableCollection<string> options;
+    [ObservableProperty] IsbnViewModel isbnEditor = IsbnViewModel.Empty;
+
+    private SelectedBookViewModel()
+    {
+        options = [.. _service.OrderOptions.Select(opt => opt.label)];
+    }
+    public OptionalStruct<TeacherBookOrderGroup> Model { get; private set; } = OptionalStruct<TeacherBookOrderGroup>.None();
+
+    public static SelectedBookViewModel Get(TeacherBookOrderGroup model)
+    {
+        if (model.isbns.Length == 0)
+            throw new InvalidDataException();
+
+        var book = _bookService.BooksCache.FirstOrDefault(book => book.isbns.Any(ent => ent.isbn == model.isbns[0].isbn));
+
+        var vm = new SelectedBookViewModel()
+        {
+            Model = OptionalStruct<TeacherBookOrderGroup>.Some(model),
+            Option = model.option,
+            Book = BookViewModel.Get(book),
+            AvailableIsbns = [.. book.isbns.Where(ent => ent.available).Select(IsbnViewModel.Get)]
+        };
+
+        foreach(var entry in vm.AvailableIsbns)
+        {
+            entry.IsSelected = model.isbns.Any(ord => ord.isbn == entry.Isbn);
+        }
+
+        return vm;
+    }
+
+    [RelayCommand]
+    public async Task SaveNewISBN()
+    {
+        if (string.IsNullOrEmpty(IsbnEditor.Isbn))
+            return;
+
+        CreateISBN newISBN = new(IsbnEditor.Isbn, IsbnEditor.Binding.Id);
+
+        var result = await _bookService.AddIsbnToBook(Book.Id, newISBN, OnError.DefaultBehavior(this));
+        if (result.HasValue)
+        {
+            var book = result.Value;
+            Book = BookViewModel.Get(book);
+            AvailableIsbns = [.. book.isbns.Where(ent => ent.available).Select(IsbnViewModel.Get)];
+
+            foreach (var entry in AvailableIsbns)
+            {
+                entry.IsSelected = Model.Reduce(new()).isbns.Any(ord => ord.isbn == entry.Isbn);
+            }
+        }
+    }
 }
 
 public partial class BookOrderGroupViewModel :

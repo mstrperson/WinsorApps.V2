@@ -135,5 +135,18 @@ public class WorkoutService :
 
         return result ?? new([], new(start, end));
     }
+
+    public async Task<Workout?> CreateOrUpdateWorkout(Workout workout, ErrorAction onError)
+    {
+        var result = await _api.SendAsync<Workout, Workout?>(HttpMethod.Put, "api/athletics/direct-edit", workout, onError: onError);
+        if (result.HasValue)
+        {
+            workout = result.Value;
+               
+            OpenWorkouts = [.. OpenWorkouts.Except(OpenWorkouts.Where(wk => wk.id == workout.id)), workout];
+        }
+
+        return result;
+    }
 }
 
