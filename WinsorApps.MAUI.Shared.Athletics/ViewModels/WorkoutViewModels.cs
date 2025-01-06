@@ -38,6 +38,7 @@ public partial class WorkoutViewModel :
     [ObservableProperty] string busyMessage = "";
     [ObservableProperty] bool forCredit;
     [ObservableProperty] bool editable;
+    [ObservableProperty] bool confirmInvalid;
 
     public OptionalStruct<Workout> Model { get; private set; } = OptionalStruct<Workout>.None();
 
@@ -121,6 +122,11 @@ public partial class WorkoutViewModel :
         Busy = false;
     }
 
+    [RelayCommand]
+    public void AskForConfirmation()
+    {
+        ConfirmInvalid = true;
+    }
 
     [RelayCommand]
     public async Task Invalidate()

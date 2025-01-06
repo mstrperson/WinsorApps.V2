@@ -269,7 +269,8 @@
                                         WidthRequest="1500"
                                         HorizontalOptions="Center"
                                         ColumnDefinitions="560,200,180,180,180,200"
-                                        RowDefinitions="*,*">
+                                        RowDefinitions="*,*"
+                                        IsVisible="{Binding ConfirmInvalid, Converter={StaticResource Invert}}">
 
                                         <Label
                                             StyleClass="H3"
