@@ -55,7 +55,7 @@ public class WorkoutService :
         if (!result.HasValue)
             return [];
 
-        return result.Value;
+        return [.. result.Value.Where(wk => !wk.invalidated)];
     }
 
     public async Task<Workout?> SignIn(string studentId, ImmutableArray<string> tags, ErrorAction onError)
