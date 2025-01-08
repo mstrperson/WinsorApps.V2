@@ -152,37 +152,62 @@
                     </CollectionView.Header>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="vm:WorkoutViewModel">
-                            <Grid
-                                ColumnDefinitions="700, 200, 600"
-                                RowDefinitions="*,5">
-                                <Label
-                                    Grid.Column="0"
-                                    StyleClass="H3"
-                                    HorizontalTextAlignment="Center"
-                                    Text="{Binding Student.DisplayName}" />
-                                <Label
-                                    Grid.Column="1"
-                                    StyleClass="H3"
-                                    HorizontalTextAlignment="Center"
-                                    Text="{Binding TimeIn, StringFormat='{0:hh:mm tt}'}" />
-                                <HorizontalStackLayout
-                                    Spacing="30"
-                                    Margin="0"
-                                    Padding="0"
-                                    Grid.Column="2">
-                                    <Button
-                                        Text="Sign Out"
-                                        Command="{Binding SignOutCommand}"/>
-                                    <Button
-                                        Text="Invalidate"
-                                        Command="{Binding InvalidateCommand}" />
-                                </HorizontalStackLayout>
-                                <BoxView
-                                    StyleClass="Bar"
-                                    Margin="0"
-                                    Grid.Row="1"
-                                    Grid.ColumnSpan="3" />
-                            </Grid>
+                            <HorizontalStackLayout>
+                                <Grid
+                                    ColumnDefinitions="700, 200, 600"
+                                    RowDefinitions="*,5"
+                                    IsVisible="{Binding ConfirmInvalid, Converter={StaticResource Invert}}">
+                                    <Label
+                                        Grid.Column="0"
+                                        StyleClass="H3"
+                                        HorizontalTextAlignment="Center"
+                                        Text="{Binding Student.DisplayName}" />
+                                    <Label
+                                        Grid.Column="1"
+                                        StyleClass="H3"
+                                        HorizontalTextAlignment="Center"
+                                        Text="{Binding TimeIn, StringFormat='{0:hh:mm tt}'}" />
+                                    <HorizontalStackLayout
+                                        Spacing="30"
+                                        Margin="0"
+                                        Padding="0"
+                                        Grid.Column="2">
+                                        <Button
+                                            Text="Sign Out"
+                                            Command="{Binding SignOutCommand}"/>
+                                        <Button
+                                            Text="Invalidate"
+                                            Command="{Binding AskForConfirmationCommand}" />
+                                    </HorizontalStackLayout>
+                                    <BoxView
+                                        StyleClass="Bar"
+                                        Margin="0"
+                                        Grid.Row="1"
+                                        Grid.ColumnSpan="3" />
+                                </Grid>
+                                <VerticalStackLayout
+                                            Margin="0"
+                                            Padding="0"
+                                            HorizontalOptions="Center"
+                                            WidthRequest="1500"
+                                            IsVisible="{Binding ConfirmInvalid}">
+                                    <Label
+                                                StyleClass="Header"
+                                                HorizontalTextAlignment="Center"
+                                                Text="{Binding Student.DisplayName, StringFormat='Are you sure you want to Invalidate this workout for {0}?'}" />
+                                    <HorizontalStackLayout
+                                                HorizontalOptions="Center"
+                                                Spacing="100">
+                                        <Button
+                                                    Text="Yes"
+                                                    Command="{Binding InvalidateCommand}" />
+                                        <Button
+                                                    Text="No"
+                                                    Command="{Binding AskForConfirmationCommand}" />
+                                    </HorizontalStackLayout>
+                                    <BoxView StyleClass="Bar" WidthRequest="1500"/>
+                                </VerticalStackLayout>
+                            </HorizontalStackLayout>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
