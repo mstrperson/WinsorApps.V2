@@ -56,7 +56,7 @@ public partial class WorkoutLogViewModel :
         foreach (var workout in log.AllWorkouts)
         {
             workout.OnError += (sender, err) => log.OnError?.Invoke(sender, err);
-            workout.PropertyChanged += ((IBusyViewModel)log).BusyChangedCascade;
+            workout.PropertyChanged += ((IBusyViewModel)log).BusyChangedCascade; 
             workout.Invalidated += (_, _) =>
             {
                 log.AllWorkouts.Remove(workout);
