@@ -15,7 +15,6 @@
     </ContentPage.Resources>
     <ContentPage.ToolbarItems>
         <ToolbarItem
-            StyleClass="RefreshButton"
             Text="Refresh"
             Command="{Binding RefreshCommand}" />
     </ContentPage.ToolbarItems>
