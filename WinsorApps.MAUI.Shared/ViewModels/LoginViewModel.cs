@@ -121,6 +121,14 @@ public partial class LoginViewModel :
     [RelayCommand]
     public async Task ForgotPassword()
     {
+        Email = Email.ToLowerInvariant().Trim();
+
+        if (string.IsNullOrEmpty(Email) || !Email.EndsWith("@winsor.edu"))
+        {
+            OnError?.Invoke(this, new("Email is Required", "Please enter your email address before choosing forgot password."));
+            return;
+        }
+
         Busy = true;
         StatusMessage = "Submitting Forgot Password Request";
         bool success = true;

@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Bookstore.Models;
 using WinsorApps.Services.Bookstore.Services;
@@ -35,6 +36,7 @@ public partial class BookViewModel :
     ObservableObject, 
     IErrorHandling,
     IDefaultValueViewModel<BookViewModel>,
+    IModelCarrier<BookViewModel, BookDetail>,
     ICachedViewModel<BookViewModel, BookDetail, BookService>
 {
     public event EventHandler<BookViewModel>? Selected;
@@ -51,9 +53,9 @@ public partial class BookViewModel :
     [ObservableProperty] private DateTime publicationDate;
     [ObservableProperty] private string publisher = "";
     [ObservableProperty] private bool isNew;
-    [ObservableProperty] private List<IsbnViewModel> isbns = [];
+    [ObservableProperty] private ObservableCollection<IsbnViewModel> isbns = [];
 
-    private BookDetail _book = new("", "", [], "", default, "", []);
+    public OptionalStruct<BookDetail> Model { get; private set; } = OptionalStruct<BookDetail>.None();
 
     public static ConcurrentBag<BookViewModel> ViewModelCache { get; private set; } = [];
 
@@ -74,19 +76,19 @@ public partial class BookViewModel :
         edition = book.edition;
         publicationDate = book.publicationDate.ToDateTime(default);
         publisher = book.publisher;
-        isbns = book.isbns == default ? new() : book.isbns.Select(entry => (IsbnViewModel)entry).ToList();
+        isbns = book.isbns == default ? [] : [.. book.isbns.Select(entry => (IsbnViewModel)entry)];
         foreach (var entry in Isbns)
         {
             entry.IsbnUpdateRequested += (sender, e) => SaveIsbnRequested?.Invoke(this, e);
             entry.OdinUpdateRequested += (sender, e) => SaveOdinDataRequested?.Invoke(this, e);
         }
-        _book = book;
+        Model = OptionalStruct<BookDetail>.Some(book);
     }
 
     public static implicit operator BookViewModel(BookDetail book) => new(book);
-    public static implicit operator BookDetail(BookViewModel vm) => vm._book;
+    public static implicit operator BookDetail(BookViewModel vm) => vm.Model.Reduce(BookDetail.Empty);
 
-    public override string ToString() => $"{_book}";
+    public override string ToString() => $"{Model}";
 
     public CreateBook GetUpdateDetails() => new(Title, Publisher, [.. AuthorList.DelimeteredList()], DateOnly.FromDateTime(PublicationDate), Edition);
 
@@ -106,27 +108,27 @@ public partial class BookViewModel :
                 logging?.LogMessage(LocalLoggingService.LogLevel.Debug, $"Creating a new Book was unsuccessful.. {data}");
                 return;
             }
-            _book = book.Value;
+            Model = OptionalStruct<BookDetail>.Some(book.Value);
 
-            ViewModelCache.Add(new(_book));
+            ViewModelCache.Add(new(book.Value));
 
             return;
         }
 
-        var updatedBook = await bookService.UpdateBook(_book.id, data, err => OnError?.Invoke(this, err));
+        var updatedBook = await bookService.UpdateBook(Model.Reduce(BookDetail.Empty).id, data, err => OnError?.Invoke(this, err));
         if (!updatedBook.HasValue)
         {
-            logging?.LogMessage(LocalLoggingService.LogLevel.Debug, $"Updating Book {_book.id} was unsuccessful.. {data}");
+            logging?.LogMessage(LocalLoggingService.LogLevel.Debug, $"Updating Book {Model.Reduce(BookDetail.Empty).id} was unsuccessful.. {data}");
             return;
         }
 
-        _book = updatedBook.Value;
-        var old = ViewModelCache.FirstOrDefault(vm => vm.Id == _book.id);
+        Model = OptionalStruct<BookDetail>.Some(updatedBook.Value);
+        var old = ViewModelCache.FirstOrDefault(vm => vm.Id == updatedBook.Value.id);
         if (old is null)
-            ViewModelCache.Add(new(_book));
+            ViewModelCache.Add(new(updatedBook.Value));
         else
         {
-            ViewModelCache = [ .. ViewModelCache.Except([old]), new(_book)];
+            ViewModelCache = [ .. ViewModelCache.Except([old]), new(updatedBook.Value)];
         }
     }
 

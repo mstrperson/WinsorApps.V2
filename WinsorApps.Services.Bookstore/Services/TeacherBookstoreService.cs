@@ -26,7 +26,8 @@ public partial class TeacherBookstoreService :
         ImmutableArray<OrderOption> orderOptions,
         ImmutableArray<CourseRecord> courses,
         ImmutableArray<ProtoSection> sections,
-        ImmutableArray<TeacherBookOrder> myOrders);
+        ImmutableArray<TeacherBookOrder> myOrders,
+        ImmutableArray<SummerSection> summerSections);
 
     public SchoolYear CurrentBookOrderYear => DateTime.Today.Month >= 3 ?
         _registrar.SchoolYears.First(sy => sy.startDate.Year == DateTime.Today.Year) :
@@ -105,10 +106,10 @@ public partial class TeacherBookstoreService :
     public bool Started { get; private set; }
 
     public double Progress { get; private set; }
-    public async Task<ProtoSection?> CreateNewSection(string courseId, ErrorAction onError)
+    public async Task<ProtoSection?> CreateNewSection(string courseId, bool fall, ErrorAction onError)
     {
         var result = await _api.SendAsync<ProtoSection?>(HttpMethod.Post,
-            $"api/book-orders/teachers?courseId={courseId}",
+            $"api/book-orders/teachers?courseId={courseId}&fall={fall}",
             onError: onError);
 
         if (result.HasValue)
@@ -237,9 +238,14 @@ public partial class TeacherBookstoreService :
         CacheSchema cache = new(
             [.. OrderStatusOptions],
             [.. _orderOptions ?? []],
-            [.. CoursesByDepartment.SelectMany(kvp => kvp.Value).DistinctBy(c => c.courseId)],
+            [.. CoursesByDepartment
+                .SelectMany(kvp => kvp.Value)
+                .DistinctBy(c => c.courseId)],
             [.. MySections],
-            [.. MyOrders]);
+            [.. MyOrders],
+            [.. SummerSections
+                .SelectMany(kvp => kvp.Value)
+                .DistinctBy(sec => sec.id)]);
 
         var json = JsonSerializer.Serialize(cache);
         File.WriteAllText($"{_logging.AppStoragePath}{Path.DirectorySeparatorChar}{CacheFileName}", json);
@@ -258,6 +264,7 @@ public partial class TeacherBookstoreService :
             _coursesByDept = cache.courses.SeparateByKeys(course => course.department);
             _myProtoSections = [.. cache.sections];
             _myOrders = [.. cache.myOrders];
+            SummerSections = cache.summerSections.SeparateByKeys(sec => sec.schoolYear);
             return true;
         }
         catch(Exception e) 
@@ -323,7 +330,9 @@ public partial class TeacherBookstoreService :
             _myOrders = myOrdersTask.Result;
         });
 
-        List<Task> taskList = [myOrdersTask, sectionTask, courseTask, orderOptionTask, statusTask];
+        var summerTask = GetSummerSections(onError);
+
+        List<Task> taskList = [myOrdersTask, sectionTask, courseTask, orderOptionTask, statusTask, summerTask];
 
         while (taskList.Any(t => !t.IsCompleted))
         {

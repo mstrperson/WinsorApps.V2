@@ -38,6 +38,7 @@ public partial class ProtoSectionViewModel :
     [ObservableProperty] UserViewModel teacher = UserViewModel.Empty;
     [ObservableProperty] string schoolYear = "";
     [ObservableProperty] ObservableCollection<BookOrderGroupViewModel> bookOrders = [];
+    [ObservableProperty] bool fallOrFullYear;
 
     public OptionalStruct<ProtoSectionModel> Model { get; private set; } = OptionalStruct<ProtoSectionModel>.None();
 
@@ -65,7 +66,8 @@ public partial class ProtoSectionViewModel :
         Model = OptionalStruct<ProtoSectionModel>.Some(model),
         Course = CourseViewModel.Get(model.course),
         Teacher = UserViewModel.Get(_registrar.AllUsers.First(u => u.id == model.teacherId)),
-        SchoolYear = _registrar.SchoolYears.First(sy => sy.id == model.schoolYearId).label
+        SchoolYear = _registrar.SchoolYears.First(sy => sy.id == model.schoolYearId).label,
+        FallOrFullYear = model.fallOrFullYear
     };
 }
 

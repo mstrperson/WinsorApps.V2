@@ -80,9 +80,8 @@ public partial class ServiceAwaiterViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public void Refresh()
+    public async Task Refresh()
     {
-        _service.Refresh(OnError.DefaultBehavior(this)).SafeFireAndForget(e => e.LogException());
-        BackgroundAwaiter().SafeFireAndForget(e => e.LogException());
+        await _service.Refresh(OnError.DefaultBehavior(this));
     }
 }

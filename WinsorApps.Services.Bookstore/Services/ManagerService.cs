@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 using AsyncAwaitBestPractices;
 using WinsorApps.Services.Bookstore.Models;
 using WinsorApps.Services.Global.Models;
@@ -101,8 +102,8 @@ public partial class BookstoreManagerService :
 
     public async Task<ImmutableArray<ProtoSection>> GetTeacherSections(string teacherId, ErrorAction onError, bool forceUpdate = false)
     {
-        if (!forceUpdate && SectionsByTeacher.ContainsKey(teacherId))
-            return [.. SectionsByTeacher[teacherId]];
+        if (!forceUpdate && SectionsByTeacher.TryGetValue(teacherId, out var cached))
+            return [.. cached];
 
         var result = await _api.SendAsync<ImmutableArray<ProtoSection>>(HttpMethod.Get,
             $"api/book-orders/teachers/{teacherId}/sections", onError: onError);
@@ -146,9 +147,8 @@ public partial class BookstoreManagerService :
         if (!newSection.HasValue)
             return null;
 
-        if (!SectionsByTeacher.ContainsKey(teacherId))
-            SectionsByTeacher[teacherId] = new();
-        SectionsByTeacher[teacherId].Add(newSection.Value);
+        var val = SectionsByTeacher.GetOrAdd(teacherId, []);
+        val.Add(newSection.Value);
         OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         return newSection.Value;
     }
@@ -164,7 +164,7 @@ public partial class BookstoreManagerService :
             return null;
 
 
-        if (!SectionsByTeacher.ContainsKey(teacherId) || !SectionsByTeacher[teacherId].Any(sec => sec.id == sectionId))
+        if (!SectionsByTeacher.TryGetValue(teacherId, out var cached) || !cached.Any(sec => sec.id == sectionId))
         {
             onError(new("Unreachable Error", "Something went wrong... you shouldn't be able to see this message...  Please submit your logs on the Help Page."));
             _logging.LogMessage(LocalLoggingService.LogLevel.Debug,
@@ -172,16 +172,23 @@ public partial class BookstoreManagerService :
             return null;
         }
 
-        var orderDetail = new TeacherBookOrderDetail(SectionsByTeacher[teacherId].First(sec => sec.id == sectionId), result.Value.books);
-        if (!OrdersByTeacher.ContainsKey(teacherId))
+        var orderDetail = new TeacherBookOrderDetail(cached.First(sec => sec.id == sectionId), result.Value.books);
+        
+        var ordersByTeacher = OrdersByTeacher.GetOrAdd(teacherId, [orderDetail]);
+
+        ordersByTeacher.ReplaceBy(orderDetail, ord =>
         {
-            OrdersByTeacher[teacherId] = [orderDetail];
-            return orderDetail;
-        }
+            if (Unsafe.AreSame(ref orderDetail, ref ord))
+                return false;
 
-        if (OrdersByTeacher[teacherId].Any(ord => ord.section.id == sectionId))
-            OrdersByTeacher[teacherId].Remove(OrdersByTeacher[teacherId].First(ord => ord.section.id == sectionId));
 
+
+            return true;
+        });
+
+        if (ordersByTeacher.Any(ord => ord.section.id == sectionId))
+            ordersByTeacher.Remove(ordersByTeacher.First(ord => ord.section.id == sectionId));
+            
         OrdersByTeacher[teacherId].Add(orderDetail);
         return orderDetail;
     }

@@ -2,6 +2,8 @@ global using ErrorAction = System.Action<WinsorApps.Services.Global.Models.Error
 using System.Collections;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using AsyncAwaitBestPractices;
@@ -401,15 +403,14 @@ public static partial class Extensions
         (this IEnumerable<TValue> list, Func<TValue, TKey> keySelector)
         where TKey : notnull
     {
-        Dictionary<TKey, List<TValue>> output = new();
+        Dictionary<TKey, List<TValue>> output = [];
 
         foreach(TValue value in list)
         {
             var key = keySelector(value);
-            if (!output.ContainsKey(key))
-                output.Add(key, new());
+            var l = output.GetOrAdd(key, []);
 
-            output[key].Add(value);
+            l.Add(value);
         }
 
         return output;
@@ -628,4 +629,49 @@ public static partial class Extensions
     }
 
     public static UserRecord GetUserRecord(this StudentRecordShort student, RegistrarService registrar) => registrar.StudentList.FirstOrDefault(u => u.id == student.id);
+
+    public static void ReplaceBy<T>(this List<T> list, T toInsert, Func<T, bool> replaceCriteria)
+    {
+        foreach(var item in list.ToImmutableArray())
+            if(replaceCriteria(item))
+                list.Remove(item);
+
+        list.Add(toInsert);
+    }
+
+    public static List<T> AddOrReplacyBy<T>(this List<T> items, T toAdd, Func<T, bool> replaceCritera)
+    {
+        if (items.Any(it => Unsafe.AreSame(ref toAdd, ref it)))
+            return items;
+
+        var item = items.FirstOrDefault(replaceCritera);
+        if(!Unsafe.IsNullRef(ref item) && !Unsafe.AreSame(ref toAdd, ref item))
+            items = items.Replace(item!, toAdd);
+
+        return items;
+    }
+
+    public static TValue GetOrAdd<TKey, TValue>(this Dictionary<TKey,TValue> dict, TKey key, TValue value)
+        where TKey : notnull
+    {
+        ref var val = ref CollectionsMarshal.GetValueRefOrAddDefault(dict, key, out var exists);
+        if (exists)
+            return val;
+
+        val = value;
+
+        return value;
+    }
+
+    public static bool TryUpdate<TKey, TValue>(
+        this Dictionary<TKey, TValue> dict, TKey key, TValue value) 
+        where TKey : notnull
+    {
+        ref var val = ref CollectionsMarshal.GetValueRefOrNullRef(dict, key);
+        if (Unsafe.IsNullRef(ref val))
+            return false;
+
+        val = value;
+        return true;
+    }
 }

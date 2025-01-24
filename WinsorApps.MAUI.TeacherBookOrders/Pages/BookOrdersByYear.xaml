@@ -5,8 +5,8 @@
              xmlns:svm="clr-namespace:WinsorApps.MAUI.Shared.Bookstore.ViewModels;assembly=WinsorApps.MAUI.Shared.Bookstore"
              xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
              x:Class="WinsorApps.MAUI.TeacherBookOrders.Pages.BookOrdersByYear"
-             x:DataType="vm:TeacherBookOrderPageViewModel"
-             Title="BookOrdersByYear">
+             x:DataType="vm:BookOrderByYearPageViewModel"
+             Title="My Book Orders">
     <ContentPage.Resources>
         <ResourceDictionary>
             <conv:BoolInverter x:Key="Invert" />
@@ -35,7 +35,6 @@
                                     </Label>
                                     <Button 
                                         StyleClass="AddButton" 
-                                        Clicked="NewSectionButton_Clicked" 
                                         IsVisible="{Binding IsCurrent}" 
                                         Margin="50,0,0,5"/>
                                     <Button

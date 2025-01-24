@@ -209,7 +209,7 @@ public partial class BookOrderViewModel :
     {
         sectionId = order.protoSectionId;
         var registrar = ServiceHelper.GetService<RegistrarService>()!;
-        schoolYear = registrar.GetSchoolYear(order.schoolYearId).label;
+        schoolYear = registrar.GetSchoolYear(order.schoolYearId).Reduce(new()).label;
         canEdit = order.schoolYearId == _bookstoreService.CurrentBookOrderYear.id;
         books = [.. order.books
             .Distinct()

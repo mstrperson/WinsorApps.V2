@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Bookstore.Services;
+using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.Shared.Bookstore.ViewModels;
@@ -85,10 +86,63 @@ public partial class BookSearchViewModel :
             vm.Selected += (_, book) => BookSelected?.Invoke(this, book);
     }
 
+    [RelayCommand]
+    public void Clear()
+    {
+        SearchByAuthor = false;
+        AuthorSearch = "";
+        SearchByIsbn = false;
+        IsbnSearch = "";
+        SearchByPublisher = false;
+        PublisherSearch = "";
+        SearchByTitle = false;
+        TitleSearch = "";
+        Options = [];
+        Selected = BookViewModel.Empty;
+        IsSelected = false;
+        SearchText = "";
+    }
+
     public void Select(BookViewModel item)
     {
         BookSelected?.Invoke(this, item);
     }
 
     async Task IAsyncSearchViewModel<BookViewModel>.Search() => await Task.Run(Search);
+}
+
+public partial class BookISBNSelectionViewModel :
+    ObservableObject,
+    IBusyViewModel,
+    IErrorHandling
+
+{
+    [ObservableProperty] bool busy;
+    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] BookSearchViewModel search = new();
+    [ObservableProperty] bool bookSelected;
+    [ObservableProperty] BookViewModel selectedBook = BookViewModel.Empty;
+
+    public event EventHandler<ErrorRecord>? OnError;
+    public event EventHandler<ImmutableArray<IsbnViewModel>>? IsbnsSelected;
+
+    public BookISBNSelectionViewModel()
+    {
+        Search.OnSingleResult += (_, book) =>
+        {
+            BookSelected = true;
+            SelectedBook = book;
+        };
+    }
+
+    [RelayCommand]
+    public void Submit() => IsbnsSelected?.Invoke(this, [.. SelectedBook.Isbns.Where(vm => vm.IsSelected)]);
+
+    [RelayCommand]
+    public void Clear()
+    {
+        SelectedBook = BookViewModel.Empty;
+        BookSelected = false;
+        Search.Clear();
+    }
 }

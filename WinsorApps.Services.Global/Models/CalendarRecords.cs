@@ -18,6 +18,9 @@ public readonly record struct SchoolYear(
     ImmutableArray<TermRecord> terms,
     DateOnly startDate,
     DateOnly endDate,
-    DateOnly seniorsLastDay);
+    DateOnly seniorsLastDay)
+{
+    public static implicit operator string(SchoolYear schoolYear) => schoolYear.label;
+}
 
 public record struct CycleDay(DateOnly date, string cycleDay);

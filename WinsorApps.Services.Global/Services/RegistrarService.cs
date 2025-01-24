@@ -58,10 +58,14 @@ public class RegistrarService : IAsyncInitService
             [.. EmployeeList],
             [.. StudentList],
             [.. MyAdvisees],
-            _uniqueNameCache.Select(kvp => KeyValuePair.Create(kvp.Key.id, kvp.Value)).ToDictionary());
+            _uniqueNameCache.Where(kvp => !string.IsNullOrEmpty(kvp.Key.id)).Select(kvp => KeyValuePair.Create(kvp.Key.id, kvp.Value)).ToDictionary());
 
         File.WriteAllText($"{_logging.AppStoragePath}{CacheFileName}", JsonSerializer.Serialize(cache));
     }
+
+    public OptionalStruct<SchoolYear> GetSchoolYear(string label) => 
+        SchoolYears.FirstStructOrNone(sy => sy.label.Equals(label, StringComparison.InvariantCultureIgnoreCase));
+
     public bool LoadCache()
     {
         if (!File.Exists($"{_logging.AppStoragePath}{CacheFileName}"))
@@ -116,9 +120,7 @@ public class RegistrarService : IAsyncInitService
 
     public async Task Refresh(ErrorAction onError)
     {
-        Started = false;
-        Ready = false;
-        await Initialize(onError);
+        await DownloadData(onError);
     }
 
     /// <summary>
@@ -153,11 +155,11 @@ public class RegistrarService : IAsyncInitService
     /// Get My Schedule from the API.  Stores it in Cache.
     /// </summary>
     /// <returns></returns>
-    public async Task<ConcurrentBag<ScheduleEntry>> GetMyScheduleAsync()
+    public async Task<ConcurrentBag<ScheduleEntry>> GetMyScheduleAsync(bool force = false)
     {
         try
         {
-            if (_mySchedule.IsEmpty)
+            if (_mySchedule.IsEmpty || force)
             {
                 _mySchedule = [..await _api.SendAsync<ImmutableArray<ScheduleEntry>>(HttpMethod.Get, "api/schedule")];
             }
@@ -180,11 +182,11 @@ public class RegistrarService : IAsyncInitService
     /// </summary>
     public ConcurrentBag<SectionRecord> MyAcademicSchedule => _myAcademicSchedule ?? [];
     
-    public async Task<ConcurrentBag<SectionRecord>> GetMyAcademicScheduleAsync()
+    public async Task<ConcurrentBag<SectionRecord>> GetMyAcademicScheduleAsync(bool force = false)
     {
         try
         {
-            if (_myAcademicSchedule.IsEmpty)
+            if (_myAcademicSchedule.IsEmpty || force)
             {
                 _myAcademicSchedule = [..await _api.SendAsync<ImmutableArray<SectionRecord>>(HttpMethod.Get, "api/schedule/academics?detailed=true")];
                 foreach (var section in _myAcademicSchedule)
@@ -196,6 +198,9 @@ public class RegistrarService : IAsyncInitService
             _logging.LogMessage(LocalLoggingService.LogLevel.Error, "Failed to get My Schedule", ex.Message, ex.StackTrace);
             _myAcademicSchedule = [];
         }
+
+        SaveCache();
+
         return _myAcademicSchedule;
     }
 
@@ -207,17 +212,7 @@ public class RegistrarService : IAsyncInitService
     /// <summary>
     /// Access the Course Data Cache.  Throws an exception if the service is not yet initalized.
     /// </summary>
-    /// <exception cref="ServiceNotReadyException"></exception>
-    public ConcurrentBag<CourseRecord> CourseList
-    {
-        get
-        {
-            if (!Ready)
-                throw new ServiceNotReadyException(_logging, "Course list is not ready.");
-
-            return _courses;
-        }
-    }
+    public ConcurrentBag<CourseRecord> CourseList => _courses ?? [];
 
     /// <summary>
     /// Get Sections of a given Course uses Cache if available, otherwise, asks the API to fill in the data.
@@ -286,8 +281,8 @@ public class RegistrarService : IAsyncInitService
     /// <returns></returns>
     public async Task<SectionDetailRecord?> GetSectionDetailsAsync(string sectionId, ErrorAction onError)
     {
-        if(SectionDetailCache.ContainsKey(sectionId))
-            return SectionDetailCache[sectionId];
+        if(SectionDetailCache.TryGetValue(sectionId, out var cached))
+            return cached;
 
         var result = await _api.SendAsync<SectionDetailRecord?>(HttpMethod.Get, $"api/schedule/academics/{sectionId}", onError: onError);
 
@@ -353,8 +348,8 @@ public class RegistrarService : IAsyncInitService
     /// <returns></returns>
     public string GetUniqueDisplayNameFor(UserRecord user)
     {
-        if(_uniqueNameCache.ContainsKey(user)) 
-            return _uniqueNameCache[user];
+        if(_uniqueNameCache.TryGetValue(user, out var cached)) 
+            return cached;
 
         var name = AllUsers.GetUniqueNameWithin(user);
         _uniqueNameCache[user] = name;
@@ -479,7 +474,7 @@ public class RegistrarService : IAsyncInitService
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public SchoolYear GetSchoolYear(string id) => SchoolYears.FirstOrDefault(sy => sy.id == id);
+    //public SchoolYear GetSchoolYear(string id) => SchoolYears.FirstOrDefault(sy => sy.id == id);
     
     /// <summary>
     /// Flag that is set once the Initialize method has run to completion successfully.
@@ -526,49 +521,54 @@ public class RegistrarService : IAsyncInitService
 
         if (!LoadCache())
         {
-            var getSchoolYearTask = _api.SendAsync<ImmutableArray<SchoolYear>>(HttpMethod.Get, "api/schedule/school-years", onError: onError);
-
-            getSchoolYearTask.WhenCompleted(() =>
-            {
-                SchoolYears = [.. getSchoolYearTask.Result];
-            });
-            var sbc = DownloadSectionsByCourseAsync(onError);
-            var mySched = GetMyScheduleAsync();
-            var getCourses = GetCoursesAsync();
-            var getTeachers = GetTeachersAsync();
-            var getStudents = GetStudentsAsync();
-            var getEmployees = GetEmployeesAsync();
-            var acad = GetMyAcademicScheduleAsync();
-
-            ImmutableArray<Task> tasks =
-                [getSchoolYearTask, sbc, mySched, getCourses, getTeachers, getStudents, getEmployees, acad];
-
-            foreach (var task in tasks)
-                task.WhenCompleted(() =>
-                {
-                    Progress += 1.0 / tasks.Length;
-                });
-
-            await Task.WhenAll(
-                getSchoolYearTask,
-                sbc,
-                mySched,
-                getCourses,
-                getTeachers,
-                getStudents,
-                getEmployees,
-                acad);
-
-            MyRoles = await Me.GetRoles(_api);
-
-            Ready = true;
-            GetUniqueNames().SafeFireAndForget(e => e.LogException(_logging));
-            SaveCache();
+            await DownloadData(onError);
         }
 
         Progress = 1;
         Ready = true;
 
+    }
+
+    private async Task DownloadData(ErrorAction onError)
+    {
+        var getSchoolYearTask = _api.SendAsync<ImmutableArray<SchoolYear>>(HttpMethod.Get, "api/schedule/school-years", onError: onError);
+
+        getSchoolYearTask.WhenCompleted(() =>
+        {
+            SchoolYears = [.. getSchoolYearTask.Result];
+        });
+        var sbc = DownloadSectionsByCourseAsync(onError);
+        var mySched = GetMyScheduleAsync();
+        var getCourses = GetCoursesAsync();
+        var getTeachers = GetTeachersAsync();
+        var getStudents = GetStudentsAsync();
+        var getEmployees = GetEmployeesAsync();
+        var acad = GetMyAcademicScheduleAsync();
+
+        ImmutableArray<Task> tasks =
+            [getSchoolYearTask, sbc, mySched, getCourses, getTeachers, getStudents, getEmployees, acad];
+
+        foreach (var task in tasks)
+            task.WhenCompleted(() =>
+            {
+                Progress += 1.0 / tasks.Length;
+            });
+
+        await Task.WhenAll(
+            getSchoolYearTask,
+            sbc,
+            mySched,
+            getCourses,
+            getTeachers,
+            getStudents,
+            getEmployees,
+            acad);
+
+        MyRoles = await Me.GetRoles(_api);
+
+        Ready = true;
+        GetUniqueNames().SafeFireAndForget(e => e.LogException(_logging));
+        SaveCache();
     }
 
     public bool UniqueNamesReady { get; private set; } = false;

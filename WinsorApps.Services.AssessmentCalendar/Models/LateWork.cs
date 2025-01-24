@@ -31,27 +31,29 @@ public readonly record struct StudentLateWorkCollection(StudentRecordShort stude
             => new(dictionary.Select(kvp => (StudentLateWorkCollection)kvp).ToImmutableArray());
     }
 
-    public static partial class Extensions
+public static partial class Extensions
+{
+
+    public static Dictionary<string, List<StudentLateWorkCollection>> SeparateByAssessmentId(this IEnumerable<StudentLateWorkCollection> collections)
     {
-
-        public static Dictionary<string, List<StudentLateWorkCollection>> SeparateByAssessmentId(this IEnumerable<StudentLateWorkCollection> collections)
+        Dictionary<string, List<StudentLateWorkCollection>> output = new();
+        foreach (var col in collections)
         {
-            Dictionary<string, List<StudentLateWorkCollection>> output = new();
-            foreach (var col in collections)
+            var assessmentIds = col.lateWork
+                .Where(lw => lw.assessment.HasValue)
+                .Select(lw => lw.assessment!.Value.assessmentId)
+                .Distinct();
+            foreach (var id in assessmentIds)
             {
-                var assessmentIds = col.lateWork
-                    .Where(lw => lw.assessment.HasValue)
-                    .Select(lw => lw.assessment!.Value.assessmentId)
-                    .Distinct();
-                foreach(var id in assessmentIds)
-                {
-                    if (!output.ContainsKey(id))
-                        output.Add(id, new());
-                    output[id].Add(new(col.student, 
-                        col.lateWork.Where(lw => !string.IsNullOrEmpty(lw.assessment!.Value.assessmentId) && lw.assessment!.Value.assessmentId == id).ToImmutableArray()));
-                }
+                var asmt = output.GetOrAdd(id, []);
+                asmt.Add(new(col.student,
+                    col.lateWork.Where(lw => 
+                        !string.IsNullOrEmpty(lw.assessment!.Value.assessmentId) && 
+                        lw.assessment!.Value.assessmentId == id)
+                    .ToImmutableArray()));
             }
-
-            return output;
         }
+
+        return output;
     }
+}

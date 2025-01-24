@@ -91,6 +91,7 @@ public readonly record struct BookDetail(
     string publisher,
     ImmutableArray<ISBNInfo> isbns)
 {
+    public static readonly BookDetail Empty = new("", "", [], "", default, "", []);
     public override string ToString() => $"{title}, {authors.Aggregate((a, b) => $"{a}; {b}")} [{publisher}]";
 
     public static implicit operator BookInfo(BookDetail details) =>

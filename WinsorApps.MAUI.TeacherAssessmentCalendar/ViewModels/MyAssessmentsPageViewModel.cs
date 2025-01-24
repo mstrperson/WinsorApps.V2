@@ -116,6 +116,8 @@ public partial class MyAssessmentsPageViewModel :
     {
         Busy = true;
         BusyMessage = "Reloading my assessments.";
+        await _registrar.WaitForInit(OnError.DefaultBehavior(this));
+        await _registrar.GetMyAcademicScheduleAsync(true);
         await Initialize(OnError.DefaultBehavior(this));
         await AssessmentCollection.Refresh();
         Busy = false;

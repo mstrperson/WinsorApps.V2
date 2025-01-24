@@ -97,9 +97,9 @@ public partial class SectionCartViewModel :
     {
         var sectionModel = _registrar.MyAcademicSchedule.FirstOrDefault(sec => sec.sectionId == sectionId);
         Section = SectionViewModel.Get(sectionModel);
-        if(_bookstore.BookOrdersBySection.ContainsKey(sectionId))
+        if(_bookstore.BookOrdersBySection.TryGetValue(sectionId, out var cached))
         {
-            LoadRequestedBooks(_bookstore.BookOrdersBySection[sectionId].selectedBooks);
+            LoadRequestedBooks(cached.selectedBooks);
         }
         var bookstoreVM = ServiceHelper.GetService<StudentBookstoreViewModel>();
 
