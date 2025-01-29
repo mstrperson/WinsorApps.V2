@@ -3,6 +3,7 @@ using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.Services.Global.Services
 {
+
     public class LocalLoggingService
     {
         public enum LogLevel
@@ -13,7 +14,7 @@ namespace WinsorApps.Services.Global.Services
             Debug = 8
         }
 
-        private static Dictionary<LogLevel, string>? LogFileNames;
+        private static string LogFileName = "";
 
         public Dictionary<string, byte[]> GetRecentLogs(DateTime since = default, DateTime until = default)
         {
@@ -65,24 +66,17 @@ namespace WinsorApps.Services.Global.Services
         private static char separator = Path.DirectorySeparatorChar;
         public LocalLoggingService()
         {
-            if (LogFileNames is not null)
+            if (!string.IsNullOrEmpty(LogFileName))
                 return;
 
             var now = $"{DateTime.Now:yyyy_MM_dd_HH_mm_ss}";
 
-            if(!Directory.Exists(AppDataPath))
+            if (!Directory.Exists(AppDataPath))
                 Directory.CreateDirectory(AppDataPath);
-            
+
             if (!Directory.Exists($"{AppDataPath}{separator}logs")) { Directory.CreateDirectory($"{AppDataPath}{separator}logs"); }
 
-            LogFileNames ??= new Dictionary<LogLevel, string>()
-            {
-                {LogLevel.Information, $"{AppDataPath}{separator}logs{separator}info_{now}.log"},
-                {LogLevel.Warning, $"{AppDataPath}{separator}logs{separator}warning_{now}.log"},
-                {LogLevel.Error, $"{AppDataPath}{separator}logs{separator}error_{now}.log"},
-                {LogLevel.Debug, $"{AppDataPath}{separator}logs{separator}debug_{now}.log"},
-            };
-
+            LogFileName = $"{AppDataPath}{separator}logs{separator}log_{now}.log";
         }
         public string ValidExecutableType => Environment.OSVersion.Platform == PlatformID.Win32NT ? "exe" : "pkg";
         public string ValidArchitecture =>
@@ -100,49 +94,46 @@ namespace WinsorApps.Services.Global.Services
 
         public void LogMessage(LogLevel log, params string[] messages)
         {
-            if (LogFileNames is not null)
+            if (string.IsNullOrEmpty(LogFileName))
             {
-                try
+                return;
+            }
+            try
+            {
+                using var writer = File.AppendText(LogFileName);
+                foreach (string line in messages.Where(msg => !string.IsNullOrEmpty(msg)))
                 {
-                    using (var writer = File.AppendText(LogFileNames[log]))
-                    {
-                        foreach (string line in messages.Where(msg => !string.IsNullOrEmpty(msg)))
-                        {
-                            writer.WriteLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]\t{line}");
-                        }
-                        writer.Flush();
-                    }
+                    writer.WriteLine($"{log}:\t[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]\t{line}");
                 }
-                catch
+                writer.Flush();
+            }
+            catch
+            {
+                Task.Run(async () =>
                 {
-                    Task.Run(async () =>
+                    int retryCount = 0;
+                    bool success = false;
+                    while (retryCount < 5 && !success)
                     {
-                        int retryCount = 0;
-                        bool success = false;
-                        while (retryCount < 5 && !success)
-                        {
 
-                            await Task.Delay(250);
-                            try
+                        await Task.Delay(250);
+                        try
+                        {
+                            using var writer = File.AppendText(LogFileName);
+                            foreach (string line in messages.Where(msg => !string.IsNullOrEmpty(msg)))
                             {
-                                using (var writer = File.AppendText(LogFileNames[log]))
-                                {
-                                    foreach (string line in messages.Where(msg => !string.IsNullOrEmpty(msg)))
-                                    {
-                                        writer.WriteLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]\t{line}");
-                                    }
-                                    writer.Flush();
-                                    success = true;
-                                }
+                                writer.WriteLine($"{log}:\t[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]\t{line}");
                             }
-                            catch
-                            {
-                                retryCount++;
-                            }
+                            writer.Flush();
+                            success = true;
                         }
-                    })
-                    .SafeFireAndForget();
-                }
+                        catch
+                        {
+                            retryCount++;
+                        }
+                    }
+                })
+                .SafeFireAndForget();
             }
         }
     }
