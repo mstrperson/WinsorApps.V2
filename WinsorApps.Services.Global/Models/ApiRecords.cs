@@ -60,20 +60,46 @@ public sealed class ApiException : Exception
             }
         }
     }
-    public sealed record UserInfo(string firstName, string lastName, string email, int blackbaudId)
+public sealed record UserInfo(string firstName, string lastName, string email, int blackbaudId)
+{
+    private ImmutableArray<string>? _roles = null;
+    public async Task<ImmutableArray<string>> GetRoles(ApiService api)
     {
-        private ImmutableArray<string>? _roles = null;
-        public async Task<ImmutableArray<string>> GetRoles(ApiService api)
+        if (!_roles.HasValue)
         {
-            if (!_roles.HasValue)
-            {
-                _roles = await api.SendAsync<ImmutableArray<string>>(HttpMethod.Get, "api/users/self/roles");
-            }
-            return _roles.Value;
+            _roles = await api.SendAsync<ImmutableArray<string>>(HttpMethod.Get, "api/users/self/roles");
         }
-
+        return _roles.Value;
     }
+
+}
 
 public readonly record struct FileContentResult(string documentId, string fileName, string mimeType, byte[] b64data);
 
-    
+public readonly record struct PagedResult<T>(
+    int page, 
+    int pageCount, 
+    int pageSize, 
+    int totalResults, 
+    ImmutableArray<T> items);
+
+public static partial class PagedExtensions
+{
+    public static Uri? IncrementPagedUri(this Uri? uri)
+    {
+        if (uri is null) return null;
+
+        // `page=\d+`
+        var regex = RegexHelper.QueryStringPageParam();
+        if (!regex.IsMatch(uri.Query))
+            return uri;
+
+        var match = regex.Match(uri.Query).Value;
+        var page = int.Parse(match.Split('=')[1]) + 1; // necessarily parsable because of regex.
+        
+        var newUri = uri.PathAndQuery.Replace(match, $"page={page}");
+        return new Uri(newUri);
+    }
+
+
+}

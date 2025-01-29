@@ -42,6 +42,12 @@ public partial class StudentAssessmentService :
         if (!File.Exists($"{_logging.AppStoragePath}{CacheFileName}"))
             return false;
 
+        if (File.GetCreationTime($"{_logging.AppStoragePath}{CacheFileName}").OlderThan(TimeSpan.FromDays(14)))
+        {
+            File.Delete($"{_logging.AppStoragePath}{CacheFileName}");
+            return false;
+        }
+
         try
         {
             var json = File.ReadAllText($"{_logging.AppStoragePath}{CacheFileName}");

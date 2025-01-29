@@ -2,6 +2,7 @@
 //#define API_DEBUG
 
 using AsyncAwaitBestPractices;
+using System.Collections.Immutable;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
@@ -637,6 +638,61 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
         await stream.CopyToAsync(ms);
         return ms.ToArray();
 
+    }
+
+    public async Task <ImmutableArray<TOut>> GetPagedResult<TIn, TOut>(
+        string endpoint,
+        TIn content,
+        bool authorize = true,
+        ErrorAction? onError = null)
+    {
+        var json = JsonSerializer.Serialize(content);
+        return await GetPagedResult<TOut>(endpoint, json, authorize, onError);
+    }
+
+    public async Task<ImmutableArray<T>> GetPagedResult<T>(
+        string endpoint,
+        string jsonContent = "",
+        bool authorize = true,
+        ErrorAction? onError = null)
+    {
+        if (!endpoint.Contains("paged="))
+        {
+            if (!endpoint.Contains("?"))
+                endpoint = $"{endpoint}?paged=true&page=0";
+            else
+                endpoint = $"{endpoint}&paged=true&page=0";
+        }
+        await WaitForApiSpace();
+        using DebugTimer _ = new($"Send Async to {endpoint} with jsonContent {jsonContent}", _logging);
+        onError ??= _logging.LogError;
+        var request = await BuildRequest(HttpMethod.Get, endpoint, jsonContent, authorize);
+
+        var pagedResult = await SendPagedRequest<T>(request, onError);
+        var accumulator = pagedResult.items;
+
+        while(pagedResult.page+1 < pagedResult.pageCount)
+        {
+            request = await BuildRequest(HttpMethod.Get,
+                endpoint.Replace($"page={pagedResult.page}", $"page={pagedResult.page + 1}"),
+                jsonContent,
+                authorize);
+
+            pagedResult = await SendPagedRequest<T>(request, onError);
+            accumulator = [.. accumulator, .. pagedResult.items];
+        }
+
+        return accumulator;
+    }
+
+    private async Task<PagedResult<T>> SendPagedRequest<T>(HttpRequestMessage request, ErrorAction onError)
+    {
+        IncrementApiCount();
+        var response = await client.SendAsync(request);
+        DecrementApiCount();
+
+        var pagedResult = await ProcessHttpResponse<PagedResult<T>>(response, onError, new(0, 0, 0, 0, []));
+        return pagedResult;
     }
 
     public async Task<TOut?> SendAsync<TIn, TOut>(HttpMethod method, string endpoint, TIn content,

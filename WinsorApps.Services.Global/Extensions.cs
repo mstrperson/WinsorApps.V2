@@ -26,6 +26,9 @@ public static partial class RegexHelper
     [GeneratedRegex("^[a-z0-9]+$", RegexOptions.Compiled | RegexOptions.IgnoreCase)]
     public static partial Regex AlphaNumericNoSpaces();
 
+    [GeneratedRegex(@"page=\d+", RegexOptions.Compiled | RegexOptions.IgnoreCase)]
+    public static partial Regex QueryStringPageParam();
+
     [GeneratedRegex("^\\$?[0-9]+(\\.[0-9]{2})?$", RegexOptions.Compiled)]
     public static partial Regex CurrencyValidator();
 
@@ -437,6 +440,8 @@ public static partial class Extensions
 
     public static DateTime MonthOf(this DateTime date) => new(date.Year, date.Month, 1);
 
+    public static bool OlderThan(this DateTime dt, TimeSpan age) => dt.Add(age) < DateTime.Today;
+
     /// <summary>
     /// Get the first Monday before the given date,
     /// except Sunday goes forward 1 day.
@@ -661,6 +666,30 @@ public static partial class Extensions
         val = value;
 
         return value;
+    }
+
+    /// <summary>
+    /// Add or Update given value for the given key.
+    /// returns true if value was Updated
+    /// false if added.
+    /// </summary>
+    /// <typeparam name="TKey"></typeparam>
+    /// <typeparam name="TValue"></typeparam>
+    /// <param name="dict"></param>
+    /// <param name="key"></param>
+    /// <param name="newValue"></param>
+    /// <returns></returns>
+    public static bool AddOrUpdate<TKey, TValue>(
+        this Dictionary<TKey, TValue> dict, TKey key, TValue newValue)
+        where TKey : notnull
+    {
+        ref var val = ref CollectionsMarshal.GetValueRefOrNullRef(dict, key);
+        var found = true;
+        if (Unsafe.IsNullRef(ref val))
+            found = false;
+
+        val = newValue;
+        return found;
     }
 
     public static bool TryUpdate<TKey, TValue>(
