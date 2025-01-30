@@ -45,18 +45,6 @@ public partial class EventsAdminService :
         if (!File.Exists($"{_logging.AppStoragePath}{CacheFileName}"))
             return false;
 
-
-        var cacheAge = DateTime.Now - File.GetCreationTime($"{_logging.AppStoragePath}{CacheFileName}");
-
-        _logging.LogMessage(LocalLoggingService.LogLevel.Information,
-            $"{CacheFileName} is {cacheAge.TotalDays:0.0} days old.");
-
-        if (cacheAge.TotalDays > 14)
-        {
-            _logging.LogMessage(LocalLoggingService.LogLevel.Information, "Deleting Aged Cache File.");
-            File.Delete($"{_logging.AppStoragePath}{CacheFileName}");
-            return false;
-        }
         try
         {
             _lastUpdated = File.GetLastWriteTime($"{_logging.AppStoragePath}{CacheFileName}");
