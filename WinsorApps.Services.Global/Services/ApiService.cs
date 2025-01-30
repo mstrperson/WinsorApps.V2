@@ -641,16 +641,18 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
     }
 
     public async Task <ImmutableArray<TOut>> GetPagedResult<TIn, TOut>(
+        HttpMethod method,
         string endpoint,
         TIn content,
         bool authorize = true,
         ErrorAction? onError = null)
     {
         var json = JsonSerializer.Serialize(content);
-        return await GetPagedResult<TOut>(endpoint, json, authorize, onError);
+        return await GetPagedResult<TOut>(method, endpoint, json, authorize, onError);
     }
 
     public async Task<ImmutableArray<T>> GetPagedResult<T>(
+        HttpMethod method,
         string endpoint,
         string jsonContent = "",
         bool authorize = true,
@@ -666,14 +668,14 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
         await WaitForApiSpace();
         using DebugTimer _ = new($"Send Async to {endpoint} with jsonContent {jsonContent}", _logging);
         onError ??= _logging.LogError;
-        var request = await BuildRequest(HttpMethod.Get, endpoint, jsonContent, authorize);
+        var request = await BuildRequest(method, endpoint, jsonContent, authorize);
 
         var pagedResult = await SendPagedRequest<T>(request, onError);
         var accumulator = pagedResult.items;
 
         while(pagedResult.page+1 < pagedResult.pageCount)
         {
-            request = await BuildRequest(HttpMethod.Get,
+            request = await BuildRequest(method,
                 endpoint.Replace($"page={pagedResult.page}", $"page={pagedResult.page + 1}"),
                 jsonContent,
                 authorize);

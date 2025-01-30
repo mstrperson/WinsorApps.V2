@@ -218,6 +218,7 @@ public partial class TeacherAssessmentService :
         if (start == default)
         {
             var res = await _api.GetPagedResult<AssessmentGroup>(
+                HttpMethod.Get,
                 "api/assessment-calendar/teachers",
                 onError: onError);
 
@@ -234,6 +235,7 @@ public partial class TeacherAssessmentService :
             query += $"&end={end:yyyy-MM-dd}";
 
         var result = await _api.GetPagedResult<AssessmentGroup>(
+            HttpMethod.Get,
             $"api/assessment-calendar/teachers{query}",
             onError: onError);
 
@@ -243,6 +245,7 @@ public partial class TeacherAssessmentService :
     public async Task<ImmutableArray<AssessmentCalendarEvent>> GetCalendarByClassOn(string[] classes, DateTime date, ErrorAction onError)
     {
         var result = await _api.GetPagedResult<string[], AssessmentCalendarEvent>(
+            HttpMethod.Post,
             $"api/assessment-calendar/by-class?date={date:yyyy-MM-dd}",
             classes,
             onError: onError);
@@ -255,6 +258,7 @@ public partial class TeacherAssessmentService :
         if (start == default) { start = DateTime.Today; }
         var param = end == default ? "" : $"&end={end:yyyy-MM-dd}";
         var result = await _api.GetPagedResult<string[], AssessmentCalendarEvent>(
+            HttpMethod.Post,
             $"api/assessment-calendar/by-class?start={start:yyyy-MM-dd}{param}",
             classes,
             onError: onError);
@@ -303,6 +307,7 @@ public partial class TeacherAssessmentService :
         }
 
         var result = await _api.GetPagedResult<ImmutableArray<string>, AssessmentEntryRecord>(
+                HttpMethod.Post,
             $"api/assessment-calendar/teachers/assessment-details", assessmentIds,
             onError: onError);
 
@@ -333,7 +338,7 @@ public partial class TeacherAssessmentService :
     {
         if (start == default) { start = DateTime.Today; }
         var param = end == default ? "" : $"&end={end:yyyy-MM-dd}";
-        var result = await _api.GetPagedResult<AssessmentCalendarEvent>(
+        var result = await _api.GetPagedResult<AssessmentCalendarEvent>(HttpMethod.Get,
             $"api/assessment-calendar/teachers?start={start:yyyy-MM-dd}{param}",
             onError: onError);
         _calendar.MergeNewAssessments(result);

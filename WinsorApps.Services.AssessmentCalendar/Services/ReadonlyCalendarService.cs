@@ -106,6 +106,7 @@ public partial class ReadonlyCalendarService :
     public async Task<ImmutableArray<AssessmentEntryRecord>> GetAssessmentsFor(string sectionId, ErrorAction onError)
     {
         var result = await _api.GetPagedResult<AssessmentEntryRecord>(
+            HttpMethod.Get,
             $"api/assessment-calendar/section/{sectionId}", onError: onError);
 
         return result;
@@ -142,6 +143,7 @@ public partial class ReadonlyCalendarService :
     public async Task<ImmutableArray<AssessmentCalendarEvent>> GetAssessmentCalendarOn(DateOnly date, ErrorAction onError)
     {
         var result = await _api.GetPagedResult<AssessmentCalendarEvent>(
+            HttpMethod.Get,
             $"api/assessment-calendar?date={date:yyyy-MM-dd}", onError: onError);
 
         AssessmentCalendar = [.. AssessmentCalendar.ToList()
@@ -155,6 +157,7 @@ public partial class ReadonlyCalendarService :
         if (start == default) { start = DateOnly.FromDateTime(DateTime.Today); }
         var param = end == default ? "" : $"&end={end:yyyy-MM-dd}";
         var result = await _api.GetPagedResult<AssessmentCalendarEvent>(
+            HttpMethod.Get,
             $"api/assessment-calendar?start={start:yyyy-MM-dd}{param}",
             onError: onError);
 
@@ -178,7 +181,9 @@ public partial class ReadonlyCalendarService :
             query += $"{ch}end={end:yyyy-MM-dd}";
         }
 
-        return await _api.GetPagedResult<AssessmentGroup>($"api/assessment-calendar/assessments{query}",
+        return await _api.GetPagedResult<AssessmentGroup>(
+            HttpMethod.Get, 
+            $"api/assessment-calendar/assessments{query}",
             onError: onError);
     }
 

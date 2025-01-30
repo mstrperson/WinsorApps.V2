@@ -7,13 +7,13 @@ namespace WinsorApps.Services.AssessmentCalendar.Services;
 public partial class TeacherAssessmentService
 {
     public async Task<ImmutableArray<AssessmentCalendarEvent>> GetAdviseeCalendarOn(string studentId, DateTime date, ErrorAction onError) =>
-        await _api.GetPagedResult<AssessmentCalendarEvent>($"api/assessment-calendar/advisee/{studentId}?date={date:yyyy-MM-dd}",
+        await _api.GetPagedResult<AssessmentCalendarEvent>(HttpMethod.Get, $"api/assessment-calendar/advisee/{studentId}?date={date:yyyy-MM-dd}",
             onError: onError);
     public async Task<ImmutableArray<AssessmentCalendarEvent>> GetAdviseeCalendarInRange(ErrorAction onError, string studentId, DateTime start = default, DateTime end = default)
     {
         if (start == default) { start = DateTime.Today; }
         string param = end == default ? "" : $"&end={end:yyyy-MM-dd}";
-        return await _api.GetPagedResult<AssessmentCalendarEvent>(
+        return await _api.GetPagedResult<AssessmentCalendarEvent>(HttpMethod.Get,
             $"api/assessment-calendar/advisee/{studentId}?start={start:yyyy-MM-dd}{param}",
             onError: onError);
     }
@@ -33,7 +33,7 @@ public partial class TeacherAssessmentService
     }
 
     public async Task<ImmutableArray<AssessmentPassDetail>> GetStudentPassess(string studentId, ErrorAction onError, bool showPast = false) =>
-        await _api.GetPagedResult<AssessmentPassDetail>($"api/assessment-calendar/teachers/student-calendars/{studentId}/passes?showPast={showPast}",
+        await _api.GetPagedResult<AssessmentPassDetail>(HttpMethod.Get, $"api/assessment-calendar/teachers/student-calendars/{studentId}/passes?showPast={showPast}",
             onError: onError);
 
     public async Task WithdrawLatePassForStudent(string studentId, string assessmentId, ErrorAction onError)
