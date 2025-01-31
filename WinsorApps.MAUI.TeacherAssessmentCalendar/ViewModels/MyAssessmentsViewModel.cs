@@ -385,6 +385,7 @@ public partial class MyAssessmentsCollectionViewModel :
         Busy = true;
         BusyMessage = "Refreshing";
         //await _service.Refresh(OnError.DefaultBehavior(this));
+        await _service.GetMyAssessments(OnError.DefaultBehavior(this), DateTime.Today, DateTime.Today.AddMonths(6));
         await Initialize(OnError.DefaultBehavior(this));
 
         foreach (var group in MyAssessmentGroups)

@@ -20,8 +20,8 @@
         HorizontalOptions="Center">
             <Grid
                 RowDefinitions="*"
-                ColumnDefinitions="500,500">
-            <CollectionView
+                ColumnDefinitions="750,500">
+                <CollectionView
                 Grid.Column="1"
                 Margin="0"
                 ItemsSource="{Binding Services}"
@@ -64,6 +64,7 @@
                 <VerticalStackLayout
                     Margin="0"
                     Padding="0"
+                    WidthRequest="750"
                     Grid.Column="0">
                     <Label
                         StyleClass="Header"
@@ -115,18 +116,19 @@
                             <Label StyleClass="H3" Text="{Binding BusyMessage}" />
                             <Image StyleClass="loading_symbol" />
                         </HorizontalStackLayout>
-                        <HorizontalStackLayout
+                        <VerticalStackLayout
                             Margin="0"
                             Padding="0"
                             IsVisible="{Binding IsMasqing, Converter={StaticResource Invert}}">
                             <SearchBar 
-                                WidthRequest="180"
+                                WidthRequest="500"
+                                HeightRequest="40"
                                 Text="{Binding MasqSearch.SearchText}" 
                                 SearchCommand="{Binding MasqSearch.SearchCommand}"/>
                             <Button
                                 Text="Masquerade"
                                 Command="{Binding MasqueradeCommand}" />
-                        </HorizontalStackLayout>
+                        </VerticalStackLayout>
                         <HorizontalStackLayout
                             Margin="0"
                             Padding="0"

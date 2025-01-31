@@ -244,6 +244,12 @@ public partial class TeacherAssessmentService :
             $"api/assessment-calendar/teachers{query}",
             onError: onError);
 
+        if (result.ExceptBy(_myAssessments.Select(grp => grp.id), grp => grp.id).Any())
+        {
+            _myAssessments = _myAssessments.Merge(result, (oldgrp, newgrp) => oldgrp.id == newgrp.id);
+            OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
+        }
+
         return result;
     }
 
