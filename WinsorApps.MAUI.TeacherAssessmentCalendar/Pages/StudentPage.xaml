@@ -22,9 +22,11 @@
         <ScrollView>
             <VerticalStackLayout
                 HorizontalOptions="Center"
-                WidthRequest="1500">
+                WidthRequest="1500"
+                VerticalOptions="Start">
                 <VerticalStackLayout
                     HeightRequest="1500"
+                    VerticalOptions="Start"
                     IsVisible="{Binding ShowStudent, Converter={StaticResource Invert}}">
                     <Label
                         StyleClass="SubHeader"
