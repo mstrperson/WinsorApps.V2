@@ -74,10 +74,29 @@ namespace WinsorApps.Services.Global.Services
             if (!Directory.Exists(AppDataPath))
                 Directory.CreateDirectory(AppDataPath);
 
-            if (!Directory.Exists($"{AppDataPath}{separator}logs")) { Directory.CreateDirectory($"{AppDataPath}{separator}logs"); }
+            if (!Directory.Exists($"{AppDataPath}{separator}logs")) 
+            { 
+                Directory.CreateDirectory($"{AppDataPath}{separator}logs"); 
+            }
+
 
             LogFileName = $"{AppDataPath}{separator}logs{separator}log_{now}.log";
+
+            CleanUpOldLogs().SafeFireAndForget(e => e.LogException(this));
         }
+
+        private async Task CleanUpOldLogs() => await Task.Run(() => 
+        {
+            foreach (var fileName in Directory.GetFiles($"{AppDataPath}{separator}logs"))
+            {
+                if (File.GetCreationTime(fileName).OlderThan(TimeSpan.FromDays(30)))
+                {
+                    LogMessage(LogLevel.Debug, $"Cleaning Up Old Log File {fileName}");
+                    File.Delete(fileName);
+                }
+            }
+        });
+
         public string ValidExecutableType => Environment.OSVersion.Platform == PlatformID.Win32NT ? "exe" : "pkg";
         public string ValidArchitecture =>
             System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture == 

@@ -16,10 +16,16 @@ namespace WinsorApps.MAUI.Shared.ViewModels
         private readonly ApiService _api;
         private readonly AppService _app;
         private readonly RegistrarService _registrar;
+        private readonly LoginViewModel _login;
 
         public event EventHandler<ErrorRecord>? OnError;
 
-        public HelpPageViewModel(LocalLoggingService logging, ApiService api, AppService app, RegistrarService registrar)
+        public HelpPageViewModel(
+            LocalLoggingService logging, 
+            ApiService api, 
+            AppService app, 
+            RegistrarService registrar, 
+            LoginViewModel login)
         {
             _logging = logging;
             _api = api;
@@ -32,6 +38,7 @@ namespace WinsorApps.MAUI.Shared.ViewModels
                 MasqSearch.OnSingleResult += (_, selected) =>
                     MasqSelection = selected;
             });
+            _login = login;
         }
 
         private void Api_OnLoginSuccess(object? sender, EventArgs e)
@@ -73,10 +80,17 @@ namespace WinsorApps.MAUI.Shared.ViewModels
                 LoggedInUser = UserViewModel.Get(_api.UserInfo!.Value);
                 foreach(var service in Services)
                 {
-                    service.Refresh();
+                    await service.Refresh();
                 }
             }
             Busy = false;
+        }
+
+        [RelayCommand]
+        public async Task Logout()
+        {
+            await _login.Logout();
+            Application.Current?.Quit();
         }
 
         [RelayCommand]

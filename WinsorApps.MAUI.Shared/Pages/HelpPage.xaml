@@ -12,6 +12,9 @@
             <conv:BoolInverter x:Key="Invert" />
         </ResourceDictionary>
     </ContentPage.Resources>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Logout" Command="{Binding LogoutCommand}" />
+    </ContentPage.ToolbarItems>
     <ScrollView>
         <VerticalStackLayout
         HorizontalOptions="Center">
