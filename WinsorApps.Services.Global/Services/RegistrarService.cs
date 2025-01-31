@@ -211,7 +211,8 @@ public class RegistrarService : IAsyncInitService
             _myAcademicSchedule = [];
         }
 
-        SaveCache();
+        if(Ready)
+            SaveCache();
 
         return _myAcademicSchedule;
     }
@@ -580,7 +581,7 @@ public class RegistrarService : IAsyncInitService
 
         Ready = true;
         GetUniqueNames().SafeFireAndForget(e => e.LogException(_logging));
-        SaveCache();
+        //SaveCache();
     }
 
     public bool UniqueNamesReady { get; private set; } = false;
