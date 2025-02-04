@@ -51,6 +51,7 @@ public partial class EventsCalendarViewModel :
                     .ToImmutableArray()
         };
         Calendar.EventSelected += (_, evt) => LoadEvent?.Invoke(this, evt);
+        Calendar.PropertyChanged += ((IBusyViewModel)this).BusyChangedCascade;
     }
 
     [RelayCommand]

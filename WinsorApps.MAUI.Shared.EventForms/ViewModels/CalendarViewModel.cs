@@ -9,12 +9,15 @@ using WinsorApps.Services.Global.Services;
 namespace WinsorApps.MAUI.Shared.EventForms.ViewModels;
 
 public partial class CalendarViewModel :
-    ObservableObject
+    ObservableObject,
+    IBusyViewModel
 {
     private readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
 
     [ObservableProperty] ObservableCollection<CalendarWeekViewModel> weeks = [];
     [ObservableProperty] DateTime month = DateTime.Today.MonthOf();
+    [ObservableProperty] bool busy;
+    [ObservableProperty] string busyMessage = "";
 
     public event EventHandler<EventFormViewModel>? EventSelected;
 
@@ -32,7 +35,9 @@ public partial class CalendarViewModel :
     [RelayCommand]
     public async Task LoadEvents() => await Task.Run(() =>
     {
-        using DebugTimer _ = new($"Loading Calendar Events for {Month:MMMM yyyy}", _logging);
+        Busy = true;
+        BusyMessage = $"Loading Calendar Events for {Month:MMMM yyyy}";
+        using DebugTimer _ = new(BusyMessage, _logging);
         var events = EventFormViewModel.GetClonedViewModels(MonthlyEventSource(Month));
         foreach (var evt in events)
             evt.Selected += (_, _) => 
@@ -44,6 +49,8 @@ public partial class CalendarViewModel :
         {
             Weeks.Add(new(sunday, events));
         }
+
+        Busy = false;
     });
 
     [RelayCommand]

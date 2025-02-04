@@ -25,7 +25,8 @@
     <ContentPage.Content>
         <ScrollView>
             <VerticalStackLayout
-            HorizontalOptions="Center">
+                WidthRequest="1630"
+                HorizontalOptions="Center">
                 <!--Filters-->
                 <VerticalStackLayout
                 Margin="0"
