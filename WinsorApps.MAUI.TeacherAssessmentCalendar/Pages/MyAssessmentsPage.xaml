@@ -199,7 +199,8 @@
                                                 <HorizontalStackLayout
                                                     Margin="0"
                                                     Padding="0"
-                                                    Spacing="30">
+                                                    Spacing="30"
+                                                    IsVisible="{Binding IsInitalized}">
                                                     <HorizontalStackLayout.GestureRecognizers>
                                                         <TapGestureRecognizer Command="{Binding ShowDetailsCommand}" />
                                                     </HorizontalStackLayout.GestureRecognizers>

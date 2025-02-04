@@ -214,6 +214,7 @@ public partial class AssessmentEditorViewModel :
     [ObservableProperty] string busyMessage = "";
     [ObservableProperty] bool isSelected;
 
+    [ObservableProperty] bool isInitalized;
 
 
     [ObservableProperty]
@@ -226,7 +227,10 @@ public partial class AssessmentEditorViewModel :
     public AssessmentEditorViewModel(AssessmentEntryRecord entry)
     {
         if (string.IsNullOrEmpty(entry.assessmentId))
+        {
+            isInitalized = false;
             return;
+        }
 
         if(entry == default)
         {
@@ -258,6 +262,7 @@ public partial class AssessmentEditorViewModel :
     {
         if (string.IsNullOrEmpty(Model.Reduce(AssessmentEntryRecord.Empty).assessmentId)) return;
 
+        IsInitalized = true;
         HasConflicts = Model.Reduce(AssessmentEntryRecord.Empty).studentConflicts.Any();
         HasLatePasses = Model.Reduce(AssessmentEntryRecord.Empty).studentsUsingPasses.Any();
         HasRedFlags = Model.Reduce(AssessmentEntryRecord.Empty).studentConflicts.Any(conflict => conflict.redFlag);
