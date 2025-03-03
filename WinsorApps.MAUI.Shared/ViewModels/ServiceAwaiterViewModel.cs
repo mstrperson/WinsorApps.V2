@@ -54,6 +54,12 @@ public partial class ServiceAwaiterViewModel : ObservableObject
     }
 
     [RelayCommand]
+    public void ClearCache()
+    {
+
+    }
+
+    [RelayCommand]
     public void Initialize()
     {
         if (_service.Started) return;

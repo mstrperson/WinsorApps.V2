@@ -33,7 +33,7 @@ public partial class TeacherAssessmentService
     }
 
     public async Task<ImmutableArray<AssessmentPassDetail>> GetStudentPassess(string studentId, ErrorAction onError, bool showPast = false) =>
-        await _api.GetPagedResult<AssessmentPassDetail>(HttpMethod.Get, $"api/assessment-calendar/teachers/student-calendars/{studentId}/passes?showPast={showPast}",
+        await _api.SendAsync<ImmutableArray<AssessmentPassDetail>>(HttpMethod.Get, $"api/assessment-calendar/teachers/student-calendars/{studentId}/passes?showPast={showPast}",
             onError: onError);
 
     public async Task WithdrawLatePassForStudent(string studentId, string assessmentId, ErrorAction onError)

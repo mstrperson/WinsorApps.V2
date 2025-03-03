@@ -63,16 +63,24 @@ public partial class TeacherAssessmentService :
         ImmutableArray<StudentLateWorkCollection> lateWork,
         Dictionary<string, AssessmentEntryRecord> detailsCache);
 
-    public void SaveCache()
+    public async Task SaveCache()
     {
+        int retryCount = 0;
+        TryAgain:
          var cache = new CacheStructure(_myStudents, _courseList, [.._myAssessments], _adviseeLateWork, AssessmentDetailsCache);
         try
         {
-            File.WriteAllText($"{_logging.AppStoragePath}{CacheFileName}", JsonSerializer.Serialize(cache));
+            await File.WriteAllTextAsync($"{_logging.AppStoragePath}{CacheFileName}", JsonSerializer.Serialize(cache));
         }
         catch(Exception e)
         {
             e.LogException(_logging);
+            if(retryCount < 5)
+            {
+                retryCount++;
+                await Task.Delay(TimeSpan.FromSeconds(15));
+                goto TryAgain;
+            }
         }
     }
 

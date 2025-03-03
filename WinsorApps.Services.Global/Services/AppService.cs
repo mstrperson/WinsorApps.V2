@@ -13,7 +13,7 @@ namespace WinsorApps.Services.Global.Services
 
         public string CacheFileName => VersionFilePath;
 
-        public void SaveCache() { }
+        public async Task SaveCache() => await Task.CompletedTask;
         public bool LoadCache() => true;
         public bool Allowed { get; private set; }
 

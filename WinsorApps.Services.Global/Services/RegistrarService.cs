@@ -46,21 +46,36 @@ public class RegistrarService : IAsyncInitService
     }
 
     public string CacheFileName => ".registrar.cache";
-    public void SaveCache()
+    public async Task SaveCache()
     {
-        CacheStructure cache = new([.. MyRoles],
-            [.. SchoolYears],
-            [.. MySchedule],
-            [.. MyAcademicSchedule],
-            [.. CourseList],
-            SectionDetailCache,
-            [.. TeacherList],
-            [.. EmployeeList],
-            [.. StudentList],
-            [.. MyAdvisees],
-            _uniqueNameCache.Where(kvp => !string.IsNullOrEmpty(kvp.Key.id)).Select(kvp => KeyValuePair.Create(kvp.Key.id, kvp.Value)).ToDictionary());
+        int tryCount = 0;
+        TryAgain:
+        try
+        {
+            CacheStructure cache = new([.. MyRoles],
+                [.. SchoolYears],
+                [.. MySchedule],
+                [.. MyAcademicSchedule],
+                [.. CourseList],
+                SectionDetailCache,
+                [.. TeacherList],
+                [.. EmployeeList],
+                [.. StudentList],
+                [.. MyAdvisees],
+                _uniqueNameCache.Where(kvp => !string.IsNullOrEmpty(kvp.Key.id)).Select(kvp => KeyValuePair.Create(kvp.Key.id, kvp.Value)).ToDictionary());
 
-        File.WriteAllText($"{_logging.AppStoragePath}{CacheFileName}", JsonSerializer.Serialize(cache));
+            File.WriteAllText($"{_logging.AppStoragePath}{CacheFileName}", JsonSerializer.Serialize(cache));
+        }
+        catch(InvalidOperationException ex) 
+        { 
+            _logging.LogError(new("Failed to Save Cache", ex.Message));
+            if(tryCount < 5)
+            {
+                tryCount++;
+                await Task.Delay(TimeSpan.FromSeconds(15));
+                goto TryAgain;
+            }
+        }
     }
 
     public OptionalStruct<SchoolYear> GetSchoolYear(string label) => 

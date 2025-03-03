@@ -4,7 +4,7 @@ public interface IAsyncInitService
 {
     public string CacheFileName { get; }
 
-    public void SaveCache();
+    public Task SaveCache();
 
     /// <summary>
     /// Attempt to Load Cache from file.  returns success status.
