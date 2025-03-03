@@ -17,9 +17,9 @@ namespace WinsorApps.Services.Global.Services
         public event EventHandler? OnCacheRefreshed;
 
         public string CacheFileName => ".cdre.cache";
-        public void SaveCache() 
+        public async Task SaveCache() 
         {
-            File.WriteAllText($"{_logging.AppStoragePath}{CacheFileName}", JsonSerializer.Serialize(RecurringEvents));
+            await File.WriteAllTextAsync($"{_logging.AppStoragePath}{CacheFileName}", JsonSerializer.Serialize(RecurringEvents));
         }
         public bool LoadCache() 
         {

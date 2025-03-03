@@ -16,6 +16,33 @@ using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.MAUI.TeacherBookOrders.ViewModels;
 
+public partial class BookOrderTermCollection :
+    ObservableObject,
+    IErrorHandling,
+    IBusyViewModel
+{
+    public event EventHandler<ErrorRecord>? OnError;
+
+    [ObservableProperty] bool busy;
+    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] ObservableCollection<ProtoSectionViewModel> sections = [];
+    [ObservableProperty] ObservableCollection<SummerSectionViewModel> summer = [];
+    [ObservableProperty] string termName;
+
+    public TermRecord Term { get; private set; }
+
+    public BookOrderTermCollection(TermRecord term)
+    {
+        Term = term;
+        termName = $"{term.name} {term.schoolYear}";
+    }
+
+    public event EventHandler<TermRecord>? NewSectionRequested;
+
+    [RelayCommand]
+    public void RequestNewSection() => NewSectionRequested?.Invoke(this, Term);
+}
+
 public partial class BookOrderYearCollection :
     ObservableObject,
     IErrorHandling,
@@ -27,9 +54,9 @@ public partial class BookOrderYearCollection :
 
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "";
-    [ObservableProperty] ObservableCollection<ProtoSectionViewModel> fallSections = [];
-    [ObservableProperty] ObservableCollection<ProtoSectionViewModel> springSections = [];
-    [ObservableProperty] ObservableCollection<SummerSectionViewModel> summerSections = [];
+    [ObservableProperty] BookOrderTermCollection fall;
+    [ObservableProperty] BookOrderTermCollection spring;
+    [ObservableProperty] BookOrderTermCollection summer;
     [ObservableProperty] bool showSummer;
     [ObservableProperty] string schoolYear = "";
     [ObservableProperty] bool visible;
@@ -42,6 +69,7 @@ public partial class BookOrderYearCollection :
         _schoolYear = schoolYear;
         SchoolYear = schoolYear.label;
         isCurrent = schoolYear.endDate.ToDateTime(default) > DateTime.Today;
+        fall = new(schoolYear.terms.FirstOrDefault());
     }
 
     [RelayCommand]
@@ -66,12 +94,12 @@ public partial class BookOrderYearCollection :
             await section.LoadBookOrders();
         }
 
-        FallSections = [.. allViewModels.Where(sec => sec.BookOrders.Any(grp => grp.Orders.Any(ord => ord.FallOrFullYear)))];
-        SpringSections = [.. allViewModels.Where(sec => sec.BookOrders.Any(grp => grp.Orders.Any(ord => ord.SpringOnly)))];
+        Fall.Sections = [.. allViewModels.Where(sec => sec.BookOrders.Any(grp => grp.Orders.Any(ord => ord.FallOrFullYear)))];
+        Spring.Sections = [.. allViewModels.Where(sec => sec.BookOrders.Any(grp => grp.Orders.Any(ord => ord.SpringOnly)))];
 
         var ss = _service.SummerSections.GetOrAdd(SchoolYear, []);
 
-        SummerSections = 
+        Summer.Summer = 
             [.. ss.Select(SummerSectionViewModel.Get)];
         Busy = false;
     }

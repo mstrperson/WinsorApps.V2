@@ -117,7 +117,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
 
     public string CacheFileName => ".login.cred";
 
-    public void SaveCache() { }
+    public async Task SaveCache() => await Task.CompletedTask;
     public bool LoadCache() => true;
 
     public async Task WaitForInit(ErrorAction onError)

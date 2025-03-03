@@ -24,9 +24,9 @@ public partial class ReadonlyCalendarService :
 
     public string CacheFileName => ".assessment-calendar-ro.cache";
 
-    public void SaveCache()
+    public async Task SaveCache()
     {
-        File.WriteAllText($"{_logging.AppStoragePath}{CacheFileName}", JsonSerializer.Serialize(AssessmentCalendar));
+        await File.WriteAllTextAsync($"{_logging.AppStoragePath}{CacheFileName}", JsonSerializer.Serialize(AssessmentCalendar));
     }
 
     public bool LoadCache()
@@ -245,10 +245,10 @@ public class CycleDayCollection :
     private readonly record struct CacheStructure(SchoolYear schoolYear, ImmutableArray<CycleDay> cycleDays);
     public string CacheFileName => ".cycle-days.cache";
 
-    public void SaveCache()
+    public async Task SaveCache()
     {
         var cache = new CacheStructure(SchoolYear, _cycleDays);
-        File.WriteAllText($"{_logging.AppStoragePath}{CacheFileName}", JsonSerializer.Serialize(cache));
+        await File.WriteAllTextAsync($"{_logging.AppStoragePath}{CacheFileName}", JsonSerializer.Serialize(cache));
     }
 
     public bool LoadCache()

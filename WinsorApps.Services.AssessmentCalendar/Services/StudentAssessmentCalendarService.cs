@@ -31,10 +31,10 @@ public partial class StudentAssessmentService :
 
     private readonly record struct CacheStructure(ImmutableArray<AssessmentCalendarEvent> assessments, ImmutableArray<AssessmentPassDetail> latePasses);
 
-    public void SaveCache()
+    public async Task SaveCache()
     {
         var cache = new CacheStructure(MyCalendar, MyLatePasses);
-        File.WriteAllText($"{_logging.AppStoragePath}{CacheFileName}", JsonSerializer.Serialize(cache));
+        await File.WriteAllTextAsync($"{_logging.AppStoragePath}{CacheFileName}", JsonSerializer.Serialize(cache));
     }
 
     public bool LoadCache()
