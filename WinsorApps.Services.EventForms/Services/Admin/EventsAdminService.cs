@@ -34,10 +34,10 @@ public partial class EventsAdminService :
     public ImmutableArray<EventFormBase> PendingEvents => [.. AllEvents.Where(evt => evt.status == ApprovalStatusLabel.Pending)];
     public ImmutableArray<EventFormBase> WaitingForRoom => [.. AllEvents.Where(evt => evt.status == ApprovalStatusLabel.RoomNotCleared)];
     public string CacheFileName => ".events-admin.cache";
-    public void SaveCache()
+    public async Task SaveCache()
     {
         var json = JsonSerializer.Serialize(AllEvents);
-        File.WriteAllText($"{_logging.AppStoragePath}{CacheFileName}", json);
+        await File.WriteAllTextAsync($"{_logging.AppStoragePath}{CacheFileName}", json);
     }
 
     public bool LoadCache()

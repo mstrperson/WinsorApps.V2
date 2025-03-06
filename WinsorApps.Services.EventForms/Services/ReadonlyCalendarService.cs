@@ -31,11 +31,11 @@ namespace WinsorApps.Services.EventForms.Services
             ImmutableArray<CalendarEvent<FieldTrip>> fieldTrips);
 
         public string CacheFileName => ".readonly-calendar.cache";
-        public void SaveCache()
+        public async Task SaveCache()
         {
             var cache = new CacheStructure(EventForms, CateringEvents, FacilitiesEvents, TechEvents, TheaterEvents, MarCommEvents, FieldTripEvents);
             var json = JsonSerializer.Serialize(cache);
-            File.WriteAllText($"{_logging.AppStoragePath}{CacheFileName}", json);
+            await File.WriteAllTextAsync($"{_logging.AppStoragePath}{CacheFileName}", json);
         }
 
         public bool LoadCache()
@@ -225,7 +225,7 @@ namespace WinsorApps.Services.EventForms.Services
             fieldTripTask.SafeFireAndForget(e => e.LogException(_logging));
 
             await Task.WhenAll(allEventsTask, cateringTask, facilitiesTask, technologyTask, theaterTask, marcomTask, fieldTripTask);
-            SaveCache();
+            await SaveCache();
         }
 
         public async Task RefreshInBackground(CancellationToken token, ErrorAction onError)

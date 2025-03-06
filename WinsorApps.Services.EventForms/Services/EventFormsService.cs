@@ -30,11 +30,11 @@ namespace WinsorApps.Services.EventForms.Services
             ImmutableArray<VehicleCategory> vehicleCategories);
 
         public string CacheFileName => ".event-base.cache";
-        public void SaveCache()
+        public async Task SaveCache()
         {
             var cache = new CacheStructure(EventsCache, LeadEvents, EventTypes, StatusLabels, VehicleCategories);
             var json = JsonSerializer.Serialize(cache);
-            File.WriteAllText($"{_logging.AppStoragePath}{CacheFileName}", json);
+            await File.WriteAllTextAsync($"{_logging.AppStoragePath}{CacheFileName}", json);
         }
 
         public bool LoadCache()
@@ -156,7 +156,7 @@ namespace WinsorApps.Services.EventForms.Services
                     CacheEndDate = EventsCache.Select(evt => evt.start).Max();
                 }
                 Ready = true;
-                SaveCache();
+                await SaveCache();
             }
             Ready = true;
             Progress = 1;
@@ -173,7 +173,7 @@ namespace WinsorApps.Services.EventForms.Services
             EventsCache = updated;
             Refreshing = false;
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
-            SaveCache();
+            await SaveCache();
         }
 
         public async Task WaitForInit(ErrorAction onError)

@@ -20,11 +20,11 @@ public class LocationService :
     public readonly record struct CacheStructure(ImmutableArray<Location> onCampus, ImmutableArray<Location> custom);
 
     public string CacheFileName => ".locations.cache";
-    public void SaveCache()
+    public async Task SaveCache()
     {
         var cache = new CacheStructure(OnCampusLocations, MyCustomLocations);
         var json = JsonSerializer.Serialize(cache);
-        File.WriteAllText($"{_logging.AppStoragePath}{CacheFileName}", json);
+        await File.WriteAllTextAsync($"{_logging.AppStoragePath}{CacheFileName}", json);
     }
 
     public bool LoadCache()
@@ -59,7 +59,7 @@ public class LocationService :
         {
             MyCustomLocations = MyCustomLocations.Add(result.Value);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
-            SaveCache();
+            await SaveCache();
         }
         return result;
     }
@@ -79,7 +79,7 @@ public class LocationService :
         {
             MyCustomLocations = MyCustomLocations.Remove(location);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
-            SaveCache();
+            await SaveCache();
         }
     }
 
@@ -115,7 +115,7 @@ public class LocationService :
 
             await Task.WhenAll(campusTask, customTask);
             Ready = true;
-            SaveCache();
+            await SaveCache();
         }
         Ready = true;
     }
@@ -124,7 +124,7 @@ public class LocationService :
     {
         MyCustomLocations = await _api.SendAsync<ImmutableArray<Location>?>(HttpMethod.Get, "api/events/location/custom", onError: onError) ?? [];
         OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
-        SaveCache();
+        await SaveCache();
     }
 
     public async Task WaitForInit(ErrorAction onError)

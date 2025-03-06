@@ -529,9 +529,9 @@ public partial class EventFormViewModel :
             IsNew = false;
             IsFieldTrip = result.Value.type.Contains("Field", StringComparison.InvariantCultureIgnoreCase);
             StatusSelection.Select(result.Value.status);
+            Submitted?.Invoke(this, EventArgs.Empty);
         }
         Busy = false;
-        Submitted?.Invoke(this, EventArgs.Empty);
     }
 
     [RelayCommand]

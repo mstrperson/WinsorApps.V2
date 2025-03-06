@@ -55,7 +55,7 @@ namespace WinsorApps.Services.EventForms.Services
             if (!LoadCache())
             {
                 BudgetCodes = await _api.SendAsync<ImmutableArray<BudgetCode>?>(HttpMethod.Get, "api/budget-codes", onError: onError) ?? [];
-                SaveCache();
+                await SaveCache();
             }
             Progress = 1;
             Ready = true;
@@ -67,7 +67,7 @@ namespace WinsorApps.Services.EventForms.Services
             if (!result.SequenceEqual(BudgetCodes))
             {
                 BudgetCodes = result;
-                SaveCache();
+                await SaveCache();
             }
         }
 
@@ -83,10 +83,10 @@ namespace WinsorApps.Services.EventForms.Services
         }
 
         public string CacheFileName => ".budget-code.cache";
-        public void SaveCache()
+        public async Task SaveCache()
         {
             var json = JsonSerializer.Serialize(BudgetCodes);
-            File.WriteAllText($"{_logging.AppStoragePath}{CacheFileName}", json);
+            await File.WriteAllTextAsync($"{_logging.AppStoragePath}{CacheFileName}", json);
         }
 
         public bool LoadCache()

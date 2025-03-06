@@ -12,10 +12,10 @@ namespace WinsorApps.Services.EventForms.Services
         private readonly ApiService _api;
         private readonly LocalLoggingService _logging;
         public string CacheFileName => ".theater.cache";
-        public void SaveCache()
+        public async Task SaveCache()
         {
             var json = JsonSerializer.Serialize(AvailableMenus);
-            File.WriteAllText($"{_logging.AppStoragePath}{CacheFileName}", json);
+            await File.WriteAllTextAsync($"{_logging.AppStoragePath}{CacheFileName}", json);
         }
 
         public bool LoadCache()
@@ -63,7 +63,7 @@ namespace WinsorApps.Services.EventForms.Services
             {
                 AvailableMenus = await _api.SendAsync<ImmutableArray<TheaterMenuCategory>?>(HttpMethod.Get,
                     "api/events/theater/menu", onError: onError) ?? [];
-                SaveCache();
+                await SaveCache();
             }
             Progress = 1;
             Ready = true;
@@ -74,7 +74,7 @@ namespace WinsorApps.Services.EventForms.Services
 
             AvailableMenus = await _api.SendAsync<ImmutableArray<TheaterMenuCategory>?>(HttpMethod.Get,
                 "api/events/theater/menu", onError: onError) ?? [];
-            SaveCache();
+            await SaveCache();
         }
 
         public async Task WaitForInit(ErrorAction onError)

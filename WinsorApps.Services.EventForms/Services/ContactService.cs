@@ -17,10 +17,10 @@ namespace WinsorApps.Services.EventForms.Services
         public event EventHandler? OnCacheRefreshed;
 
         public string CacheFileName => ".contacts.cache";
-        public void SaveCache()
+        public async Task SaveCache()
         {
             var json = JsonSerializer.Serialize(MyContacts);
-            File.WriteAllText($"{_logging.AppStoragePath}{CacheFileName}", json);
+            await File.WriteAllTextAsync($"{_logging.AppStoragePath}{CacheFileName}", json);
         }
 
         public bool LoadCache()
@@ -80,7 +80,7 @@ namespace WinsorApps.Services.EventForms.Services
             if (!LoadCache())
             {
                 MyContacts = await _api.SendAsync<ImmutableArray<Contact>?>(HttpMethod.Get, "api/users/self/contacts", onError: onError) ?? [];
-                SaveCache();
+                await SaveCache();
             }
             Progress = 1;
             Ready = true;
@@ -90,7 +90,7 @@ namespace WinsorApps.Services.EventForms.Services
         {
             MyContacts = await _api.SendAsync<ImmutableArray<Contact>?>(HttpMethod.Get, "api/users/self/contacts", onError: onError) ?? [];
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
-            SaveCache();
+            await SaveCache();
         }
 
         public async Task WaitForInit(ErrorAction onError)

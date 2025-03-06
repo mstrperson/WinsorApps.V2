@@ -46,7 +46,7 @@ namespace WinsorApps.Services.EventForms.Services
             if (!LoadCache())
             {
                 MenuCategories = await _api.SendAsync<ImmutableArray<CateringMenuCategory>?>(HttpMethod.Get, "api/events/catering/menu") ?? [];
-                SaveCache();
+                await SaveCache();
             }
             Progress = 1;
             Ready = true;
@@ -57,7 +57,7 @@ namespace WinsorApps.Services.EventForms.Services
         {
             MenuCategories = await _api.SendAsync<ImmutableArray<CateringMenuCategory>?>(HttpMethod.Get, "api/events/catering/menu") ?? [];
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
-            SaveCache();
+            await SaveCache();
         }
 
         public async Task WaitForInit(ErrorAction onError)
@@ -66,10 +66,10 @@ namespace WinsorApps.Services.EventForms.Services
                 await Task.Delay(250);
         }
         public string CacheFileName => ".catering-menu.cache";
-        public void SaveCache()
+        public async Task SaveCache()
         {
             var json = JsonSerializer.Serialize(MenuCategories);
-            File.WriteAllText($"{_logging.AppStoragePath}{CacheFileName}", json);
+            await File.WriteAllTextAsync($"{_logging.AppStoragePath}{CacheFileName}", json);
         }
 
         public bool LoadCache()
