@@ -89,7 +89,7 @@ public partial class StudentAssessmentService :
         {
             MyCalendar = [.. MyCalendar.Merge(result, (a, b) => a.id == b.id && a.type == b.type)];
             OnCacheRefreshed?.Invoke(this, StudentAssessmentCacheRefreshedEventArgs.CalendarRefreshed);
-            SaveCache();
+            await SaveCache();
         }
 
         return result;
@@ -135,7 +135,7 @@ public partial class StudentAssessmentService :
         if (result.Any())
             OnCacheRefreshed?.Invoke(this, StudentAssessmentCacheRefreshedEventArgs.CalendarRefreshed);
 
-        SaveCache();
+        await SaveCache();
         return result;
     }
 
@@ -148,7 +148,7 @@ public partial class StudentAssessmentService :
         if(result.Any())
             OnCacheRefreshed?.Invoke(this, StudentAssessmentCacheRefreshedEventArgs.PassesRefreshed);
 
-        SaveCache();
+        await SaveCache();
         return result;
     }
     public async Task<bool> WithdrawLatePass(string assessmentId, ErrorAction onError)
@@ -169,7 +169,7 @@ public partial class StudentAssessmentService :
             OnCacheRefreshed?.Invoke(this, StudentAssessmentCacheRefreshedEventArgs.PassesRefreshed);
         }
 
-        SaveCache();
+        await SaveCache();
         return success;
     }
 
@@ -186,7 +186,7 @@ public partial class StudentAssessmentService :
             var oldAssessment = MyCalendar.First(evt => evt.type == AssessmentType.Assessment && evt.id == assessmentId);
             MyCalendar = MyCalendar.Replace(oldAssessment, oldAssessment with { passAvailable = false, passUsed = true });
             OnCacheRefreshed?.Invoke(this, StudentAssessmentCacheRefreshedEventArgs.PassesRefreshed);
-            SaveCache();
+            await SaveCache();
         }
 
         return result;
@@ -210,7 +210,7 @@ public partial class StudentAssessmentService :
             myCalendar.SafeFireAndForget(e => e.LogException(_logging));
 
             await Task.WhenAll(myPasses, myCalendar);
-            SaveCache();
+            await SaveCache();
         }
         Progress = 1;
         Ready = true;

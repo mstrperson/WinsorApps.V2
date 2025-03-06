@@ -9,7 +9,9 @@ namespace WinsorApps.Services.Global.Services
     /// This service is /not/ included in the InitializeGlobalServices Dependency Injection extension.
     /// Please manually add this service if it is relevant to an app~
     /// </summary>
-    public partial class CycleDayRecurringEventService : IAsyncInitService, ICacheService
+    public partial class CycleDayRecurringEventService : 
+        IAsyncInitService, 
+        ICacheService
     {
         private readonly ApiService _api;
         private readonly LocalLoggingService _logging;
@@ -69,7 +71,7 @@ namespace WinsorApps.Services.Global.Services
             else
             {
                 RecurringEvents = await _api.SendAsync<ImmutableArray<CycleDayRecurringEvent>>(HttpMethod.Get, "api/users/self/cycle-day-recurring-events", onError: onError);
-                SaveCache();
+                await SaveCache();
             }
             Progress = 1;
 
@@ -82,7 +84,7 @@ namespace WinsorApps.Services.Global.Services
             if(!result.SequenceEqual(RecurringEvents))
             {
                 RecurringEvents = result;
-                SaveCache();
+                await SaveCache();
                 OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
             }
         }
@@ -101,7 +103,7 @@ namespace WinsorApps.Services.Global.Services
             if (result.HasValue)
             {
                 RecurringEvents = RecurringEvents.Add(result.Value);
-                SaveCache();
+                await SaveCache();
                 OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
                 _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"{newEvent.summary} created");
             }
@@ -123,7 +125,7 @@ namespace WinsorApps.Services.Global.Services
                 if (!string.IsNullOrEmpty(oldEvent.id))
                     RecurringEvents = RecurringEvents.Remove(oldEvent);
                 RecurringEvents = RecurringEvents.Add(result.Value);
-                SaveCache();
+                await SaveCache();
                 OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
             }
 
@@ -134,7 +136,7 @@ namespace WinsorApps.Services.Global.Services
         {
             await _api.SendAsync(HttpMethod.Delete, $"api/users/self/cycle-day-recurring-events/{eventId}", onError: onError);
             RecurringEvents = RecurringEvents.Remove(RecurringEvents.First(evt => evt.id == eventId));
-            SaveCache();
+            await SaveCache();
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
     }

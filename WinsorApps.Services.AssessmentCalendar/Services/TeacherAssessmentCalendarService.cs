@@ -205,7 +205,7 @@ public partial class TeacherAssessmentService :
         });
 
         await Task.WhenAll(studentTask, courseTask, assessmentTask, adviseeLateWork);
-        SaveCache();
+        await SaveCache();
     }
 
     public async Task<ImmutableArray<AssessmentEntryRecord>> GetAssessmentsFor(ErrorAction onError, string sectionId, DateTime start = default, DateTime end = default)
@@ -306,7 +306,7 @@ public partial class TeacherAssessmentService :
             else
                 AssessmentDetailsCache[assessmentId] = result.Value;
         }
-        SaveCache();
+        await SaveCache();
         return result;
     }
 
@@ -336,7 +336,7 @@ public partial class TeacherAssessmentService :
             AssessmentDetailsCache.AddOrUpdate(entry.assessmentId, entry);
         }
 
-        SaveCache();
+        await SaveCache();
         return [..output];
     }
 
@@ -377,7 +377,7 @@ public partial class TeacherAssessmentService :
         // TODO: This is awful. stop.
         _calendar.Refresh(onError).SafeFireAndForget(e => e.LogException(_logging));
         OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
-        SaveCache();
+        await SaveCache();
         return result;
     }
     public async Task<AssessmentGroup?> UpdateAssessment(string groupId, CreateAssessmentRecord newAssessment, ErrorAction onError)
@@ -397,7 +397,7 @@ public partial class TeacherAssessmentService :
         // TODO: This is awful!! STOP
         _calendar.Refresh(onError).SafeFireAndForget(e => e.LogException(_logging));
         OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
-        SaveCache();
+        await SaveCache();
         return result;
     }
 
@@ -412,7 +412,7 @@ public partial class TeacherAssessmentService :
             if (group != default)
                 _myAssessments.Remove(group);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
-            SaveCache();
+            await SaveCache();
         }
     }
 

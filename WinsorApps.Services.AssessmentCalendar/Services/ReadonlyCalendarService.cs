@@ -63,12 +63,12 @@ public partial class ReadonlyCalendarService :
 
     public bool Started { get; private set; }
 
-    public void MergeNewAssessments(IEnumerable<AssessmentCalendarEvent> result)
+    public async Task MergeNewAssessments(IEnumerable<AssessmentCalendarEvent> result)
     {
         AssessmentCalendar = [.. AssessmentCalendar.ToList()
             .Merge(result, (a, b) => a.id == b.id)
             .OrderBy(evt => evt.start)];
-        SaveCache();
+        await SaveCache();
         OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
     }
     public ReadonlyCalendarService(ApiService api, LocalLoggingService logging, CycleDayCollection cycleDays)
@@ -104,7 +104,7 @@ public partial class ReadonlyCalendarService :
             });
             backgroundTask.WhenCompleted(() => FullYearCacheComplete?.Invoke(this, EventArgs.Empty));
             backgroundTask.SafeFireAndForget(e => e.LogException(_logging)); 
-            SaveCache();
+            await SaveCache();
         }
         else
         {
@@ -341,7 +341,7 @@ public class CycleDayCollection :
             SchoolYear = schoolYear.Value;
 
             _ = await GetCycleDays(schoolYear.Value.startDate, schoolYear.Value.endDate, onError);
-            SaveCache();
+            await SaveCache();
         }
         Ready = true;
         Progress = 1;

@@ -7,7 +7,8 @@ using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.Services.Global.Services;
 
-public class RegistrarService : IAsyncInitService
+public class RegistrarService : 
+    IAsyncInitService
 {
     private record CacheStructure( 
         ImmutableArray<string> roles, 
@@ -227,7 +228,7 @@ public class RegistrarService : IAsyncInitService
         }
 
         if(Ready)
-            SaveCache();
+            await SaveCache();
 
         return _myAcademicSchedule;
     }
@@ -606,7 +607,7 @@ public class RegistrarService : IAsyncInitService
         while (!UniqueNamesReady)
             await Task.Delay(100);
     }
-    private async Task GetUniqueNames() => await Task.Run(() =>
+    private async Task GetUniqueNames()
     {
         foreach (var user in AllUsers)
             GetUniqueDisplayNameFor(user);
@@ -635,8 +636,8 @@ public class RegistrarService : IAsyncInitService
             }
         }
         UniqueNamesReady = true;
-        SaveCache();
-    });
+        await SaveCache();
+    }
     
     
 
