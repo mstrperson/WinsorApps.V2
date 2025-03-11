@@ -94,7 +94,7 @@ public class JamfService : IAsyncInitService
 
     public Department GetDepartmentByName(string name) => Departments.First(dept => dept.name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
 
-    public void SaveCache()
+    public async Task SaveCache()
     {
         throw new NotImplementedException();
     }

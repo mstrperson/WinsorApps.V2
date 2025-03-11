@@ -239,7 +239,7 @@ public class ServiceCaseService : IAsyncInitService, IAutoRefreshingCacheService
         }
     }
 
-    public void SaveCache()
+    public async Task SaveCache()
     {
         throw new NotImplementedException();
     }

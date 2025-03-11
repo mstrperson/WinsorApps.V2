@@ -91,7 +91,7 @@ public sealed class DeviceService : IAsyncInitService
         Started = false;
         Progress = 0;
         await ReloadCache(onError);
-        SaveCache();
+        await SaveCache();
     }
 
     public async Task Initialize(ErrorAction onError)
@@ -104,7 +104,7 @@ public sealed class DeviceService : IAsyncInitService
         if (!LoadCache())
         {
             await ReloadCache(onError);
-            SaveCache();
+            await SaveCache();
         }
         Progress = 1;
         Ready = true;
@@ -112,44 +112,18 @@ public sealed class DeviceService : IAsyncInitService
 
     private async Task ReloadCache(ErrorAction onError)
     {
-        var loanersTask = _api.SendAsync<List<DeviceRecord>>(HttpMethod.Get,
-                        "api/devices/loaners", onError: onError)!;
-        loanersTask.WhenCompleted(() =>
-        {
-            Progress += 1 / 4.0;
-            _loaners = loanersTask.Result!;
-        });
+        _loaners = await _api.SendAsync<List<DeviceRecord>>(HttpMethod.Get,
+                        "api/devices/loaners", onError: onError) ?? [];
+        
+        _deviceCache = await _api.SendAsync<List<DeviceRecord>>(HttpMethod.Get,
+            "api/devices?isActive=true", onError: onError) ?? [];
 
-        var devicesTask = _api.SendAsync<List<DeviceRecord>>(HttpMethod.Get,
-            "api/devices?isActive=true", onError: onError);
-
-        devicesTask.WhenCompleted(() =>
-        {
-            Progress += 1 / 4.0;
-            _deviceCache = devicesTask.Result ?? [];
-        });
-
-
-
-        var categoriesTask = _api.SendAsync<ImmutableArray<DeviceCategoryRecord>>(HttpMethod.Get,
+        _categories = await _api.SendAsync<ImmutableArray<DeviceCategoryRecord>>(HttpMethod.Get,
             "api/devices/categories", onError: onError);
-        categoriesTask.WhenCompleted(() =>
-        {
-            Progress += 1 / 4.0;
-            _categories = categoriesTask.Result;
-        });
-
-
-        var winsorDeviceCache = _api.SendAsync<List<WinsorDeviceRecord>>(HttpMethod.Get, "api/devices/winsor-devices?isActive=true", onError: onError);
-
-
-        winsorDeviceCache.WhenCompleted(() =>
-        {
-            _winsorDeviceCache = winsorDeviceCache.Result ?? [];
-            Progress += 0.25;
-        });
-
-        await Task.WhenAll(loanersTask, devicesTask, categoriesTask, winsorDeviceCache);
+        
+        _winsorDeviceCache = await _api.SendAsync<List<WinsorDeviceRecord>>(HttpMethod.Get, 
+            "api/devices/winsor-devices?isActive=true", onError: onError) ?? [];
+        
     }
 
     public async Task<DeviceRecord?> UpdateDevice(string deviceId, UpdateDeviceRecord update, ErrorAction onError)
@@ -248,8 +222,8 @@ public sealed class DeviceService : IAsyncInitService
         var result = await _api.SendAsync<WinsorDeviceRecord?>(HttpMethod.Get,
             $"api/devices/{id}/winsor-device-info", onError: onError);
         if (result.HasValue)
-            _winsorDeviceCache?.Add(result.Value);
-        SaveCache();
+            _winsorDeviceCache.Add(result.Value);
+        await SaveCache();
         return result;
     }
 
@@ -273,12 +247,12 @@ public sealed class DeviceService : IAsyncInitService
         ImmutableArray<DeviceCategoryRecord> categories
     );
 
-    public void SaveCache()
+    public async Task SaveCache()
     {
         var cacheFilePath = $"{_logging.AppStoragePath}{Path.DirectorySeparatorChar}{CacheFileName}";
         var cache = new CacheSchema([.. _deviceCache], [.._winsorDeviceCache], [.._loaners], [.._categories]);
         var json = JsonSerializer.Serialize(cache);
-        File.WriteAllText(cacheFilePath, json);
+        await File.WriteAllTextAsync(cacheFilePath, json);
     }
 
     public bool LoadCache()
