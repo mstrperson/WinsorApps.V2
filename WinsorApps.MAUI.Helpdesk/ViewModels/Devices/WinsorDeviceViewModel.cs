@@ -1,6 +1,7 @@
 using AsyncAwaitBestPractices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.Concurrent;
+using CommunityToolkit.Mvvm.Input;
 using WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom;
 using WinsorApps.MAUI.Helpdesk.ViewModels.Jamf;
 using WinsorApps.MAUI.Shared;
@@ -13,13 +14,18 @@ using WinsorApps.Services.Helpdesk.Services;
 
 namespace WinsorApps.MAUI.Helpdesk.ViewModels;
 
-public partial class WinsorDeviceViewModel : ObservableObject, IErrorHandling, ICachedViewModel<WinsorDeviceViewModel, DeviceRecord, DeviceService>, IDefaultValueViewModel<WinsorDeviceViewModel>
+public partial class WinsorDeviceViewModel : 
+    ObservableObject,
+    IErrorHandling,
+    ICachedViewModel<WinsorDeviceViewModel, DeviceRecord, DeviceService>,
+    IDefaultValueViewModel<WinsorDeviceViewModel>
 {
     private readonly DeviceService _deviceService;
     private readonly CheqroomService _cheqroom;
     private readonly JamfService _jamf;
     
     private readonly WinsorDeviceStub _device;
+    private readonly DeviceRecord _dev;
 
     [ObservableProperty] private bool hasWinsorData;
     [ObservableProperty] private string assetTag = "";
@@ -82,6 +88,7 @@ public partial class WinsorDeviceViewModel : ObservableObject, IErrorHandling, I
             _jamf = ServiceHelper.GetService<JamfService>();
             hasWinsorData = dev.isWinsorDevice;
             _device = dev.winsorDevice ?? WinsorDeviceStub.Default;
+            _dev = dev;
             assetTag = _device.assetTag ?? "";
             categoryName = _device.category ?? "";
             cheqroomId = _device.cheqroomId ?? "";
@@ -90,22 +97,6 @@ public partial class WinsorDeviceViewModel : ObservableObject, IErrorHandling, I
             loaner = _device.loaner;
             if(!string.IsNullOrEmpty(_device.category))
                 CategorySearch.Select(new(_device.category));
-            if (dev.winsorDevice.HasValue)
-            {
-                var task = _deviceService.GetWinsorDeviceDetails(dev.id, OnError.DefaultBehavior(this));
-                task.WhenCompleted(() =>
-                {
-                    if (!task.Result.HasValue) return;
-                    var details = task.Result!.Value;
-                    PurchaseDate = details.purchaseDate;
-                    PurchaseCost = details.purchaseCost;
-                    if (details.jamfId > 0)
-                    {
-                        LoadJamfDetails($"{details.jamfId}").SafeFireAndForget(e => e.LogException());
-                    }
-                });
-                task.SafeFireAndForget(e => e.LogException());
-            }
         }
     }
 
@@ -133,7 +124,8 @@ public partial class WinsorDeviceViewModel : ObservableObject, IErrorHandling, I
         }
     }
 
-    private async Task LoadInventoryPreload(string id)
+    [RelayCommand]
+    public async Task LoadInventoryPreload(string id)
     {
         var preload = await _jamf.GetInventoryPreload(id, OnError.DefaultBehavior(this));
         ShowInventoryPreload = preload.HasValue;
@@ -146,7 +138,8 @@ public partial class WinsorDeviceViewModel : ObservableObject, IErrorHandling, I
         }
     }
 
-    private async Task LoadCheqroom(string id)
+    [RelayCommand]
+    public async Task LoadCheqroom(string id)
     {
         var item = await _cheqroom.GetItem(id, OnError.DefaultBehavior(this));
         ShowCheqroom = item.HasValue;
@@ -156,6 +149,20 @@ public partial class WinsorDeviceViewModel : ObservableObject, IErrorHandling, I
         }
     }
 
+    [RelayCommand]
+    public async Task LoadWinsorData()
+    {
+        var details = 
+            await _deviceService.GetWinsorDeviceDetails(_dev.id, OnError.DefaultBehavior(this))
+            ?? new WinsorDeviceRecord();
+        
+        PurchaseDate = details.purchaseDate;
+        PurchaseCost = details.purchaseCost;
+        if (details.jamfId > 0)
+        {
+            LoadJamfDetails($"{details.jamfId}").SafeFireAndForget(e => e.LogException());
+        }
+    }
 
     public UpdateWinsorDeviceRecord GetUpdateRecord() =>
         new(Category.Id, PurchaseDate, PurchaseCost);
@@ -181,7 +188,7 @@ public partial class WinsorDeviceViewModel : ObservableObject, IErrorHandling, I
             output.Add(vm.Clone());
         }
         if(output.Count == 0)
-            output.Add(WinsorDeviceViewModel.Empty);
+            output.Add(Empty);
         return output;
     }
 
@@ -189,9 +196,11 @@ public partial class WinsorDeviceViewModel : ObservableObject, IErrorHandling, I
     {
         while (!service.Ready)
             await Task.Delay(250);
-        ViewModelCache = [..
+        ViewModelCache = 
+        [..
             service.DeviceCache.Where(dev => dev.winsorDevice.HasValue)
-            .Select(dev => new WinsorDeviceViewModel(dev))];
+            .Select(dev => new WinsorDeviceViewModel(dev))
+        ];
             
     }
 

@@ -170,8 +170,9 @@ public partial class DeviceViewModel :
     {
         while (!service.Ready)
             await Task.Delay(250);
-        ViewModelCache = [..
-            service.DeviceCache.Select(dev => new DeviceViewModel(dev))];
+        ViewModelCache = [];
+        //..
+        //    service.DeviceCache.Select(dev => new DeviceViewModel(dev))];
     }
 
     public static DeviceViewModel Get(DeviceRecord model) => GetClonedViewModels([model])[0];
