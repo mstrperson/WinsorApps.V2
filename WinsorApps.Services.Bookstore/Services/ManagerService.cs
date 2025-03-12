@@ -324,7 +324,7 @@ public partial class BookstoreManagerService :
         }
     }
 
-    public void SaveCache()
+    public async Task SaveCache()
     {
         throw new NotImplementedException();
     }

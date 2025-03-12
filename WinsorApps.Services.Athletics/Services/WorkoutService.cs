@@ -111,11 +111,8 @@ public class WorkoutService :
         await Initialize(onError);
     }
 
-    public void SaveCache()
-    {
-        // Don't Cache this service....
-    }
-
+    public async Task SaveCache() => await Task.CompletedTask;
+    
     public async Task WaitForInit(ErrorAction onError)
     {
         while (!Ready)

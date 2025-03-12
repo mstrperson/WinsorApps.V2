@@ -219,7 +219,7 @@ public class StudentBookstoreService : IAsyncInitService
 
     }
 
-    public void SaveCache()
+    public async Task SaveCache()
     {
         throw new NotImplementedException();
     }

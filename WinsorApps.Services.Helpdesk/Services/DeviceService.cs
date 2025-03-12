@@ -153,21 +153,39 @@ public sealed class DeviceService : IAsyncInitService
             }
         }
 
-        SaveCache();
+        await SaveCache();
         return result;
     }
 
     public async Task<DeviceRecord?> CreateNewDeviceRecord(CreateDeviceRecord newDevice, ErrorAction onError)
     {
+        DeviceRecord? temp = null;
+        bool wait = false;
         var result = await _api.SendAsync<CreateDeviceRecord, DeviceRecord?>(HttpMethod.Post, "api/devices", newDevice,
-            onError: onError);
+            onError: async (err) =>
+            {
+                wait = true;
+                var dev = await SearchDevices(newDevice.serialNumber, onError);
+                if(dev.HasValue)
+                {
+                    temp = dev;
+                    wait = false;
+                    return;
+                }
+                wait = false;
+                onError(err);
+            });
+        while (wait)
+            await Task.Delay(250);
+        if(temp.HasValue)
+            result = temp;
 
         if (result.HasValue && DeviceCache.Any(dev => dev.id == result.Value.id))
             _deviceCache!.Replace(DeviceCache.First(dev => dev.id == result.Value.id), result.Value);
         else if (result.HasValue)
             _deviceCache!.Add(result.Value);
 
-        SaveCache();
+        await SaveCache();
         return result;
     }
     public async Task<DeviceRecord?> SearchDevices(string identifier, ErrorAction onError)
@@ -207,7 +225,7 @@ public sealed class DeviceService : IAsyncInitService
                 _deviceCache!.Add(result);
         }
 
-        SaveCache();
+        await SaveCache();
         return results.First();
     }
 
@@ -236,7 +254,7 @@ public sealed class DeviceService : IAsyncInitService
 
         var dev = DeviceCache.First(d => d.id == id);
         _deviceCache!.Replace(dev, result.Value);
-        SaveCache();
+        await SaveCache();
         return true;
     }
 

@@ -35,7 +35,7 @@ public partial class WinsorDeviceViewModel :
     [ObservableProperty] private int jamfInventoryPreloadId;
     [ObservableProperty] private bool loaner;
     [ObservableProperty] private CategorySearchViewModel categorySearch = new();
-    [ObservableProperty] private DateTime purchaseDate;
+    [ObservableProperty] private DateTime purchaseDate = DateTime.Today;
     [ObservableProperty] private double purchaseCost;
     [ObservableProperty] private JamfViewModel jamfDetails = JamfViewModel.Empty;
     [ObservableProperty] private bool showJamf;

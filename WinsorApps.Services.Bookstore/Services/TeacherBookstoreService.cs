@@ -120,7 +120,7 @@ public partial class TeacherBookstoreService :
                 _myOrders!.Add(new(result.Value.id, result.Value.schoolYearId, result.Value.createdTimeStamp, []));
             }
 
-            SaveCache();
+            await SaveCache();
         }
 
         return result;
@@ -147,7 +147,7 @@ public partial class TeacherBookstoreService :
         if (order != default)
             _myOrders!.Remove(order);
 
-        SaveCache();
+        await SaveCache();
         return success;
     }
 
@@ -155,30 +155,30 @@ public partial class TeacherBookstoreService :
     {
         var result = await _api.SendAsync<CreateTeacherBookOrderGroup, TeacherBookOrder?>(
             HttpMethod.Post, $"api/book-orders/teachers/{sectionId}/group", group, onError: onError);
-        return HandleBookOrderResult(sectionId, result);
+        return await HandleBookOrderResult(sectionId, result);
     }
 
     public async Task<TeacherBookOrder?> CreateNewOrder(string sectionId, CreateTeacherBookOrder order, ErrorAction onError)
     {
         var result = await _api.SendAsync<CreateTeacherBookOrder, TeacherBookOrder?>(
             HttpMethod.Post, $"api/book-orders/teachers/{sectionId}", order, onError: onError);
-        return HandleBookOrderResult(sectionId, result);
+        return await HandleBookOrderResult(sectionId, result);
     }
 
     public async Task<TeacherBookOrder?> UpdateOrder(string sectionId, CreateTeacherBookOrder order, ErrorAction onError)
     {
         var result = await _api.SendAsync<CreateTeacherBookOrder, TeacherBookOrder?>(
             HttpMethod.Put, $"api/book-orders/teachers/{sectionId}", order, onError: onError);
-        return HandleBookOrderResult(sectionId, result);
+        return await HandleBookOrderResult(sectionId, result);
     }
     public async Task<TeacherBookOrder?> UpdateOrder(string sectionId, CreateTeacherBookOrderGroup group, ErrorAction onError)
     {
         var result = await _api.SendAsync<CreateTeacherBookOrderGroup, TeacherBookOrder?>(
             HttpMethod.Put, $"api/book-orders/teachers/{sectionId}/group", group, onError: onError);
-        return HandleBookOrderResult(sectionId, result);
+        return await HandleBookOrderResult(sectionId, result);
     }
 
-    private TeacherBookOrder? HandleBookOrderResult(string sectionId, TeacherBookOrder? result)
+    private async Task<TeacherBookOrder?> HandleBookOrderResult(string sectionId, TeacherBookOrder? result)
     {
         if (result.HasValue)
         {
@@ -194,7 +194,7 @@ public partial class TeacherBookstoreService :
                 _myOrders.Add(result.Value);
             }
 
-            SaveCache();
+            await SaveCache();
         }
 
 
@@ -206,7 +206,7 @@ public partial class TeacherBookstoreService :
         var result = await _api.SendAsync<ImmutableArray<string>, TeacherBookOrder?>(HttpMethod.Delete,
             $"api/book-orders/teachers/{sectionId}/orders", isbns.ToImmutableArray(), onError: onError);
 
-        return HandleBookOrderResult(sectionId, result);
+        return await HandleBookOrderResult(sectionId, result);
     }
 
     public async Task<ImmutableArray<TeacherBookOrderGroup>> GetOrderGroups(string sectionId, ErrorAction onError)
@@ -222,7 +222,7 @@ public partial class TeacherBookstoreService :
         var result = await _api.SendAsync<CreateOptionGroup, TeacherBookOrder?>(HttpMethod.Post,
             $"api/book-orders/teachers/{sectionId}/groups", group, onError: onError);
 
-        return HandleBookOrderResult(sectionId, result);
+        return await HandleBookOrderResult(sectionId, result);
     }
 
     public async Task<TeacherBookRequestGroup?> GetGroupDetails(string groupId, ErrorAction onError)
@@ -233,7 +233,7 @@ public partial class TeacherBookstoreService :
         return result;
     }
 
-    public void SaveCache()
+    public async Task SaveCache()
     {
         CacheSchema cache = new(
             [.. OrderStatusOptions],
@@ -248,7 +248,7 @@ public partial class TeacherBookstoreService :
                 .DistinctBy(sec => sec.id)]);
 
         var json = JsonSerializer.Serialize(cache);
-        File.WriteAllText($"{_logging.AppStoragePath}{Path.DirectorySeparatorChar}{CacheFileName}", json);
+        await File.WriteAllTextAsync($"{_logging.AppStoragePath}{Path.DirectorySeparatorChar}{CacheFileName}", json);
     }
 
     public bool LoadCache()
@@ -353,6 +353,6 @@ public partial class TeacherBookstoreService :
         }
         Ready = true;
 
-        SaveCache();
+        await SaveCache();
     }
 }

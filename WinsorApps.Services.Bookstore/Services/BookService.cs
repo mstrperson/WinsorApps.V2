@@ -15,8 +15,6 @@ public class BookService : IAsyncInitService
         _api = api;
     }
 
-
-
     public async Task Initialize(ErrorAction onError)
     {
         if (Ready) { return; }
@@ -202,7 +200,7 @@ public class BookService : IAsyncInitService
             await Task.Delay(250);
     }
 
-    public void SaveCache()
+    public async Task SaveCache()
     {
         throw new NotImplementedException();
     }

@@ -30,19 +30,19 @@ public partial class DeviceViewModel :
     protected readonly DeviceService _deviceService;
     protected DeviceRecord _device;
 
-    [ObservableProperty] private string id;
-    [ObservableProperty] private string serialNumber;
+    [ObservableProperty] string id = "";
+    [ObservableProperty] private string serialNumber = "";
     [ObservableProperty] UserSearchViewModel ownerSearch = new();
     [ObservableProperty] private UserViewModel owner = UserViewModel.Empty;
     [ObservableProperty] private bool unicorn;
-    [ObservableProperty] private DateTime firstSeen;
-    [ObservableProperty] private bool isActive;
-    [ObservableProperty] private string type;
+    [ObservableProperty] private DateTime firstSeen = DateTime.Today;
+    [ObservableProperty] private bool isActive = true;
+    [ObservableProperty] private string type = "";
     [ObservableProperty] private bool isWinsorDevice;
-    [ObservableProperty] private WinsorDeviceViewModel winsorDevice;
+    [ObservableProperty] private WinsorDeviceViewModel winsorDevice = WinsorDeviceViewModel.Empty;
     [ObservableProperty] private bool isSelected;
 
-    [ObservableProperty] private string displayName;
+    [ObservableProperty] private string displayName = "";
 
     public event EventHandler<ErrorRecord>? OnError;
 
@@ -61,31 +61,28 @@ public partial class DeviceViewModel :
         id = "";
         type = "";
         serialNumber = "";
-        winsorDevice = new();
-
+        winsorDevice = WinsorDeviceViewModel.Empty;
     }
 
     private DeviceViewModel(DeviceRecord device)
     {
-        using (DebugTimer _ = new($"Initializing DeviceViewModel for {device.id}", ServiceHelper.GetService<LocalLoggingService>()))
-        {
-            _deviceService = ServiceHelper.GetService<DeviceService>()!;
-            _device = device;
-            displayName = device.serialNumber;
-            id = device.id;
-            serialNumber = device.serialNumber;
-            if (device.owner.HasValue)
-                Owner = UserViewModel.Get(device.owner.Value);
-            unicorn = device.unicorn;
-            firstSeen = device.firstSeen;
-            isActive = device.isActive;
-            type = device.type;
-            isWinsorDevice = device.isWinsorDevice;
+        using DebugTimer _ = new($"Initializing DeviceViewModel for {device.id}", ServiceHelper.GetService<LocalLoggingService>());
+        _deviceService = ServiceHelper.GetService<DeviceService>()!;
+        _device = device;
+        displayName = device.serialNumber;
+        id = device.id;
+        serialNumber = device.serialNumber;
+        if (device.owner.HasValue)
+            Owner = UserViewModel.Get(device.owner.Value);
+        unicorn = device.unicorn;
+        firstSeen = device.firstSeen;
+        isActive = device.isActive;
+        type = device.type;
+        isWinsorDevice = device.isWinsorDevice;
 
-            WinsorDevice = WinsorDeviceViewModel.Get(device);
-            if (IsWinsorDevice)
-                DisplayName = device.winsorDevice!.Value.assetTag;
-        }
+        WinsorDevice = WinsorDeviceViewModel.Get(device);
+        if (IsWinsorDevice)
+            DisplayName = device.winsorDevice!.Value.assetTag;
     }
 
     public CreateDeviceRecord GetCreateRecord(CreateWinsorDeviceRecord? winsorDevice = null) =>
@@ -126,6 +123,8 @@ public partial class DeviceViewModel :
             WinsorDevice = WinsorDeviceViewModel.Get(_device);
             DisplayName = _device.winsorDevice!.Value.assetTag;
         }
+
+        Select();
     }
 
     [RelayCommand]
