@@ -84,7 +84,8 @@ public partial class MyAssessmentsPageViewModel :
     {
         await _registrar.WaitForInit(onError);
 
-        var myCourseIds = _registrar.MyAcademicSchedule.Select(sec => sec.courseId).Distinct();
+        var myCourseIds = _registrar.MyAcademicSchedule
+            .Select(sec => sec.courseId).Distinct();
         var courses = _registrar.CourseList.Where(course => myCourseIds.Contains(course.courseId));
         MyCourses = [.. CourseViewModel.GetClonedViewModels(courses)];
         foreach(var course in MyCourses)
@@ -95,6 +96,7 @@ public partial class MyAssessmentsPageViewModel :
                 ShowCourseSelection = false;
                 SelectedCourse = CourseSelected ? course : CourseViewModel.Empty;
             };
+            await course.LoadSections();
         }
     }
 

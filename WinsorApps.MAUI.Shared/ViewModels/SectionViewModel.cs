@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
+using AsyncAwaitBestPractices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using WinsorApps.Services.Global;
@@ -28,7 +29,7 @@ public partial class CourseViewModel :
     [ObservableProperty] ObservableCollection<SectionViewModel> sections = [];
     [ObservableProperty] ObservableCollection<SectionViewModel> currentSections = [];
     [ObservableProperty] bool mySectionsOnly;
-
+    [ObservableProperty] string currentTermIdentifier = "";
     public Optional<CourseRecord> Model { get; init; } = Optional<CourseRecord>.None();
 
     public static ConcurrentBag<CourseViewModel> ViewModelCache { get; protected set; } = [];
@@ -79,11 +80,16 @@ public partial class CourseViewModel :
                 sec.displayName,
                 sec.isCurrent)))];
 
-        
         if (MySectionsOnly)
         {
             Sections = [.. Sections.Where(sec => sec.PrimaryTeacher.Id == _registrar.Me.id)];
         }
+
+        CurrentTermIdentifier = Sections.Count == 0
+            ? "No Sections"
+            : Sections.Any(sec => sec.IsCurrent)
+                ? "Current"
+                : Sections[0].Term;
 
         CurrentSections = [.. Sections.Where(sec => sec.IsCurrent)];
 
@@ -277,6 +283,7 @@ public partial class SectionViewModel :
         DisplayName = section.displayName;
         Block = section.block;
         Room = section.room;
+        Term = registrar.SchoolYears.SelectMany(sy => sy.terms).FirstOrDefault(term => term.termId == section.termId)?.name ?? section.termId;
         PrimaryTeacher = string.IsNullOrEmpty(section.primaryTeacherId) ?
             UserViewModel.Empty :
             UserViewModel.Get(
@@ -313,6 +320,7 @@ public partial class SectionViewModel :
         DisplayName = section.displayName;
         Block = section.block;
         Room = section.room;
+        Term = registrar.SchoolYears.SelectMany(sy => sy.terms).FirstOrDefault(term => term.termId == section.termId)?.name ?? section.termId;
         var tch = registrar.TeacherList
                 .FirstOrDefault(t => t.id == section.primaryTeacherId);
         PrimaryTeacher = string.IsNullOrEmpty(tch?.id) ? UserViewModel.Empty : UserViewModel.Get(tch);

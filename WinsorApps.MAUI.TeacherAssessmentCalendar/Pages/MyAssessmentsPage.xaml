@@ -77,11 +77,13 @@
                             ItemsSource="{Binding MyCourses}">
                             <CollectionView.ItemTemplate>
                                 <DataTemplate x:DataType="svm:CourseViewModel">
-                                    <HorizontalStackLayout>
+                                    <HorizontalStackLayout
+                                        Spacing="10">
                                         <HorizontalStackLayout.GestureRecognizers>
                                             <TapGestureRecognizer Command="{Binding SelectCommand}" />
                                         </HorizontalStackLayout.GestureRecognizers>
                                         <Label Text="{Binding DisplayName}" />
+                                        <Label Text="{Binding CurrentTermIdentifier, StringFormat='[{0}]'}" />
                                     </HorizontalStackLayout>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
