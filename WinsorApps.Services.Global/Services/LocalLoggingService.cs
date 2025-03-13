@@ -28,7 +28,7 @@ namespace WinsorApps.Services.Global.Services
                 until = DateTime.Now;
             }
 
-            Dictionary<string, byte[]> result = new Dictionary<string, byte[]>();
+            Dictionary<string, byte[]> result = [];
 
             var logFiles = Directory.GetFiles($"{AppDataPath}{separator}logs")
                 .Where(path => path.EndsWith(".log") && File.GetLastWriteTime(path) >= since && File.GetLastWriteTime(path) <= until);
@@ -48,7 +48,7 @@ namespace WinsorApps.Services.Global.Services
             {
                 var dir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
                 var parts = dir.Split(separator);
-                parts[parts.Length - 1] = "Downloads";
+                parts[^1] = "Downloads";
                 dir = Path.Combine(parts);
                 if(separator == '/')
                     dir = "/" + dir;
@@ -63,7 +63,7 @@ namespace WinsorApps.Services.Global.Services
         public static readonly string AppDataPathOld = 
             $"{Environment.GetFolderPath(Environment.SpecialFolder.Personal)}";
 
-        private static char separator = Path.DirectorySeparatorChar;
+        private static readonly char separator = Path.DirectorySeparatorChar;
         public LocalLoggingService()
         {
             if (!string.IsNullOrEmpty(LogFileName))

@@ -12,8 +12,8 @@ namespace WinsorApps.Services.AssessmentCalendar.Models;
     /// <param name="allDay">is this all day or does it have relevant time data as well.</param>
     /// <param name="type">what kind of event is this?  [assessment, ap-exam, note]</param>
     /// <param name="id">item id (used only for assessments if you want to use a pass)</param>
-    public readonly record struct AssessmentCalendarDisplayRecord(string text, DateTime startDateTime, DateTime endDateTime,
-        bool allDay, string type, string id, ImmutableArray<string> affectedClasses)
+    public record AssessmentCalendarDisplayRecord(string text, DateTime startDateTime, DateTime endDateTime,
+        bool allDay, string type, string id, List<string> affectedClasses)
     {
         public static implicit operator AssessmentCalendarEvent(AssessmentCalendarDisplayRecord record) =>
             new(record.id, record.type, record.text, 
@@ -32,7 +32,7 @@ namespace WinsorApps.Services.AssessmentCalendar.Models;
     /// <param name="assessmentNote">Note about the assessment</param>
     /// <param name="assessmentId">hash encoded AssessmentCalendarEntry.GroupId used for requesting Late Pass</param>
     /// <param name="sectionId">hash encoded AssessmentCalendarEntry.SectionId used for requesting Late Pass</param>
-    public readonly record struct StudentAssessmentDetails(
+    public record StudentAssessmentDetails(
         string courseName, DateTime assessmentDateTime, string assessmentNote, string assessmentId, string sectionId);
 
     /// <summary>
@@ -41,7 +41,7 @@ namespace WinsorApps.Services.AssessmentCalendar.Models;
     /// <param name="date">Date the note is set for</param>
     /// <param name="note">Message to display</param>
     /// <param name="affectedClasses">which classes are affected</param>
-    public readonly record struct DayNote(string id, DateOnly date, string note, ImmutableArray<string> affectedClasses);
+    public record DayNote(string id, DateOnly date, string note, List<string> affectedClasses);
 
     /// <summary>
     /// Response to an assessment pass request.
@@ -49,19 +49,19 @@ namespace WinsorApps.Services.AssessmentCalendar.Models;
     /// <param name="assessmentId">Assessment for which you are using a pass.</param>
     /// <param name="studentId">your id</param>
     /// <param name="timeStamp">when you submitted this pass</param>
-    public readonly record struct AssessmentPass(string assessmentId, string studentId, DateTime timeStamp, MakeupTime makeupTime)
+    public record AssessmentPass(string assessmentId, string studentId, DateTime timeStamp, MakeupTime makeupTime)
 {
 
     public AssessmentPass(string assessmentId, string studentId, DateTime timeStamp) :
         this(assessmentId, studentId, timeStamp, MakeupTime.Default)
     { }
 }
-public readonly record struct MakeupTime(DateTime? makeupTime = null, string? note = null)
+public record MakeupTime(DateTime? makeupTime = null, string? note = null)
 {
     public static readonly MakeupTime Default = new(note: "Not Scheduled");
 }
 
-public readonly record struct AssessmentPassDetail(AssessmentCalendarEvent assessment, UserRecord student, DateTime timeStamp, MakeupTime makeupTime)
+public record AssessmentPassDetail(AssessmentCalendarEvent assessment, UserRecord student, DateTime timeStamp, MakeupTime makeupTime)
 {
     public static readonly AssessmentPassDetail Empty = new(AssessmentCalendarEvent.Empty, UserRecord.Empty, DateTime.Now, MakeupTime.Default);
 }
@@ -72,4 +72,4 @@ public readonly record struct AssessmentPassDetail(AssessmentCalendarEvent asses
     /// <param name="courseName">AP Course Name</param>
     /// <param name="examStart">Date and Time the exam starts</param>
     /// <param name="examEnd">Time the exam ends</param>
-    //public readonly record struct APExamRecord(string courseName, DateTime examStart, DateTime examEnd);
+    //public record APExamRecord(string courseName, DateTime examStart, DateTime examEnd);

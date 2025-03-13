@@ -58,7 +58,7 @@ public partial class MainPage : ContentPage
     /// <param name="e"></param>
     private void ViewModelOnOnLogin(object? sender, EventArgs e)
     {
-        var vm = UserViewModel.Get(_api.UserInfo!.Value);
+        var vm = UserViewModel.Get(_api.UserInfo!);
         UserInfoPage page = new() {BindingContext = vm};
         Navigation.PushAsync(page);
     }

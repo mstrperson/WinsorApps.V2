@@ -5,12 +5,12 @@ using WinsorApps.Services.Helpdesk.Models;
 
 namespace WinsorApps.Services.Helpdesk.Services;
 
-public class CheqroomService : IAsyncInitService, IAutoRefreshingCacheService
+public class CheqroomService(ApiService api, LocalLoggingService logging) : IAsyncInitService, IAutoRefreshingCacheService
 {
-    private readonly ApiService _api;
-    private readonly LocalLoggingService _logging;
+    private readonly ApiService _api = api;
+    private readonly LocalLoggingService _logging = logging;
 
-    public ImmutableArray<CheqroomCheckoutSearchResult> OpenOrders
+    public List<CheqroomCheckoutSearchResult> OpenOrders
     {
         get;
         private set;
@@ -26,17 +26,12 @@ public class CheqroomService : IAsyncInitService, IAutoRefreshingCacheService
 
     public TimeSpan RefreshInterval => TimeSpan.FromMinutes(5);
 
-    public string CacheFileName => throw new NotImplementedException();
+    public string CacheFileName => "cheqroom.cache.json";
+    public void ClearCache() { if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}"); }
 
     public event EventHandler? OnCacheRefreshed;
 
-    public CheqroomService(ApiService api, LocalLoggingService logging)
-    {
-        _api = api;
-        _logging = logging;
-    }
-
-    public async Task<CheqroomCheckoutResult> QuickCheckOutItem(string assetTag, string userId, ErrorAction onError)
+    public async Task<CheqroomCheckoutResult?> QuickCheckOutItem(string assetTag, string userId, ErrorAction onError)
     {
 
         var result = await _api.SendAsync<CheqroomCheckoutResult>(HttpMethod.Get, $"api/cheqroom/quick-checkout?assetTag={assetTag}&userId={userId}",
@@ -47,10 +42,10 @@ public class CheqroomService : IAsyncInitService, IAutoRefreshingCacheService
         return result;
     }
 
-    public async Task<ImmutableArray<CheqroomCheckoutSearchResult>> GetOpenOrders(ErrorAction onError)
+    public async Task<List<CheqroomCheckoutSearchResult>> GetOpenOrders(ErrorAction onError)
     {
-        var result = await _api.SendAsync<ImmutableArray<CheqroomCheckoutSearchResult>>(HttpMethod.Get, $"api/cheqroom/list-checkouts",
-            onError: onError);
+        var result = await _api.SendAsync<List<CheqroomCheckoutSearchResult>>(HttpMethod.Get, $"api/cheqroom/list-checkouts",
+            onError: onError) ?? [];
 
         return result;
     }
@@ -103,7 +98,7 @@ public class CheqroomService : IAsyncInitService, IAutoRefreshingCacheService
             $"api/devices/{id}/cheqroom/status",
             onError: onError);
 
-        return result.status;
+        return result?.status ?? "Not Found";
     }
 
     public async Task<CheqroomItem?> GetItem(string id, ErrorAction onError)

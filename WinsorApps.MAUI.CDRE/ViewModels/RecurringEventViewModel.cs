@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.ViewModels;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 
@@ -43,7 +44,7 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         private readonly CycleDayRecurringEventService _eventService = ServiceHelper.GetService<CycleDayRecurringEventService>();
         private readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
 
-        [ObservableProperty] ImmutableArray<RecurringEventViewModel> events = [];
+        [ObservableProperty] List<RecurringEventViewModel> events = [];
         public event EventHandler<RecurringEventViewModel>? CreateRequested;
         public event EventHandler<RecurringEventViewModel>? Reload;
         public event EventHandler<RecurringEventViewModel>? EditRequested;
@@ -62,17 +63,17 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
                 evt.Selected += (sender, e) => EditRequested?.Invoke(sender, e);
                 evt.OnCreated += (sender, e) =>
                 {
-                    Events = Events.Add(e);
+                    Events.Add(e);
                     Reload?.Invoke(sender, e);
                 };
                 evt.OnUpdated += (sender, e) =>
                 {
-                    Events = Events.Replace(evt, e);
+                    Events.Replace(evt, e);
                     Reload?.Invoke(sender, e);
                 };
                 evt.OnDelete += (sender, e) =>
                 {
-                    Events = Events.Remove(evt);
+                    Events.Remove(evt);
                     Reload?.Invoke(sender, e);
                 };
             }
@@ -89,19 +90,19 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
             evt.OnCreated += (sender, e) => 
             {
                 _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"{e.Summary} {e.Id} created");
-                Events = Events.Add(e);
+                Events.Add(e);
                 Reload?.Invoke(sender, e);
             };
             evt.OnUpdated += (sender, e) =>
             {
                 _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"{e.Summary} {e.Id} updated");
-                Events = Events.Replace(evt, e);
+                Events.Replace(evt, e);
                 Reload?.Invoke(sender, e);
             };
             evt.OnDelete += (sender, e) =>
             {
                 _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"{e.Summary} {e.Id} deleted");
-                Events = Events.Remove(evt);
+                Events.Remove(evt);
                 Reload?.Invoke(sender, e);
             };
             CreateRequested?.Invoke(this, evt);
@@ -153,14 +154,13 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
                 Busy = false;
                 return;
             }
-            CreateRecurringEvent create = new CreateRecurringEvent
-                (DateOnly.FromDateTime(Beginning), DateOnly.FromDateTime(Ending), Summary, Description, Attendees.Emails.Select(x => x.Label).ToImmutableArray(), CycleDays.Items.Where(item => item.IsSelected).Select(item => item.Label).ToImmutableArray(), Frequency, IsPublic, AllDay, TimeOnly.FromTimeSpan(StartTime), Duration);
+            CreateRecurringEvent create = new                (DateOnly.FromDateTime(Beginning), DateOnly.FromDateTime(Ending), Summary, Description, Attendees.Emails.Select(x => x.Label).ToList(), CycleDays.Items.Where(item => item.IsSelected).Select(item => item.Label).ToList(), Frequency, IsPublic, AllDay, TimeOnly.FromTimeSpan(StartTime), Duration);
             if (string.IsNullOrEmpty(Id))
             {
                 var result = await _eventService.CreateNewEvent(create, OnError.DefaultBehavior(this));
-                if (result.HasValue)
+                if (result is not null)
                 {
-                    Id = result.Value.id;
+                    Id = result.id;
                     OnCreated?.Invoke(this, this);
                 }
                 Busy = false;
@@ -168,7 +168,7 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
             }
 
             var result2 = await _eventService.UpdateEvent(Id, create, OnError.DefaultBehavior(this));
-            if (result2.HasValue) { 
+            if (result2 is not null) { 
                 OnUpdated?.Invoke(this, this);
             }
             Busy = false;

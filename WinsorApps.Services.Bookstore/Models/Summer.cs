@@ -7,6 +7,6 @@ using System.Threading.Tasks;
 using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.Services.Bookstore.Models;
-public readonly record struct SummerSection(string id, AdvisorRecord teacher, CourseRecord course, string schoolYear, DateTime submitted, ImmutableArray<SummerBookOrderListItem> books);
+public record SummerSection(string id, AdvisorRecord teacher, CourseRecord course, string schoolYear, DateTime submitted, List<SummerBookOrderListItem> books);
 
-public readonly record struct SummerBookOrderListItem(ISBNDetail isbn, int quantity);
+public record SummerBookOrderListItem(ISBNDetail isbn, int quantity);

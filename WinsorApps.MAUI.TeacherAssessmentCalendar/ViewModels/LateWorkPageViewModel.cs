@@ -12,25 +12,19 @@ using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.TeacherAssessmentCalendar.ViewModels;
 
-public partial class LateWorkPageViewModel :
+public partial class LateWorkPageViewModel(TeacherAssessmentService service, RegistrarService registrar) :
     ObservableObject,
     IBusyViewModel,
     IErrorHandling
 {
-    private readonly TeacherAssessmentService _service;
-    private readonly RegistrarService _registrar;
+    private readonly TeacherAssessmentService _service = service;
+    private readonly RegistrarService _registrar = registrar;
 
     [ObservableProperty] ObservableCollection<SectionLateWorkCollection> sections = [];
     [ObservableProperty] SectionLateWorkCollection selectedSection = new();
     [ObservableProperty] bool showSelectedSection;
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "";
-
-    public LateWorkPageViewModel(TeacherAssessmentService service, RegistrarService registrar)
-    {
-        _service = service;
-        _registrar = registrar;
-    }
 
     public event EventHandler<ErrorRecord>? OnError;
 
@@ -54,7 +48,7 @@ public partial class LateWorkPageViewModel :
                 SelectedSection = section.IsSelected ? section : new();
             };
 
-            section.PropertyChanged += ((IBusyViewModel)(this)).BusyChangedCascade;
+            section.PropertyChanged += ((IBusyViewModel)this).BusyChangedCascade;
         }
     }
 }
@@ -67,7 +61,7 @@ public partial class LateWorkViewModel :
     private readonly TeacherAssessmentService _service = ServiceHelper.GetService<TeacherAssessmentService>();
 
     public event EventHandler? Resolved;
-    public OptionalStruct<LateWorkDetails> Model { get; private set; } = OptionalStruct<LateWorkDetails>.None();
+    public Optional<LateWorkDetails> Model { get; private set; } = Optional<LateWorkDetails>.None();
 
     [ObservableProperty] string id = "";
     [ObservableProperty] string details = "";
@@ -85,8 +79,8 @@ public partial class LateWorkViewModel :
     {
         var service = ServiceHelper.GetService<TeacherAssessmentService>();
         var details = await service.GetLateAssessmentDetails(onError, model.id);
-        if(details.HasValue)
-            return Get(details.Value);
+        if(details is not null)
+            return Get(details);
         return new();
     }
 
@@ -94,7 +88,7 @@ public partial class LateWorkViewModel :
     {
         var vm = new LateWorkViewModel()
         {
-            Model = OptionalStruct<LateWorkDetails>.Some(model),
+            Model = Optional<LateWorkDetails>.Some(model),
             Id = model.id,
             Details = model.details,
             Marked = model.markedDates.FirstOrDefault(),
@@ -103,15 +97,15 @@ public partial class LateWorkViewModel :
             IsAssessment = model.isAssessment
         };
 
-        if(model.assessment.HasValue)
+        if(model.assessment is not null)
         {
-            vm.Assessment = AssessmentDetailsViewModel.Get(model.assessment.Value);
-            vm.Section = SectionViewModel.Get(model.assessment.Value.section);
+            vm.Assessment = AssessmentDetailsViewModel.Get(model.assessment);
+            vm.Section = SectionViewModel.Get(model.assessment.section);
         }
 
-        if(model.section.HasValue)
+        if(model.section is not null)
         {
-            vm.Section = SectionViewModel.Get(model.section.Value);
+            vm.Section = SectionViewModel.Get(model.section);
         }
 
         return vm;
@@ -201,8 +195,8 @@ public partial class StudentLateWorkCollectionViewModel :
                 false => await _service.GetLateWorkPattern(OnError.DefaultBehavior(this), lw.id)
             };
 
-            if(details.HasValue)
-                result.Add(LateWorkViewModel.Get(details.Value));
+            if(details is not null)
+                result.Add(LateWorkViewModel.Get(details));
         }
 
         LateWorkPatterns = [.. result.Where(lw => !lw.IsAssessment).OrderBy(lw => lw.Marked)];
@@ -211,7 +205,7 @@ public partial class StudentLateWorkCollectionViewModel :
         LateAssessments = [.. result.Where(lw => lw.IsAssessment).OrderBy(lw => lw.Marked)];
         HasAssessments = LateAssessments.Any();
         AssessmentHeight = LW_Header_Height + LateAssessments.Count * LA_Row_Height;
-        TotalLateWork = Model.lateWork.Length;
+        TotalLateWork = Model.lateWork.Count;
         OutstandingLateWork = Model.lateWork.Count(lw => !lw.isResolved);
 
 
@@ -435,7 +429,7 @@ public partial class CreateLateAssessmentViewModel :
     [ObservableProperty] ObservableCollection<UserViewModel> selectedStudents = [];
     [ObservableProperty] ObservableCollection<UserViewModel> notSelectedStudents = [];
 
-    public static implicit operator CreateLateAssessmentViewModel(AssessmentEditorViewModel assessment) => new CreateLateAssessmentViewModel(assessment);
+    public static implicit operator CreateLateAssessmentViewModel(AssessmentEditorViewModel assessment) => new(assessment);
 
     private CreateLateAssessmentViewModel()
     {

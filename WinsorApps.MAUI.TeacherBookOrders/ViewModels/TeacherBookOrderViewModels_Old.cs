@@ -42,7 +42,7 @@ public partial class TeacherBookOrderPageViewModel :
             .Where(sy => 
                 sy.id == _bookstore.CurrentBookOrderYear.id || 
                 _bookstore.MyOrders.Any(ord => ord.schoolYearId == sy.id))
-            .ToImmutableArray();
+            .ToList();
 
         years = [.. schoolYears.Select(sy => new BookOrderYearCollectionViewModel(sy))];
 
@@ -166,7 +166,7 @@ public partial class BookOrderViewModel :
 
     public async Task<List<RequestGroupViewModel>> GetGroups()
     {
-        List<RequestGroupViewModel> result = new();
+        List<RequestGroupViewModel> result = [];
 
         var groups = Books.Select(req => req.GroupId).Distinct();
         foreach (var groupId in groups)
@@ -176,14 +176,14 @@ public partial class BookOrderViewModel :
                     new(new TeacherBookRequestGroup("", "Not Grouped",
                     Books.Where(bk => bk.GroupId == groupId)
                          .Select(vm => (TeacherBookRequest)vm)
-                         .ToImmutableArray())));
+                         .ToList())));
 
             else
             {
                 var grp = await _bookstoreService
                     .GetGroupDetails(groupId, OnError.DefaultBehavior(this));
-                if (grp.HasValue)
-                    result.Add(new(grp.Value));
+                if (grp is not null)
+                    result.Add(new(grp));
             }
         }
 
@@ -209,7 +209,7 @@ public partial class BookOrderViewModel :
     {
         sectionId = order.protoSectionId;
         var registrar = ServiceHelper.GetService<RegistrarService>()!;
-        schoolYear = registrar.GetSchoolYear(order.schoolYearId).Reduce(new()).label;
+        schoolYear = registrar.GetSchoolYear(order.schoolYearId).Reduce(new("", "", [], default, default, default)).label;
         canEdit = order.schoolYearId == _bookstoreService.CurrentBookOrderYear.id;
         books = [.. order.books
             .Distinct()
@@ -225,7 +225,7 @@ public partial class BookOrderViewModel :
         model = order;
     }
 
-    private TeacherBookOrder model;
+    private readonly TeacherBookOrder model = null!;
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler? Deleted;
@@ -288,9 +288,9 @@ public partial class BookRequestViewModel :
         var grp = await bookstoreService
             .GetGroupDetails(GroupId, OnError.DefaultBehavior(this));
 
-        if (grp.HasValue)
+        if (grp is not null)
         {
-            GroupLabel = grp.Value.option;
+            GroupLabel = grp.option;
         }
     }
 
@@ -306,7 +306,7 @@ public partial class BookRequestViewModel :
         var result = await bookService
             .GetISBNDetails(Isbn, OnError.DefaultBehavior(this));
 
-        if (!result.HasValue)
+        if (result is null)
         {
             loggingService.LogMessage(
                 LocalLoggingService.LogLevel.Debug, 
@@ -314,7 +314,7 @@ public partial class BookRequestViewModel :
             return;
         }
 
-        Binding = result.Value.binding;
+        Binding = result.binding;
     }
 
     public BookRequestViewModel(TeacherBookRequest request, bool canEdit = true)
@@ -360,7 +360,7 @@ public partial class BookRequestEditorViewModel :
         groupingLabel = "All Required";
         canEdit = true;
         quantity = 0;
-        selectedIsbns = new();
+        selectedIsbns = [];
         fall = true;
         groupId = "";
         spring = false;
@@ -375,7 +375,7 @@ public partial class BookRequestEditorViewModel :
     public BookRequestEditorViewModel(BookDetail bookDetail, TeacherBookOrder order)
     {
         canEdit = order.schoolYearId == _bookstoreService.CurrentBookOrderYear.id;
-        groupId = order.books.Any() ? order.books.First().groupId : "";
+        groupId = order.books.Count != 0 ? order.books.First().groupId : "";
 
         groupingLabel = "All Required";
 
@@ -385,10 +385,10 @@ public partial class BookRequestEditorViewModel :
             groupTask.WhenCompleted(() =>
             {
                 var group = groupTask.Result;
-                if (!group.HasValue)
+                if (group is null)
                     return;
 
-                GroupingLabel = group.Value.option;
+                GroupingLabel = group.option;
             });
         }
 
@@ -397,7 +397,7 @@ public partial class BookRequestEditorViewModel :
         if (!order.books.Any(bk => bookDetail.isbns.Any(ent => ent.isbn == bk.isbn)))
         {
             quantity = 0;
-            selectedIsbns = new();
+            selectedIsbns = [];
             fall = true;
             spring = false;
             return;
@@ -452,7 +452,7 @@ public partial class BookRequestEditorViewModel :
             .IndexOf(GroupingLabel);
 
         GroupingLabel = _bookstoreService
-            .OrderOptions[(n + 1) % _bookstoreService.OrderOptions.Length].label;
+            .OrderOptions[(n + 1) % _bookstoreService.OrderOptions.Count].label;
     }
 
     [RelayCommand]
@@ -519,8 +519,8 @@ public partial class BookOrderCollectionViewModel :
     {
         TeacherBookstoreService bookstore = ServiceHelper.GetService<TeacherBookstoreService>();
 
-        if (schoolYear.HasValue)
-            bookOrders = [.. bookstore.MyOrders.Where(ord => ord.schoolYearId == schoolYear.Value.id).Select(order => new TeacherBookOrderDetail(
+        if (schoolYear is not null)
+            bookOrders = [.. bookstore.MyOrders.Where(ord => ord.schoolYearId == schoolYear.id).Select(order => new TeacherBookOrderDetail(
                 bookstore.MySections.First(sec => sec.id == order.protoSectionId)!,
                 order.books))
                 .Select(ord => new BookOrderViewModel(ord))];

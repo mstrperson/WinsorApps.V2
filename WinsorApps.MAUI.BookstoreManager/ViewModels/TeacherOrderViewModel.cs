@@ -21,7 +21,7 @@ public partial class TeacherOrderViewModel :
     private readonly BookstoreManagerService _managerService = ServiceHelper.GetService<BookstoreManagerService>();
 
     [ObservableProperty] SectionViewModel section = SectionViewModel.Empty;
-    [ObservableProperty] ImmutableArray<BookRequestViewModel> bookRequests = [];
+    [ObservableProperty] List<BookRequestViewModel> bookRequests = [];
 
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "";
@@ -42,7 +42,7 @@ public partial class TeacherOrderViewModel :
 
         await _managerService.CreateOrUpdateBookOrder(Section.Teacher.Id, Section.Id,
             new CreateTeacherBookOrderGroup(BookRequests.Select(req => 
-                new CreateTeacherBookRequest(req.Isbn.Isbn, req.Quantity, req.FallOrFullYear, req.SpringOnly)).ToImmutableArray()), OnError.DefaultBehavior(this));
+                new CreateTeacherBookRequest(req.Isbn.Isbn, req.Quantity, req.FallOrFullYear, req.SpringOnly)).ToList()), OnError.DefaultBehavior(this));
         Busy = false;
     }
 
@@ -58,7 +58,7 @@ public partial class TeacherOrderViewModel :
             vm = new()
             {
                 Section = SectionViewModel.Get(model.section),
-                BookRequests = model.books.Select(book => new BookRequestViewModel(book)).ToImmutableArray()
+                BookRequests = model.books.Select(book => new BookRequestViewModel(book)).ToList()
             };
             ViewModelCache.Add(vm);
         }
@@ -92,7 +92,7 @@ public partial class BookRequestOptionGroupViewModel :
 {
     [ObservableProperty] string groupId = "";
     [ObservableProperty] BookOrderOptionViewModel option = BookOrderOptionViewModel.Empty;
-    [ObservableProperty] ImmutableArray<BookRequestViewModel> requests = [];
+    [ObservableProperty] List<BookRequestViewModel> requests = [];
 
     public static ConcurrentBag<BookRequestOptionGroupViewModel> ViewModelCache { get; private set; } = [];
 
@@ -106,7 +106,7 @@ public partial class BookRequestOptionGroupViewModel :
             {
                 GroupId = model.id,
                 Option = BookOrderOptionViewModel.Get(model.option),
-                Requests = model.isbns.Select(req => new BookRequestViewModel(req)).ToImmutableArray()
+                Requests = model.isbns.Select(req => new BookRequestViewModel(req)).ToList()
             };
             ViewModelCache.Add(vm);
         }

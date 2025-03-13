@@ -11,18 +11,10 @@ using WinsorApps.Services.Helpdesk.Services;
 
 namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
 {
-    public partial class QuickCheckoutViewModel : ObservableObject, IErrorHandling
+    public partial class QuickCheckoutViewModel(CheqroomService cheqroom, LocalLoggingService logging) : ObservableObject, IErrorHandling
     {
-        private readonly CheqroomService _cheqroom;
-        private readonly LocalLoggingService _logging;
-
-        public QuickCheckoutViewModel(CheqroomService cheqroom, LocalLoggingService logging)
-        {
-            _cheqroom = cheqroom;
-            _logging = logging;
-        }
-
-
+        private readonly CheqroomService _cheqroom = cheqroom;
+        private readonly LocalLoggingService _logging = logging;
         [ObservableProperty] private string assetTag = "";
         [ObservableProperty] private UserSearchViewModel userSearch = new();
         [ObservableProperty] private CheckoutResultViewModel result = CheckoutResultViewModel.Empty;
@@ -51,7 +43,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
             _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Checking out {AssetTag} to {UserSearch.Selected.DisplayName}");
             var result = await _cheqroom.QuickCheckOutItem(AssetTag, UserSearch.Selected.Id, OnError.DefaultBehavior(this));
 
-            if (!string.IsNullOrEmpty(result._id))
+            if (!string.IsNullOrEmpty(result?._id))
             {
                 Result = new(result);
                 CheqroomCheckoutSearchResult sres = new(result._id, UserSearch.Selected.Model.Reduce(UserRecord.Empty), [..result.itemSummary.Split(',')], DateTime.Now, result.due, result.status, false);

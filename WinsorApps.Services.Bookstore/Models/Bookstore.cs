@@ -3,9 +3,9 @@ using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.Services.Bookstore.Models;
 
-public readonly record struct OrderStatus(string id, string label, string description);
+public record OrderStatus(string id, string label, string description);
 
-public readonly record struct OrderOption(string id, string label, string description)
+public record OrderOption(string id, string label, string description)
 {
 //    public static OrderOption? FromString(string label, TeacherBookstoreService bookstoreService)
 //        => bookstoreService.OrderOptions.FirstOrDefault(opt => opt.label == label);
@@ -19,7 +19,7 @@ public readonly record struct OrderOption(string id, string label, string descri
 /// <param name="schoolYearId">What School Year is this in</param>
 /// <param name="teacherId">UserId for the teacher of this section.</param>
 /// <param name="createdTimeStamp">When was this record created.</param>
-public readonly record struct ProtoSection(
+public record ProtoSection(
     string id,
     CourseRecord course,
     string schoolYearId,
@@ -37,7 +37,7 @@ public readonly record struct ProtoSection(
 /// <param name="fall">Order this book for the fall term</param>
 /// <param name="spring">Order this book for the spring term</param>
 /// <param name="status">where in the order process is this order</param>
-public readonly record struct TeacherBookRequest(
+public record TeacherBookRequest(
     string isbn,
     DateTime submitted,
     int quantity,
@@ -52,46 +52,49 @@ public readonly record struct TeacherBookRequest(
 /// <param name="groupId">ID to reference the group as a whole</param>
 /// <param name="option">Should the student purchase all of these versions, or only one, or is it optional all together.</param>
 /// <param name="requestedISBNs">Records for each ISBN in this group</param>
-public readonly record struct TeacherBookRequestGroup(
+public record TeacherBookRequestGroup(
     string groupId,
     string option,
-    ImmutableArray<TeacherBookRequest> requestedISBNs);
+    List<TeacherBookRequest> requestedISBNs);
 
 /// <summary>
 /// All the book orders for a particular section
 /// </summary>
 /// <param name="protoSectionId">ID of the section this is connected to.</param>
 /// <param name="books">Groups of Book orders.</param>
-public readonly record struct TeacherBookOrder(
+public record TeacherBookOrder(
     string protoSectionId,
     string schoolYearId,
     DateTime created,
-    ImmutableArray<TeacherBookRequest> books)
+    List<TeacherBookRequest> books)
 {
-    public int Quantity => books.Any() ? books.First().quantity : 0;
+    public int Quantity => books.Count != 0 ? books.First().quantity : 0;
     public bool Fall => books.Any(req => req.fall);
     public bool Spring => books.Any(req => req.spring);
 }
 
-public readonly record struct TeacherBookOrderDetail(
+public record TeacherBookOrderDetail(
     ProtoSection section,
-    ImmutableArray<TeacherBookRequest> books)
+    List<TeacherBookRequest> books)
 {
     public bool Fall => books.Any(req => req.fall);
     public bool Spring => books.Any(req => req.spring);
 
-    public override string ToString() => $"{section.course.displayName} [{books.Length} Books Selected]";
+    public override string ToString() => $"{section.course.displayName} [{books.Count} Books Selected]";
 
     public static implicit operator TeacherBookOrder(TeacherBookOrderDetail detail) => new(detail.section.id,
         detail.section.schoolYearId, detail.section.createdTimeStamp, detail.books);
 }
 
-public readonly record struct CreateOptionGroup(ImmutableArray<string> isbns, string optionId);
+public record CreateOptionGroup(List<string> isbns, string optionId);
 
-public readonly record struct TeacherBookOrderGroup(string id, string option, ImmutableArray<TeacherBookRequest> isbns);
+public record TeacherBookOrderGroup(string id, string option, List<TeacherBookRequest> isbns)
+{
+    public static TeacherBookOrderGroup Empty => new("", "", []);
+}
 
-public readonly record struct CreateTeacherBookOrder(
-    ImmutableArray<string> isbns,
+public record CreateTeacherBookOrder(
+    List<string> isbns,
     int quantity,
     bool fall,
     bool spring,
@@ -99,6 +102,6 @@ public readonly record struct CreateTeacherBookOrder(
 
 
 
-public readonly record struct CreateTeacherBookRequest(string isbn, int quantity, bool fall, bool spring);
-public readonly record struct CreateTeacherBookOrderGroup(ImmutableArray<CreateTeacherBookRequest> isbns, string optionId = "");
+public record CreateTeacherBookRequest(string isbn, int quantity, bool fall, bool spring);
+public record CreateTeacherBookOrderGroup(List<CreateTeacherBookRequest> isbns, string optionId = "");
 

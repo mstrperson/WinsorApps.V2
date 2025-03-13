@@ -10,7 +10,7 @@ namespace WinsorApps.Services.Bookstore.Services;
 
 public partial class BookstoreManagerService
 {
-    public ImmutableArray<StudentSectionBookOrder> StudentOrders { get; private set; } = [];
+    public List<StudentSectionBookOrder> StudentOrders { get; private set; } = [];
 
     public Dictionary<string, StudentSectionBookRequirements> StudentBookRequirementsBySection = [];
 
@@ -31,35 +31,35 @@ public partial class BookstoreManagerService
             selectedIsbns,
             onError: onError);
 
-        if (!result.HasValue)
+        if (result is null)
             return result;
 
-        StudentOrders = [.. StudentOrders.Except(StudentOrders.Where(ord => ord.sectionId == sectionId && ord.student.id == studentId)), result.Value];
+        StudentOrders = [.. StudentOrders.Except(StudentOrders.Where(ord => ord.sectionId == sectionId && ord.student.id == studentId)), result];
 
         return result;
     }
 
-    public Dictionary<string, ImmutableArray<StudentSectionBookRequirements>> RequiredBooksByStudent { get; private set; } = [];
+    public Dictionary<string, List<StudentSectionBookRequirements>> RequiredBooksByStudent { get; private set; } = [];
 
-    public async Task<ImmutableArray<StudentSectionBookRequirements>> GetStudentBookRequirements(string studentId, ErrorAction onError)
+    public async Task<List<StudentSectionBookRequirements>> GetStudentBookRequirements(string studentId, ErrorAction onError)
     {
-        if(RequiredBooksByStudent.TryGetValue(studentId, out ImmutableArray<StudentSectionBookRequirements> value)) 
-            return value;
+        if(RequiredBooksByStudent.TryGetValue(studentId, out var value)) 
+            return value ?? [];
 
         var result = await _api.SendAsync<StudentSemesterBookList?>(HttpMethod.Get,
-            $"api/book-orders/manager/students/{studentId}/book-list");
+            $"api/book-orders/manager/students/{studentId}/book-list", onError: onError);
 
-        if(result.HasValue)
+        if(result is not null)
         {
-            RequiredBooksByStudent.Add(studentId, result.Value.schedule);
+            RequiredBooksByStudent.Add(studentId, result.schedule);
         }
 
         return result?.schedule ?? [];
     }
 
-    public async Task<ImmutableArray<StudentSectionBookOrder>> GetStudentOrders(ErrorAction onError)
+    public async Task<List<StudentSectionBookOrder>> GetStudentOrders(ErrorAction onError)
     {
-        var result = await _api.SendAsync<ImmutableArray<StudentSectionBookOrder>?>(HttpMethod.Get,
+        var result = await _api.SendAsync<List<StudentSectionBookOrder>?>(HttpMethod.Get,
             "api/book-orders/manager/students/orders", onError: onError);
 
         StudentOrders = result ?? [];
@@ -67,13 +67,13 @@ public partial class BookstoreManagerService
         return StudentOrders;
     }
 
-    public async Task<ImmutableArray<StudentSectionBookOrder>> MarkCompletedOrders(string studentId, string[] selectedIsbns, ErrorAction onError)
+    public async Task<List<StudentSectionBookOrder>> MarkCompletedOrders(string studentId, string[] selectedIsbns, ErrorAction onError)
     {
-        var result = await _api.SendAsync<string[], ImmutableArray<StudentSectionBookOrder>?>(HttpMethod.Post,
+        var result = await _api.SendAsync<string[], List<StudentSectionBookOrder>?>(HttpMethod.Post,
             $"api/book-orders/manager/students/{studentId}/mark-completed", selectedIsbns, onError: onError);
-        if(result.HasValue)
+        if(result is not null)
         {
-            StudentOrders = [.. StudentOrders.Except(StudentOrders.Where(order => order.student.id == studentId)), .. result.Value];
+            StudentOrders = [.. StudentOrders.Except(StudentOrders.Where(order => order.student.id == studentId)), .. result];
         }
 
         return result ?? [];

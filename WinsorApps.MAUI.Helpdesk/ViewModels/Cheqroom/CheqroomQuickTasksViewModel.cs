@@ -7,36 +7,26 @@ using WinsorApps.Services.Helpdesk.Services;
 
 namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
 {
-    public partial class CheqroomQuickTasksViewModel : ObservableObject, IErrorHandling
+    public partial class CheqroomQuickTasksViewModel(CheqroomService cheqroom, QuickCheckoutViewModel quickCheckout, CheckoutSearchViewModel checkoutSearch) : ObservableObject, IErrorHandling
     {
-        private readonly CheqroomService _cheqroom;
+        private readonly CheqroomService _cheqroom = cheqroom;
 
         [ObservableProperty]
-        private QuickCheckoutViewModel quickCheckout;
+        private QuickCheckoutViewModel quickCheckout = quickCheckout;
 
         [ObservableProperty]
-        private CheckoutSearchViewModel checkoutSearch;
+        private CheckoutSearchViewModel checkoutSearch = checkoutSearch;
 
         [ObservableProperty]
-        private bool showCheckout;
+        private bool showCheckout = true;
 
         [ObservableProperty]
-        private bool showCheckin;
+        private bool showCheckin = false;
 
         [ObservableProperty]
-        private string toggleLabel;
+        private string toggleLabel = "Quick Checkout";
 
         public event EventHandler<ErrorRecord>? OnError;
-
-        public CheqroomQuickTasksViewModel(CheqroomService cheqroom, QuickCheckoutViewModel quickCheckout, CheckoutSearchViewModel checkoutSearch)
-        {
-            _cheqroom = cheqroom;
-            this.quickCheckout = quickCheckout;
-            this.checkoutSearch = checkoutSearch;
-            showCheckout = true;
-            showCheckin = false;
-            toggleLabel = "Quick Checkout";
-        }
 
         [RelayCommand]
         public async Task Reset()

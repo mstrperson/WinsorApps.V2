@@ -7,19 +7,20 @@ using static WinsorApps.Services.EventForms.Services.EventFormsService;
 
 namespace WinsorApps.Services.EventForms.Services;
 
-public class LocationService :
+public class LocationService(LocalLoggingService logging, ApiService api) :
     IAsyncInitService,
     ICacheService
 {
-    private readonly ApiService _api;
-    private readonly LocalLoggingService _logging;
+    private readonly ApiService _api = api;
+    private readonly LocalLoggingService _logging = logging;
 
-    public ImmutableArray<Location> OnCampusLocations { get; private set; } = [];
-    public ImmutableArray<Location> MyCustomLocations { get; private set; } = [];
+    public List<Location> OnCampusLocations { get; private set; } = [];
+    public List<Location> MyCustomLocations { get; private set; } = [];
 
-    public readonly record struct CacheStructure(ImmutableArray<Location> onCampus, ImmutableArray<Location> custom);
+    public record CacheStructure(List<Location> onCampus, List<Location> custom);
 
     public string CacheFileName => ".locations.cache";
+    public void ClearCache() { if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}"); }
     public async Task SaveCache()
     {
         var cache = new CacheStructure(OnCampusLocations, MyCustomLocations);
@@ -36,6 +37,7 @@ public class LocationService :
         {
             var json = File.ReadAllText($"{_logging.AppStoragePath}{CacheFileName}");
             var cache = JsonSerializer.Deserialize<CacheStructure>(json);
+            if(cache is null ) return false;
             OnCampusLocations = cache.onCampus;
             MyCustomLocations = cache.custom;
             return true;
@@ -46,18 +48,12 @@ public class LocationService :
         }
     }
 
-    public LocationService(LocalLoggingService logging, ApiService api)
-    {
-        _logging = logging;
-        _api = api;
-    }
-
     public async Task<Location?> CreateCustomLocation(string name, bool isPublic, ErrorAction onError)
     {
         var result = await _api.SendAsync<Location?>(HttpMethod.Post, $"api/events/location/custom?name={name}&isPublic={isPublic}", onError: onError);
-        if(result.HasValue)
+        if(result is not null)
         {
-            MyCustomLocations = MyCustomLocations.Add(result.Value);
+            MyCustomLocations.Add(result);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
             await SaveCache();
         }
@@ -67,6 +63,8 @@ public class LocationService :
     public async Task DeleteCustomLocation(string id, ErrorAction onError)
     {
         var location = MyCustomLocations.FirstOrDefault(loc => loc.id == id);
+
+
         bool success = true;
         await _api.SendAsync(HttpMethod.Delete, $"api/events/location/custom/{id}", 
             onError: err =>
@@ -75,9 +73,10 @@ public class LocationService :
                 success = false;
             });
 
-        if(success)
+        if (location is null) return;
+        if (success)
         {
-            MyCustomLocations = MyCustomLocations.Remove(location);
+            MyCustomLocations.Remove(location);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
             await SaveCache();
         }
@@ -99,14 +98,14 @@ public class LocationService :
 
         if (!LoadCache())
         {
-            var campusTask = _api.SendAsync<ImmutableArray<Location>?>(HttpMethod.Get, "api/events/location", onError: onError);
+            var campusTask = _api.SendAsync<List<Location>?>(HttpMethod.Get, "api/events/location", onError: onError);
             campusTask.WhenCompleted(() =>
             {
                 OnCampusLocations = campusTask.Result ?? [];
                 Progress += 0.5;
             });
 
-            var customTask = _api.SendAsync<ImmutableArray<Location>?>(HttpMethod.Get, "api/events/location/custom", onError: onError);
+            var customTask = _api.SendAsync<List<Location>?>(HttpMethod.Get, "api/events/location/custom", onError: onError);
             customTask.WhenCompleted(() =>
             {
                 MyCustomLocations = customTask.Result ?? [];
@@ -122,7 +121,7 @@ public class LocationService :
 
     public async Task Refresh(ErrorAction onError)
     {
-        MyCustomLocations = await _api.SendAsync<ImmutableArray<Location>?>(HttpMethod.Get, "api/events/location/custom", onError: onError) ?? [];
+        MyCustomLocations = await _api.SendAsync<List<Location>?>(HttpMethod.Get, "api/events/location/custom", onError: onError) ?? [];
         OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         await SaveCache();
     }

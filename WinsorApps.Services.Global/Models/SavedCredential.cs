@@ -16,7 +16,7 @@ public interface ISavedCredential
 
 }
 
-public readonly record struct Credential(
+public record Credential(
         string SavedEmail = "",
         string SavedPassword = "",
         string JWT = "",
@@ -33,41 +33,11 @@ public record SavedCredential(
         string JWT = "",
         string RefreshToken = "") : ISavedCredential
 {
-    private static SavedCredential _default = new();
+    private readonly static SavedCredential _default = new();
     public static ISavedCredential Default => _default;
-
-    private byte[]? _appGuid;
-
-    private string GuidFilePath => $"{LocalLoggingService.AppDataPath}{Path.DirectorySeparatorChar}.forms-app.guid";
-    private string GuidFilePathOld => $"{LocalLoggingService.AppDataPathOld}{Path.DirectorySeparatorChar}forms-app.guid";
-   
+       
     public bool SavedCredExists => File.Exists(CredFilePath);
 
-    private byte[] ApplicationGuid
-    {
-        get
-        {
-            if (_appGuid is null)
-            {
-                if (!File.Exists(GuidFilePath) && !File.Exists(GuidFilePathOld))
-                {
-                    byte[] guid = Guid.NewGuid().ToByteArray();
-                    File.WriteAllBytes(GuidFilePath, guid);
-                    _appGuid = guid;
-                }
-                
-                if(!File.Exists(GuidFilePath))
-                {
-                    File.Copy(GuidFilePathOld, GuidFilePath, true);
-                    File.Delete(GuidFilePathOld);
-                }
-                
-                _appGuid = File.ReadAllBytes(GuidFilePath);
-            }
-
-            return _appGuid;
-        }
-    }
 
     private string CredFilePath => $"{LocalLoggingService.AppDataPath}{Path.DirectorySeparatorChar}.login.cred";
     private string CredFilePathOld => $"{LocalLoggingService.AppDataPathOld}{Path.DirectorySeparatorChar}login.cred";

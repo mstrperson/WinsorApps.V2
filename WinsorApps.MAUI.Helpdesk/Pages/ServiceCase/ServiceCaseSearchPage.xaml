@@ -50,7 +50,7 @@
             <views:DeviceSearchMini
                 Grid.Row="2"
                 Grid.Column="1"
-                SelectedDevice="{Binding Filter.Device.Value}" />
+                SelectedDevice="{Binding Filter.Device}" />
             <CheckBox
                 Grid.Row="3"
                 Grid.Column="0" 
@@ -58,7 +58,7 @@
             <sviews:UserSearchBar 
                 Grid.Row="3"
                 Grid.Column="1" 
-                BindingContext="{Binding Filter.Owner.Value}" />
+                BindingContext="{Binding Filter.Owner}" />
             <CheckBox
                 Grid.Row="4"
                 Grid.Column="0" 
@@ -69,7 +69,7 @@
                 <Label 
                     Text="Start" />
                 <DatePicker
-                    Date="{Binding Filter.Start.Value}" 
+                    Date="{Binding Filter.Start}" 
                     IsVisible="{Binding Filter.Start.IsSelected}"/>
             </HorizontalStackLayout>
             <CheckBox
@@ -82,7 +82,7 @@
                 <Label 
                     Text="End" />
                 <DatePicker
-                    Date="{Binding Filter.End.Value}"
+                    Date="{Binding Filter.End}"
                     IsVisible="{Binding Filter.End.IsSelected}" />
             </HorizontalStackLayout>
             <Button

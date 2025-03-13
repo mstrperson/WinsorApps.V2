@@ -39,7 +39,6 @@
                                         Margin="50,0,0,5"/>
                                     <Button
                                         StyleClass="RefreshButton"
-                                        Clicked="RefreshButton_Clicked" 
                                         IsVisible="{Binding IsCurrent}"
                                         Margin="50,0,0,5"/>
                                 </HorizontalStackLayout>

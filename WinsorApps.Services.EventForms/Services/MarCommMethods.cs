@@ -1,4 +1,5 @@
 ﻿using WinsorApps.Services.EventForms.Models;
+using WinsorApps.Services.Global;
 
 namespace WinsorApps.Services.EventForms.Services;
 
@@ -11,11 +12,11 @@ public partial class EventFormsService
     {
         var result = await _api.SendAsync<NewMarCommRequest, MarCommRequest?>(HttpMethod.Post,
             $"api/events/{eventId}/marcom", newRequest, onError: onError);
-        if(result.HasValue)
+        if(result is not null)
         {
             var evt = EventsCache.First(e => e.id == eventId);
             var updated = evt with { hasMarCom = true };
-            EventsCache = EventsCache.Replace(evt, updated);
+            EventsCache.Replace(evt, updated);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
 
@@ -35,7 +36,7 @@ public partial class EventFormsService
         {
             var evt = EventsCache.First(e => e.id == eventId);
             var updated = evt with { hasMarCom = false };
-            EventsCache = EventsCache.Replace(evt, updated);
+            EventsCache.Replace(evt, updated);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
 

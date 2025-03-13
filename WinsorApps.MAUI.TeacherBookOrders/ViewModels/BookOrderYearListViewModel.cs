@@ -63,7 +63,7 @@ public partial class SchoolYearListItem :
     [ObservableProperty] ObservableCollection<ProtoSectionListItem> springSections = [];
     [ObservableProperty] ObservableCollection<SummerSectionListItem> summerSections = [];
 
-    public OptionalStruct<SchoolYear> Model { get; private set; } = OptionalStruct<SchoolYear>.None();
+    public Optional<SchoolYear> Model { get; private set; } = Optional<SchoolYear>.None();
 
     [RelayCommand]
     public void Select()
@@ -82,7 +82,7 @@ public partial class SchoolYearListItem :
         var vm = new SchoolYearListItem()
         {
             SchoolYear = model.label,
-            Model = OptionalStruct<SchoolYear>.Some(model),
+            Model = Optional<SchoolYear>.Some(model),
             FallSections = [.. 
                 allSections
                 .Where(section => section.fallOrFullYear)
@@ -96,7 +96,7 @@ public partial class SchoolYearListItem :
                 .Select(SummerSectionListItem.Get)]
         };
 
-        foreach (var section in vm.FallSections.Union(vm.SpringSections).ToImmutableArray())
+        foreach (var section in vm.FallSections.Union(vm.SpringSections).ToList())
         {
             section.Selected += (_, listItem) =>
             {
@@ -136,10 +136,10 @@ public partial class SummerSectionListItem :
 
     public event EventHandler<SummerSectionListItem>? Selected;
 
-    public OptionalStruct<SummerSection> Model { get; private set; } = OptionalStruct<SummerSection>.None();
+    public Optional<SummerSection> Model { get; private set; } = Optional<SummerSection>.None();
 
     public static implicit operator Optional<SummerSectionViewModel>(SummerSectionListItem listItem) =>
-        listItem.Model.MapObject(section =>
+        listItem.Model.Map(section =>
         {
             var vm = SummerSectionViewModel.Get(section);
             return vm;
@@ -156,7 +156,7 @@ public partial class SummerSectionListItem :
     public static SummerSectionListItem Get(SummerSection model) => new()
     {
         Course = CourseViewModel.Get(model.course),
-        Model = OptionalStruct<SummerSection>.Some(model)
+        Model = Optional<SummerSection>.Some(model)
     };
 }
 
@@ -170,10 +170,10 @@ public partial class ProtoSectionListItem :
     [ObservableProperty] bool fallOrFullYear;
 
     public event EventHandler<ProtoSectionListItem>? Selected;
-    public OptionalStruct<ProtoSection> Model { get; private set; } = OptionalStruct<ProtoSection>.None();
+    public Optional<ProtoSection> Model { get; private set; } = Optional<ProtoSection>.None();
 
     public static implicit operator Optional<ProtoSectionViewModel>(ProtoSectionListItem listItem) =>
-        listItem.Model.MapObject(section => 
+        listItem.Model.Map(section => 
         {
             var vm = ProtoSectionViewModel.Get(section);
             vm.LoadBookOrders().SafeFireAndForget(e => e.LogException());
@@ -192,7 +192,7 @@ public partial class ProtoSectionListItem :
         new()
         {
             Course = CourseViewModel.Get(model.course),
-            Model = OptionalStruct<ProtoSection>.Some(model),
+            Model = Optional<ProtoSection>.Some(model),
             FallOrFullYear = model.fallOrFullYear
         };
 }

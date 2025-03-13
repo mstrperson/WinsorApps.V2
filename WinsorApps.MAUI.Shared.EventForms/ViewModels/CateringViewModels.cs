@@ -19,7 +19,8 @@ public partial class CateringEventViewModel :
     IDefaultValueViewModel<CateringEventViewModel>,
     IEventSubFormViewModel<CateringEventViewModel, CateringEvent>,
     IBusyViewModel,
-    IErrorHandling
+    IErrorHandling,
+    IModelCarrier<CateringEventViewModel, CateringEvent>
 {
     private static readonly EventFormsService _eventsService = ServiceHelper.GetService<EventFormsService>();
     private static readonly CateringMenuService _cateringService = ServiceHelper.GetService<CateringMenuService>();
@@ -40,7 +41,7 @@ public partial class CateringEventViewModel :
     public event EventHandler? ReadyToContinue;
     public event EventHandler? Deleted;
 
-    public CateringEvent Model { get; private set; }
+    public Optional<CateringEvent> Model { get; private set; } = Optional<CateringEvent>.None();
 
     public CateringEventViewModel()
     {
@@ -54,7 +55,7 @@ public partial class CateringEventViewModel :
     public void Clear()
     {
         Id = "";
-        Model = default;
+        Model = Optional<CateringEvent>.None();
         ServersNeeded = false;
         CleanupRequired = false;
         LaborCost = 0;
@@ -74,7 +75,7 @@ public partial class CateringEventViewModel :
         ServersNeeded = model.servers;
         CleanupRequired = model.cleanup;
         LaborCost = model.laborCost;
-        Model = model;
+        Model = Optional<CateringEvent>.Some(model);
 
         BudgetCodeSearch.Select(BudgetCodeViewModel.Get(model.budgetCode));
         Menu.ClearSelections();
@@ -94,12 +95,12 @@ public partial class CateringEventViewModel :
                     .Where(sel => sel.IsSelected)
                     .Select(selection =>
                         new CateringMenuSelection(selection.Item.Id, selection.Quantity)))
-            .ToImmutableArray(),
+            .ToList(),
             BudgetCodeSearch.Selected.CodeId);
         var updated = await _eventsService.PostCateringDetails(Id, details, OnError.DefaultBehavior(this));
-        if(updated.HasValue)
+        if(updated is not null)
         {
-            Model = updated.Value;
+            Model = Optional<CateringEvent>.Some(updated);
             if(!template)
                 ReadyToContinue?.Invoke(this, EventArgs.Empty);
         }
@@ -117,6 +118,13 @@ public partial class CateringEventViewModel :
 
         Deleted?.Invoke(this, EventArgs.Empty);
     }
+
+    private CateringEventViewModel(CateringEvent model)
+    {
+        Load(model);
+    }
+
+    public static CateringEventViewModel Get(CateringEvent model) => new(model);
 }
 
 public partial class CateringMenuSelectionViewModel : 
@@ -277,7 +285,7 @@ public partial class CateringMenuCollectionViewModel :
     IErrorHandling
 {
     private readonly CateringMenuService _service;
-    [ObservableProperty] ImmutableArray<CateringMenuViewModel> menus = [];
+    [ObservableProperty] List<CateringMenuViewModel> menus = [];
     [ObservableProperty] CateringMenuViewModel selectedMenu = new();
     [ObservableProperty] bool showMenus = true;
 
@@ -285,10 +293,7 @@ public partial class CateringMenuCollectionViewModel :
     {
         get
         {
-            var menu = Menus.FirstOrDefault(m => m.Id == menuId);
-            if (menu is null)
-                throw new ArgumentException(nameof(menuId), $"{menuId} is not valid.");
-
+            var menu = Menus.FirstOrDefault(m => m.Id == menuId) ?? throw new ArgumentException(nameof(menuId), $"{menuId} is not valid.");
             return menu;
         }
     }
@@ -328,7 +333,7 @@ public partial class CateringMenuCollectionViewModel :
         var task = _service.WaitForInit(OnError.DefaultBehavior(this));
         task.WhenCompleted(() =>
         {
-            Menus = _service.AvailableCategories.Select(cat => CateringMenuViewModel.Create(cat)).ToImmutableArray();
+            Menus = _service.AvailableCategories.Select(cat => CateringMenuViewModel.Create(cat)).ToList();
             foreach (var menu in Menus)
             {
                 menu.OnError += (sender, e) => OnError?.Invoke(sender, e);
@@ -368,7 +373,7 @@ public partial class CateringMenuCollectionViewModel :
             vm.IsSelected = true;
         }
     }
-    public void LoadMenuSelections(ImmutableArray<DetailedCateringMenuSelection> selections)
+    public void LoadMenuSelections(List<DetailedCateringMenuSelection> selections)
     {
         ClearSelections();
         foreach (var sel in selections)
@@ -457,7 +462,7 @@ public partial class CateringMenuCategoryViewModel :
     [ObservableProperty] string name = "";
     [ObservableProperty] bool isDeleted;
     [ObservableProperty] bool fieldTripCategory;
-    [ObservableProperty] ImmutableArray<CateringMenuItemViewModel> items;
+    [ObservableProperty] List<CateringMenuItemViewModel> items;
 
     public CateringMenuCategoryViewModel()
     {
@@ -478,7 +483,7 @@ public partial class CateringMenuCategoryViewModel :
             FieldTripCategory = model.fieldTripCategory, 
             IsDeleted = model.isDeleted, 
             Name = model.name, 
-            Items = model.AvailableItems.Select(CateringMenuItemViewModel.Get).ToImmutableArray() 
+            Items = model.AvailableItems.Select(CateringMenuItemViewModel.Get).ToList() 
         };
 
         ViewModelCache.Add(vm);

@@ -44,9 +44,9 @@ namespace WinsorApps.MAUI.Shared.ViewModels
 
         private void Api_OnLoginSuccess(object? sender, EventArgs e)
         {
-            LoggedInUser = UserViewModel.Get(_api.UserInfo!.Value);
-            var roleTask = _api.UserInfo.Value.GetRoles(_api);
-            roleTask.WhenCompleted(() =>
+            LoggedInUser = UserViewModel.Get(_api.UserInfo!);
+            var roleTask = _api.UserInfo?.GetRoles(_api);
+            roleTask?.WhenCompleted(() =>
             {
                 var roles = roleTask.Result;
                 CanMasquerade = roles.Any(role => role.StartsWith("System Admin", StringComparison.InvariantCultureIgnoreCase));
@@ -78,7 +78,7 @@ namespace WinsorApps.MAUI.Shared.ViewModels
                 await _api.Masquerade(MasqSelection.Id, OnError.DefaultBehavior(this)))
             {
                 IsMasqing = true;
-                LoggedInUser = UserViewModel.Get(_api.UserInfo!.Value);
+                LoggedInUser = UserViewModel.Get(_api.UserInfo!);
                 foreach(var service in Services)
                 {
                     service.Refresh().SafeFireAndForget(e => e.LogException());
@@ -101,7 +101,7 @@ namespace WinsorApps.MAUI.Shared.ViewModels
             BusyMessage = $"Dropping Masqerade as {MasqSelection.DisplayName}";
             await _api.DropMasq();
             IsMasqing = false;
-            LoggedInUser = UserViewModel.Get(_api.UserInfo!.Value);
+            LoggedInUser = UserViewModel.Get(_api.UserInfo!);
             Busy = false;
         }
         

@@ -15,23 +15,24 @@ public partial class TheaterEventViewModel :
     IDefaultValueViewModel<TheaterEventViewModel>,
     IEventSubFormViewModel<TheaterEventViewModel, TheaterEvent>,
     IBusyViewModel,
-    IErrorHandling
+    IErrorHandling,
+    IModelCarrier<TheaterEventViewModel, TheaterEvent>
 {
     private readonly EventFormsService _eventService = ServiceHelper.GetService<EventFormsService>();
     private readonly TheaterService _theater = ServiceHelper.GetService<TheaterService>();
 
     [ObservableProperty] string id = "";
     [ObservableProperty] string notes = "";
-    [ObservableProperty] ImmutableArray<DocumentViewModel> documents = [];
+    [ObservableProperty] List<DocumentViewModel> documents = [];
     [ObservableProperty] TheaterMenuCollectionViewModel theaterMenu = new();
     [ObservableProperty] private bool hasLoaded;
 
-    public TheaterEvent Model { get; private set; }
+    public Optional<TheaterEvent> Model { get; private set; } = Optional<TheaterEvent>.None();
 
     public void Clear()
     {
         Id = "";
-        Model = default;
+        Model = Optional<TheaterEvent>.None();
         Notes = "";
         Documents = [];
     }
@@ -46,8 +47,8 @@ public partial class TheaterEventViewModel :
 
         Id = model.eventId;
         Notes = model.notes;
-        Model = model;
-        Documents = model.attachments.Select(doc => new DocumentViewModel(doc)).ToImmutableArray();
+        Model = Optional < TheaterEvent > .Some(model);
+        Documents = model.attachments.Select(doc => new DocumentViewModel(doc)).ToList();
         
         LoadSelections(model.items);
         HasLoaded = true;
@@ -58,7 +59,7 @@ public partial class TheaterEventViewModel :
         var task = _theater.WaitForInit(OnError.DefaultBehavior(this));
         task.WhenCompleted(() =>
         {
-            TheaterMenu = new() { Menus = _theater.AvailableMenus.Select(TheaterMenuViewModel.Get).ToImmutableArray() };
+            TheaterMenu = new() { Menus = _theater.AvailableMenus.Select(TheaterMenuViewModel.Get).ToList() };
         });
     }
 
@@ -95,16 +96,16 @@ public partial class TheaterEventViewModel :
                   menu => menu.Items
                       .Where(it => it.IsSelected)
                       .Select(it => it.Id))
-              .ToImmutableArray()
+              .ToList()
         );
 
     [RelayCommand]
     public async Task Continue(bool template = false)
     {
         var result = await _eventService.PostTheaterDetails(Id, this, OnError.DefaultBehavior(this));
-        if(result.HasValue)
+        if(result is not null)
         {
-            Model = result.Value;
+            Model = Optional < TheaterEvent > .Some(result);
             if(!template)
                 ReadyToContinue?.Invoke(this, EventArgs.Empty);
         }
@@ -120,12 +121,15 @@ public partial class TheaterEventViewModel :
         }
     }
 
+    private TheaterEventViewModel(TheaterEvent model) { Load(model); }
+
+    public static TheaterEventViewModel Get(TheaterEvent model) => new(model);
 }
 
 public partial class TheaterMenuCollectionViewModel :
     ObservableObject
 {
-    [ObservableProperty] ImmutableArray<TheaterMenuViewModel> menus = [];
+    [ObservableProperty] List<TheaterMenuViewModel> menus = [];
 
     public TheaterMenuViewModel this[string id] => Menus.First(menu => menu.Id == id);
 }
@@ -137,7 +141,7 @@ public partial class TheaterMenuViewModel :
 {
     [ObservableProperty] string id = "";
     [ObservableProperty] string name = "";
-    [ObservableProperty] ImmutableArray<TheaterMenuItemViewModel> items = [];
+    [ObservableProperty] List<TheaterMenuItemViewModel> items = [];
     [ObservableProperty] bool isDeleted;
     [ObservableProperty] bool isSelected;
 
@@ -158,7 +162,7 @@ public partial class TheaterMenuViewModel :
             Id = model.id,
             Name = model.name,
             IsDeleted = model.deleted,
-            Items = model.items.Select(TheaterMenuItemViewModel.Get).ToImmutableArray()
+            Items = model.items.Select(TheaterMenuItemViewModel.Get).ToList()
         };
         ViewModelCache.Add(vm);
         return vm.Clone(); 

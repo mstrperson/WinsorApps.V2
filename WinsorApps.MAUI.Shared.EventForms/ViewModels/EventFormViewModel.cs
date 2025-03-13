@@ -137,7 +137,7 @@ public partial class EventFormViewModel :
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "Working";
 
-    public OptionalStruct<EventFormBase> Model { get; private set; } = OptionalStruct<EventFormBase>.None();
+    public Optional<EventFormBase> Model { get; private set; } = Optional<EventFormBase>.None();
 
     public EventFormViewModel()
     {
@@ -238,7 +238,7 @@ public partial class EventFormViewModel :
         var download = await _service.DownloadPdf(Id, OnError.DefaultBehavior(this));
         if(download.Length > 0)
         {
-            using MemoryStream ms = new MemoryStream(download);
+            using MemoryStream ms = new(download);
             var result = await FileSaver.SaveAsync(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), $"{Summary}.pdf", ms);
             _logging.LogMessage(LocalLoggingService.LogLevel.Debug,
                 $"Downloaded PDF for {Summary}.",
@@ -261,8 +261,8 @@ public partial class EventFormViewModel :
             DateOnly.FromDateTime(vm.PreapprovalDate),
             vm.AttendeeCount,
             null,
-            vm.SelectedLocations.Select(loc => loc.Id).ToImmutableArray(),
-            vm.SelectedCustomLocations.Select(loc => loc.Id).ToImmutableArray()
+            vm.SelectedLocations.Select(loc => loc.Id).ToList(),
+            vm.SelectedCustomLocations.Select(loc => loc.Id).ToList()
         );
 
     [RelayCommand]
@@ -329,18 +329,18 @@ public partial class EventFormViewModel :
         Busy = true;
 
         var result = await _service.StartNewForm(this, OnError.DefaultBehavior(this));
-        if(result.HasValue)
+        if(result is not null)
         {
-            Model = OptionalStruct<EventFormBase>.Some(result.Value);
+            Model = Optional<EventFormBase>.Some(result);
             CanEditBase = true;
             CanEditSubForms = true;
             IsCreating = true;
             IsNew = false;
-            Id = result.Value.id;
-            IsFieldTrip = result.Value.type.StartsWith("Field", StringComparison.InvariantCultureIgnoreCase);
-            StatusSelection.Select(result.Value.status);
-            Attachments = new(result.Value);
-            Type = EventTypeViewModel.Get(result.Value.type);
+            Id = result.id;
+            IsFieldTrip = result.type.StartsWith("Field", StringComparison.InvariantCultureIgnoreCase);
+            StatusSelection.Select(result.status);
+            Attachments = new(result);
+            Type = EventTypeViewModel.Get(result.type);
             
             if (Type == "Field Trip")
             {
@@ -363,21 +363,21 @@ public partial class EventFormViewModel :
             {
                 Selected = Leader.Clone(),
                 IsSelected = true
-            }
-        };
-        clone.PreapprovalDate = DateTime.Today;
-        clone.AttendeeCount = AttendeeCount;
-        clone.Creator = Creator.Clone();
-        clone.StartTime = StartTime;
-        clone.EndTime = EndTime;
+            },
+            PreapprovalDate = DateTime.Today,
+            AttendeeCount = AttendeeCount,
+            Creator = Creator.Clone(),
+            StartTime = StartTime,
+            EndTime = EndTime,
 
-        clone.IsSelected = false;
-        clone.Id = "";
-        clone.IsNew = true;
-        clone.IsCreating = false;
-        clone.IsUpdating = false;
-        clone.CanEditBase = true;
-        clone.CanEditSubForms = false;
+            IsSelected = false,
+            Id = "",
+            IsNew = true,
+            IsCreating = false,
+            IsUpdating = false,
+            CanEditBase = true,
+            CanEditSubForms = false
+        };
         clone.Catering.Id = "";
         clone.Theater.Id = "";
         clone.Tech.Id = "";
@@ -410,9 +410,9 @@ public partial class EventFormViewModel :
         if (Model.Reduce(EventFormBase.Empty).hasCatering)
         {
             var stuff = await _service.GetCateringEvent(Id, OnError.DefaultBehavior(this));
-            if (stuff.HasValue)
+            if (stuff is not null)
             {
-                clone.Catering.Load(stuff.Value);
+                clone.Catering.Load(stuff);
                 clone.Catering.Id = clone.Id;
                 await clone.Catering.Continue(true);
             }
@@ -422,9 +422,9 @@ public partial class EventFormViewModel :
         if (Model.Reduce(EventFormBase.Empty).hasFacilitiesInfo)
         {
             var stuff = await _service.GetFacilitiesEvent(Id, OnError.DefaultBehavior(this));
-            if (stuff.HasValue)
+            if (stuff is not null)
             {
-                clone.Facilites.Load(stuff.Value);
+                clone.Facilites.Load(stuff);
                 clone.Facilites.Id = clone.Id;
                 await clone.Facilites.Continue(true);
             }
@@ -433,9 +433,9 @@ public partial class EventFormViewModel :
         if (Model.Reduce(EventFormBase.Empty).hasTechRequest)
         {
             var stuff = await _service.GetTechDetails(Id, OnError.DefaultBehavior(this));
-            if (stuff.HasValue)
+            if (stuff is not null)
             {
-                clone.Tech.Load(stuff.Value);
+                clone.Tech.Load(stuff);
                 clone.Tech.Id = clone.Id;
                 await clone.Tech.Continue(true);
             }
@@ -444,9 +444,9 @@ public partial class EventFormViewModel :
         if (Model.Reduce(EventFormBase.Empty).hasTheaterRequest)
         {
             var stuff = await _service.GetTheaterDetails(Id, OnError.DefaultBehavior(this));
-            if (stuff.HasValue)
+            if (stuff is not null)
             {
-                clone.Theater.Load(stuff.Value);
+                clone.Theater.Load(stuff);
                 clone.Theater.Id = clone.Id;
                 await clone.Theater.Continue(true);
             }
@@ -455,9 +455,9 @@ public partial class EventFormViewModel :
         if (Model.Reduce(EventFormBase.Empty).hasMarCom)
         {
             var stuff = await _service.GetMarCommRequest(Id, OnError.DefaultBehavior(this));
-            if (stuff.HasValue)
+            if (stuff is not null)
             {
-                clone.MarComm.Load(stuff.Value);
+                clone.MarComm.Load(stuff);
                 clone.MarComm.Id = clone.Id;
                 await clone.MarComm.Continue(true);
             }
@@ -466,9 +466,9 @@ public partial class EventFormViewModel :
         if (Model.Reduce(EventFormBase.Empty).hasFieldTripInfo)
         {
             var stuff = await _service.GetFieldTripDetails(Id, OnError.DefaultBehavior(this));
-            if (stuff.HasValue)
+            if (stuff is not null)
             {
-                clone.FieldTrip.Load(stuff.Value);
+                clone.FieldTrip.Load(stuff);
                 clone.FieldTrip.Id = clone.Id;
                 await clone.FieldTrip.Continue(true);
             }
@@ -489,10 +489,10 @@ public partial class EventFormViewModel :
             return;
         Busy = true;
         var result = await _service.UpdateEvent(Id, this, OnError.DefaultBehavior(this));
-        if(result.HasValue)
+        if(result is not null)
         {
-            Model = OptionalStruct<EventFormBase>.Some(result.Value);
-            StatusSelection.Select(result.Value.status);
+            Model = Optional<EventFormBase>.Some(result);
+            StatusSelection.Select(result.status);
             CanEditBase = true;
             CanEditSubForms = true;
             IsUpdating = true;
@@ -510,25 +510,25 @@ public partial class EventFormViewModel :
 
         var updatedBase = await _service.UpdateEvent(Id, this, OnError.DefaultBehavior(this));
 
-        if(!updatedBase.HasValue)
+        if(updatedBase is null)
         {
             Busy = false;
             _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Failed to update event {Summary} when attempting to complete submission");
             return;
         }
 
-        Model = OptionalStruct<EventFormBase>.Some(updatedBase.Value);
+        Model = Optional<EventFormBase>.Some(updatedBase);
 
         var result = await _service.CompleteSubmission(Id, OnError.DefaultBehavior(this));
-        if(result.HasValue)
+        if(result is not null)
         {
-            Model = OptionalStruct<EventFormBase>.Some(result.Value);
+            Model = Optional<EventFormBase>.Some(result);
             CanEditBase = false;
             CanEditSubForms = false;
             CanEditCatering = false;
             IsNew = false;
-            IsFieldTrip = result.Value.type.Contains("Field", StringComparison.InvariantCultureIgnoreCase);
-            StatusSelection.Select(result.Value.status);
+            IsFieldTrip = result.type.Contains("Field", StringComparison.InvariantCultureIgnoreCase);
+            StatusSelection.Select(result.status);
             Submitted?.Invoke(this, EventArgs.Empty);
         }
         Busy = false;
@@ -544,25 +544,25 @@ public partial class EventFormViewModel :
 
         var updatedBase = await _service.UpdateEvent(Id, this, OnError.DefaultBehavior(this));
 
-        if (!updatedBase.HasValue)
+        if (updatedBase is null)
         {
             Busy = false;
             _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Failed to update event {Summary} when attempting to complete submission");
             return;
         }
 
-        Model = OptionalStruct<EventFormBase>.Some(updatedBase.Value);
+        Model = Optional<EventFormBase>.Some(updatedBase);
 
         var result = await _service.CompleteUpdate(Id, OnError.DefaultBehavior(this));
-        if (result.HasValue)
+        if (result is not null)
         {
-            Model = OptionalStruct<EventFormBase>.Some(result.Value);
+            Model = Optional<EventFormBase>.Some(result);
             CanEditBase = false;
             CanEditSubForms = false;
             CanEditCatering = false;
             IsNew = false;
-            IsFieldTrip = result.Value.type.Contains("Field", StringComparison.InvariantCultureIgnoreCase);
-            StatusSelection.Select(result.Value.status);
+            IsFieldTrip = result.type.Contains("Field", StringComparison.InvariantCultureIgnoreCase);
+            StatusSelection.Select(result.status);
         }
         Busy = false;
         Submitted?.Invoke(this, EventArgs.Empty);
@@ -629,17 +629,17 @@ public partial class EventFormViewModel :
     public async Task LoadFacilities()
     {
         Busy = true;
-        if (string.IsNullOrEmpty(Facilites.Model.id) && !Facilites.HasLoaded)
+        if (string.IsNullOrEmpty(Facilites.Model.Reduce(FacilitiesEvent.Empty).id) && !Facilites.HasLoaded)
         {
             var facilities = await _service.GetFacilitiesEvent(Id, OnError.DefaultBehavior(this));
-            if (!facilities.HasValue)
+            if (facilities is null)
             {
                 Facilites.Clear();
                 HasFacilities = false;
                 Busy = false;
                 return;
             }
-            Facilites.Load(facilities.Value);
+            Facilites.Load(facilities);
             HasFacilities = true;
         }
         Busy = false;
@@ -650,10 +650,10 @@ public partial class EventFormViewModel :
     public async Task LoadTech()
     {
         Busy = true;
-        if (string.IsNullOrEmpty(Tech.Model.id) && !Tech.HasLoaded)
+        if (string.IsNullOrEmpty(Tech.Model.Reduce(TechEvent.Empty).id) && !Tech.HasLoaded)
         {
             var tech = await _service.GetTechDetails(Id, OnError.DefaultBehavior(this));
-            if (!tech.HasValue)
+            if (tech is null)
             {
                 Tech.Clear();
                 HasTech = false;
@@ -661,7 +661,7 @@ public partial class EventFormViewModel :
                 return;
             }
 
-            Tech.Load(tech.Value);
+            Tech.Load(tech);
             HasTech = true;
         }
         Busy = false;
@@ -673,10 +673,10 @@ public partial class EventFormViewModel :
     public async Task LoadCatering()
     {
         Busy = true;
-        if (string.IsNullOrEmpty(Catering.Model.id) && !Catering.HasLoaded)
+        if (string.IsNullOrEmpty(Catering.Model.Reduce(CateringEvent.Empty).id) && !Catering.HasLoaded)
         {
             var sub = await _service.GetCateringEvent(Id, OnError.DefaultBehavior(this));
-            if (!sub.HasValue)
+            if (sub is null)
             {
                 Catering.Clear();
                 HasCatering = false;
@@ -684,7 +684,7 @@ public partial class EventFormViewModel :
                 return;
             }
 
-            Catering.Load(sub.Value);
+            Catering.Load(sub);
             HasCatering = true;
         }
         Busy = false;
@@ -696,10 +696,10 @@ public partial class EventFormViewModel :
     public async Task LoadTheater()
     {
         Busy = true;
-        if (string.IsNullOrEmpty(Theater.Model.eventId) && !Theater.HasLoaded)
+        if (string.IsNullOrEmpty(Theater.Model.Reduce(TheaterEvent.Empty).eventId) && !Theater.HasLoaded)
         {
             var sub = await _service.GetTheaterDetails(Id, OnError.DefaultBehavior(this));
-            if (!sub.HasValue)
+            if (sub is null)
             {
                 Theater.Clear();
                 HasTheater = false;
@@ -707,7 +707,7 @@ public partial class EventFormViewModel :
                 return;
             }
 
-            Theater.Load(sub.Value);
+            Theater.Load(sub);
             HasTheater = true;
         }
         Busy = false;
@@ -719,10 +719,10 @@ public partial class EventFormViewModel :
     {
         Busy = true;
 
-        if (string.IsNullOrEmpty(FieldTrip.Model.eventId) && !FieldTrip.HasLoaded && Model.Reduce(EventFormBase.Empty).hasFieldTripInfo)
+        if (string.IsNullOrEmpty(FieldTrip.Model.Reduce(FieldTripDetails.Empty).eventId) && !FieldTrip.HasLoaded && Model.Reduce(EventFormBase.Empty).hasFieldTripInfo)
         { 
             var sub = await _service.GetFieldTripDetails(Id, OnError.DefaultBehavior(this));
-            if (!sub.HasValue)
+            if (sub is null)
             {
                 FieldTrip.Clear();
                 IsFieldTrip = false;
@@ -730,7 +730,7 @@ public partial class EventFormViewModel :
                 return;
             }
 
-            FieldTrip.Load(sub.Value);
+            FieldTrip.Load(sub);
             IsFieldTrip = true;
         }
 
@@ -742,10 +742,10 @@ public partial class EventFormViewModel :
     public async Task LoadMarComm()
     {
         Busy = true;
-        if (string.IsNullOrEmpty(MarComm.Model.eventId) && !MarComm.HasLoaded)
+        if (string.IsNullOrEmpty(MarComm.Model.Reduce(MarCommRequest.Empty).eventId) && !MarComm.HasLoaded)
         {
             var sub = await _service.GetMarCommRequest(Id, OnError.DefaultBehavior(this));
-            if (!sub.HasValue)
+            if (sub is null)
             {
                 MarComm.Clear();
                 HasMarComm = false;
@@ -753,7 +753,7 @@ public partial class EventFormViewModel :
                 return;
             }
 
-            MarComm.Load(sub.Value);
+            MarComm.Load(sub);
             HasMarComm = true;
         }
 
@@ -770,7 +770,7 @@ public partial class EventFormViewModel :
 
     public static EventFormViewModel Get(EventFormBase model)
     {
-        var vm = ViewModelCache.FirstOrDefault(evt => evt.Model.Map(e => e.id == evt.Id).Reduce(false));
+        var vm = ViewModelCache.FirstOrDefault(evt => evt.Model.MapStruct(e => e.id == evt.Id).Reduce(false));
         if (vm is not null)
             return vm.Clone();
 
@@ -799,7 +799,7 @@ public partial class EventFormViewModel :
             IsCreating = model.status.Equals("creating", StringComparison.InvariantCultureIgnoreCase),
             IsUpdating = model.status.Equals("updating", StringComparison.InvariantCultureIgnoreCase),
             CanEditCatering = model.start > DateTime.Today.AddDays(14),
-            Model = OptionalStruct<EventFormBase>.Some(model),
+            Model = Optional<EventFormBase>.Some(model),
             UserIsAdmin = IsAdmin,
             UserIsRegistrar = IsRegistrar,
             IsPending = model.status == ApprovalStatusLabel.Pending,
@@ -831,7 +831,7 @@ public partial class EventFormViewModel :
                 vm.SelectedCustomLocations.Remove(location);
         }
 
-        if (model.attachments.HasValue)
+        if (model.attachments is not null)
         {
             vm.Attachments = new(model);
             vm.Attachments.OnError += (sender, e) => vm.OnError?.Invoke(sender, e);

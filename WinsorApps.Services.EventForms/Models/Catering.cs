@@ -1,23 +1,30 @@
 ﻿using System.Collections.Immutable;
 
 namespace WinsorApps.Services.EventForms.Models;
-public readonly record struct CateringMenuItem(string id, string name, double pricePerPerson, string category, bool isDeleted, bool fieldTripItem, int ordinal);
-public readonly record struct CateringMenuCategory(string id, string name, bool isDeleted, bool fieldTripCategory, ImmutableArray<CateringMenuItem> items)
+public record CateringMenuItem(string id, string name, double pricePerPerson, string category, bool isDeleted, bool fieldTripItem, int ordinal);
+public record CateringMenuCategory(string id, string name, bool isDeleted, bool fieldTripCategory, List<CateringMenuItem> items)
 {
-    public ImmutableArray<CateringMenuItem> AvailableItems => [.. items.Where(it => !it.isDeleted)];
-    public ImmutableArray<CateringMenuItem> FieldTripAvailableItems => [.. AvailableItems.Where(it => it.fieldTripItem)];
+    public List<CateringMenuItem> AvailableItems => [.. items.Where(it => !it.isDeleted)];
+    public List<CateringMenuItem> FieldTripAvailableItems => [.. AvailableItems.Where(it => it.fieldTripItem)];
 }
 
-public readonly record struct CateringMenuSelection(string itemId, int quantity);
+public record CateringMenuSelection(string itemId, int quantity);
 
-public readonly record struct DetailedCateringMenuSelection(CateringMenuItem item, int quantity, double cost);
+public record DetailedCateringMenuSelection(CateringMenuItem item, int quantity, double cost);
 
-public readonly record struct NewCateringEvent(bool servers, bool cleanup,
-    ImmutableArray<CateringMenuSelection> selectedItemIds, string budgetCodeId);
+public record NewCateringEvent(bool servers, bool cleanup,
+    List<CateringMenuSelection> selectedItemIds, string budgetCodeId);
 
-public readonly record struct CateringEvent(string id, bool servers, bool cleanup, double laborCost,
-    ImmutableArray<DetailedCateringMenuSelection> menuSelections, BudgetCode budgetCode, double cost);
+public record CateringEvent(string id, bool servers, bool cleanup, double laborCost,
+    List<DetailedCateringMenuSelection> menuSelections, BudgetCode budgetCode, double cost)
+{
+    public static readonly CateringEvent Empty = new("", false, false, 0, [], BudgetCode.None, 0);
+}
 
-public readonly record struct BudgetCode(string accountNumber, string name, string userId, string codeId);
 
-public readonly record struct NewBudgetCode(string accountNumber, string name);
+public record BudgetCode(string accountNumber, string name, string userId, string codeId)
+{
+    public static readonly BudgetCode None = new("", "None", "", "");
+}
+
+public record NewBudgetCode(string accountNumber, string name);

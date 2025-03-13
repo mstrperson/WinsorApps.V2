@@ -4,8 +4,8 @@ using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.Services.Global.Models;
 
-public readonly record struct BlockMeetingTime(BlockRecord block, DateTime start, DateTime end);
-public readonly record struct FreeBlockCollection(ImmutableArray<BlockMeetingTime> freeBlocks, DateRange inRange);
+public record BlockMeetingTime(BlockRecord block, DateTime start, DateTime end);
+public record FreeBlockCollection(List<BlockMeetingTime> freeBlocks, DateRange inRange);
 
 /// <summary>
 /// An entry in your schedule of any kind.
@@ -15,7 +15,7 @@ public readonly record struct FreeBlockCollection(ImmutableArray<BlockMeetingTim
 /// <param name="type">what kind of thing is this? [academic, advisory, activity]</param>
 /// <param name="block">what block does this meet in (if applicable)</param>
 /// <param name="room">what room does it meet in</param>
-public readonly record struct ScheduleEntry(string id, string name, string type, string block, string room);
+public record ScheduleEntry(string id, string name, string type, string block, string room);
 
 /// <summary>
 /// details only relevant to students.
@@ -23,9 +23,9 @@ public readonly record struct ScheduleEntry(string id, string name, string type,
 /// <param name="gradYear">What year do they graduate</param>
 /// <param name="className">What is their current class</param>
 /// <param name="advisor">Who is their advisor (full contact details)</param>
-public readonly record struct StudentInfoRecord(int gradYear, string className, AdvisorRecord? advisor = null);
+public record StudentInfoRecord(int gradYear, string className, AdvisorRecord? advisor = null);
 
-public readonly record struct AdvisorRecord(string id, int blackbaudId, string firstName, string nickname, string lastName, string email)
+public record AdvisorRecord(string id, int blackbaudId, string firstName, string nickname, string lastName, string email)
 {
     public override string ToString() => string.IsNullOrWhiteSpace(nickname) || nickname == firstName ?
             $"{firstName} {lastName}" : $"{nickname} {lastName}";
@@ -46,13 +46,13 @@ public readonly record struct AdvisorRecord(string id, int blackbaudId, string f
 /// <param name="lastName">Family Name</param>
 /// <param name="email">Email address used for logging in and communication.</param>
 /// <param name="studentInfo"></param>
-public readonly record struct UserRecord(string id = "", int blackbaudId = -1, string firstName = "", 
+public record UserRecord(string id = "", int blackbaudId = -1, string firstName = "", 
     string nickname = "", string lastName = "", string email = "",
     StudentInfoRecord? studentInfo = null, bool hasLogin = false, DocumentHeader? photo = null)
 {
     public static readonly UserRecord Empty = new();
-    internal readonly bool requiresYearDistinction { get; } = false;
-    internal readonly bool requiresNameDistinction { get; } = false;
+    internal bool requiresYearDistinction { get; } = false;
+    internal bool requiresNameDistinction { get; } = false;
     public override string ToString()
     {
         var name = string.IsNullOrWhiteSpace(nickname) || nickname == firstName ?
@@ -60,14 +60,14 @@ public readonly record struct UserRecord(string id = "", int blackbaudId = -1, s
 
         if (studentInfo is not null)
         {
-            name += $" [{studentInfo.Value.className}]";
+            name += $" [{studentInfo.className}]";
         }
         return name;
     }
 
-    public async Task<ImmutableArray<string>> GetRoles(ApiService api) => await api.SendAsync<ImmutableArray<string>>(HttpMethod.Get, "api/users/self/roles");
+    public async Task<List<string>> GetRoles(ApiService api) => await api.SendAsync<List<string>>(HttpMethod.Get, "api/users/self/roles") ?? [];
 }
-public readonly record struct StudentRecordShort(
+public record StudentRecordShort(
     string id, 
     string displayName, 
     string email, 
@@ -101,7 +101,7 @@ public readonly record struct StudentRecordShort(
 /// <param name="name">Display name (First Semester, Second Semester, etc.)</param>
 /// <param name="start">term begin date</param>
 /// <param name="end">term end date</param>
-public readonly record struct TermRecord(string termId, string schoolYear, string name, DateTime start, DateTime end)
+public record TermRecord(string termId, string schoolYear, string name, DateTime start, DateTime end)
 {
     public bool IsCurrent() => start <= DateTime.Today && end >= DateTime.Today;
 }
@@ -114,7 +114,7 @@ public readonly record struct TermRecord(string termId, string schoolYear, strin
 /// <param name="displayName">Course Name</param>
 /// <param name="lengthInTerms">1 semester, or full year</param>
 /// <param name="department">What department is this course listed in.</param>
-public readonly record struct CourseRecord(string courseId, string courseCode, string displayName, int lengthInTerms, string department)
+public record CourseRecord(string courseId, string courseCode, string displayName, int lengthInTerms, string department)
 {
     public static readonly CourseRecord Empty = new("", "", "", 0, "");
     public override string ToString() => this.displayName;
@@ -131,8 +131,8 @@ public readonly record struct CourseRecord(string courseId, string courseCode, s
 /// <param name="term">What term does this section belong to. <see cref="TermRecord"/></param>
 /// <param name="room">Where does it meet. <see cref="RoomRecord"/></param>
 /// <param name="block">What block does it meet in (if it is scheduled)<see cref="BlockRecord"/></param>
-public readonly record struct SectionDetailRecord(string sectionId, CourseRecord course, UserRecord primaryTeacher,
-    ImmutableArray<AdvisorRecord> teachers, ImmutableArray<StudentRecordShort> students,
+public record SectionDetailRecord(string sectionId, CourseRecord course, UserRecord primaryTeacher,
+    List<AdvisorRecord> teachers, List<StudentRecordShort> students,
     TermRecord term, RoomRecord? room, BlockRecord? block, bool isCurrent)
 {
     public string displayName
@@ -140,7 +140,7 @@ public readonly record struct SectionDetailRecord(string sectionId, CourseRecord
         get
         {
             var dn = course.displayName;
-            if (this.block.HasValue)
+            if (this.block is not null)
                 dn += $" [{block?.name}]";
 
             return dn;
@@ -166,15 +166,15 @@ public readonly record struct SectionDetailRecord(string sectionId, CourseRecord
 /// <param name="room">room name</param>
 /// <param name="block">block name</param>
 /// <param name="displayName">Section Display (as seen on your Google Calendar)</param>
-public readonly record struct SectionRecord(string sectionId, string courseId, string? primaryTeacherId,
-    ImmutableArray<AdvisorRecord> teachers, ImmutableArray<StudentRecordShort> students, string termId,
+public record SectionRecord(string sectionId, string courseId, string? primaryTeacherId,
+    List<AdvisorRecord> teachers, List<StudentRecordShort> students, string termId,
     string room, string block, string displayName, bool isCurrent)
 {
     public static readonly SectionRecord Empty = new("", "", "", [], [], "", "", "", "", false);
 }
 
-public readonly record struct SectionMinimalRecord(string sectionId, string courseId, string? primaryTeacherId,
-    ImmutableArray<string> teachers, ImmutableArray<string> students, string termId,
+public record SectionMinimalRecord(string sectionId, string courseId, string? primaryTeacherId,
+    List<string> teachers, List<string> students, string termId,
     string room, string block, string blockId, string displayName, string schoolLevel, bool isCurrent);
 
 /// <summary>
@@ -183,7 +183,7 @@ public readonly record struct SectionMinimalRecord(string sectionId, string cour
 /// <param name="roomId">Id used in scheduling</param>
 /// <param name="name">Room name</param>
 /// <param name="googleCalendarId">Google Resource Calendar Id (incase you want to look at that directly.)</param>
-public readonly record struct RoomRecord(string roomId, string name, string googleCalendarId);
+public record RoomRecord(string roomId, string name, string googleCalendarId);
 
 /// <summary>
 /// Block information
@@ -191,10 +191,10 @@ public readonly record struct RoomRecord(string roomId, string name, string goog
 /// <param name="blockId">Id used in scheduling</param>
 /// <param name="name">Block name</param>
 /// <param name="schoolLevel">Upper School blocks are different from Lower School blocks.</param>
-public readonly record struct BlockRecord(string blockId, string name, string schoolLevel);
+public record BlockRecord(string blockId, string name, string schoolLevel);
 
 
-public readonly record struct DocumentHeader(string id, string fileName, string mimeType, string location);
+public record DocumentHeader(string id, string fileName, string mimeType, string location);
 
 public static partial class Extensions
 {

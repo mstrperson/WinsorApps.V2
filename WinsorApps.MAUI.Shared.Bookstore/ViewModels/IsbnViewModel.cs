@@ -42,7 +42,7 @@ public partial class IsbnViewModel :
 
     [ObservableProperty] OdinDataViewModel currentOdinData = OdinDataViewModel.Empty;
 
-    [ObservableProperty] ImmutableArray<string> bindingOptions = [];
+    [ObservableProperty] List<string> bindingOptions = [];
 
     [ObservableProperty] string bookId = "";
 
@@ -62,7 +62,7 @@ public partial class IsbnViewModel :
         if (hasOdinData)
             FetchOdinData().SafeFireAndForget();
         BookService bookService = ServiceHelper.GetService<BookService>();
-        bindingOptions = bookService.BookBindings.Select(b => $"{b}").ToImmutableArray();
+        bindingOptions = bookService.BookBindings.Select(b => $"{b}").ToList();
         LoadBookDetails();
     }
 
@@ -78,7 +78,7 @@ public partial class IsbnViewModel :
         CurrentOdinData.UpdateRequested += (sender, e) =>
             OdinUpdateRequested?.Invoke(this, (OdinDataViewModel)sender!);
         BookService? bookService = ServiceHelper.GetService<BookService>();
-        bindingOptions = bookService?.BookBindings.Select(b => $"{b}").ToImmutableArray() ?? [];
+        bindingOptions = bookService?.BookBindings.Select(b => $"{b}").ToList() ?? [];
 
         LoadBookDetails();
     }
@@ -89,9 +89,11 @@ public partial class IsbnViewModel :
         var bookService = ServiceHelper.GetService<BookService>();
 
         var bookInfo = bookService.BooksCache.FirstOrDefault(bk => bk.isbns.Any(item => item.isbn == Isbn));
+        if (bookInfo is null) return;
 
         var isbn = bookInfo.isbns.FirstOrDefault(item => item.isbn == Isbn);
-
+        if (isbn is null)
+            return;
         Binding = new(isbn.binding);
         DisplayName = $"{Isbn} [{Binding}]";
 
@@ -116,7 +118,7 @@ public partial class IsbnViewModel :
         CurrentOdinData.UpdateRequested += (sender, e) =>
             OdinUpdateRequested?.Invoke(this, (OdinDataViewModel) sender!);
         BookService? bookService = ServiceHelper.GetService<BookService>();
-        bindingOptions = bookService?.BookBindings.Select(b => $"{b}").ToImmutableArray() ?? [];
+        bindingOptions = bookService?.BookBindings.Select(b => $"{b}").ToList() ?? [];
     }
 
     public static implicit operator IsbnViewModel(ISBNInfo info) => new(info);
@@ -189,16 +191,16 @@ public partial class IsbnViewModel :
         var details = await bookService.GetISBNDetails(Isbn,
             err => logging?.LogMessage(LocalLoggingService.LogLevel.Error, err.error));
 
-        if (!details.HasValue)
+        if (details is null)
         {
             logging?.LogMessage(LocalLoggingService.LogLevel.Debug, $"Unable to retrive book details for ISBN: {Isbn}");
             return;
         }
 
-        var data = details.Value;
+        var data = details;
         BookId = data.bookInfo.id;
-        CurrentOdinData = data.odinData.HasValue
-            ? new(data.odinData.Value) {BookId = BookId, Isbn = Isbn}
+        CurrentOdinData = data.odinData is not null
+            ? new(data.odinData) {BookId = BookId, Isbn = Isbn}
             : new() {BookId = BookId, Isbn = Isbn};
         CurrentOdinData.UpdateRequested +=
             (sender, e) => OdinUpdateRequested?.Invoke(this, (OdinDataViewModel) sender!);
@@ -222,10 +224,7 @@ public partial class IsbnViewModel :
     public static IsbnViewModel Get(string isbn)
     {
         var vm = ViewModelCache.FirstOrDefault(i => i.Isbn == isbn);
-        if (vm is null)
-        {
-            vm = new(isbn);
-        }
+        vm ??= new(isbn);
 
         return vm;
     }
@@ -235,7 +234,7 @@ public partial class IsbnViewModel :
         var vm = ViewModelCache.FirstOrDefault(isbn => isbn.Isbn == model.isbn);
         if (vm is null)
         {
-            vm = new(new ISBNInfo(model.isbn, model.binding, true, model.odinData.HasValue));
+            vm = new(new ISBNInfo(model.isbn, model.binding, true, model.odinData is not null));
             ViewModelCache.Add(vm);
         }
         var output = vm.Clone();
@@ -253,7 +252,7 @@ public partial class IsbnViewModel :
 
             var bookService = ServiceHelper.GetService<BookService>();
             var book = bookService.BooksCache.FirstOrDefault(bk=>bk.isbns.Any(isbn => isbn.isbn == model.isbn));
-            vm.Book = new(book);
+            vm.Book = new(book ?? BookDetail.Empty);
         }
         return vm.Clone();
     }
@@ -267,9 +266,12 @@ public partial class IsbnViewModel :
         Selected?.Invoke(this, this);
     }
 }
-public partial class OdinDataViewModel : ObservableObject, IDefaultValueViewModel<OdinDataViewModel>
+public partial class OdinDataViewModel : 
+    ObservableObject, 
+    IDefaultValueViewModel<OdinDataViewModel>,
+    IModelCarrier<OdinDataViewModel, OdinData>
 {
-    private OdinData? data;
+    public Optional<OdinData> Model { get; private set; } = Optional<OdinData>.None();
 
     public string BookId { get; set; } = string.Empty;
     public string Isbn { get; set; } = string.Empty;
@@ -277,7 +279,7 @@ public partial class OdinDataViewModel : ObservableObject, IDefaultValueViewMode
     public event EventHandler<OdinData>? UpdateRequested;
 
     [ObservableProperty]
-    string plu;
+    string plu = "";
 
     [ObservableProperty]
     double cost;
@@ -301,7 +303,7 @@ public partial class OdinDataViewModel : ObservableObject, IDefaultValueViewMode
     }
     public OdinDataViewModel(OdinData data)
     {
-        this.data = data;
+        this.Model = Optional<OdinData>.Some(data);
         plu = data.plu;
         cost = data.price;
         isCurrent = data.current;
@@ -310,7 +312,9 @@ public partial class OdinDataViewModel : ObservableObject, IDefaultValueViewMode
     [RelayCommand]
     public void SaveChange()
     {
-        if(data.HasValue)
-            UpdateRequested?.Invoke(this, data.Value);
+        if(Model is not null)
+            UpdateRequested?.Invoke(this, Model.Reduce(OdinData.None));
     }
+
+    public static OdinDataViewModel Get(OdinData model) => new(model);
 }

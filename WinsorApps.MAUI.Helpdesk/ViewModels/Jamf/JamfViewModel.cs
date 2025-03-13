@@ -36,14 +36,14 @@ public partial class JamfViewModel : ObservableObject, IDefaultValueViewModel<Ja
     {
         var registrar = ServiceHelper.GetService<RegistrarService>();
         Id = computer.id;
-        Name = computer.general.name;
-        AssetTag = computer.general.assetTag;
-        SerialNumber = computer.hardware.serialNumber;
-        Department = _jamf.Departments.FirstOrDefault(dept => dept.id == computer.userAndLocation.departmentId);
-        Model = computer.hardware.model;
-        if (!string.IsNullOrEmpty(computer.userAndLocation.email))
+        Name = computer.general?.name ?? "";
+        AssetTag = computer.general?.assetTag ?? "";
+        SerialNumber = computer.hardware?.serialNumber ?? "";
+        Department = _jamf.Departments.FirstOrDefault(dept => dept.id == computer.userAndLocation?.departmentId) ?? new("", "");
+        Model = computer.hardware?.model ?? "";
+        if (!string.IsNullOrEmpty(computer.userAndLocation?.email))
         {
-            var owner = registrar.AllUsers.FirstOrDefault(u => u.email == computer.userAndLocation.email);
+            var owner = registrar.AllUsers.FirstOrDefault(u => u.email == computer.userAndLocation.email) ?? UserRecord.Empty;
             User = UserViewModel.Get(owner);
             User.Selected += (sender, e) => UserSelected?.Invoke(sender, e);
         }
@@ -57,11 +57,12 @@ public partial class JamfViewModel : ObservableObject, IDefaultValueViewModel<Ja
         Name = device.name;
         AssetTag = device.assetTag;
         SerialNumber = device.serialNumber;
-        Department = _jamf.Departments.FirstOrDefault(dept => dept.id == device.location.departmentId);
+        Department = _jamf.Departments.FirstOrDefault(dept => dept.id == device.location?.departmentId) ?? new("", "");
         Model = device.ios?.model ?? device.tvos?.model ?? "unknown";
         if (!string.IsNullOrEmpty(device.location.emailAddress))
         {
-            var owner = registrar.AllUsers.FirstOrDefault(u => u.email == device.location.emailAddress);
+            var owner = registrar.AllUsers.FirstOrDefault(u => u.email == device.location.emailAddress)
+                ?? UserRecord.Empty;
             User = UserViewModel.Get(owner);
             User.Selected += (sender, e) => UserSelected?.Invoke(sender, e);
         }
@@ -96,15 +97,15 @@ public partial class JamfViewModel : ObservableObject, IDefaultValueViewModel<Ja
         if(Type == "Computer")
         {
             var computer = await _jamf.GetComputerDetails(Id, OnError.DefaultBehavior(this));
-            if(computer.HasValue)
-                LoadComputerDetails(computer.Value);
+            if(computer is not null)
+                LoadComputerDetails(computer);
 
             return;
         }
 
         var device = await _jamf.GetMobileDeviceDetails(Id, OnError.DefaultBehavior(this));
-        if (device.HasValue)
-            LoadDeviceDetails(device.Value);
+        if (device is not null)
+            LoadDeviceDetails(device);
     }
 }
 
@@ -148,7 +149,7 @@ public partial class InventoryPreloadViewModel : ObservableObject, IDefaultValue
         if (!string.IsNullOrEmpty(entry.emailAddress))
         {
             var registrar = ServiceHelper.GetService<RegistrarService>();
-            var user = registrar.AllUsers.FirstOrDefault(u => u.email == entry.emailAddress);
+            var user = registrar.AllUsers.FirstOrDefault(u => u.email == entry.emailAddress) ?? UserRecord.Empty;
             Owner = UserViewModel.Get(user);
             Owner.Selected += (sender, e) => OnUserSelected?.Invoke(sender, e);
         }
@@ -163,7 +164,7 @@ public partial class InventoryPreloadViewModel : ObservableObject, IDefaultValue
     public async Task Refresh()
     {
         var entry = await _jamf.GetInventoryPreload(Id, OnError.DefaultBehavior(this));
-        if(entry.HasValue)
-            LoadEntry(entry.Value);
+        if(entry is not null)
+            LoadEntry(entry);
     }
 }

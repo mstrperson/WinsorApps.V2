@@ -185,13 +185,13 @@ public partial class StudentViewModel :
 
     public static implicit operator UserViewModel(StudentViewModel student) => student.UserInfo;
 
-    private async Task<ImmutableArray<AssessmentCalendarEvent>> GetStudentCalendar() =>
+    private async Task<List<AssessmentCalendarEvent>> GetStudentCalendar() =>
         await _service.GetStudentCalendar(
             OnError.DefaultBehavior(this), Model.Reduce(UserRecord.Empty).id,
             DateOnly.FromDateTime(AssessmentCalendar.Month.AddMonths(-1)),
             DateOnly.FromDateTime(AssessmentCalendar.Month.AddMonths(2)));
 
-    public OptionalStruct<StudentRecordShort> Model { get; set; } = OptionalStruct<StudentRecordShort>.None();
+    public Optional<StudentRecordShort> Model { get; set; } = Optional<StudentRecordShort>.None();
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<StudentViewModel>? Selected;
@@ -220,7 +220,7 @@ public partial class StudentViewModel :
         {
             UserInfo = uvm,
             AdvisorName = model.advisorName,
-            Model = OptionalStruct<StudentRecordShort>.Some(model),
+            Model = Optional<StudentRecordShort>.Some(model),
             ClassName = model.className,
             GradYear = model.gradYear,
             LatePassCollection = new(uvm)
@@ -265,9 +265,9 @@ public partial class StudentViewModel :
         BusyMessage = "Loading Late Work";
         var result = await _service.GetStudentLateWork(OnError.DefaultBehavior(this), UserInfo.Id, IncludeResolvedLateWork);
         
-        if(result.HasValue)
+        if(result is not null)
         {
-            LateWork = [..result.Value.Select(LateWorkViewModel.Get)];
+            LateWork = [..result.Select(LateWorkViewModel.Get)];
         }
 
         Busy = false;

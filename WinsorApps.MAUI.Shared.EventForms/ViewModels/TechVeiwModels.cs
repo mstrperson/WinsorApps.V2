@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.EventForms.Services;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.MAUI.Shared.EventForms.ViewModels;
@@ -16,7 +17,8 @@ public partial class TechEventViewModel :
     IEventSubFormViewModel<TechEventViewModel, TechEvent>,
     IDefaultValueViewModel<TechEventViewModel>,
     IBusyViewModel,
-    IErrorHandling
+    IErrorHandling,
+    IModelCarrier<TechEventViewModel, TechEvent>
 {
     private readonly EventFormsService _eventsService = ServiceHelper.GetService<EventFormsService>();
 
@@ -32,7 +34,7 @@ public partial class TechEventViewModel :
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "Working";
 
-    public TechEvent Model { get; private set; }
+    public Optional<TechEvent> Model { get; private set; } = Optional<TechEvent>.None();
 
     public TechEventViewModel()
     {
@@ -43,7 +45,7 @@ public partial class TechEventViewModel :
             VirtualEvent.Clear();
         };
     }
-    public static TechEventViewModel Create(string eventId) =>  new TechEventViewModel() { Id = eventId };
+    public static TechEventViewModel Create(string eventId) =>  new() { Id = eventId };
 
     [RelayCommand]
     public void AddVirtualDetails()
@@ -60,7 +62,7 @@ public partial class TechEventViewModel :
     public void Clear()
     {
         Id = "";
-        Model = default;
+        Model = Optional<TechEvent>.None();
         VirtualEvent.Clear();
         PresenceRequested = false;
         EquipmentNeeded = false;
@@ -81,11 +83,11 @@ public partial class TechEventViewModel :
         EquipmentNeeded = model.equipment;
         HelpRequested = model.help;
         Details = model.details;
-        IsVirtual = model.virtualEvent.HasValue;
-        Model = model;
-        if (model.virtualEvent.HasValue)
+        IsVirtual = model.virtualEvent is not null;
+        Model = Optional<TechEvent>.Some(model);
+        if (model.virtualEvent is not null)
         {
-            VirtualEvent.Load(model.virtualEvent.Value);
+            VirtualEvent.Load(model.virtualEvent);
         }
 
         HasLoaded = true;
@@ -110,9 +112,9 @@ public partial class TechEventViewModel :
     public async Task Continue(bool template = false)
     {
         var result = await _eventsService.PostTechEvent(Id, this, OnError.DefaultBehavior(this));
-        if(result.HasValue)
+        if(result is not null)
         {
-            Model = result.Value;
+            Model = Optional<TechEvent>.Some(result);
             if(!template)
                 ReadyToContinue?.Invoke(this, EventArgs.Empty);
         }
@@ -127,6 +129,13 @@ public partial class TechEventViewModel :
             Deleted?.Invoke(this, EventArgs.Empty);
         }
     }
+
+    private TechEventViewModel(TechEvent model)
+    {
+        Load(model); 
+    }
+
+    public static TechEventViewModel Get(TechEvent model) => new(model);
 }
 
 public partial class VirtualEventViewModel :
@@ -215,11 +224,11 @@ public partial class VirtualEventViewModel :
         RecordTranscript = model.transcript;
         GetRegistrantList = model.registrantList;
         GetZoomLink = model.zoomLink;
-        ShowPanelits = model.panelists.Any();
+        ShowPanelits = model.panelists.Count != 0;
 
-        if(model.hostContact.HasValue)
+        if(model.hostContact is not null)
         {
-            HostContact = ContactViewModel.Get(model.hostContact.Value);
+            HostContact = ContactViewModel.Get(model.hostContact);
         }
 
         Panelists = [.. model.panelists.Select(ContactViewModel.Get)];
@@ -246,7 +255,7 @@ public partial class VirtualEventViewModel :
     public async Task Continue(bool template = false)
     {
         var result = await _eventService.PostVirtualEvent(Id, this, OnError.DefaultBehavior(this));
-        if(result.HasValue)
+        if(result is not null)
         {
             if(!template)
                 ReadyToContinue?.Invoke(this, EventArgs.Empty);
@@ -274,7 +283,7 @@ public partial class VirtualEventViewModel :
             vm.GetRegistrantList,
             vm.GetZoomLink,
             vm.HostContact.Id,
-            vm.Panelists.Select(pan => pan.Id).ToImmutableArray()
+            vm.Panelists.Select(pan => pan.Id).ToList()
         );
     public static VirtualEventViewModel Empty => new();
 }

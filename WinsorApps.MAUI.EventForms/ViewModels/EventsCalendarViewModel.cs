@@ -48,7 +48,7 @@ public partial class EventsCalendarViewModel :
                 _calendarService.EventForms
                     .Where(evt => evt.start.Month == date.Month)
                     .Select(evt => evt.details)
-                    .ToImmutableArray()
+                    .ToList()
         };
         Calendar.EventSelected += (_, evt) => LoadEvent?.Invoke(this, evt);
         Calendar.PropertyChanged += ((IBusyViewModel)this).BusyChangedCascade;

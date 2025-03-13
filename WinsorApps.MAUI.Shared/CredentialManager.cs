@@ -17,15 +17,15 @@ public class CredentialManager : ISavedCredential
     public async Task CheckSavedCredentials()
     {
         var thisCred = await GetSavedCredential();
-        if (thisCred.HasValue) return;
+        if (thisCred is not null) return;
 
         SavedCredential sc = new();
         if (!sc.SavedCredExists) return;
 
         var result = await sc.GetSavedCredential();
-        if (!result.HasValue) return;
+        if (result is null) return;
 
-        var cred = result.Value;
+        var cred = result;
         await Save(cred.SavedEmail, cred.SavedPassword, cred.JWT, cred.RefreshToken);
     }
 

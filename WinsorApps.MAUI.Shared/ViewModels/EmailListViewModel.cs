@@ -1,13 +1,14 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 
 namespace WinsorApps.MAUI.Shared.ViewModels
 {
     public partial class EmailListViewModel : ObservableObject
     {
         [ObservableProperty]
-        ImmutableArray<SelectableLabelViewModel> emails = [];
+        ObservableCollection<SelectableLabelViewModel> emails = [];
         [ObservableProperty] string emailEntry = "";
 
         [RelayCommand]
@@ -18,8 +19,8 @@ namespace WinsorApps.MAUI.Shared.ViewModels
                 return;
             }
             var email = new SelectableLabelViewModel() { Label = EmailEntry, IsSelected = true };
-            email.Selected += (_, _) => Emails = Emails.Remove(email);
-            Emails = Emails.Add(email);
+            email.Selected += (_, _) => Emails.Remove(email);
+            Emails.Add(email);
             EmailEntry = "";
         }
 

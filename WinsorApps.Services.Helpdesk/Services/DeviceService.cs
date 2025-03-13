@@ -5,10 +5,10 @@ using WinsorApps.Services.Helpdesk.Models;
 
 namespace WinsorApps.Services.Helpdesk.Services;
 
-public sealed class DeviceService : IAsyncInitService
+public sealed class DeviceService(ApiService api, LocalLoggingService logging) : IAsyncInitService
 {
-    private readonly ApiService _api;
-    private readonly LocalLoggingService _logging;
+    private readonly ApiService _api = api;
+    private readonly LocalLoggingService _logging = logging;
     public bool Ready { get; private set; } = false;
 
     private List<DeviceRecord> _loaners = [];
@@ -49,15 +49,9 @@ public sealed class DeviceService : IAsyncInitService
         }
     }
 
-    private ImmutableArray<DeviceCategoryRecord> _categories = [];
+    private List<DeviceCategoryRecord> _categories = [];
 
-    public DeviceService(ApiService api, LocalLoggingService logging)
-    {
-        _api = api;
-        _logging = logging;
-    }
-
-    public ImmutableArray<DeviceCategoryRecord> Categories
+    public List<DeviceCategoryRecord> Categories
     {
         get
         {
@@ -73,6 +67,7 @@ public sealed class DeviceService : IAsyncInitService
     public double Progress { get; private set; } = 0;
 
     public string CacheFileName => ".devices.cache";
+    public void ClearCache() { if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}"); }
 
     public async Task WaitForInit(ErrorAction onError)
     {
@@ -118,8 +113,8 @@ public sealed class DeviceService : IAsyncInitService
         _deviceCache = await _api.SendAsync<List<DeviceRecord>>(HttpMethod.Get,
             "api/devices?isActive=true", onError: onError) ?? [];
 
-        _categories = await _api.SendAsync<ImmutableArray<DeviceCategoryRecord>>(HttpMethod.Get,
-            "api/devices/categories", onError: onError);
+        _categories = await _api.SendAsync<List<DeviceCategoryRecord>>(HttpMethod.Get,
+            "api/devices/categories", onError: onError) ?? [];
         
         _winsorDeviceCache = await _api.SendAsync<List<WinsorDeviceRecord>>(HttpMethod.Get, 
             "api/devices/winsor-devices?isActive=true", onError: onError) ?? [];
@@ -132,23 +127,23 @@ public sealed class DeviceService : IAsyncInitService
             $"api/devices/{deviceId}", update, onError: onError);
 
 
-        if (result.HasValue && DeviceCache.Any(dev => dev.id == result.Value.id))
-            _deviceCache!.Replace(DeviceCache.First(dev => dev.id == result.Value.id), result.Value);
-        else if (result.HasValue)
+        if (result is not null && DeviceCache.Any(dev => dev.id == result.id))
+            _deviceCache!.Replace(DeviceCache.First(dev => dev.id == result.id), result);
+        else if (result is not null)
         {
-            _deviceCache!.Add(result.Value);
-            if (result.Value.winsorDevice.HasValue)
+            _deviceCache!.Add(result);
+            if (result.winsorDevice is not null)
             {
                 var newDetails = await GetWinsorDeviceDetails(deviceId, onError);
-                if (newDetails.HasValue)
+                if (newDetails is not null)
                 {
-                    if (_winsorDeviceCache.Any(dev => dev.assetTag == result.Value.winsorDevice.Value.assetTag))
+                    if (_winsorDeviceCache.Any(dev => dev.assetTag == result.winsorDevice.assetTag))
                     {
-                        var rep = _winsorDeviceCache.First(dev => dev.assetTag == result.Value.winsorDevice.Value.assetTag);
-                        _winsorDeviceCache.Replace(rep, newDetails.Value);
+                        var rep = _winsorDeviceCache.First(dev => dev.assetTag == result.winsorDevice.assetTag);
+                        _winsorDeviceCache.Replace(rep, newDetails);
                     }
                     else
-                        _winsorDeviceCache.Add(newDetails.Value);
+                        _winsorDeviceCache.Add(newDetails);
                 }
             }
         }
@@ -166,7 +161,7 @@ public sealed class DeviceService : IAsyncInitService
             {
                 wait = true;
                 var dev = await SearchDevices(newDevice.serialNumber, onError);
-                if(dev.HasValue)
+                if(dev is not null)
                 {
                     temp = dev;
                     wait = false;
@@ -177,13 +172,13 @@ public sealed class DeviceService : IAsyncInitService
             });
         while (wait)
             await Task.Delay(250);
-        if(temp.HasValue)
+        if(temp is not null)
             result = temp;
 
-        if (result.HasValue && DeviceCache.Any(dev => dev.id == result.Value.id))
-            _deviceCache!.Replace(DeviceCache.First(dev => dev.id == result.Value.id), result.Value);
-        else if (result.HasValue)
-            _deviceCache!.Add(result.Value);
+        if (result is not null && DeviceCache.Any(dev => dev.id == result.id))
+            _deviceCache!.Replace(DeviceCache.First(dev => dev.id == result.id), result);
+        else if (result is not null)
+            _deviceCache!.Add(result);
 
         await SaveCache();
         return result;
@@ -202,21 +197,21 @@ public sealed class DeviceService : IAsyncInitService
         }
 
         if (DeviceCache.Any(dev =>
-            dev.serialNumber.ToUpperInvariant() == identifier ||
+            dev.serialNumber.Equals(identifier, StringComparison.InvariantCultureIgnoreCase) ||
             (dev.winsorDevice?.assetTag.ToUpperInvariant() ?? string.Empty) == identifier))
         {
             return DeviceCache.First(dev =>
-                dev.serialNumber.ToUpperInvariant() == identifier ||
+                dev.serialNumber.Equals(identifier, StringComparison.InvariantCultureIgnoreCase) ||
                 (dev.winsorDevice?.assetTag.ToUpperInvariant() ?? string.Empty) == identifier)!;
         }
 
-        var results = await _api.SendAsync<ImmutableArray<DeviceRecord>>(HttpMethod.Get,
-                $"api/devices?serialNumberPattern={identifier}", onError: onError);
-        if (!results.Any())
-            results = await _api.SendAsync<ImmutableArray<DeviceRecord>>(HttpMethod.Get,
-                $"api/devices?assetTagPattern={identifier}", onError: onError);
+        var results = await _api.SendAsync<List<DeviceRecord>>(HttpMethod.Get,
+                $"api/devices?serialNumberPattern={identifier}", onError: onError) ?? [];
+        if (results.Count == 0)
+            results = await _api.SendAsync<List<DeviceRecord>>(HttpMethod.Get,
+                $"api/devices?assetTagPattern={identifier}", onError: onError) ?? [];
 
-        if (!results.Any())
+        if (results.Count == 0)
             return null;
 
         foreach (var result in results)
@@ -239,8 +234,8 @@ public sealed class DeviceService : IAsyncInitService
 
         var result = await _api.SendAsync<WinsorDeviceRecord?>(HttpMethod.Get,
             $"api/devices/{id}/winsor-device-info", onError: onError);
-        if (result.HasValue)
-            _winsorDeviceCache.Add(result.Value);
+        if (result is not null)
+            _winsorDeviceCache.Add(result);
         await SaveCache();
         return result;
     }
@@ -250,19 +245,19 @@ public sealed class DeviceService : IAsyncInitService
 
         var result = await _api.SendAsync<DeviceRecord?>(HttpMethod.Delete,
             $"api/devices/{id}/dispose-inventory", onError: onError);
-        if (!result.HasValue) return false;
+        if (result is null) return false;
 
         var dev = DeviceCache.First(d => d.id == id);
-        _deviceCache!.Replace(dev, result.Value);
+        _deviceCache!.Replace(dev, result);
         await SaveCache();
         return true;
     }
 
-    private readonly record struct CacheSchema(
-        ImmutableArray<DeviceRecord> devices, 
-        ImmutableArray<WinsorDeviceRecord> winsorDevices,
-        ImmutableArray<DeviceRecord> loaners,
-        ImmutableArray<DeviceCategoryRecord> categories
+    private record CacheSchema(
+        List<DeviceRecord> devices, 
+        List<WinsorDeviceRecord> winsorDevices,
+        List<DeviceRecord> loaners,
+        List<DeviceCategoryRecord> categories
     );
 
     public async Task SaveCache()
@@ -284,6 +279,7 @@ public sealed class DeviceService : IAsyncInitService
         try
         {
             var cache = JsonSerializer.Deserialize<CacheSchema>(json);
+            if(cache is null) return false;
             _deviceCache = [..cache.devices];
             _winsorDeviceCache = [..cache.winsorDevices];
             _loaners = [..cache.loaners];

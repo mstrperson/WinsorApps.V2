@@ -4,14 +4,14 @@ using WinsorApps.Services.Helpdesk.Models;
 
 namespace WinsorApps.Services.Helpdesk.Services;
 
-public class ServiceCaseService : IAsyncInitService, IAutoRefreshingCacheService
+public class ServiceCaseService(ApiService api, LocalLoggingService logging) : IAsyncInitService, IAutoRefreshingCacheService
 {
-    private readonly ApiService _api;
-    private readonly LocalLoggingService _logging;
+    private readonly ApiService _api = api;
+    private readonly LocalLoggingService _logging = logging;
     public bool Ready { get; private set; } = false;
     public double Progress { get; private set; } = 0;
 
-    private ImmutableArray<ServiceStatus>? _serviceStatuses;
+    private List<ServiceStatus>? _serviceStatuses;
     public async Task WaitForInit(ErrorAction onError)
     {
         if (Ready) return;
@@ -24,7 +24,7 @@ public class ServiceCaseService : IAsyncInitService, IAutoRefreshingCacheService
             await Task.Delay(250);
         }
     }
-    public ImmutableArray<ServiceStatus> ServiceStatuses
+    public List<ServiceStatus> ServiceStatuses
     {
         get
         {
@@ -35,9 +35,9 @@ public class ServiceCaseService : IAsyncInitService, IAutoRefreshingCacheService
         }
     }
 
-    private ImmutableArray<ServiceCaseCommonIssue>? _commonIssues;
+    private List<ServiceCaseCommonIssue>? _commonIssues;
 
-    public ImmutableArray<ServiceCaseCommonIssue> CommonIssues
+    public List<ServiceCaseCommonIssue> CommonIssues
     {
         get
         {
@@ -52,23 +52,17 @@ public class ServiceCaseService : IAsyncInitService, IAutoRefreshingCacheService
 
     public event EventHandler? OnCacheRefreshed;
 
-    public ServiceCaseService(ApiService api, LocalLoggingService logging)
-    {
-        _api = api;
-        _logging = logging;
-    }
-
     public Dictionary<string, ServiceCase> OpenCasesCacheById
     {
         get
         {
             if (!Ready)
                 throw new ServiceNotReadyException(_logging, "Device Service has not populated the Service Case Cache yet.");
-            return _openCasesCache.ToDictionary(c => c.id) ?? new Dictionary<string, ServiceCase>();
+            return _openCasesCache.ToDictionary(c => c.id) ?? [];
         }
     }
 
-    public ImmutableArray<ServiceCase> OpenCases =>
+    public List<ServiceCase> OpenCases =>
         Ready ? [.. _openCasesCache] : [];
 
     public bool Started { get; private set; }
@@ -77,7 +71,8 @@ public class ServiceCaseService : IAsyncInitService, IAutoRefreshingCacheService
 
     public bool Refreshing { get; private set; }
 
-    public string CacheFileName => throw new NotImplementedException();
+    public string CacheFileName => "service-case.cache.json";
+    public void ClearCache() { if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}"); }
 
     public async Task Refresh(ErrorAction onError)
     {
@@ -86,12 +81,10 @@ public class ServiceCaseService : IAsyncInitService, IAutoRefreshingCacheService
             HttpMethod.Get, "api/helpdesk/service-cases?open=true", onError: onError))!;
         Refreshing = false;
     }
-    
-    public async Task<ImmutableArray<ServiceCase>> SearchServiceCaseHistory(ServiceCaseFilter filter, ErrorAction onError)
-    {
-        return await _api.SendAsync<ImmutableArray<ServiceCase>>(HttpMethod.Get,
-            $"api/helpdesk/service-cases?{filter.QueryString}", onError: onError);
-    }
+
+    public async Task<List<ServiceCase>> SearchServiceCaseHistory(ServiceCaseFilter filter, ErrorAction onError) =>
+        await _api.SendAsync<List<ServiceCase>>(HttpMethod.Get,
+            $"api/helpdesk/service-cases?{filter.QueryString}", onError: onError) ?? [];
 
     public async Task Initialize(ErrorAction onError)
     {
@@ -99,15 +92,15 @@ public class ServiceCaseService : IAsyncInitService, IAutoRefreshingCacheService
             return;
 
         Started = true;
-        _serviceStatuses = await _api.SendAsync<ImmutableArray<ServiceStatus>>(
-            HttpMethod.Get, "api/helpdesk/service-cases/status-list", onError: onError);
+        _serviceStatuses = await _api.SendAsync<List<ServiceStatus>>(
+            HttpMethod.Get, "api/helpdesk/service-cases/status-list", onError: onError) ?? [];
         Progress = 1 / 3.0;
-        _commonIssues = await _api.SendAsync<ImmutableArray<ServiceCaseCommonIssue>>(
-            HttpMethod.Get, "api/helpdesk/service-cases/common-issue-list", onError: onError);
+        _commonIssues = await _api.SendAsync<List<ServiceCaseCommonIssue>>(
+            HttpMethod.Get, "api/helpdesk/service-cases/common-issue-list", onError: onError) ?? [];
 
         Progress = 2 / 3.0;
         _openCasesCache = (await _api.SendAsync<List<ServiceCase>>(
-            HttpMethod.Get, "api/helpdesk/service-cases?open=true", onError: onError))!;
+            HttpMethod.Get, "api/helpdesk/service-cases?open=true", onError: onError)) ?? [];
 
         Progress = 1;
         Ready = true;
@@ -127,7 +120,7 @@ public class ServiceCaseService : IAsyncInitService, IAutoRefreshingCacheService
         var result = await _api.SendAsync<NewServiceCase, ServiceCase?>(
             HttpMethod.Post, "api/helpdesk/service-cases/create", serviceCase, onError: onError);
 
-        if (!result.HasValue)
+        if (result is null)
         {
             _logging.LogMessage(LocalLoggingService.LogLevel.Debug,
                 "Create Service Case endpoint returned a null result.", $"{serviceCase}");
@@ -135,8 +128,8 @@ public class ServiceCaseService : IAsyncInitService, IAutoRefreshingCacheService
         }
 
         _logging.LogMessage(LocalLoggingService.LogLevel.Information,
-            $"Created new Service Case for {result.Value.device.serialNumber}");
-        _openCasesCache.Add(result.Value);
+            $"Created new Service Case for {result.device.serialNumber}");
+        _openCasesCache.Add(result);
         return result;
     }
 
@@ -193,7 +186,7 @@ public class ServiceCaseService : IAsyncInitService, IAutoRefreshingCacheService
 
         var oldCase = _openCasesCache.FirstOrDefault(c => c.id == caseId);
 
-        var status = ServiceStatuses.First(st => st.text == result.Value.status);
+        var status = ServiceStatuses.First(st => st.text == result.status);
         if (status.isClosed && oldCase != default)
         {
             _openCasesCache.Remove(oldCase);
@@ -201,9 +194,9 @@ public class ServiceCaseService : IAsyncInitService, IAutoRefreshingCacheService
         }
 
         if (oldCase != default)
-            _openCasesCache.Replace(oldCase, result.Value);
+            _openCasesCache.Replace(oldCase, result);
         else
-            _openCasesCache.Add(result.Value);
+            _openCasesCache.Add(result);
 
         return true;
     }
@@ -213,10 +206,10 @@ public class ServiceCaseService : IAsyncInitService, IAutoRefreshingCacheService
     {
         var endpoint = $"api/helpdesk/service-cases/{caseId}/close";
         if (closingStatus is not null)
-            endpoint += $"?closingStatus={closingStatus.Value.id}";
+            endpoint += $"?closingStatus={closingStatus.id}";
         var result = await _api.SendAsync<ServiceCase?>(HttpMethod.Put, endpoint, onError: onError);
 
-        if (!result.HasValue)
+        if (result is null)
         {
             _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Closing Service Case failed.");
             return false;

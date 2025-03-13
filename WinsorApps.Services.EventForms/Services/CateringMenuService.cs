@@ -14,10 +14,11 @@ namespace WinsorApps.Services.EventForms.Services
 
         public event EventHandler? OnCacheRefreshed;
 
-        public ImmutableArray<CateringMenuCategory> MenuCategories { get; private set; } = [];
+        public List<CateringMenuCategory> MenuCategories { get; private set; } = [];
 
-        public ImmutableArray<CateringMenuCategory> AvailableCategories => [.. MenuCategories.Where(cat => !cat.isDeleted)];
+        public List<CateringMenuCategory> AvailableCategories => [.. MenuCategories.Where(cat => !cat.isDeleted)];
 
+        public void ClearCache() { if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}"); }
 
         public CateringMenuService(LocalLoggingService logging, ApiService api)
         {
@@ -45,7 +46,7 @@ namespace WinsorApps.Services.EventForms.Services
             Started = true;
             if (!LoadCache())
             {
-                MenuCategories = await _api.SendAsync<ImmutableArray<CateringMenuCategory>?>(HttpMethod.Get, "api/events/catering/menu") ?? [];
+                MenuCategories = await _api.SendAsync<List<CateringMenuCategory>?>(HttpMethod.Get, "api/events/catering/menu") ?? [];
                 await SaveCache();
             }
             Progress = 1;
@@ -55,7 +56,7 @@ namespace WinsorApps.Services.EventForms.Services
 
         public async Task Refresh(ErrorAction onError)
         {
-            MenuCategories = await _api.SendAsync<ImmutableArray<CateringMenuCategory>?>(HttpMethod.Get, "api/events/catering/menu") ?? [];
+            MenuCategories = await _api.SendAsync<List<CateringMenuCategory>?>(HttpMethod.Get, "api/events/catering/menu") ?? [];
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
             await SaveCache();
         }
@@ -92,7 +93,7 @@ namespace WinsorApps.Services.EventForms.Services
             try
             {
                 var json = File.ReadAllText($"{_logging.AppStoragePath}{CacheFileName}");
-                MenuCategories = JsonSerializer.Deserialize<ImmutableArray<CateringMenuCategory>>(json);
+                MenuCategories = JsonSerializer.Deserialize<List<CateringMenuCategory>>(json) ?? [];
                 return true;
             }
             catch

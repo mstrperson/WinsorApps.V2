@@ -5,14 +5,15 @@ using static WinsorApps.Services.Global.Services.LocalLoggingService;
 
 namespace WinsorApps.Services.Global.Services
 {
-    public class AppService : 
+    public class AppService(ApiService api, LocalLoggingService logging) : 
         IAsyncInitService
     {
-        private readonly ApiService _api;
-        private readonly LocalLoggingService _logging;
+        private readonly ApiService _api = api;
+        private readonly LocalLoggingService _logging = logging;
 
         public string CacheFileName => VersionFilePath;
 
+        public void ClearCache() { if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}"); }
         public async Task SaveCache() => await Task.CompletedTask;
         public bool LoadCache() => true;
         public bool Allowed { get; private set; }
@@ -33,23 +34,17 @@ namespace WinsorApps.Services.Global.Services
 
         private AppVersionList _versionList = new([]);
 
-        public AppService(ApiService api, LocalLoggingService logging)
-        {
-            _api = api;
-            _logging = logging;
-        }
-
         public async Task<AppInstallerAvailableRoles> GetAllowedRoles(ErrorAction onError)
         {
             var result = await _api.SendAsync<AppInstallerAvailableRoles>(HttpMethod.Get,
                 $"api/apps/{AppId}/roles", authorize: false, onError: onError);
 
-            return result;
+            return result ?? new("", "", []);
         }
 
         public async Task<bool> AmIAllowed(ErrorAction onError)
         {
-            var roles = await _api.UserInfo!.Value.GetRoles(_api);
+            var roles = await _api.UserInfo!.GetRoles(_api);
             if (roles.Contains("System Admin"))
                 return true;
 
@@ -57,8 +52,9 @@ namespace WinsorApps.Services.Global.Services
             if(string.IsNullOrEmpty(userId)) 
                 return false;
 
-            var allowedApps = await _api.SendAsync<ImmutableArray<AppInstallerGroup>>(HttpMethod.Get,
-                $"api/apps/for/{userId}", authorize: false, onError: onError);
+            var allowedApps = await _api.SendAsync<List<AppInstallerGroup>>(HttpMethod.Get,
+                $"api/apps/for/{userId}", authorize: false, onError: onError)
+                ?? [];
 
             return allowedApps.Any(app => app.id == AppId);
         }
@@ -66,15 +62,15 @@ namespace WinsorApps.Services.Global.Services
         public async Task<bool> CheckForUpdates()
         {
             var app = await CheckAppStatus();
-            if (!app.HasValue)
+            if (app is null)
                 return false;
 
-            if (app.Value.availableDownloads.Any(version =>
+            if (app.availableDownloads.Any(version =>
                 version.arch == _logging.ValidArchitecture &&
                 version.contentType == _logging.ValidExecutableType &&
                 version.uploaded > LastVersionUpdated))
             {
-                var version = app.Value.availableDownloads.First(v =>
+                var version = app.availableDownloads.First(v =>
                                 v.arch == _logging.ValidArchitecture &&
                                 v.contentType == _logging.ValidExecutableType &&
                                 v.uploaded > LastVersionUpdated);
@@ -89,15 +85,15 @@ namespace WinsorApps.Services.Global.Services
         public async Task CheckForUpdates(Action<FileStreamWrapper> onNewVersionAvailable, ErrorAction onError)
         {
             var app = await CheckAppStatus();
-            if (!app.HasValue)
+            if (app is null)
                 return;
 
-            if (app.Value.availableDownloads.Any(version =>
+            if (app.availableDownloads.Any(version =>
                 version.arch == _logging.ValidArchitecture &&
                 version.contentType == _logging.ValidExecutableType &&
                 version.uploaded > LastVersionUpdated))
             {
-                var version = app.Value.availableDownloads.First(v =>
+                var version = app.availableDownloads.First(v =>
                                 v.arch == _logging.ValidArchitecture &&
                                 v.contentType == _logging.ValidExecutableType &&
                                 v.uploaded > LastVersionUpdated);
@@ -107,8 +103,8 @@ namespace WinsorApps.Services.Global.Services
             }
         }
 
-        public async Task<ImmutableArray<AppInstallerGroup>> GetAllApps() =>
-            await _api.SendAsync<ImmutableArray<AppInstallerGroup>?>(HttpMethod.Get,
+        public async Task<List<AppInstallerGroup>> GetAllApps() =>
+            await _api.SendAsync<List<AppInstallerGroup>?>(HttpMethod.Get,
                 "api/apps", authorize: false) ?? [];
 
         public async Task<AppInstallerGroup?> CheckAppStatus() => 
@@ -179,6 +175,7 @@ namespace WinsorApps.Services.Global.Services
                 catch(Exception ex) 
                 {
                     ex.LogException(_logging);
+                    _versionList = new([]);
                 }
             }
 

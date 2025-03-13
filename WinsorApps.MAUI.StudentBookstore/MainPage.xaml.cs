@@ -55,7 +55,7 @@ namespace WinsorApps.MAUI.StudentBookstore
 
             BindingContext = vm;
             vm.OnError += this.DefaultOnErrorHandler();
-            LoginPage loginPage = new LoginPage(logging, vm.LoginVM);
+            LoginPage loginPage = new(logging, vm.LoginVM);
             loginPage.OnLoginComplete += (_, _) =>
                 Navigation.PopAsync();
 

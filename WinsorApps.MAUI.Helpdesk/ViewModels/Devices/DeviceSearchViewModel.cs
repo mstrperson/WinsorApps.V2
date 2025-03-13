@@ -53,20 +53,18 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices
 
         public DeviceSearchViewModel()
         {
-            using (DebugTimer _ = new("Initializing Device Search ViewModel...", ServiceHelper.GetService<LocalLoggingService>()))
-            {
-                _deviceService = ServiceHelper.GetService<DeviceService>();
+            using DebugTimer _ = new("Initializing Device Search ViewModel...", ServiceHelper.GetService<LocalLoggingService>());
+            _deviceService = ServiceHelper.GetService<DeviceService>();
 
-                Available = [..DeviceViewModel.ViewModelCache
+            Available = [..DeviceViewModel.ViewModelCache
                     .Where(GenerateFilter(Filter))];
 
-                foreach (var dev in Available)
-                {
-                    dev.Selected += Dev_Selected;
-                }
-
-                selected = DeviceViewModel.Empty;
+            foreach (var dev in Available)
+            {
+                dev.Selected += Dev_Selected;
             }
+
+            selected = DeviceViewModel.Empty;
         }
 
         [RelayCommand]

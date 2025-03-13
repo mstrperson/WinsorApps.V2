@@ -8,13 +8,16 @@ using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.Services.Athletics.Models;
-public readonly record struct Workout(string id, UserRecord user, DateTime timeIn, DateTime? timeOut, ImmutableArray<string> workoutDetails, bool invalidated = false);
-
-public readonly record struct WorkoutListItem(string id, DateTime timeIn, DateTime timeOut, bool signedOut)
+public record Workout(string id, UserRecord user, DateTime timeIn, DateTime? timeOut, List<string> workoutDetails, bool invalidated = false)
 {
-    public static implicit operator WorkoutListItem(Workout signin) => new(signin.id, signin.timeIn, signin.timeOut ?? signin.timeIn, signin.timeOut.HasValue);
+    public static Workout Empty => new("", UserRecord.Empty, default, null, [], false);
 }
 
-public readonly record struct StudentWorkoutCollection(StudentRecordShort student, ImmutableArray<WorkoutListItem> workouts, DateRangeWrapper dateRange);
+public record WorkoutListItem(string id, DateTime timeIn, DateTime timeOut, bool signedOut)
+{
+    public static implicit operator WorkoutListItem(Workout signin) => new(signin.id, signin.timeIn, signin.timeOut ?? signin.timeIn, signin.timeOut is not null);
+}
 
-public readonly record struct WorkoutLog(ImmutableArray<Workout> workouts, DateRangeWrapper dateRange);
+public record StudentWorkoutCollection(StudentRecordShort student, List<WorkoutListItem> workouts, DateRangeWrapper dateRange);
+
+public record WorkoutLog(List<Workout> workouts, DateRangeWrapper dateRange);

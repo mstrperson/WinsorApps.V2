@@ -19,6 +19,7 @@ namespace WinsorApps.Services.Global.Services
         public event EventHandler? OnCacheRefreshed;
 
         public string CacheFileName => ".cdre.cache";
+        public void ClearCache() { if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}"); }
         public async Task SaveCache() 
         {
             await File.WriteAllTextAsync($"{_logging.AppStoragePath}{CacheFileName}", JsonSerializer.Serialize(RecurringEvents));
@@ -31,7 +32,7 @@ namespace WinsorApps.Services.Global.Services
             var json = File.ReadAllText($"{_logging.AppStoragePath}{CacheFileName}");
             try
             {
-                RecurringEvents = JsonSerializer.Deserialize<ImmutableArray<CycleDayRecurringEvent>>(json);
+                RecurringEvents = JsonSerializer.Deserialize<List<CycleDayRecurringEvent>>(json) ?? [];
             }
             catch
             {
@@ -40,10 +41,10 @@ namespace WinsorApps.Services.Global.Services
 
             return true;
         }
-        public ImmutableArray<CycleDayRecurringEvent> RecurringEvents { get; private set; } = [];
+        public List<CycleDayRecurringEvent> RecurringEvents { get; private set; } = [];
 
-        public ImmutableArray<CycleDayRecurringEvent> OpenEventList =>
-            RecurringEvents.Where(evt => evt.ending > DateOnly.FromDateTime(DateTime.Today)).ToImmutableArray();
+        public List<CycleDayRecurringEvent> OpenEventList =>
+            RecurringEvents.Where(evt => evt.ending > DateOnly.FromDateTime(DateTime.Today)).ToList();
 
         public CycleDayRecurringEventService(ApiService api, LocalLoggingService logging)
         {
@@ -70,7 +71,8 @@ namespace WinsorApps.Services.Global.Services
             }
             else
             {
-                RecurringEvents = await _api.SendAsync<ImmutableArray<CycleDayRecurringEvent>>(HttpMethod.Get, "api/users/self/cycle-day-recurring-events", onError: onError);
+                RecurringEvents = await _api.SendAsync<List<CycleDayRecurringEvent>>(HttpMethod.Get, "api/users/self/cycle-day-recurring-events", onError: onError)
+                    ?? [];
                 await SaveCache();
             }
             Progress = 1;
@@ -80,7 +82,7 @@ namespace WinsorApps.Services.Global.Services
 
         public async Task Refresh(ErrorAction onError)
         {
-            var result = await _api.SendAsync<ImmutableArray<CycleDayRecurringEvent>>(HttpMethod.Get, "api/users/self/cycle-day-recurring-events", onError: onError);
+            var result = await _api.SendAsync<List<CycleDayRecurringEvent>>(HttpMethod.Get, "api/users/self/cycle-day-recurring-events", onError: onError) ?? [];
             if(!result.SequenceEqual(RecurringEvents))
             {
                 RecurringEvents = result;
@@ -100,9 +102,9 @@ namespace WinsorApps.Services.Global.Services
             _logging.LogMessage(LocalLoggingService.LogLevel.Debug, "called to create new event");
             var result = await _api.SendAsync<CreateRecurringEvent, CycleDayRecurringEvent?>(HttpMethod.Post, "api/users/self/cycle-day-recurring-events", newEvent, onError: onError);
             _logging.LogMessage(LocalLoggingService.LogLevel.Debug, "new event create attempted");
-            if (result.HasValue)
+            if (result is not null)
             {
-                RecurringEvents = RecurringEvents.Add(result.Value);
+                RecurringEvents.Add(result);
                 await SaveCache();
                 OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
                 _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"{newEvent.summary} created");
@@ -120,11 +122,11 @@ namespace WinsorApps.Services.Global.Services
 
             var oldEvent = RecurringEvents.FirstOrDefault(evt => evt.id == eventId);
 
-            if (result.HasValue)
+            if (result is not null)
             {
-                if (!string.IsNullOrEmpty(oldEvent.id))
-                    RecurringEvents = RecurringEvents.Remove(oldEvent);
-                RecurringEvents = RecurringEvents.Add(result.Value);
+                if (!string.IsNullOrEmpty(oldEvent?.id))
+                    RecurringEvents.Remove(oldEvent);
+                RecurringEvents.Add(result);
                 await SaveCache();
                 OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
             }
@@ -135,7 +137,7 @@ namespace WinsorApps.Services.Global.Services
         public async Task DeleteEvent(string eventId, ErrorAction onError)
         {
             await _api.SendAsync(HttpMethod.Delete, $"api/users/self/cycle-day-recurring-events/{eventId}", onError: onError);
-            RecurringEvents = RecurringEvents.Remove(RecurringEvents.First(evt => evt.id == eventId));
+            RecurringEvents.Remove(RecurringEvents.First(evt => evt.id == eventId));
             await SaveCache();
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }

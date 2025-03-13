@@ -8,7 +8,7 @@ using WinsorApps.Services.Helpdesk.Services;
 LocalLoggingService logging = new();
 SavedCredential sc = new();
 ApiService api = new(logging, sc);
-RegistrarService registrar = new RegistrarService(api, logging);
+RegistrarService registrar = new(api, logging);
 DeviceService deviceService = new(api, logging);
 CheqroomService cheqroomService = new(api, logging);
 JamfService jamfService = new(api, logging);

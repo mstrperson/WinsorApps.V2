@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.Bookstore.ViewModels;
 using WinsorApps.MAUI.Shared.ViewModels;
@@ -14,20 +15,12 @@ using SectionRecord = WinsorApps.Services.Global.Models.SectionRecord;
 
 namespace WinsorApps.MAUI.StudentBookstore.ViewModels;
 
-public partial class MyCartViewModel :
+public partial class MyCartViewModel(StudentBookstoreService bookstore, LocalLoggingService logging, RegistrarService registrar) :
     ObservableObject
 {
-    private readonly StudentBookstoreService _bookstore;
-    private readonly RegistrarService _registrar;
-    private readonly LocalLoggingService _logging;
-
-    public MyCartViewModel(StudentBookstoreService bookstore, LocalLoggingService logging, RegistrarService registrar)
-    {
-        _bookstore = bookstore;
-        _logging = logging;
-        _registrar = registrar;
-    }
-
+    private readonly StudentBookstoreService _bookstore = bookstore;
+    private readonly RegistrarService _registrar = registrar;
+    private readonly LocalLoggingService _logging = logging;
     [ObservableProperty] ObservableCollection<SectionCartViewModel> myCart = [];
     [ObservableProperty] SectionCartViewModel selectedSection = SectionCartViewModel.Empty;
     [ObservableProperty] bool showSelected;
@@ -95,7 +88,7 @@ public partial class SectionCartViewModel :
     private SectionCartViewModel() { }
     public SectionCartViewModel(string sectionId, bool fall = true)
     {
-        var sectionModel = _registrar.MyAcademicSchedule.FirstOrDefault(sec => sec.sectionId == sectionId);
+        var sectionModel = _registrar.MyAcademicSchedule.FirstOrDefault(sec => sec.sectionId == sectionId) ?? throw new UnreachableException();
         Section = SectionViewModel.Get(sectionModel);
         if(_bookstore.BookOrdersBySection.TryGetValue(sectionId, out var cached))
         {
@@ -103,7 +96,7 @@ public partial class SectionCartViewModel :
         }
         var bookstoreVM = ServiceHelper.GetService<StudentBookstoreViewModel>();
 
-        var semesterBookList = (fall ? _bookstore.FallBookList : _bookstore.SpringBookList).schedule.FirstOrDefault(list => list.sectionId == sectionId);
+        var semesterBookList = (fall ? _bookstore.FallBookList : _bookstore.SpringBookList).schedule.FirstOrDefault(list => list.sectionId == sectionId) ?? throw new UnreachableException();
         if (semesterBookList.sectionId == sectionId)
             RequiredBooks = [..semesterBookList.studentSections.Select(group => new OptionGroupViewModel(group))];
 
@@ -162,7 +155,7 @@ public partial class SectionCartViewModel :
     {
         Busy = true;
         var result = await _bookstore.CreateOrUpdateBookOrder(Section.Model.Reduce(SectionRecord.Empty).sectionId, RequestedBooks.Select(request => request.Isbn.Isbn), OnError.DefaultBehavior(this));
-        if (!result.HasValue)
+        if (result is null)
         {
             Busy = false;
             return; // there was an error
@@ -193,20 +186,20 @@ public partial class BookRequestViewModel :
     public event EventHandler<BookRequestViewModel>? Selected;
 
     
-    public OptionalStruct<StudentBookRequest> Model { get; private set; } = OptionalStruct<StudentBookRequest>.None();
+    public Optional<StudentBookRequest> Model { get; private set; } = Optional<StudentBookRequest>.None();
 
     private BookRequestViewModel() { }
 
     public static BookRequestViewModel Create(IsbnViewModel isbn) => new()
     {
-        Model = OptionalStruct<StudentBookRequest>.Some(new(DateTime.Now, "", isbn.Isbn)),
+        Model = Optional<StudentBookRequest>.Some(new(DateTime.Now, "", isbn.Isbn)),
         Submitted = DateTime.Now,
         Isbn = isbn
     };
 
     public static BookRequestViewModel Get(StudentBookRequest model) => new()
     {
-        Model = OptionalStruct<StudentBookRequest>.Some(model),
+        Model = Optional<StudentBookRequest>.Some(model),
         Isbn = IsbnViewModel.Get(model.isbn),
         Submitted = model.submitted,
         Status = OrderStatusViewModel.Get(model.status)

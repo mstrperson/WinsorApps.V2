@@ -9,7 +9,7 @@ namespace WinsorApps.MAUI.Shared.ViewModels;
 
 public partial class TaskAwaiterViewModel : ObservableObject
 {
-    private Task _task;
+    private readonly Task _task;
 
     [ObservableProperty] bool ready;
     [ObservableProperty] string taskName;

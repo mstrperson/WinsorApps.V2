@@ -6,22 +6,15 @@ using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.Shared.ViewModels;
 
-public partial class DocumentViewModel : ObservableObject, IErrorHandling
+public partial class DocumentViewModel(DocumentHeader document) : ObservableObject, IErrorHandling
 {
     private readonly ApiService _api = ServiceHelper.GetService<ApiService>();
-    private readonly DocumentHeader _document;
+    private readonly DocumentHeader _document = document;
 
     public event EventHandler<ErrorRecord>? OnError;
 
-    [ObservableProperty] private string fileName;
-    [ObservableProperty] private string type;
-    
-    public DocumentViewModel(DocumentHeader document)
-    {
-        _document = document;
-        fileName = document.fileName;
-        type = document.mimeType;
-    }
+    [ObservableProperty] private string fileName = document.fileName;
+    [ObservableProperty] private string type = document.mimeType;
 
     [RelayCommand]
     public async Task Download()

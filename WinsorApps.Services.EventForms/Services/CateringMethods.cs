@@ -1,4 +1,5 @@
 ﻿using WinsorApps.Services.EventForms.Models;
+using WinsorApps.Services.Global;
 
 namespace WinsorApps.Services.EventForms.Services;
 
@@ -25,7 +26,7 @@ public partial class EventFormsService
         if(!eventBase.hasCatering)
         {
             var update = eventBase with { hasCatering = true };
-            EventsCache = EventsCache.Replace(eventBase, update);
+            EventsCache.Replace(eventBase, update);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
         return cateringDetails;

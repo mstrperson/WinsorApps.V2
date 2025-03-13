@@ -5,33 +5,25 @@ using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.Services.EventForms.Services
 {
-    public class BudgetCodeService : IAsyncInitService, ICacheService
+    public class BudgetCodeService(ApiService api, LocalLoggingService logging) : IAsyncInitService, ICacheService
     {
-        private readonly ApiService _api;
-        private readonly LocalLoggingService _logging;
+        private readonly ApiService _api = api;
+        private readonly LocalLoggingService _logging = logging;
 
         public event EventHandler? OnCacheRefreshed;
 
-
-
-        public BudgetCodeService(ApiService api, LocalLoggingService logging)
-        {
-            _api = api;
-            _logging = logging;
-        }
-
-        public ImmutableArray<BudgetCode> BudgetCodes { get; private set; } = [];
+        public List<BudgetCode> BudgetCodes { get; private set; } = [];
 
         public BudgetCode? GetCode(string id) => BudgetCodes.Any(bc => bc.codeId == id) ? BudgetCodes.First(bc => bc.codeId == id) : null;
 
         public async Task<BudgetCode?> CreateNewBudgetCode(string accountNumber, string commonName, ErrorAction onError)
         {
-            NewBudgetCode code = new NewBudgetCode(accountNumber, commonName);
+            NewBudgetCode code = new(accountNumber, commonName);
             var result = await _api.SendAsync<NewBudgetCode, BudgetCode?>(HttpMethod.Post, "api/budget-codes", code, onError: onError);
 
-            if (result.HasValue && !string.IsNullOrEmpty(result.Value.codeId) && !BudgetCodes.Any(code => code.codeId == result.Value.codeId))
+            if (result is not null && !string.IsNullOrEmpty(result.codeId) && !BudgetCodes.Any(code => code.codeId == result.codeId))
             {
-                BudgetCodes = BudgetCodes.Add(result.Value);
+                BudgetCodes.Add(result);
                 OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
             }
             return result;
@@ -54,7 +46,7 @@ namespace WinsorApps.Services.EventForms.Services
             Progress = 0;
             if (!LoadCache())
             {
-                BudgetCodes = await _api.SendAsync<ImmutableArray<BudgetCode>?>(HttpMethod.Get, "api/budget-codes", onError: onError) ?? [];
+                BudgetCodes = await _api.SendAsync<List<BudgetCode>?>(HttpMethod.Get, "api/budget-codes", onError: onError) ?? [];
                 await SaveCache();
             }
             Progress = 1;
@@ -63,7 +55,7 @@ namespace WinsorApps.Services.EventForms.Services
 
         public async Task Refresh(ErrorAction onError)
         {
-            var result = await _api.SendAsync<ImmutableArray<BudgetCode>?>(HttpMethod.Get, "api/budget-codes", onError: onError) ?? [];
+            var result = await _api.SendAsync<List<BudgetCode>?>(HttpMethod.Get, "api/budget-codes", onError: onError) ?? [];
             if (!result.SequenceEqual(BudgetCodes))
             {
                 BudgetCodes = result;
@@ -83,6 +75,7 @@ namespace WinsorApps.Services.EventForms.Services
         }
 
         public string CacheFileName => ".budget-code.cache";
+        public void ClearCache() { if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}"); }
         public async Task SaveCache()
         {
             var json = JsonSerializer.Serialize(BudgetCodes);
@@ -97,7 +90,7 @@ namespace WinsorApps.Services.EventForms.Services
             try
             {
                 var json = File.ReadAllText($"{_logging.AppStoragePath}{CacheFileName}");
-                BudgetCodes = JsonSerializer.Deserialize<ImmutableArray<BudgetCode>>(json);
+                BudgetCodes = JsonSerializer.Deserialize<List<BudgetCode>>(json) ?? [];
                 return true;
             }
             catch

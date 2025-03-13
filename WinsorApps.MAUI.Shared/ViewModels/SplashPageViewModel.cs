@@ -7,30 +7,19 @@ using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.Shared.ViewModels;
 
-public partial class SplashPageViewModel : ObservableObject
+public partial class SplashPageViewModel(string title, List<string>? startingMessages = null, TimeSpan? timeout = null) : ObservableObject
 {
-    [ObservableProperty] string title;
+    [ObservableProperty] string title = title;
 
-    [ObservableProperty] string subTitle;
+    [ObservableProperty] string subTitle = "";
 
-    [ObservableProperty] ImmutableArray<string> messages;
+    [ObservableProperty] List<string> messages = startingMessages ?? [];
 
-    [ObservableProperty] bool isCaptive;
+    [ObservableProperty] bool isCaptive = true;
 
-    [ObservableProperty] TimeSpan timeout;
+    [ObservableProperty] TimeSpan timeout = timeout ?? TimeSpan.MaxValue;
 
     public event EventHandler? OnClose;
-
-    public SplashPageViewModel(string title, ImmutableArray<string>? startingMessages = null, TimeSpan? timeout = null)
-    {
-        this.title = title;
-        subTitle = "";
-        messages = startingMessages ?? [];
-        isCaptive = true;
-        this.timeout = timeout ?? TimeSpan.MaxValue;
-
-
-    }
 
     private void TimeoutFireAndForget()
     {

@@ -61,25 +61,25 @@ public partial class BookSearchViewModel :
             books = books
                 .Where(book =>
                     book.authors.Any(auth => auth.Contains(AuthorSearch, StringComparison.InvariantCultureIgnoreCase)))
-                .ToImmutableArray();
+                .ToList();
 
         if (SearchByIsbn)
             books = books
                 .Where(book =>
                     book.isbns.Any(isbn => isbn.isbn.Contains(IsbnSearch)))
-                .ToImmutableArray();
+                .ToList();
 
         if (SearchByPublisher)
             books = books
                 .Where(book =>
                     book.publisher.Contains(PublisherSearch, StringComparison.InvariantCultureIgnoreCase))
-                .ToImmutableArray();
+                .ToList();
 
         if (SearchByTitle)
             books = books
                 .Where(book =>
                     book.title.Contains(TitleSearch, StringComparison.InvariantCultureIgnoreCase))
-                .ToImmutableArray();
+                .ToList();
 
         Options = [..BookViewModel.GetClonedViewModels(books)];
         foreach (var vm in Options)
@@ -124,7 +124,7 @@ public partial class BookISBNSelectionViewModel :
     [ObservableProperty] BookViewModel selectedBook = BookViewModel.Empty;
 
     public event EventHandler<ErrorRecord>? OnError;
-    public event EventHandler<ImmutableArray<IsbnViewModel>>? IsbnsSelected;
+    public event EventHandler<List<IsbnViewModel>>? IsbnsSelected;
 
     public BookISBNSelectionViewModel()
     {

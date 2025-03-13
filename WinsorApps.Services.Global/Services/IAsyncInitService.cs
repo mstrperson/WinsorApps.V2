@@ -6,6 +6,8 @@ public interface IAsyncInitService
 
     public Task SaveCache();
 
+    public void ClearCache();
+
     /// <summary>
     /// Attempt to Load Cache from file.  returns success status.
     /// </summary>

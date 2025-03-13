@@ -63,13 +63,13 @@ public partial class EventListPageViewModel :
             LoadEvents([.. _admin.AllEvents]);
     }
 
-    public void LoadEvents(ImmutableArray<EventFormBase> events)
+    public void LoadEvents(List<EventFormBase> events)
     {
         Busy = true;
         BusyMessage = "Loading Events.";
 
-        var diff = events.Where(evt => AllEvents.All(af => !af.Form.Model.Map(e => e.IsSameAs(evt)).Reduce(true))).ToImmutableArray();
-        var updates = AllEvents.Where(af => diff.Any(evt => af.Form.Model.Map(e => e.id == evt.id).Reduce(false))).ToImmutableArray();
+        var diff = events.Where(evt => AllEvents.All(af => !af.Form.Model.MapStruct(e => e.IsSameAs(evt)).Reduce(true))).ToList();
+        var updates = AllEvents.Where(af => diff.Any(evt => af.Form.Model.MapStruct(e => e.id == evt.id).Reduce(false))).ToList();
 
 
         AllEvents = [..  AllEvents.Except(updates), .. diff]; 
@@ -114,7 +114,7 @@ public partial class EventListPageViewModel :
         Busy = false;
     }
 
-    private static string[] SpecificStates = [ApprovalStatusLabel.Pending, ApprovalStatusLabel.Approved, ApprovalStatusLabel.RoomNotCleared];
+    private static readonly string[] SpecificStates = [ApprovalStatusLabel.Pending, ApprovalStatusLabel.Approved, ApprovalStatusLabel.RoomNotCleared];
 
     [RelayCommand]
     public async Task NextPage()

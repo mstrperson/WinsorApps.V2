@@ -4,16 +4,11 @@ using WinsorApps.Services.Helpdesk.Models;
 
 namespace WinsorApps.Services.Helpdesk.Services;
 
-public class JamfService : IAsyncInitService
+public class JamfService(ApiService api, LocalLoggingService logging) : IAsyncInitService
 {
-    private readonly ApiService _api;
-    private readonly LocalLoggingService _logging;
+    private readonly ApiService _api = api;
+    private readonly LocalLoggingService _logging = logging;
 
-    public JamfService(ApiService api, LocalLoggingService logging)
-    {
-        _api = api;
-        _logging = logging;
-    }
     public async Task WaitForInit(ErrorAction onError)
     {
         if (Ready) return;
@@ -29,22 +24,13 @@ public class JamfService : IAsyncInitService
 
     public bool Ready { get; private set; } = false;
 
-    private ImmutableArray<Department>? _departments;
-    public ImmutableArray<Department> Departments
-    {
-        get
-        {
-            if (!Ready || !_departments.HasValue)
-                throw new ServiceNotReadyException(_logging, "Jamf Service has not populated departments yet.");
-
-            return _departments.Value;
-        }
-    }
+    public List<Department> Departments { get; private set; } = [];
 
     public bool Started { get; private set; }
     public double Progress { get; private set; } = 0;
 
-    public string CacheFileName => throw new NotImplementedException();
+    public string CacheFileName => "jamf.cache.json";
+    public void ClearCache() { if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}"); }
 
     public async Task Refresh(ErrorAction onError)
     {
@@ -58,8 +44,8 @@ public class JamfService : IAsyncInitService
         if (Started) return;
 
         Started = true;
-        _departments = await _api.SendAsync<ImmutableArray<Department>>(HttpMethod.Get,
-            "api/devices/jamf/departments", onError: onError);
+        Departments = await _api.SendAsync<List<Department>>(HttpMethod.Get,
+            "api/devices/jamf/departments", onError: onError) ?? [];
         Progress = 1;
         Ready = true;
     }

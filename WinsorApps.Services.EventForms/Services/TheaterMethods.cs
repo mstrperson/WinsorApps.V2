@@ -1,4 +1,5 @@
 ﻿using WinsorApps.Services.EventForms.Models;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.Services.EventForms.Services;
@@ -13,11 +14,11 @@ public partial class EventFormsService
         var result = await _api.SendAsync<NewTheaterEvent, TheaterEvent?>(HttpMethod.Post,
             $"api/events/{eventId}/theater", newTheater, onError: onError);
 
-        if(result.HasValue)
+        if(result is not null)
         {
             var evt = EventsCache.First(e => e.id == eventId);
             var updated = evt with { hasTheaterRequest = true };
-            EventsCache = EventsCache.Replace(evt, updated);
+            EventsCache.Replace(evt, updated);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
         return result;
@@ -36,7 +37,7 @@ public partial class EventFormsService
         {
             var evt = EventsCache.First(e => e.id == eventId);
             var updated = evt with { hasTheaterRequest = false };
-            EventsCache = EventsCache.Replace(evt, updated);
+            EventsCache.Replace(evt, updated);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
 
@@ -72,7 +73,7 @@ public partial class EventFormsService
     {
         var result = await _api.UploadDocument($"api/events/{eventId}/file-upload", header, fileContent, onError);
 
-        if(result.HasValue)
+        if(result is not null)
         {
             _logging.LogMessage(Global.Services.LocalLoggingService.LogLevel.Information,
                 $"Uploaded {header.fileName} to event {eventId}.");
@@ -87,6 +88,6 @@ public partial class EventFormsService
     {
         // TODO: fix the API Endpoint...
 
-        return new();
+        throw new NotImplementedException();
     }
 }

@@ -1,27 +1,29 @@
 using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.Services.Helpdesk.Models;
-public readonly record struct ServiceCaseHistory(ImmutableArray<ServiceCase> serviceCases, double lifetimeRepairCost);
+public record ServiceCaseHistory(List<ServiceCase> serviceCases, double lifetimeRepairCost);
 
-    public readonly record struct ServiceCaseNoteRecord(string notes, string from);
-    public readonly record struct ServiceCase(
+    public record ServiceCaseNoteRecord(string notes, string from);
+    public record ServiceCase(
         string id, 
         DeviceRecord device, 
         UserRecord owner, 
-        ImmutableArray<string> commonIssues,
+        List<string> commonIssues,
         string intakeNotes, 
         DateTime opened, 
         DateTime? closed, 
         string status, 
-        ImmutableArray<ServiceCaseNoteRecord> additionalNotes,
-        ImmutableArray<DocumentHeader> attachedDocuments, 
+        List<ServiceCaseNoteRecord> additionalNotes,
+        List<DocumentHeader> attachedDocuments, 
         double repairCost = 0, 
         string loaner = "")
 {
     public ServiceCase AddLoaner(string assetTag) => new(id, device, owner, commonIssues, intakeNotes, opened, closed, status, additionalNotes, attachedDocuments, repairCost, assetTag);
+
+    public static ServiceCase Empty => new("", DeviceRecord.Empty, UserRecord.Empty, [], "", DateTime.Now, null, "", [], [], 0, "");
 }
 
-    public readonly record struct ServiceStatus(string id, string text, string description, string defaultNextId, bool isClosed)
+    public record ServiceStatus(string id, string text, string description, string defaultNextId, bool isClosed)
     {
         public override string ToString() => text;
 
@@ -40,7 +42,7 @@ public readonly record struct ServiceCaseHistory(ImmutableArray<ServiceCase> ser
         }*/
     }
 
-    public readonly record struct ServiceCaseCommonIssue(string id, string status, string description)
+    public record ServiceCaseCommonIssue(string id, string status, string description)
     {
         public override string ToString() => status;
     }
@@ -52,8 +54,8 @@ public readonly record struct ServiceCaseHistory(ImmutableArray<ServiceCase> ser
     /// <param name="commonIssueIds">Ids for selected common issues</param>
     /// <param name="intakeNotes">Notes for this case</param>
     /// <param name="openingStatusId">Id of the selected opening status</param>
-    public readonly record struct NewServiceCase(string deviceId, ImmutableArray<string> commonIssueIds, string intakeNotes, string openingStatusId);
-    public readonly record struct UpdateServiceCase(string caseId, string? statusId = null, string? notes = null, ImmutableArray<string>? commonIssueIds = null);
+    public record NewServiceCase(string deviceId, List<string> commonIssueIds, string intakeNotes, string openingStatusId);
+    public record UpdateServiceCase(string caseId, string? statusId = null, string? notes = null, List<string>? commonIssueIds = null);
 
     public record ServiceCaseFilter(bool? open = null, string? status = null, string? deviceId = null, string? ownerId = null,
         DateTime start = default, DateTime end = default)
@@ -62,7 +64,7 @@ public readonly record struct ServiceCaseHistory(ImmutableArray<ServiceCase> ser
         {
             get
             {
-                List<string> queryParams = new List<string>();
+                List<string> queryParams = [];
                 if (open is not null) queryParams.Add($"open={open}"); 
                 if (status is not null) queryParams.Add($"status={status}");
                 if (deviceId is not null) queryParams.Add($"deviceId={deviceId}");

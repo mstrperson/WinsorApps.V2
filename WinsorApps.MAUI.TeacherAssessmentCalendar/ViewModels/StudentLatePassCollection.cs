@@ -10,7 +10,7 @@ using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.MAUI.TeacherAssessmentCalendar.ViewModels;
 
-public partial class StudentLatePassCollectionViewModel :
+public partial class StudentLatePassCollectionViewModel(UserViewModel student) :
     ObservableObject,
     IErrorHandling,
     IBusyViewModel
@@ -19,13 +19,7 @@ public partial class StudentLatePassCollectionViewModel :
 
     public event EventHandler<ErrorRecord>? OnError;
 
-    [ObservableProperty] UserViewModel student;
-
-    public StudentLatePassCollectionViewModel(UserViewModel student)
-    {
-        this.student = student;
-    }
-
+    [ObservableProperty] UserViewModel student = student;
     [ObservableProperty] ObservableCollection<TeacherLatePassViewModel> latePasses = [];
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "";
@@ -54,9 +48,9 @@ public partial class StudentLatePassCollectionViewModel :
     public async Task RequestNewPassFor(AssessmentCalendarEvent assessment)
     {
         var pass = await _service.RequestPassForStudent(Student.Id, assessment.id, OnError.DefaultBehavior(this));
-        if(pass.HasValue)
+        if(pass is not null)
         {
-            var detail = new AssessmentPassDetail(assessment, Student.Model.Reduce(UserRecord.Empty), pass.Value.timeStamp, MakeupTime.Default);
+            var detail = new AssessmentPassDetail(assessment, Student.Model.Reduce(UserRecord.Empty), pass.timeStamp, MakeupTime.Default);
             TeacherLatePassViewModel vm = LatePassViewModel.Get(detail);
             vm.Withdrawn += (_, _) => LatePasses.Remove(vm);
             LatePasses.Add(vm);
@@ -64,7 +58,7 @@ public partial class StudentLatePassCollectionViewModel :
     }
 }
 
-public partial class TeacherLatePassViewModel :
+public partial class TeacherLatePassViewModel(LatePassViewModel latePass) :
     ObservableObject,
     IErrorHandling,
     IBusyViewModel
@@ -74,15 +68,11 @@ public partial class TeacherLatePassViewModel :
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler? Withdrawn;
 
-    [ObservableProperty] LatePassViewModel latePass;
+    [ObservableProperty] LatePassViewModel latePass = latePass;
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "";
 
     public static implicit operator TeacherLatePassViewModel(LatePassViewModel model) => new(model);
-    public TeacherLatePassViewModel(LatePassViewModel latePass)
-    {
-        this.latePass = latePass;
-    }
 
     [RelayCommand]
     public async Task WithdrawPass()

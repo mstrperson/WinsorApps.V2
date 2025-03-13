@@ -1,14 +1,17 @@
 ﻿using System.Collections.Immutable;
 
 namespace WinsorApps.Services.EventForms.Models;
-public readonly record struct NewVirtualEvent(bool webinar, bool registration, bool chatEnabled,
+public record NewVirtualEvent(bool webinar, bool registration, bool chatEnabled,
         bool qaEnabled, string qaSupportPerson, bool recording, bool reminder, bool transcript,
-        bool registrantList, bool zoomLink, string hostContactId, ImmutableArray<string> panelistIds);
+        bool registrantList, bool zoomLink, string hostContactId, List<string> panelistIds);
 
-public readonly record struct NewTechEvent(bool presence, bool equipment, bool help, string details, NewVirtualEvent? virtualEvent = null);
+public record NewTechEvent(bool presence, bool equipment, bool help, string details, NewVirtualEvent? virtualEvent = null);
 
-public readonly record struct VirtualEvent(bool webinar, bool registration, bool chatEnabled,
+public record VirtualEvent(bool webinar, bool registration, bool chatEnabled,
     bool qaEnabled, string qaSupportPerson, bool recording, bool reminder, bool transcript,
-    bool registrantList, bool zoomLink, Contact? hostContact, ImmutableArray<Contact> panelists);
+    bool registrantList, bool zoomLink, Contact? hostContact, List<Contact> panelists);
 
-public readonly record struct TechEvent(string id, bool presence, bool equipment, bool help, string details, VirtualEvent? virtualEvent = null);
+public record TechEvent(string id, bool presence, bool equipment, bool help, string details, VirtualEvent? virtualEvent = null)
+{
+    public static readonly TechEvent Empty = new("", false, false, false, "", null);
+}

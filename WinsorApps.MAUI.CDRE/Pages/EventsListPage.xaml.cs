@@ -23,7 +23,7 @@ public partial class EventsListPage : ContentPage
 
     private void PushEditor(object? sender, RecurringEventViewModel e)
     {
-        Editor editor = new Editor(e);
+        Editor editor = new(e);
         Navigation.PushAsync(editor);
     }
 

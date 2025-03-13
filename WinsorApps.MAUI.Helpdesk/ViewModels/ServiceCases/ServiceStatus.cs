@@ -20,7 +20,7 @@ public partial class ServiceStatusViewModel :
     [ObservableProperty] ServiceStatusViewModel next = _empty;
     [ObservableProperty] bool isSelected;
 
-    private static ServiceStatusViewModel _empty = new();
+    private static readonly ServiceStatusViewModel _empty = new();
 
     public static ServiceStatusViewModel Empty => _empty;
 

@@ -5,28 +5,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WinsorApps.Services.Athletics.Models;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.Services.Athletics.Services;
 
-public class WorkoutService :
+public class WorkoutService(ApiService api, LocalLoggingService logging) :
     IAsyncInitService
 {
-    private readonly ApiService _api;
-    private readonly LocalLoggingService _logging;
+    private readonly ApiService _api = api;
+    private readonly LocalLoggingService _logging = logging;
 
-    public ImmutableArray<string> Tags { get; private set; } = [];
+    public List<string> Tags { get; private set; } = [];
 
-    public ImmutableArray<Workout> OpenWorkouts { get; private set; } = [];
-
-    public WorkoutService(ApiService api, LocalLoggingService logging)
-    {
-        _api = api;
-        _logging = logging;
-    }
+    public List<Workout> OpenWorkouts { get; private set; } = [];
 
     public string CacheFileName => $"{_logging.AppStoragePath}{Path.DirectorySeparatorChar}.workout.cache";
+    public void ClearCache() { if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}"); }
 
     public bool Started { get; private set; }
 
@@ -43,26 +39,26 @@ public class WorkoutService :
 
         OpenWorkouts = await GetOpenWorkouts(onError);
 
-        Tags = await _api.SendAsync<ImmutableArray<string>>(HttpMethod.Get, "api/athletics/tags/list", onError: onError);
+        Tags = await _api.SendAsync<List<string>>(HttpMethod.Get, "api/athletics/tags/list", onError: onError) ?? [];
 
         Progress = 1;
         Ready = true;
     }
 
-    public async Task<ImmutableArray<Workout>> GetOpenWorkouts(ErrorAction onError)
+    public async Task<List<Workout>> GetOpenWorkouts(ErrorAction onError)
     {
-        var result = await _api.SendAsync<ImmutableArray<Workout>?>(HttpMethod.Get, "api/athletics/open-workouts", onError: onError);
-        if (!result.HasValue)
+        var result = await _api.SendAsync<List<Workout>?>(HttpMethod.Get, "api/athletics/open-workouts", onError: onError);
+        if (result is null)
             return [];
 
-        return [.. result.Value.Where(wk => !wk.invalidated)];
+        return [.. result.Where(wk => !wk.invalidated)];
     }
 
-    public async Task<Workout?> SignIn(string studentId, ImmutableArray<string> tags, ErrorAction onError)
+    public async Task<Workout?> SignIn(string studentId, List<string> tags, ErrorAction onError)
     {
-        var result = await _api.SendAsync<ImmutableArray<string>,Workout?>(HttpMethod.Post, $"api/athletics/{studentId}/sign-in", tags, onError: onError);
-        if (result.HasValue)
-            OpenWorkouts = [.. OpenWorkouts, result.Value];
+        var result = await _api.SendAsync<List<string>,Workout?>(HttpMethod.Post, $"api/athletics/{studentId}/sign-in", tags, onError: onError);
+        if (result is not null)
+            OpenWorkouts = [.. OpenWorkouts, result];
 
         return result;
     }
@@ -70,13 +66,13 @@ public class WorkoutService :
     public async Task<Workout?> SignOut(string workoutId, ErrorAction onError)
     {
         var result = await _api.SendAsync<Workout?>(HttpMethod.Post, $"api/athletics/{workoutId}/sign-out", onError: onError);
-        if (result.HasValue)
+        if (result is not null)
         {
             var exisiting = OpenWorkouts.FirstOrDefault(wk => wk.id == workoutId);
             if (exisiting == default)
-                OpenWorkouts = [.. OpenWorkouts, result.Value];
+                OpenWorkouts = [.. OpenWorkouts, result];
             else
-                OpenWorkouts = OpenWorkouts.Replace(exisiting, result.Value);
+                OpenWorkouts.Replace(exisiting, result);
         }
 
         return result;
@@ -95,7 +91,7 @@ public class WorkoutService :
         {
             var workout = OpenWorkouts.FirstOrDefault(wk => wk.id == workoutId);
             if (workout != default)
-                OpenWorkouts = OpenWorkouts.Remove(workout);
+                OpenWorkouts.Remove(workout);
         }
 
         return success;
@@ -136,9 +132,9 @@ public class WorkoutService :
     public async Task<Workout?> CreateOrUpdateWorkout(Workout workout, ErrorAction onError)
     {
         var result = await _api.SendAsync<Workout, Workout?>(HttpMethod.Put, "api/athletics/direct-edit", workout, onError: onError);
-        if (result.HasValue)
+        if (result is not null)
         {
-            workout = result.Value;
+            workout = result;
                
             OpenWorkouts = [.. OpenWorkouts.Except(OpenWorkouts.Where(wk => wk.id == workout.id)), workout];
         }

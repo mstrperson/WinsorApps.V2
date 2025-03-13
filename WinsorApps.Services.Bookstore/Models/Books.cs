@@ -2,19 +2,19 @@ using System.Collections.Immutable;
 
 namespace WinsorApps.Services.Bookstore.Models;
 
-public readonly record struct BookSearchFilter(string? title = null, string? isbn = null, string? publisher = null)
+public record BookSearchFilter(string? title = null, string? isbn = null, string? publisher = null)
 {
     public bool IsMatchFor(BookDetail book)
     {
-        if (!book.title.ToLowerInvariant().Contains((title ?? "").ToLowerInvariant()))
+        if (!book.title.Contains(title ?? "", StringComparison.InvariantCultureIgnoreCase))
             return false;
 
         var thisIsbn = isbn;
         if (!string.IsNullOrEmpty(thisIsbn) &&
-            book.isbns.All(entry => entry.isbn.ToUpperInvariant() != thisIsbn.ToUpperInvariant()))
+            book.isbns.All(entry => !entry.isbn.Equals(thisIsbn, StringComparison.InvariantCultureIgnoreCase)))
             return false;
 
-        if (!book.publisher.ToLowerInvariant().Contains((publisher ?? "").ToLowerInvariant()))
+        if (!book.publisher.Contains(publisher ?? "", StringComparison.InvariantCultureIgnoreCase))
             return false;
 
         return true;
@@ -22,14 +22,14 @@ public readonly record struct BookSearchFilter(string? title = null, string? isb
 
     public bool IsMatchFor(ISBNDetail isbnInfo)
     {
-        if (!isbnInfo.bookInfo.title.ToLowerInvariant().Contains((title ?? "").ToLowerInvariant()))
+        if (!isbnInfo.bookInfo.title.Contains(title ?? "", StringComparison.InvariantCultureIgnoreCase))
             return false;
 
         var thisIsbn = isbn;
-        if (!string.IsNullOrEmpty(thisIsbn) && isbnInfo.isbn.ToUpperInvariant() != thisIsbn.ToUpperInvariant())
+        if (!string.IsNullOrEmpty(thisIsbn) && !isbnInfo.isbn.Equals(thisIsbn, StringComparison.InvariantCultureIgnoreCase))
             return false;
 
-        if (!isbnInfo.bookInfo.publisher.ToLowerInvariant().Contains((publisher ?? "").ToLowerInvariant()))
+        if (!isbnInfo.bookInfo.publisher.Contains(publisher ?? "", StringComparison.InvariantCultureIgnoreCase))
             return false;
 
         return true;
@@ -60,7 +60,11 @@ public readonly record struct BookSearchFilter(string? title = null, string? isb
     }
 }
 
-public readonly record struct OdinData(string plu, double price, bool current);
+public record OdinData(string plu, double price, bool current)
+{
+    public static readonly OdinData None = new("", 0, false);
+}
+
 
 /// <summary>
 /// TODO:  why does this need to be a reference type again?  I know I did this on purpose, but why...
@@ -82,14 +86,14 @@ public record BookBinding(string id, string binding)
     public override string ToString() => binding;
 }
 
-public readonly record struct BookDetail(
+public record BookDetail(
     string id,
     string title,
-    ImmutableArray<string> authors,
+    List<string> authors,
     string edition,
     DateOnly publicationDate,
     string publisher,
-    ImmutableArray<ISBNInfo> isbns)
+    List<ISBNInfo> isbns)
 {
     public static readonly BookDetail Empty = new("", "", [], "", default, "", []);
     public override string ToString() => $"{title}, {authors.Aggregate((a, b) => $"{a}; {b}")} [{publisher}]";
@@ -98,25 +102,28 @@ public readonly record struct BookDetail(
         new(details.id, details.title, details.authors, details.edition, details.publicationDate, details.publisher);
 }
 
-public readonly record struct BookInfo(
+public record BookInfo(
     string id,
     string title,
-    ImmutableArray<string> authors,
+    List<string> authors,
     string edition,
     DateOnly publicationDate,
     string publisher);
 
-public readonly record struct ISBNInfo(string isbn, string binding, bool available, bool hasOdinData);
+public record ISBNInfo(string isbn, string binding, bool available, bool hasOdinData)
+{
+    public static readonly ISBNInfo Empty = new("", "None", false, false);
+}
 
-public readonly record struct ISBNDetail(string isbn, string binding, OdinData? odinData, BookInfo bookInfo);
+public record ISBNDetail(string isbn, string binding, OdinData? odinData, BookInfo bookInfo);
 
-public readonly record struct CreateBook(
+public record CreateBook(
     string title,
     string publisher,
-    ImmutableArray<string> authors,
+    List<string> authors,
     DateOnly publishDate = default,
     string edition = "");
 
-public readonly record struct CreateISBN(string isbn, string bindingId, CreateOdinData? odinData = null);
+public record CreateISBN(string isbn, string bindingId, CreateOdinData? odinData = null);
 
-public readonly record struct CreateOdinData(string plu, double price);
+public record CreateOdinData(string plu, double price);

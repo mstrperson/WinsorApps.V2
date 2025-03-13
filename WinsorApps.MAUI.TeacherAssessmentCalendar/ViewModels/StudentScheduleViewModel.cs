@@ -32,7 +32,9 @@ public partial class ScheduleViewModel :
     {
         var registrar = ServiceHelper.GetService<RegistrarService>();
         var logging = ServiceHelper.GetService<LocalLoggingService>();
-        var sections = await registrar.GetAcademicScheduleFor(student.Model.Reduce(UserRecord.Empty).id, OnError.DefaultBehavior(this));
+        var sections = (await registrar
+            .GetAcademicScheduleFor(student.Model.Reduce(UserRecord.Empty).id, OnError.DefaultBehavior(this)))
+            .Where(section => section.isCurrent);
         Student = student;
         Sections = [.. SectionViewModel.GetClonedViewModels(sections)];
         foreach (var section in Sections)

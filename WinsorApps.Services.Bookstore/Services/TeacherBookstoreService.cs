@@ -7,33 +7,26 @@ using WinsorApps.Services.Global.Services;
 using ProtoSection = WinsorApps.Services.Bookstore.Models.ProtoSection;
 
 namespace WinsorApps.Services.Bookstore.Services;
-public partial class TeacherBookstoreService :
+public partial class TeacherBookstoreService(LocalLoggingService logging, ApiService api, RegistrarService registrar) :
     IAsyncInitService
 {
-    private readonly ApiService _api;
-    private readonly LocalLoggingService _logging;
-    private readonly RegistrarService _registrar;
+    private readonly ApiService _api = api;
+    private readonly LocalLoggingService _logging = logging;
+    private readonly RegistrarService _registrar = registrar;
 
-    public TeacherBookstoreService(LocalLoggingService logging, ApiService api, RegistrarService registrar)
-    {
-        _logging = logging;
-        _api = api;
-        _registrar = registrar;
-    }
-
-    private readonly record struct CacheSchema(
-        ImmutableArray<OrderStatus> orderStatusOptions,
-        ImmutableArray<OrderOption> orderOptions,
-        ImmutableArray<CourseRecord> courses,
-        ImmutableArray<ProtoSection> sections,
-        ImmutableArray<TeacherBookOrder> myOrders,
-        ImmutableArray<SummerSection> summerSections);
+    private record CacheSchema(
+        List<OrderStatus> orderStatusOptions,
+        List<OrderOption> orderOptions,
+        List<CourseRecord> courses,
+        List<ProtoSection> sections,
+        List<TeacherBookOrder> myOrders,
+        List<SummerSection> summerSections);
 
     public SchoolYear CurrentBookOrderYear => DateTime.Today.Month >= 3 ?
         _registrar.SchoolYears.First(sy => sy.startDate.Year == DateTime.Today.Year) :
         _registrar.SchoolYears.First(sy => sy.endDate.Year == DateTime.Today.Year);
 
-    public ImmutableArray<OrderStatus> OrderStatusOptions { get; private set; } = [];
+    public List<OrderStatus> OrderStatusOptions { get; private set; } = [];
 
     public async Task Initialize(ErrorAction onError)
     {
@@ -44,7 +37,7 @@ public partial class TeacherBookstoreService :
             return;
 
         Started = true;
-        if (!LoadCache() || (_myProtoSections?.Any(sec => sec.schoolYearId != CurrentBookOrderYear.id) ?? false))
+        if (!LoadCache() || MySections.Any(sec => sec.schoolYearId != CurrentBookOrderYear.id))
             await Refresh(onError);
         Progress = 1;
         Ready = true;
@@ -52,54 +45,15 @@ public partial class TeacherBookstoreService :
 
     public bool Ready { get; protected set; }
 
-    private ImmutableArray<OrderOption>? _orderOptions;
-    public ImmutableArray<OrderOption> OrderOptions
-    {
-        get
-        {
-            if (!_orderOptions.HasValue || !Ready)
-                throw new ServiceNotReadyException(_logging, "Cannot retreive Order Options yet, wait for service to initialize.");
+    public List<OrderOption> OrderOptions { get; private set; } = [];
+    
+    public Dictionary<string, List<CourseRecord>> CoursesByDepartment { get; private set; } = [];
 
-            return _orderOptions.Value;
-        }
-    }
+    public List<ProtoSection> MySections { get; private set; } = [];
 
-    private Dictionary<string, List<CourseRecord>>? _coursesByDept;
-    public Dictionary<string, List<CourseRecord>> CoursesByDepartment
-    {
-        get
-        {
-            if (_coursesByDept is null || !Ready)
-                throw new ServiceNotReadyException(_logging, "Cannot retreive Courses yet, wait for service to initialize.");
+    public List<TeacherBookOrder> MyOrders { get; private set; } = [];
 
-            return _coursesByDept!;
-        }
-    }
-
-    private List<ProtoSection>? _myProtoSections;
-    public ImmutableArray<ProtoSection> MySections
-    {
-        get
-        {
-            if (!Ready) return Enumerable.Empty<ProtoSection>().ToImmutableArray();
-
-            return _myProtoSections?.ToImmutableArray() ?? Enumerable.Empty<ProtoSection>().ToImmutableArray();
-        }
-    }
-
-    private List<TeacherBookOrder>? _myOrders;
-    public ImmutableArray<TeacherBookOrder> MyOrders
-    {
-        get
-        {
-            if (!Ready)
-                throw new ServiceNotReadyException(_logging, "Cannot retrieve My Orders because the service is not ready yet.");
-
-            return [.. _myOrders!];
-        }
-    }
-
-    public ImmutableArray<TeacherBookOrder> CurrentYearOrders => MyOrders.Where(ord => ord.schoolYearId == CurrentBookOrderYear.id).ToImmutableArray();
+    public List<TeacherBookOrder> CurrentYearOrders => MyOrders.Where(ord => ord.schoolYearId == CurrentBookOrderYear.id).ToList();
 
     public string CacheFileName => "teacher-bookstore.cache";
 
@@ -112,12 +66,12 @@ public partial class TeacherBookstoreService :
             $"api/book-orders/teachers?courseId={courseId}&fall={fall}",
             onError: onError);
 
-        if (result.HasValue)
+        if (result is not null)
         {
-            if (MySections.All(sec => sec.id != result.Value.id))
+            if (MySections.All(sec => sec.id != result.id))
             {
-                _myProtoSections!.Add(result.Value);
-                _myOrders!.Add(new(result.Value.id, result.Value.schoolYearId, result.Value.createdTimeStamp, []));
+                MySections.Add(result);
+                MyOrders.Add(new(result.id, result.schoolYearId, result.createdTimeStamp, []));
             }
 
             await SaveCache();
@@ -126,10 +80,10 @@ public partial class TeacherBookstoreService :
         return result;
     }
 
-    public async Task<ImmutableArray<TeacherBookOrderGroup>> GetGroupedOrders(string sectionId, ErrorAction onError)
+    public async Task<List<TeacherBookOrderGroup>> GetGroupedOrders(string sectionId, ErrorAction onError)
     {
-        var result = await _api.SendAsync<ImmutableArray<TeacherBookOrderGroup>>(HttpMethod.Get, $"api/book-orders/teachers/{sectionId}/groups", onError: onError);
-        return result;
+        var result = await _api.SendAsync<List<TeacherBookOrderGroup>>(HttpMethod.Get, $"api/book-orders/teachers/{sectionId}/groups", onError: onError);
+        return result ?? [];
     }
 
     public async Task<bool> DeleteSection(string sectionId, ErrorAction onError)
@@ -140,12 +94,12 @@ public partial class TeacherBookstoreService :
             onError: onError);
 
         var existing = MySections.FirstOrDefault(sec => sec.id == sectionId);
-        if (existing != default)
-            _myProtoSections!.Remove(existing);
+        if (existing is not null)
+            MySections.Remove(existing);
 
         var order = MyOrders.FirstOrDefault(ord => ord.protoSectionId == sectionId);
-        if (order != default)
-            _myOrders!.Remove(order);
+        if (order is not null)
+            MyOrders.Remove(order);
 
         await SaveCache();
         return success;
@@ -180,18 +134,15 @@ public partial class TeacherBookstoreService :
 
     private async Task<TeacherBookOrder?> HandleBookOrderResult(string sectionId, TeacherBookOrder? result)
     {
-        if (result.HasValue)
+        if (result is not null)
         {
-            if (_myOrders is null)
-                _myOrders = [];
-
-            if (_myOrders.Any(ord => ord.protoSectionId == sectionId))
+            if (MyOrders.Any(ord => ord.protoSectionId == sectionId))
             {
-                _myOrders.Replace(_myOrders.First(ord => ord.protoSectionId == sectionId), result.Value);
+                MyOrders.Replace(MyOrders.First(ord => ord.protoSectionId == sectionId), result);
             }
             else
             {
-                _myOrders.Add(result.Value);
+                MyOrders.Add(result);
             }
 
             await SaveCache();
@@ -203,18 +154,18 @@ public partial class TeacherBookstoreService :
 
     public async Task<TeacherBookOrder?> DeleteBookOrder(string sectionId, IEnumerable<string> isbns, ErrorAction onError)
     {
-        var result = await _api.SendAsync<ImmutableArray<string>, TeacherBookOrder?>(HttpMethod.Delete,
-            $"api/book-orders/teachers/{sectionId}/orders", isbns.ToImmutableArray(), onError: onError);
+        var result = await _api.SendAsync<List<string>, TeacherBookOrder?>(HttpMethod.Delete,
+            $"api/book-orders/teachers/{sectionId}/orders", isbns.ToList(), onError: onError);
 
         return await HandleBookOrderResult(sectionId, result);
     }
 
-    public async Task<ImmutableArray<TeacherBookOrderGroup>> GetOrderGroups(string sectionId, ErrorAction onError)
+    public async Task<List<TeacherBookOrderGroup>> GetOrderGroups(string sectionId, ErrorAction onError)
     {
-        var result = await _api.SendAsync<ImmutableArray<TeacherBookOrderGroup>>(HttpMethod.Get,
+        var result = await _api.SendAsync<List<TeacherBookOrderGroup>>(HttpMethod.Get,
             $"api/book-orders/teachers/{sectionId}/groups", onError: onError);
 
-        return result;
+        return result ?? [];
     }
 
     public async Task<TeacherBookOrder?> GroupBookOrders(string sectionId, CreateOptionGroup group, ErrorAction onError)
@@ -233,11 +184,12 @@ public partial class TeacherBookstoreService :
         return result;
     }
 
+    public void ClearCache() { if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}"); }
     public async Task SaveCache()
     {
         CacheSchema cache = new(
             [.. OrderStatusOptions],
-            [.. _orderOptions ?? []],
+            [.. OrderOptions ?? []],
             [.. CoursesByDepartment
                 .SelectMany(kvp => kvp.Value)
                 .DistinctBy(c => c.courseId)],
@@ -272,11 +224,13 @@ public partial class TeacherBookstoreService :
         try
         {
             var cache = JsonSerializer.Deserialize<CacheSchema>(json);
+            if (cache is null) return false;
+
             OrderStatusOptions = [.. cache.orderStatusOptions];
-            _orderOptions = [.. cache.orderOptions];
-            _coursesByDept = cache.courses.SeparateByKeys(course => course.department);
-            _myProtoSections = [.. cache.sections];
-            _myOrders = [.. cache.myOrders];
+            OrderOptions = [.. cache.orderOptions];
+            CoursesByDepartment = cache.courses.SeparateByKeys(course => course.department);
+            MySections = [.. cache.sections];
+            MyOrders = [.. cache.myOrders];
             SummerSections = cache.summerSections.SeparateByKeys(sec => sec.schoolYear);
             return true;
         }
@@ -297,23 +251,23 @@ public partial class TeacherBookstoreService :
 
     public async Task Refresh(ErrorAction onError)
     {
-        var orderOptionTask = _api.SendAsync<ImmutableArray<OrderOption>>(HttpMethod.Get,
+        var orderOptionTask = _api.SendAsync<List<OrderOption>>(HttpMethod.Get,
             "api/book-orders/order-options", onError: onError);
         orderOptionTask.WhenCompleted(() =>
         {
             Progress += 0.2;
             if (orderOptionTask.IsCompletedSuccessfully)
             {
-                _orderOptions = orderOptionTask.Result;
+                OrderOptions = orderOptionTask.Result ?? [];
             }
         });
 
-        var statusTask = _api.SendAsync<ImmutableArray<OrderStatus>>(HttpMethod.Get,
+        var statusTask = _api.SendAsync<List<OrderStatus>>(HttpMethod.Get,
             "api/book-orders/teachers/status-list", onError: onError);
         statusTask.WhenCompleted(() =>
         {
             Progress += 0.2;
-            OrderStatusOptions = statusTask.Result;
+            OrderStatusOptions = statusTask.Result ?? [];
         });
 
         var courseTask = _api.SendAsync<Dictionary<string, List<CourseRecord>>>(
@@ -323,7 +277,7 @@ public partial class TeacherBookstoreService :
         {
             Progress += 0.2;
             if (courseTask.IsCompletedSuccessfully)
-                _coursesByDept = courseTask.Result!;
+                CoursesByDepartment = courseTask.Result ?? [];
         });
 
         var sectionTask = _api.SendAsync<List<ProtoSection>>(HttpMethod.Get,
@@ -332,7 +286,7 @@ public partial class TeacherBookstoreService :
         {
             Progress += 0.2;
             if (sectionTask.IsCompletedSuccessfully)
-                _myProtoSections = sectionTask.Result;
+                MySections = sectionTask.Result ?? [];
         });
 
         var myOrdersTask = _api.SendAsync<List<TeacherBookOrder>>(HttpMethod.Get,
@@ -340,7 +294,7 @@ public partial class TeacherBookstoreService :
         myOrdersTask.WhenCompleted(() =>
         {
             Progress += 0.2;
-            _myOrders = myOrdersTask.Result;
+            MyOrders = myOrdersTask.Result ?? [];
         });
 
         var summerTask = GetSummerSections(onError);

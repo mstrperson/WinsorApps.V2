@@ -23,9 +23,9 @@ public interface ICachedViewModel<TViewModel, TModel, TService>
 }
 public interface IModelCarrier<T, TModel> 
     where T : ObservableObject
-    where TModel : struct
+    where TModel : class
 {
-    public OptionalStruct<TModel> Model { get; }
+    public Optional<TModel> Model { get; }
 
     abstract public static T Get(TModel model);
 }

@@ -23,7 +23,8 @@ public partial class ServiceCaseViewModel :
     ISelectable<ServiceCaseViewModel>,
     IErrorHandling,
     IAsyncSubmit,
-    ICachedViewModel<ServiceCaseViewModel, ServiceCase, ServiceCaseService>
+    ICachedViewModel<ServiceCaseViewModel, ServiceCase, ServiceCaseService>,
+    IModelCarrier<ServiceCaseViewModel, ServiceCase>
 {
     private readonly ServiceCaseService _caseService = ServiceHelper.GetService<ServiceCaseService>();
     private readonly DeviceService _deviceService = ServiceHelper.GetService<DeviceService>();
@@ -43,25 +44,21 @@ public partial class ServiceCaseViewModel :
     [RelayCommand]
     public void Select() => Selected?.Invoke(this, this);
 
-    private ServiceCase _case;
+    public Optional<ServiceCase> Model { get; private set; } = Optional<ServiceCase>.None();
     public ServiceCaseViewModel()
-    {
-        _case = new();
-        
+    {        
         StatusSearch.Select("Intake");
     }
 
     private ServiceCaseViewModel(ServiceCase serviceCase)
     {
-        using (DebugTimer _ = new($"Initializing ServiceCaseViewModel for {serviceCase.id}", _logging))
-        {
-            LoadServiceCase(serviceCase);
-        }
+        using DebugTimer _ = new($"Initializing ServiceCaseViewModel for {serviceCase.id}", _logging);
+        LoadServiceCase(serviceCase);
     }
 
     private void LoadServiceCase(ServiceCase serviceCase)
     {
-        _case = serviceCase;
+        Model = Optional<ServiceCase>.Some(serviceCase);
         Id = serviceCase.id;
 
         Owner = UserViewModel.Get(serviceCase.owner);
@@ -71,7 +68,7 @@ public partial class ServiceCaseViewModel :
             DeviceViewModel.Empty;
         if(!string.IsNullOrEmpty(serviceCase.loaner))
         {
-            var l = _deviceService.Loaners.FirstOrDefault(dev => dev.winsorDevice.HasValue && dev.winsorDevice.Value.assetTag == serviceCase.loaner);
+            var l = _deviceService.Loaners.FirstOrDefault(dev => dev.winsorDevice is not null && dev.winsorDevice.assetTag == serviceCase.loaner);
             if(l != default)
             {
                 Loaner = DeviceViewModel.Get(l);
@@ -81,8 +78,8 @@ public partial class ServiceCaseViewModel :
         CommonIssues.Select(serviceCase.commonIssues);
         IntakeNotes = serviceCase.intakeNotes;
         Opened = serviceCase.opened;
-        IsClosed = serviceCase.closed.HasValue;
-        Closed = IsClosed ? serviceCase.closed!.Value : DateTime.MinValue;
+        IsClosed = serviceCase.closed is not null;
+        Closed = IsClosed ? serviceCase.closed ?? DateTime.MinValue : DateTime.MinValue;
         StatusSearch.Select(serviceCase.status);
         AttachedDocuments = [..serviceCase.attachedDocuments.Select(doc => new DocumentViewModel(doc))];
         RepairCost = serviceCase.repairCost;
@@ -142,46 +139,46 @@ public partial class ServiceCaseViewModel :
         {
             _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Updating Service Case {Id} for {Device.DisplayName}");
             var result = await _caseService.UpdateServiceCase(new(Id, Status.Id, IntakeNotes, [..CommonIssueList.Select(issue => issue.Id)]), OnError.DefaultBehavior(this));
-            Working = result.HasValue;
-            if (!result.HasValue)
+            Working = result is not null;
+            if (result is null)
                 return;
 
-            if(result.Value.loaner != Loaner.WinsorDevice.AssetTag)
+            if(result.loaner != Loaner.WinsorDevice.AssetTag)
             {
                 _logging.LogMessage(LocalLoggingService.LogLevel.Information,
                     $"Assigning loaner {Loaner.WinsorDevice.AssetTag} to service case {Id} for {Device.DisplayName}"); 
                 var success = await _caseService.AssignLoanerToCase(Id, Loaner.WinsorDevice.AssetTag, OnError.DefaultBehavior(this));
                 if (success)
                 {
-                    result = result.Value with { loaner = Loaner.WinsorDevice.AssetTag };
+                    result = result with { loaner = Loaner.WinsorDevice.AssetTag };
                 }
             }
 
-            LoadServiceCase(result.Value);
+            LoadServiceCase(result);
             Working = false;
             OnUpdate?.Invoke(this, this);
             return;
         }
         _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Creating new Service Case for {Device.DisplayName}");
         var newResult = await _caseService.OpenNewServiceCaseAsync(new(Device.Id, [..CommonIssueList.Select(issue => issue.Id)], IntakeNotes, Status.Id), OnError.DefaultBehavior(this));
-        Working = newResult.HasValue;
+        Working = newResult is not null;
         
-        if(!newResult.HasValue) 
+        if(newResult is null) 
             return;
 
         if(!string.IsNullOrEmpty(Loaner.Id))
         {
             _logging.LogMessage(LocalLoggingService.LogLevel.Information, 
-                $"Assigning loaner {Loaner.WinsorDevice.AssetTag} to service case {newResult.Value.id} for {Device.DisplayName}");
-            var success = await _caseService.AssignLoanerToCase(newResult.Value.id, Loaner.WinsorDevice.AssetTag, OnError.DefaultBehavior(this));
+                $"Assigning loaner {Loaner.WinsorDevice.AssetTag} to service case {newResult.id} for {Device.DisplayName}");
+            var success = await _caseService.AssignLoanerToCase(newResult.id, Loaner.WinsorDevice.AssetTag, OnError.DefaultBehavior(this));
             if(success)
             {
-                newResult = newResult.Value with { loaner = Loaner.WinsorDevice.AssetTag };
+                newResult = newResult with { loaner = Loaner.WinsorDevice.AssetTag };
             }
 
         }
 
-        LoadServiceCase(newResult.Value);
+        LoadServiceCase(newResult);
         Working = false;
         OnCreate?.Invoke(this, this);
         ShowNotifyButton = Status.Status.Contains("Ready");
@@ -349,7 +346,7 @@ public partial class ServiceCaseSearchViewModel : ObservableObject, IAsyncSearch
     public async Task Search()
     {
         var results = await _caseService.SearchServiceCaseHistory(Filter, OnError.DefaultBehavior(this));
-        if(!results.Any())
+        if(results.Count == 0)
         {
             OnZeroResults?.Invoke(this, EventArgs.Empty);
             return;

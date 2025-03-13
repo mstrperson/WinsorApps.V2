@@ -28,7 +28,7 @@ public partial class AttachmentViewModel :
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "Downloading...";
 
-    public OptionalStruct<DocumentHeader> Model { get; private set; } = OptionalStruct<DocumentHeader>.None();
+    public Optional<DocumentHeader> Model { get; private set; } = Optional<DocumentHeader>.None();
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<AttachmentViewModel>? DeleteRequested;
@@ -39,7 +39,7 @@ public partial class AttachmentViewModel :
         FileName = model.fileName,
         MimeType = model.mimeType,
         Location = model.location,
-        Model = OptionalStruct<DocumentHeader>.Some(model)
+        Model = Optional<DocumentHeader>.Some(model)
     };
 
     [RelayCommand]
@@ -135,14 +135,14 @@ public partial class AttachmentCollectionViewModel :
         var header = new DocumentHeader("", file.FileName, file.ContentType, "");
         using var stream = await file.OpenReadAsync();
         var data = new byte[stream.Length];
-        stream.Read(data);
+        stream.ReadExactly(data);
         var result = IsTheater ?
             await _service.PostTheaterAttachment(EventId, header, data, OnError.DefaultBehavior(this)) :
             await _service.UploadAttachment(EventId, header, data, OnError.DefaultBehavior(this));
 
-        if(result.HasValue)
+        if(result is not null)
         {
-            var newAttachment = AttachmentViewModel.Get(result.Value);
+            var newAttachment = AttachmentViewModel.Get(result);
             newAttachment.OnError += (sender, e) => OnError?.Invoke(sender, e);
             newAttachment.DeleteRequested += Attachment_DeleteRequested;
             Attachments.Add(newAttachment);
@@ -180,7 +180,7 @@ public partial class AttachmentCollectionViewModel :
         BusyMessage = "Zipping up the downloads.";
 
         using MemoryStream ms = new();
-        using ZipArchive zip = new ZipArchive(ms, ZipArchiveMode.Create, true);
+        using ZipArchive zip = new(ms, ZipArchiveMode.Create, true);
 
         foreach(var attachment in allFiles.Keys)
         {

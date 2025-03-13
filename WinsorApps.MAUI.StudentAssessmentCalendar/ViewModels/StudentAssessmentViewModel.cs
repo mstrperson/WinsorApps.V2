@@ -75,9 +75,9 @@ public partial class StudentAssessmentViewModel :
         if (Event.Type == AssessmentType.Assessment)
         {
             var result = await _service.GetAssessmentDetails(Event.Id, OnError.DefaultBehavior(this));
-            if (result.HasValue)
+            if (result is not null)
             {
-                var Model = result.Value;
+                var Model = result;
                 ClassName = $"{Model.displayName} [{Model.block}]";
                 TeacherName = $"{Model.teacher.firstName} {Model.teacher.lastName}";
                 CannotLatePass = (!Event.PassAvailable && !Event.PassUsed) || Event.Start < DateTime.Now;
@@ -92,9 +92,9 @@ public partial class StudentAssessmentViewModel :
         if(Event.Type == AssessmentType.ApExam)
         {
             var result = await _service.GetApExamDetails(Event.Id, OnError.DefaultBehavior(this));
-            if (result.HasValue)
+            if (result is not null)
             {
-                var Model = result.Value;
+                var Model = result;
 
                 ClassName = $"{Model.courseName}";
             }
@@ -111,7 +111,7 @@ public partial class StudentAssessmentViewModel :
         Busy = true;
         BusyMessage = "Requesting Late Pass";
         var result = await _service.RequestLatePass(Event.Id, OnError.DefaultBehavior(this), LatePass.MakeupTime);
-        if(result.HasValue)
+        if(result is not null)
         {
             Event.PassAvailable = false;
             Event.PassUsed = true;

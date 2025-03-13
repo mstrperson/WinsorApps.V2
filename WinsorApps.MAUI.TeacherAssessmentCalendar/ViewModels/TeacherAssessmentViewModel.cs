@@ -48,7 +48,7 @@ public partial class AssessmentDetailsViewModel :
     public event EventHandler<StudentAssessmentRosterEntry>? StudentSelected;
     public event EventHandler<AssessmentDetailsViewModel>? Selected;
 
-    public OptionalStruct<AssessmentCalendarEvent> Model { get; private set; } = OptionalStruct<AssessmentCalendarEvent>.None();
+    public Optional<AssessmentCalendarEvent> Model { get; private set; } = Optional<AssessmentCalendarEvent>.None();
     private readonly TeacherAssessmentService _assessmentService = ServiceHelper.GetService<TeacherAssessmentService>();
     private readonly ReadonlyCalendarService _calendarService = ServiceHelper.GetService<ReadonlyCalendarService>();
     private readonly RegistrarService _registrarService = ServiceHelper.GetService<RegistrarService>();
@@ -168,7 +168,7 @@ public partial class AssessmentDetailsViewModel :
 
     public AssessmentDetailsViewModel(AssessmentCalendarEvent @event)
     {
-        Model = OptionalStruct<AssessmentCalendarEvent>.Some(@event);
+        Model = Optional<AssessmentCalendarEvent>.Some(@event);
         title = @event.summary;
         subtitle = "";
         date = @event.start;
@@ -197,13 +197,13 @@ public partial class AssessmentDetailsViewModel :
         getTask.WhenCompleted(() =>
         {
             var result = getTask.Result;
-            if (!result.HasValue)
+            if (result is null)
             {
                 Title = "Failed to Load.";
                 return;
             }
 
-            var exam = result.Value;
+            var exam = result;
 
             DateLabel = $"{exam.startDateTime:ddd dd MMM hh:mm tt} - {exam.endDateTime:hh:mm tt}";
 
@@ -242,13 +242,13 @@ public partial class AssessmentDetailsViewModel :
         getTask.WhenCompleted(() =>
         {
             var result = getTask.Result;
-            if (!result.HasValue)
+            if (result is null)
             {
                 Title = "Unable to Load Assessment";
                 return;
             }
 
-            var details = result.Value;
+            var details = result;
             Submitted = details.submitted;
             Title = string.IsNullOrEmpty(Model.Reduce(AssessmentCalendarEvent.Empty).description) ? 
                 Model.Reduce(AssessmentCalendarEvent.Empty).summary : 
@@ -266,10 +266,10 @@ public partial class AssessmentDetailsViewModel :
                     {
                         Student = StudentViewModel.Get(student),
                         LatePassUsed = details.studentsUsingPasses.Any(pass => pass.student.id == student.Id),
-                        LatePassTimeStamp = details.studentsUsingPasses.FirstOrDefault(pass => pass.student.id == student.Id).timeStamp,
+                        LatePassTimeStamp = details.studentsUsingPasses.FirstOrDefault(pass => pass.student.id == student.Id)?.timeStamp ?? default,
                         HasConflicts = details.studentConflicts.Any(conflict => conflict.student.id == student.Id),
-                        ConflictCount = details.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.Id).count,
-                        RedFlag = details.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.Id).redFlag,
+                        ConflictCount = details.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.Id) ?.count ?? 0,
+                        RedFlag = details.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.Id) ?.redFlag ?? default,
                         PassAvailable = details.studentsWithPassAvailable.Any(stu => stu.id == student.Id)
                     })
             ];
@@ -292,6 +292,71 @@ public partial class AssessmentDetailsViewModel :
             Busy = false;
         });
     }
+    private async Task LoadAssessmentDetailsAsync(bool refreshCache = false)
+    {
+        Busy = true;
+        BusyMessage = "Loading Assessment Details.";
+        var result = await _assessmentService.GetAssessmentDetails(Model.Reduce(AssessmentCalendarEvent.Empty).id, OnError.DefaultBehavior(this), refreshCache);
+
+        if (result is null)
+        {
+            Title = "Unable to Load Assessment";
+            return;
+        }
+
+        var details = result;
+        Submitted = details.submitted;
+        Title = string.IsNullOrEmpty(Model.Reduce(AssessmentCalendarEvent.Empty).description) ?
+            Model.Reduce(AssessmentCalendarEvent.Empty).summary :
+            Model.Reduce(AssessmentCalendarEvent.Empty).description;
+        Subtitle = $"{details.section.displayName} [{details.section.teachers
+                .Select(t => $"{t}")
+                .Aggregate((a, b) => $"{a}, {b}")}]";
+        ListLabel = "Students";
+        Students =
+        [..
+                UserViewModel.GetClonedViewModels(
+                    _registrarService.StudentList
+                    .Where(student => details.section.students.Any(stu => stu.id == student.id)))
+                    .Select(student => new StudentAssessmentRosterEntry()
+                    {
+                        Student = StudentViewModel.Get(student),
+                        LatePassUsed = details.studentsUsingPasses.Any(pass => pass.student.id == student.Id),
+                        LatePassTimeStamp = details.studentsUsingPasses.FirstOrDefault(pass => pass.student.id == student.Id)?.timeStamp ?? default,
+                        HasConflicts = details.studentConflicts.Any(conflict => conflict.student.id == student.Id),
+                        ConflictCount = details.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.Id) ?.count ?? 0,
+                        RedFlag = details.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.Id) ?.redFlag ?? default,
+                        PassAvailable = details.studentsWithPassAvailable.Any(stu => stu.id == student.Id)
+                    })
+        ];
+
+        foreach (var student in Students)
+            student.Selected += (_, selected) => StudentSelected?.Invoke(this, selected);
+
+        Passess = LatePassViewModel.GetPasses(details);
+        HasLatePasses = Passess.Any();
+
+        Conflicts = [.. details.studentConflicts.Select(StudentConflictViewModel.Get)];
+
+        //LoadConflicts().SafeFireAndForget(e => e.LogException());
+
+        HasConflicts = Conflicts.Any();
+        HasRedFlags = Conflicts.Any(conflict => conflict.RedFlag);
+
+        SetSizeRequests();
+        LoadComplete?.Invoke(this, EventArgs.Empty);
+        Busy = false;
+    }
+
+    [RelayCommand]
+    public async Task Refresh()
+    {
+        if(Model.Reduce(AssessmentCalendarEvent.Empty).type == AssessmentType.Assessment)
+        {
+            await LoadAssessmentDetailsAsync(true);
+        }
+    }
+
 
     [RelayCommand]
     public async Task LoadConflicts()
@@ -312,11 +377,13 @@ public partial class AssessmentDetailsViewModel :
 
         var group = service.MyAssessments.FirstOrDefault(grp => grp.id == details.groupId);
 
-        vm.Model = OptionalStruct<AssessmentCalendarEvent>.Some(details.ToCalendarEvent(group));
+        vm.Model = group is not null ?
+            Optional<AssessmentCalendarEvent>.Some(details.ToCalendarEvent(group)) :
+            Optional<AssessmentCalendarEvent>.None();
 
         vm.DateLabel = $"{details.assessmentDateTime:dddd dd MMMM hh:mm tt}";
         vm.Date = details.assessmentDateTime;
-        vm.Title = string.IsNullOrEmpty(group.note) ? group.course : group.note;
+        vm.Title = (string.IsNullOrEmpty(group?.note) ? group?.course : group?.note) ?? "";
         vm.Subtitle = $"{details.section.displayName} [{details.section.teachers
                 .Select(t => $"{t}")
                 .Aggregate((a, b) => $"{a}, {b}")}]";
@@ -330,10 +397,10 @@ public partial class AssessmentDetailsViewModel :
                     {
                         Student = StudentViewModel.Get(student),
                         LatePassUsed = details.studentsUsingPasses.Any(pass => pass.student.id == student.Id),
-                        LatePassTimeStamp = details.studentsUsingPasses.FirstOrDefault(pass => pass.student.id == student.Id).timeStamp,
+                        LatePassTimeStamp = details.studentsUsingPasses.FirstOrDefault(pass => pass.student.id == student.Id)?.timeStamp ?? default,
                         HasConflicts = details.studentConflicts.Any(conflict => conflict.student.id == student.Id),
-                        ConflictCount = details.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.Id).count,
-                        RedFlag = details.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.Id).redFlag,
+                        ConflictCount = details.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.Id) ?.count ?? 0,
+                        RedFlag = details.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.Id) ?.redFlag ?? false,
                         PassAvailable = details.studentsWithPassAvailable.Any(stu => stu.id == student.Id)
                     })
         ];
@@ -380,11 +447,11 @@ public partial class StudentConflictViewModel :
 
     public event EventHandler<ErrorRecord>? OnError;
 
-    public OptionalStruct<StudentConflictCount> Model { get; private set; } = OptionalStruct<StudentConflictCount>.None();
+    public Optional<StudentConflictCount> Model { get; private set; } = Optional<StudentConflictCount>.None();
 
     public StudentConflictViewModel(StudentConflictCount conflict)
     {
-        Model = OptionalStruct<StudentConflictCount>.Some(conflict);
+        Model = Optional<StudentConflictCount>.Some(conflict);
         Student = UserViewModel.Get(conflict.student.GetUserRecord(_regsitrar));
         ConflictCount = conflict.count;
         LatePassUsed = conflict.latePass;
@@ -401,10 +468,10 @@ public partial class StudentConflictViewModel :
         foreach(var id in assessmentIds)
         {
             var details = await _calendar.GetAssessmentDetails(id, OnError.DefaultBehavior(this));
-            if (!details.HasValue)
+            if (details is null)
                 continue;
 
-            ConflictingAssessments.Add(AssessmentDetailsViewModel.Get(details.Value));
+            ConflictingAssessments.Add(AssessmentDetailsViewModel.Get(details));
         }
 
         ConflictList = ConflictingAssessments.Select(details => $"{details.Title} - {details.Subtitle}").DelimeteredList(Environment.NewLine);

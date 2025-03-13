@@ -12,6 +12,11 @@
             <conv:BoolInverter x:Key="Invert"></conv:BoolInverter>
         </ResourceDictionary>
     </ContentPage.Resources>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem 
+            StyleClass="RefreshButton"
+            Command="{Binding RefreshCommand}" />
+    </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <ScrollView>
             <VerticalStackLayout

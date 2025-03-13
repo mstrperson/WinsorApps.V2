@@ -12,14 +12,14 @@ using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.StudentAssessmentCalendar.ViewModels;
 
-public partial class WeeklyViewModel :
+public partial class WeeklyViewModel(StudentAssessmentService service, LocalLoggingService logging, CycleDayCollection cycleDays) :
     ObservableObject,
     IErrorHandling,
     IBusyViewModel
 {
-    private readonly StudentAssessmentService _service;
-    private readonly LocalLoggingService _logging;
-    private readonly CycleDayCollection _cycleDays;
+    private readonly StudentAssessmentService _service = service;
+    private readonly LocalLoggingService _logging = logging;
+    private readonly CycleDayCollection _cycleDays = cycleDays;
 
     [ObservableProperty] StudentWeekViewModel calendar =new();
 
@@ -31,14 +31,6 @@ public partial class WeeklyViewModel :
     [ObservableProperty] string busyMessage = "";
 
     public event EventHandler<StudentAssessmentViewModel>? EventSelected;
-
-    public WeeklyViewModel(StudentAssessmentService service, LocalLoggingService logging, CycleDayCollection cycleDays)
-    {
-        _service = service;
-        _logging = logging;
-        _cycleDays = cycleDays;
-    }
-
     public event EventHandler<ErrorRecord>? OnError;
 
     [RelayCommand]

@@ -8,14 +8,14 @@ using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.Services.AssessmentCalendar.Services;
 
-public partial class ReadonlyCalendarService :
+public partial class ReadonlyCalendarService(ApiService api, LocalLoggingService logging, CycleDayCollection cycleDays) :
     IAsyncInitService,
     ICacheService
 {
-    private readonly ApiService _api;
-    private readonly LocalLoggingService _logging;
+    private readonly ApiService _api = api;
+    private readonly LocalLoggingService _logging = logging;
     public bool Ready { get; protected set; }
-    public readonly CycleDayCollection CycleDays;
+    public readonly CycleDayCollection CycleDays = cycleDays;
 
     public event EventHandler? FullYearCacheComplete;
     public event EventHandler? OnCacheRefreshed;
@@ -23,6 +23,7 @@ public partial class ReadonlyCalendarService :
     public double Progress { get; protected set; } = 0;
 
     public string CacheFileName => ".assessment-calendar-ro.cache";
+    public void ClearCache() { if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}"); }
 
     public async Task SaveCache()
     {
@@ -49,7 +50,7 @@ public partial class ReadonlyCalendarService :
         try
         {
             var json = File.ReadAllText($"{_logging.AppStoragePath}{CacheFileName}");
-            AssessmentCalendar = JsonSerializer.Deserialize<ImmutableArray<AssessmentCalendarEvent>>(json);
+            AssessmentCalendar = JsonSerializer.Deserialize<List<AssessmentCalendarEvent>>(json) ?? [];
         }
         catch
         {
@@ -59,7 +60,7 @@ public partial class ReadonlyCalendarService :
         return true;
     }
 
-    public ImmutableArray<AssessmentCalendarEvent> AssessmentCalendar { get; private set; } = [];
+    public List<AssessmentCalendarEvent> AssessmentCalendar { get; private set; } = [];
 
     public bool Started { get; private set; }
 
@@ -70,12 +71,6 @@ public partial class ReadonlyCalendarService :
             .OrderBy(evt => evt.start)];
         await SaveCache();
         OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
-    }
-    public ReadonlyCalendarService(ApiService api, LocalLoggingService logging, CycleDayCollection cycleDays)
-    {
-        _api = api;
-        _logging = logging;
-        this.CycleDays = cycleDays;
     }
 
     public async Task Initialize(ErrorAction onError)
@@ -96,7 +91,7 @@ public partial class ReadonlyCalendarService :
             {
                 await RefreshYearCache(onError);
                 retryCount = 0;
-                while (AssessmentCalendar.Length == 0 && retryCount < 5)
+                while (AssessmentCalendar.Count == 0 && retryCount < 5)
                 {
                     await Task.Delay(250);
                     await RefreshYearCache(onError);
@@ -115,13 +110,13 @@ public partial class ReadonlyCalendarService :
         Ready = true;
     }
 
-    public async Task<ImmutableArray<AssessmentEntryRecord>> GetAssessmentsFor(string sectionId, ErrorAction onError)
+    public async Task<List<AssessmentEntryRecord>> GetAssessmentsFor(string sectionId, ErrorAction onError)
     {
         var result = await _api.GetPagedResult<AssessmentEntryRecord>(
             HttpMethod.Get,
             $"api/assessment-calendar/section/{sectionId}", onError: onError);
 
-        return result;
+        return result ?? [];
     }
 
     private async Task RefreshYearCache(ErrorAction onError)
@@ -142,7 +137,7 @@ public partial class ReadonlyCalendarService :
         OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
     }
 
-    public async Task<ImmutableArray<AssessmentCalendarEvent>> GetAssessmentsByMonth(Month month, ErrorAction onError)
+    public async Task<List<AssessmentCalendarEvent>> GetAssessmentsByMonth(Month month, ErrorAction onError)
     {
         DateRange monthRange = DateRange.MonthOf(month, CycleDays.SchoolYear.startDate);
         var result = await GetAssessmentCalendarInRange(onError, monthRange.start, monthRange.end);
@@ -152,7 +147,7 @@ public partial class ReadonlyCalendarService :
         return result;
     }
 
-    public async Task<ImmutableArray<AssessmentCalendarEvent>> GetAssessmentCalendarOn(DateOnly date, ErrorAction onError)
+    public async Task<List<AssessmentCalendarEvent>> GetAssessmentCalendarOn(DateOnly date, ErrorAction onError)
     {
         var result = await _api.GetPagedResult<AssessmentCalendarEvent>(
             HttpMethod.Get,
@@ -164,7 +159,7 @@ public partial class ReadonlyCalendarService :
         return result;
     }
 
-    public async Task<ImmutableArray<AssessmentCalendarEvent>> GetAssessmentCalendarInRange(ErrorAction onError, DateOnly start = default, DateOnly end = default)
+    public async Task<List<AssessmentCalendarEvent>> GetAssessmentCalendarInRange(ErrorAction onError, DateOnly start = default, DateOnly end = default)
     {
         if (start == default) { start = DateOnly.FromDateTime(DateTime.Today); }
         var param = end == default ? "" : $"&end={end:yyyy-MM-dd}";
@@ -179,7 +174,7 @@ public partial class ReadonlyCalendarService :
         return result;
     }
 
-    public async Task<ImmutableArray<AssessmentGroup>> GetAssessmentGroups(ErrorAction onError, DateOnly start = default, DateOnly end = default)
+    public async Task<List<AssessmentGroup>> GetAssessmentGroups(ErrorAction onError, DateOnly start = default, DateOnly end = default)
     {
         char ch = '?';
         var query = "";
@@ -223,28 +218,21 @@ public partial class ReadonlyCalendarService :
     }
 }
 
-public class CycleDayCollection :
+public class CycleDayCollection(ApiService api, LocalLoggingService logging) :
     IEnumerable<CycleDay>,
     IAsyncInitService,
     ICacheService
 {
-    private readonly ApiService _api;
-    private readonly LocalLoggingService _logging;
-
-    public CycleDayCollection(ApiService api, LocalLoggingService logging)
-    {
-        _api = api;
-        _logging = logging;
-
-    }
-
-    private ImmutableArray<CycleDay> _cycleDays = [];
+    private readonly ApiService _api = api;
+    private readonly LocalLoggingService _logging = logging;
+    private List<CycleDay> _cycleDays = [];
 
     public event EventHandler? OnCacheRefreshed;
 
-    private readonly record struct CacheStructure(SchoolYear schoolYear, ImmutableArray<CycleDay> cycleDays);
+    private record CacheStructure(SchoolYear schoolYear, List<CycleDay> cycleDays);
     public string CacheFileName => ".cycle-days.cache";
 
+    public void ClearCache() { if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}"); }
     public async Task SaveCache()
     {
         var cache = new CacheStructure(SchoolYear, _cycleDays);
@@ -266,6 +254,8 @@ public class CycleDayCollection :
         {
             var json = File.ReadAllText($"{_logging.AppStoragePath}{CacheFileName}");
             var cache = JsonSerializer.Deserialize<CacheStructure>(json);
+
+            if (cache is null) return false;
 
             if (cache.schoolYear.endDate.ToDateTime(default) < DateTime.Today)
                 return false;
@@ -307,7 +297,7 @@ public class CycleDayCollection :
 
     public CycleDay? this[DateTime date] => this[DateOnly.FromDateTime(date)];
 
-    public ImmutableArray<DateOnly> this[string cycleDay]
+    public List<DateOnly> this[string cycleDay]
     {
         get
         {
@@ -316,7 +306,7 @@ public class CycleDayCollection :
             return _cycleDays
                 .Where(cd => cd.cycleDay == cycleDay)
                 .Select(cd => cd.date)
-                .ToImmutableArray();
+                .ToList();
         }
     }
 
@@ -331,16 +321,16 @@ public class CycleDayCollection :
                     onError: onError);
 
 
-            if (!schoolYear.HasValue)
+            if (schoolYear is null)
             {
                 _cycleDays = [];
                 Ready = true;
                 return false;
             }
 
-            SchoolYear = schoolYear.Value;
+            SchoolYear = schoolYear;
 
-            _ = await GetCycleDays(schoolYear.Value.startDate, schoolYear.Value.endDate, onError);
+            _ = await GetCycleDays(schoolYear.startDate, schoolYear.endDate, onError);
             await SaveCache();
         }
         Ready = true;
@@ -359,15 +349,15 @@ public class CycleDayCollection :
     }
 
 
-    public async Task<ImmutableArray<CycleDay>> GetCycleDays(DateOnly start, DateOnly end, ErrorAction onError)
+    public async Task<List<CycleDay>> GetCycleDays(DateOnly start, DateOnly end, ErrorAction onError)
     {
         if (start < CacheStartDate || end > CacheEndDate)
         {
             if (end < CacheStartDate)
                 end = CacheStartDate;
 
-            var result = await _api.SendAsync<ImmutableArray<CycleDay>>(HttpMethod.Get, $"api/schedule/cycle-day?start={start:yyyy-MM-dd}&end={end:yyyy-MM-dd}",
-                onError: onError);
+            var result = await _api.SendAsync<List<CycleDay>>(HttpMethod.Get, $"api/schedule/cycle-day?start={start:yyyy-MM-dd}&end={end:yyyy-MM-dd}",
+                onError: onError) ?? [];
 
             _cycleDays = _cycleDays.Merge(result, (a, b) => a.date == b.date);
 

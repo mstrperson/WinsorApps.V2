@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.EventForms.Services;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.MAUI.Shared.EventForms.ViewModels;
@@ -12,7 +13,8 @@ namespace WinsorApps.MAUI.Shared.EventForms.ViewModels;
 public partial class FacilitesEventViewModel :
     ObservableObject,
     IEventSubFormViewModel<FacilitesEventViewModel, FacilitiesEvent>,
-    IErrorHandling
+    IErrorHandling,
+    IModelCarrier<FacilitesEventViewModel, FacilitiesEvent>
 {
     private readonly EventFormsService _service = ServiceHelper.GetService<EventFormsService>();
 
@@ -29,7 +31,11 @@ public partial class FacilitesEventViewModel :
     public event EventHandler? Deleted;
     public event EventHandler<ErrorRecord>? OnError;
 
-    public FacilitiesEvent Model { get; private set; }
+    public FacilitesEventViewModel()
+    {
+    }
+
+    public Optional<FacilitiesEvent> Model { get; private set; } = Optional<FacilitiesEvent>.None();
 
     public static implicit operator NewFacilitiesEvent(FacilitesEventViewModel vm) =>
         new(vm.Setup, vm.Presence, vm.Breakdown, vm.Overnight, vm.Parking, vm.Locations);
@@ -42,7 +48,7 @@ public partial class FacilitesEventViewModel :
         Breakdown = false;
         Overnight = false;
         Parking = false;
-        Model = default;
+        Model = Optional<FacilitiesEvent>.None();
         Locations.Clear();
     }
 
@@ -60,7 +66,7 @@ public partial class FacilitesEventViewModel :
         Breakdown = model.breakdown;
         Overnight = model.overnight;
         Parking = model.parking;
-        Model = model;
+        Model = Optional<FacilitiesEvent>.Some(model);
         
         Locations.LoadSetupInformation(model.locations);
         HasLoaded = true;
@@ -84,9 +90,9 @@ public partial class FacilitesEventViewModel :
         }
 
         var result = await _service.PostFacilitiesEvent(Id, this, OnError.DefaultBehavior(this));
-        if (result.HasValue)
+        if (result is not null)
         {
-            Model = result.Value;
+            Model = Optional<FacilitiesEvent>.Some(result);
             if(!template)
                 ReadyToContinue?.Invoke(this, EventArgs.Empty);
         }
@@ -99,6 +105,10 @@ public partial class FacilitesEventViewModel :
         if (result)
             Deleted?.Invoke(this, EventArgs.Empty);
     }
+
+    private FacilitesEventViewModel(FacilitiesEvent model) { Load(model); }
+
+    public static FacilitesEventViewModel Get(FacilitiesEvent model) => new(model);
 }
 
 public partial class LocationSetupCollectionViewModel :
@@ -108,8 +118,8 @@ public partial class LocationSetupCollectionViewModel :
     [ObservableProperty] LocationSetupViewModel selected = new();
     [ObservableProperty] bool showSelected;
 
-    public static implicit operator ImmutableArray<NewLocationSetup>(LocationSetupCollectionViewModel vm) =>
-        vm.Setups.Where(setup => setup.LocationSearch.IsSelected).Select(setup => (NewLocationSetup)setup).ToImmutableArray();
+    public static implicit operator List<NewLocationSetup>(LocationSetupCollectionViewModel vm) =>
+        vm.Setups.Where(setup => setup.LocationSearch.IsSelected).Select(setup => (NewLocationSetup)setup).ToList();
 
     public void LoadSetupInformation(IEnumerable<LocationSetupInstructions> setups)
     {

@@ -8,66 +8,37 @@ using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.Services.AssessmentCalendar.Services;
 
-public partial class TeacherAssessmentService : 
+public partial class TeacherAssessmentService(ApiService api, LocalLoggingService logging, ReadonlyCalendarService calendar) : 
     IAsyncInitService,
     IAutoRefreshingCacheService
 {
-    private readonly ApiService _api;
-    private readonly LocalLoggingService _logging;
-    private readonly ReadonlyCalendarService _calendar;
+    private readonly ApiService _api = api;
+    private readonly LocalLoggingService _logging = logging;
+    private readonly ReadonlyCalendarService _calendar = calendar;
 
-    private ImmutableArray<StudentRecordShort> _myStudents = [];
+    public List<StudentRecordShort> MyStudents { get; private set; } = [];
+    public List<CourseRecord> CourseList { get; private set; } = [];
 
-    public ImmutableArray<StudentRecordShort> MyStudents
-    {
-        get
-        {
-            if (!Ready || _myStudents.IsEmpty)
-                throw new ServiceNotReadyException(_logging, "Cannot Retrieve MyStudents list yet.");
-
-            return _myStudents;
-        }
-    }
-
-    private ImmutableArray<CourseRecord> _courseList = [];
-    public ImmutableArray<CourseRecord> CourseList
-    {
-        get
-        {
-            if (!Ready || _courseList.IsEmpty)
-                throw new ServiceNotReadyException(_logging, "Cannot Retrieve Course List");
-            return _courseList;
-        }
-    }
-
-    private List<AssessmentGroup> _myAssessments = [];
 
     public event EventHandler? OnCacheRefreshed;
 
-    public ImmutableArray<AssessmentGroup> MyAssessments
-    {
-        get
-        {
-            if (!Ready)
-                throw new ServiceNotReadyException(_logging, "Cannot Retrieve MyAssessments yet.");
-            return [.. _myAssessments];
-        }
+    public List<AssessmentGroup> MyAssessments { get; private set; } = [];
 
-    }
     public string CacheFileName => ".teacher-assessment-calendar.cache";
+    public void ClearCache() { if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}"); }
 
-    private readonly record struct CacheStructure(
-        ImmutableArray<StudentRecordShort> students,
-        ImmutableArray<CourseRecord> courses,
-        ImmutableArray<AssessmentGroup> assessments,
-        ImmutableArray<StudentLateWorkCollection> lateWork,
+    private record CacheStructure(
+        List<StudentRecordShort> students,
+        List<CourseRecord> courses,
+        List<AssessmentGroup> assessments,
+        List<StudentLateWorkCollection> lateWork,
         Dictionary<string, AssessmentEntryRecord> detailsCache);
 
     public async Task SaveCache()
     {
         int retryCount = 0;
         TryAgain:
-         var cache = new CacheStructure(_myStudents, _courseList, [.._myAssessments], _adviseeLateWork, AssessmentDetailsCache);
+         var cache = new CacheStructure(MyStudents, CourseList, [..MyAssessments], _adviseeLateWork, AssessmentDetailsCache);
         try
         {
             await File.WriteAllTextAsync($"{_logging.AppStoragePath}{CacheFileName}", JsonSerializer.Serialize(cache));
@@ -105,9 +76,11 @@ public partial class TeacherAssessmentService :
         {
             var json = File.ReadAllText($"{_logging.AppStoragePath}{CacheFileName}");
             var cache = JsonSerializer.Deserialize<CacheStructure>(json);
-            _myStudents = cache.students;
-            _courseList = cache.courses;
-            _myAssessments = [.. cache.assessments];
+            if(cache is null) return false;
+
+            MyStudents = cache.students;
+            CourseList = cache.courses;
+            MyAssessments = [.. cache.assessments];
             _adviseeLateWork = cache.lateWork;
             AssessmentDetailsCache = cache.detailsCache ?? [];
         }
@@ -124,13 +97,6 @@ public partial class TeacherAssessmentService :
     public bool Started { get; private set; }
 
     public double Progress { get; private set; }
-
-    public TeacherAssessmentService(ApiService api, LocalLoggingService logging, ReadonlyCalendarService calendar)
-    {
-        _api = api;
-        _logging = logging;
-        _calendar = calendar;
-    }
 
     public async Task Initialize(ErrorAction onError)
     {
@@ -154,9 +120,9 @@ public partial class TeacherAssessmentService :
         var assessmentIds = _calendar.AssessmentCalendar
             .Where(ent => ent.type == AssessmentType.Assessment)
             .Select(ent => ent.id)
-            .ToImmutableArray();
+            .ToList();
 
-        using DebugTimer __ = new($"Loading Cached assessment details for {assessmentIds.Length} assessments", _logging);
+        using DebugTimer __ = new($"Loading Cached assessment details for {assessmentIds.Count} assessments", _logging);
         _ = await GetAssessmentDetails(assessmentIds, onError, reloadCache);
     }
 
@@ -165,7 +131,7 @@ public partial class TeacherAssessmentService :
         var studentTask = GetMyStudentList(onError);
         studentTask.WhenCompleted(() =>
         {
-            _myStudents = studentTask.Result;
+            MyStudents = studentTask.Result;
             Progress += 0.25;
         },
         () =>
@@ -175,7 +141,7 @@ public partial class TeacherAssessmentService :
         var courseTask = GetMyCourseList(onError);
         courseTask.WhenCompleted(() =>
         {
-            _courseList = courseTask.Result;
+            CourseList = courseTask.Result;
             Progress += 0.25;
         },
         () =>
@@ -185,7 +151,7 @@ public partial class TeacherAssessmentService :
         var assessmentTask = GetMyAssessments(onError, DateTime.Today, DateTime.Today.AddYears(1));
         assessmentTask.WhenCompleted(() =>
         {
-            _myAssessments = [.. assessmentTask.Result];
+            MyAssessments = [.. assessmentTask.Result];
             Progress += 0.25;
         },
         () =>
@@ -208,7 +174,7 @@ public partial class TeacherAssessmentService :
         await SaveCache();
     }
 
-    public async Task<ImmutableArray<AssessmentEntryRecord>> GetAssessmentsFor(ErrorAction onError, string sectionId, DateTime start = default, DateTime end = default)
+    public async Task<List<AssessmentEntryRecord>> GetAssessmentsFor(ErrorAction onError, string sectionId, DateTime start = default, DateTime end = default)
     {
         var query = "";
         if (start != default)
@@ -217,15 +183,15 @@ public partial class TeacherAssessmentService :
             if (end != default)
                 query += $"&end={end:yyyy-MM-dd}";
         }
-        var result = await _api.SendAsync<ImmutableArray<AssessmentEntryRecord>>(HttpMethod.Get,
+        var result = await _api.SendAsync<List<AssessmentEntryRecord>>(HttpMethod.Get,
             $"api/assessment-calendar/teachers/sections/{sectionId}{query}",
-            onError: onError);
+            onError: onError) ?? [];
 
         return result;
     }
 
 
-    public async Task<ImmutableArray<AssessmentGroup>> GetMyAssessments(ErrorAction onError, DateTime start = default, DateTime end = default)
+    public async Task<List<AssessmentGroup>> GetMyAssessments(ErrorAction onError, DateTime start = default, DateTime end = default)
     {
         var query = "";
         if (start == default)
@@ -235,9 +201,9 @@ public partial class TeacherAssessmentService :
                 "api/assessment-calendar/teachers",
                 onError: onError);
 
-            if (res.ExceptBy(_myAssessments.Select(grp => grp.id), grp => grp.id).Any())
+            if (res.ExceptBy(MyAssessments.Select(grp => grp.id), grp => grp.id).Any())
             {
-                _myAssessments = _myAssessments.Merge(res, (oldgrp, newgrp) => oldgrp.id == newgrp.id);
+                MyAssessments = MyAssessments.Merge(res, (oldgrp, newgrp) => oldgrp.id == newgrp.id);
                 OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
             }
 
@@ -252,16 +218,16 @@ public partial class TeacherAssessmentService :
             $"api/assessment-calendar/teachers{query}",
             onError: onError);
 
-        if (result.ExceptBy(_myAssessments.Select(grp => grp.id), grp => grp.id).Any())
+        if (result.ExceptBy(MyAssessments.Select(grp => grp.id), grp => grp.id).Any())
         {
-            _myAssessments = _myAssessments.Merge(result, (oldgrp, newgrp) => oldgrp.id == newgrp.id);
+            MyAssessments = MyAssessments.Merge(result, (oldgrp, newgrp) => oldgrp.id == newgrp.id);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
 
         return result;
     }
 
-    public async Task<ImmutableArray<AssessmentCalendarEvent>> GetCalendarByClassOn(string[] classes, DateTime date, ErrorAction onError)
+    public async Task<List<AssessmentCalendarEvent>> GetCalendarByClassOn(string[] classes, DateTime date, ErrorAction onError)
     {
         var result = await _api.GetPagedResult<string[], AssessmentCalendarEvent>(
             HttpMethod.Post,
@@ -269,10 +235,10 @@ public partial class TeacherAssessmentService :
             classes,
             onError: onError);
 
-        _calendar.MergeNewAssessments(result);
+        await _calendar.MergeNewAssessments(result);
         return result;
     }
-    public async Task<ImmutableArray<AssessmentCalendarEvent>> GetCalendarByClassInRange(ErrorAction onError, string[] classes, DateTime start = default, DateTime end = default)
+    public async Task<List<AssessmentCalendarEvent>> GetCalendarByClassInRange(ErrorAction onError, string[] classes, DateTime start = default, DateTime end = default)
     {
         if (start == default) { start = DateTime.Today; }
         var param = end == default ? "" : $"&end={end:yyyy-MM-dd}";
@@ -281,7 +247,7 @@ public partial class TeacherAssessmentService :
             $"api/assessment-calendar/by-class?start={start:yyyy-MM-dd}{param}",
             classes,
             onError: onError);
-        _calendar.MergeNewAssessments(result);
+        await _calendar.MergeNewAssessments(result);
         return result;
     }
 
@@ -299,18 +265,16 @@ public partial class TeacherAssessmentService :
         var result = await _api.SendAsync<AssessmentEntryRecord?>(HttpMethod.Get, $"api/assessment-calendar/teachers/{assessmentId}/assessment-details",
             onError: onError);
 
-        if(result.HasValue)
+        if(result is not null)
         {
-            if (!AssessmentDetailsCache.ContainsKey(assessmentId))
-                AssessmentDetailsCache.Add(assessmentId, result.Value);
-            else
-                AssessmentDetailsCache[assessmentId] = result.Value;
+            if (!AssessmentDetailsCache.TryAdd(assessmentId, result))
+                AssessmentDetailsCache[assessmentId] = result;
         }
         await SaveCache();
         return result;
     }
 
-    public async Task<ImmutableArray<AssessmentEntryRecord>> GetAssessmentDetails(ImmutableArray<string> assessmentIds, ErrorAction onError, bool refresheCache = false)
+    public async Task<List<AssessmentEntryRecord>> GetAssessmentDetails(List<string> assessmentIds, ErrorAction onError, bool refresheCache = false)
     {
         var output = new List<AssessmentEntryRecord>();
 
@@ -325,7 +289,7 @@ public partial class TeacherAssessmentService :
             assessmentIds = [.. assessmentIds.Except(output.Select(ent => ent.assessmentId))];
         }
 
-        var result = await _api.GetPagedResult<ImmutableArray<string>, AssessmentEntryRecord>(
+        var result = await _api.GetPagedResult<List<string>, AssessmentEntryRecord>(
                 HttpMethod.Post,
             $"api/assessment-calendar/teachers/assessment-details", assessmentIds,
             onError: onError);
@@ -340,27 +304,27 @@ public partial class TeacherAssessmentService :
         return [..output];
     }
 
-    public async Task<ImmutableArray<CourseRecord>> GetMyCourseList(ErrorAction onError) =>
-        await _api.SendAsync<ImmutableArray<CourseRecord>>(HttpMethod.Get,
+    public async Task<List<CourseRecord>> GetMyCourseList(ErrorAction onError) =>
+        await _api.SendAsync<List<CourseRecord>>(HttpMethod.Get,
             "api/assessment-calendar/teachers/course-list",
-            onError: onError);
+            onError: onError) ?? [];
 
-    public async Task<ImmutableArray<SectionMinimalRecord>> GetMySectionsOf(string courseId, ErrorAction onError) =>
-                await _api.SendAsync<ImmutableArray<SectionMinimalRecord>>(HttpMethod.Get,
+    public async Task<List<SectionMinimalRecord>> GetMySectionsOf(string courseId, ErrorAction onError) =>
+                await _api.SendAsync<List<SectionMinimalRecord>>(HttpMethod.Get,
                     $"api/assessment-calendar/teachers/courses/{courseId}/sections",
-                    onError: onError);
+                    onError: onError) ?? [];
     public async Task<AssessmentGroup?> GetMyCourseList(string assessmentId, ErrorAction onError) =>
         await _api.SendAsync<AssessmentGroup?>(HttpMethod.Get, $"api/assessment-calendar/teachers/{assessmentId}",
             onError: onError);
 
-    public async Task<ImmutableArray<AssessmentCalendarEvent>> GetMyCalendarInRange(ErrorAction onError, DateTime start = default, DateTime end = default)
+    public async Task<List<AssessmentCalendarEvent>> GetMyCalendarInRange(ErrorAction onError, DateTime start = default, DateTime end = default)
     {
         if (start == default) { start = DateTime.Today; }
         var param = end == default ? "" : $"&end={end:yyyy-MM-dd}";
         var result = await _api.GetPagedResult<AssessmentCalendarEvent>(HttpMethod.Get,
             $"api/assessment-calendar/teachers?start={start:yyyy-MM-dd}{param}",
             onError: onError);
-        _calendar.MergeNewAssessments(result);
+        await _calendar.MergeNewAssessments(result);
         return result;
     }
 
@@ -370,10 +334,10 @@ public partial class TeacherAssessmentService :
             HttpMethod.Post, $"api/assessment-calendar/teachers", newAssessment,
             onError: onError);
 
-        if (!result.HasValue) 
+        if (result is null) 
             return result;
 
-        _myAssessments.Add(result.Value);
+        MyAssessments.Add(result);
         // TODO: This is awful. stop.
         _calendar.Refresh(onError).SafeFireAndForget(e => e.LogException(_logging));
         OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
@@ -386,13 +350,13 @@ public partial class TeacherAssessmentService :
             HttpMethod.Put, $"api/assessment-calendar/teachers/{groupId}", newAssessment,
             onError: onError);
 
-        if (!result.HasValue) return result;
+        if (result is null) return result;
 
         var group = MyAssessments.FirstOrDefault(g => g.id == groupId);
         if (group != default)
-            _myAssessments.Replace(group, result.Value);
+            MyAssessments.Replace(group, result);
         else
-            _myAssessments.Add(result.Value);
+            MyAssessments.Add(result);
 
         // TODO: This is awful!! STOP
         _calendar.Refresh(onError).SafeFireAndForget(e => e.LogException(_logging));
@@ -410,7 +374,7 @@ public partial class TeacherAssessmentService :
         {
             var group = MyAssessments.FirstOrDefault(g => g.id == groupId);
             if (group != default)
-                _myAssessments.Remove(group);
+                MyAssessments.Remove(group);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
             await SaveCache();
         }

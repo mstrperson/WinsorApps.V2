@@ -20,7 +20,7 @@ public partial class FreeBlockViewModel : ObservableObject,
     [ObservableProperty] DateTime start;
     [ObservableProperty] DateTime end;
 
-    public OptionalStruct<BlockMeetingTime> Model { get; set; } = OptionalStruct<BlockMeetingTime>.None();
+    public Optional<BlockMeetingTime> Model { get; set; } = Optional<BlockMeetingTime>.None();
     [ObservableProperty] bool isSelected;
 
     public event EventHandler<FreeBlockViewModel>? Selected;
@@ -30,7 +30,7 @@ public partial class FreeBlockViewModel : ObservableObject,
         BlockName = model.block.name,
         Start = model.start,
         End=model.end,
-        Model = OptionalStruct<BlockMeetingTime>.Some(model)
+        Model = Optional<BlockMeetingTime>.Some(model)
     };
 
     [RelayCommand]

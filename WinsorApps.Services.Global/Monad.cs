@@ -1,6 +1,6 @@
 ﻿namespace WinsorApps.Services.Global;
 
-public sealed class Optional<T> where T : class
+public sealed record Optional<T> where T : class
 {
     private T? _object = null;
 
@@ -23,13 +23,13 @@ public struct OptionalStruct<T> where T : struct
 
     public static OptionalStruct<T> Some(T value) => new() { _value = value };
     public static OptionalStruct<T> None() => new();
-    public OptionalStruct<TResult> Map<TResult>(Func<T, TResult> map) where TResult : struct =>
-        _value.HasValue ? OptionalStruct<TResult>.Some(map(_value.Value)) : OptionalStruct<TResult>.None();
-    public Optional<TResult> MapObject<TResult>(Func<T, TResult> map) where TResult : class =>
-        _value.HasValue ? Optional<TResult>.Some(map(_value.Value)) : Optional<TResult>.None();
+    public readonly OptionalStruct<TResult> Map<TResult>(Func<T, TResult> map) where TResult : struct =>
+        _value is not null ? OptionalStruct<TResult>.Some(map(_value.Value)) : OptionalStruct<TResult>.None();
+    public readonly Optional<TResult> MapObject<TResult>(Func<T, TResult> map) where TResult : class =>
+        _value is not null ? Optional<TResult>.Some(map(_value.Value)) : Optional<TResult>.None();
 
-    public TResult MapObject<TResult>(Func<T, TResult> map, TResult defaultValue) where TResult : class =>
-        _value.HasValue ? map(_value.Value) : defaultValue;
+    public readonly TResult Map<TResult>(Func<T, TResult> map, TResult defaultValue) where TResult : class =>
+        _value is not null ? map(_value.Value) : defaultValue;
 
     public readonly T Reduce(T @default) => _value ?? @default;
 }
@@ -46,9 +46,4 @@ public static class MonadExtensions
     {
         return values.Any(predicate) ? OptionalStruct<T>.None() : OptionalStruct<T>.Some(values.First(predicate));
     }
-    public static T FirstOrDefault<T>(this IEnumerable<T> values, Func<T, bool> predicate, T @default) where T : class
-        => values.FirstOrNone(predicate).Reduce(@default);
-
-    public static T FirstStructOrDefault<T>(this IEnumerable<T> values, Func<T, bool> predicate, T @default) where T : struct
-        => values.FirstStructOrNone(predicate).Reduce(@default);
 }

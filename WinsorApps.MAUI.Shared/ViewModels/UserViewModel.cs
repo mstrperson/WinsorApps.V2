@@ -57,23 +57,23 @@ public partial class UserViewModel :
         ImageSource = ImageSource,
         IsSelected = false,
         DisplayName = DisplayName,
-        Model = Model with { },
+        Model = Model,
         AcademicSchedule = [.. AcademicSchedule.Select(sec => sec.Clone())],
         ShowButton = ShowButton
     };
 
     private readonly RegistrarService _registrar;
-    public OptionalStruct<UserRecord> Model { get; private set; } = OptionalStruct<UserRecord>.None();
+    public Optional<UserRecord> Model { get; private set; } = Optional<UserRecord>.None();
 
     public string BlackbaudId => $"{Model.Reduce(UserRecord.Empty).blackbaudId}";
     public string Id => Model.Reduce(UserRecord.Empty).id ?? "";
     
-    [ObservableProperty] private string displayName;
+    [ObservableProperty] private string displayName = "";
     public string Email => Model.Reduce(UserRecord.Empty).email;
 
     public static UserViewModel Empty => new();
 
-    [ObservableProperty] private ImmutableArray<SectionViewModel> academicSchedule = [];
+    [ObservableProperty] private List<SectionViewModel> academicSchedule = [];
     [ObservableProperty] private bool showButton = false;
     [ObservableProperty] bool isSelected = false;
 
@@ -92,7 +92,7 @@ public partial class UserViewModel :
     }
     private UserViewModel(UserRecord user)
     {
-        Model = OptionalStruct<UserRecord>.Some(user);
+        Model = Optional<UserRecord>.Some(user);
         displayName = $"{user.firstName} {user.lastName}";
         _registrar = ServiceHelper.GetService<RegistrarService>()!;
         ImageSource = ImageSource.FromUri(new("https://bbk12e1-cdn.myschoolcdn.com/ftpimages/1082/logo/2019-masterlogo-white.png"));
@@ -103,12 +103,12 @@ public partial class UserViewModel :
     {
 
         var photo = await _registrar.GetUserPhotoAsync(Id, OnError.DefaultBehavior(this));
-        if (!photo.HasValue || photo.Value.b64data.Length == 0)
+        if (photo is null || photo.b64data.Length == 0)
         {
             ImageSource = ImageSource.FromUri(new("https://bbk12e1-cdn.myschoolcdn.com/ftpimages/1082/logo/2019-masterlogo-white.png"));
             return;
         }
-        ImageSource = ImageSource.FromStream(() => new MemoryStream(photo.Value.b64data));
+        ImageSource = ImageSource.FromStream(() => new MemoryStream(photo.b64data));
     }
 
     [RelayCommand]
@@ -131,7 +131,7 @@ public partial class UserViewModel :
         var schedule = _registrar.MyAcademicSchedule;
         AcademicSchedule = schedule
             .Select(SectionViewModel.Get)
-            .ToImmutableArray();
+            .ToList();
         foreach (var section in AcademicSchedule)
             section.Selected += (sender, sec) => SectionSelected?.Invoke(sender, sec); 
         ShowButton = false;

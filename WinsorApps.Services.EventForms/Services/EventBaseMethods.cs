@@ -1,11 +1,12 @@
 ﻿using System.Collections.Immutable;
 using WinsorApps.Services.EventForms.Models;
+using WinsorApps.Services.Global;
 
 namespace WinsorApps.Services.EventForms.Services;
 
 public partial class EventFormsService
 {
-    public async Task<ImmutableArray<EventFormBase>> GetMyCreatedEvents(DateTime startDate, DateTime endDate, ErrorAction onError, bool updateCache = false)
+    public async Task<List<EventFormBase>> GetMyCreatedEvents(DateTime startDate, DateTime endDate, ErrorAction onError, bool updateCache = false)
     {
         CheckDefaults(ref startDate, ref endDate);
 
@@ -16,7 +17,7 @@ public partial class EventFormsService
             await UpdateCache(startDate, endDate, onError);
         }
 
-        return EventsCache.Where(evt => evt.start >= startDate && evt.end <= endDate && evt.creatorId == _api.AuthUserId).ToImmutableArray();
+        return EventsCache.Where(evt => evt.start >= startDate && evt.end <= endDate && evt.creatorId == _api.AuthUserId).ToList();
     }
 
     private static void CheckDefaults(ref DateTime startDate, ref DateTime endDate)
@@ -31,7 +32,7 @@ public partial class EventFormsService
             (startDate, endDate) = (endDate, startDate);
     }
 
-    public async Task<ImmutableArray<EventFormBase>> GetMyLeadEvents(DateTime startDate, DateTime endDate, ErrorAction onError, bool updateCache = false)
+    public async Task<List<EventFormBase>> GetMyLeadEvents(DateTime startDate, DateTime endDate, ErrorAction onError, bool updateCache = false)
     {
         CheckDefaults(ref startDate, ref endDate);
 
@@ -42,30 +43,30 @@ public partial class EventFormsService
             await UpdateCache(startDate, endDate, onError);
         }
 
-        return EventsCache.Where(evt => evt.start >= startDate && evt.end <= endDate && evt.leaderId == _api.AuthUserId).ToImmutableArray();
+        return EventsCache.Where(evt => evt.start >= startDate && evt.end <= endDate && evt.leaderId == _api.AuthUserId).ToList();
     }
 
     public async Task UpdateCache(DateTime startDate, DateTime endDate, ErrorAction onError)
     {
-        var result = await _api.SendAsync<ImmutableArray<EventFormBase>?>(HttpMethod.Get,
+        var result = await _api.SendAsync<List<EventFormBase>?>(HttpMethod.Get,
                 $"api/events/created?start={startDate:yyyy-MM-dd}&end={endDate:yyyy-MM-dd}", onError: onError) ?? [];
 
         result = result
-            .Union(await _api.SendAsync<ImmutableArray<EventFormBase>?>(HttpMethod.Get,
+            .Union(await _api.SendAsync<List<EventFormBase>?>(HttpMethod.Get,
                 $"api/events/lead?start={startDate:yyyy-MM-dd}&end={endDate:yyyy-MM-dd}", onError: onError) ?? [])
             .Distinct()
-            .ToImmutableArray();
+            .ToList();
 
         foreach (var evt in result)
         {
             if (EventsCache.Any(e => e.id == evt.id))
             {
                 var old = EventsCache.First(e => e.id == evt.id);
-                EventsCache = EventsCache.Replace(old, evt);
+                EventsCache.Replace(old, evt);
             }
             else
             {
-                EventsCache = EventsCache.Add(evt);
+                EventsCache.Add(evt);
             }
         }
     }
@@ -75,9 +76,9 @@ public partial class EventFormsService
         var result = await _api.SendAsync<NewEvent, EventFormBase?>(HttpMethod.Post,
             "api/events", newEvent, onError: onError);
 
-        if(result.HasValue)
+        if(result is not null)
         {
-            EventsCache = EventsCache.Add(result.Value);
+            EventsCache.Add(result);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
 
@@ -89,10 +90,10 @@ public partial class EventFormsService
         var result = await _api.SendAsync<NewEvent, EventFormBase?>(HttpMethod.Put,
             $"api/events/{eventId}", updatedEvent, onError: onError);
 
-        if (result.HasValue)
+        if (result is not null)
         {
             var evt = EventsCache.First(e => e.id == eventId);
-            EventsCache = EventsCache.Replace(evt, result.Value);
+            EventsCache.Replace(evt, result);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
 
@@ -111,7 +112,7 @@ public partial class EventFormsService
         if(success)
         {
             var evt = EventsCache.First(e => e.id == eventId);
-            EventsCache = EventsCache.Remove(evt);
+            EventsCache.Remove(evt);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
 
@@ -129,16 +130,19 @@ public partial class EventFormsService
             onError(err);
         });
 
-        if (!result.HasValue)
+        if (result is null)
             return null;
 
         if (success)
         {
-            EventsCache = EventsCache.Replace(existing, result.Value);
+            if(existing is not null)
+                EventsCache.Replace(existing, result);
+            else
+                EventsCache.Add(result);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
 
-        return result.Value;
+        return result;
     }
 
     public async Task<EventFormBase?> CompleteUpdate(string id, ErrorAction onError)
@@ -151,16 +155,19 @@ public partial class EventFormsService
             onError(err);
         });
 
-        if (!result.HasValue)
+        if (result is null)
             return null;
 
         if (success)
         {
-            EventsCache = EventsCache.Replace(existing, result.Value);
+            if (existing is not null)
+                EventsCache.Replace(existing, result);
+            else
+                EventsCache.Add(result);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
 
-        return result.Value;
+        return result;
     }
 
     public async Task<EventFormBase> GetEvent(string id, ErrorAction onError, bool ignoreCache = false)
@@ -169,15 +176,15 @@ public partial class EventFormsService
             return EventsCache.First(evt => evt.id == id);
 
         var evt = await _api.SendAsync<EventFormBase?>(HttpMethod.Get, $"api/events/{id}", onError: onError);
-        if (!evt.HasValue)
+        if (evt is null)
             return EventFormBase.Empty;
 
-        if (!EventsCache.Any(e => e.id == evt.Value.id))
+        if (!EventsCache.Any(e => e.id == evt.id))
         {
-            EventsCache = EventsCache.Add(evt.Value);
+            EventsCache.Add(evt);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
-        return evt.Value;
+        return evt;
     }
 
     public async Task<byte[]> DownloadPdf(string eventId, ErrorAction onError)

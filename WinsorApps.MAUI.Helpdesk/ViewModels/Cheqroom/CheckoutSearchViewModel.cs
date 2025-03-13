@@ -28,7 +28,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         [ObservableProperty] private bool working;
 
         [ObservableProperty]
-        public ImmutableArray<string> searchModes = ["By Asset Tag", "By User"];
+        public List<string> searchModes = ["By Asset Tag", "By User"];
 
         public Func<CheckoutSearchResultViewModel, bool> SearchFilter =>
             SearchMode switch

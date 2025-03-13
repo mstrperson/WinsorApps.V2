@@ -28,14 +28,14 @@ public partial class SectionViewModel :
     [ObservableProperty] CourseViewModel course = CourseViewModel.Empty;
     [ObservableProperty] UserViewModel teacher = UserViewModel.Empty;
     [ObservableProperty] DateTime created;
-    [ObservableProperty] ImmutableArray<BookRequestOptionGroupViewModel> requestGroups = [];
+    [ObservableProperty] List<BookRequestOptionGroupViewModel> requestGroups = [];
 
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "";
 
     public event EventHandler<ErrorRecord>? OnError;
 
-    public OptionalStruct<ProtoSection> Model { get; private set; } = OptionalStruct<ProtoSection>.None();
+    public Optional<ProtoSection> Model { get; private set; } = Optional<ProtoSection>.None();
 
     public SectionViewModel()
     {
@@ -50,15 +50,15 @@ public partial class SectionViewModel :
         Busy = true;
         BusyMessage = $"Creating new Section of {Course.DisplayName} for {Teacher.DisplayName}";
         var result = await _managerService.CreateSectionForTeacher(Teacher.Id, Course.Id, OnError.DefaultBehavior(this));
-        if (!result.HasValue)
+        if (result is null)
         {
             Busy = false;
             return;
         }
 
-        Model = OptionalStruct<ProtoSection>.Some(result.Value);
-        this.Id = result.Value.id;
-        this.SchoolYearId = result.Value.schoolYearId;
+        Model = Optional<ProtoSection>.Some(result);
+        this.Id = result.id;
+        this.SchoolYearId = result.schoolYearId;
         Busy = false;
     }
 
@@ -88,7 +88,7 @@ public partial class SectionViewModel :
                 Course = CourseViewModel.Get(model.course),
                 Teacher = UserViewModel.Get(_registrar.AllUsers.First(u => u.id == model.teacherId)),
                 Created = model.createdTimeStamp,
-                Model = OptionalStruct<ProtoSection>.Some(model)
+                Model = Optional<ProtoSection>.Some(model)
             };
             ViewModelCache.Add(vm);
         }
@@ -137,7 +137,7 @@ public partial class SectionByTeacherCollectionViewModel :
     ICachedViewModel<SectionByTeacherCollectionViewModel, UserRecord, BookstoreManagerService>
 
 {
-    private static BookstoreManagerService _managerService = ServiceHelper.GetService<BookstoreManagerService>();
+    private static readonly BookstoreManagerService _managerService = ServiceHelper.GetService<BookstoreManagerService>();
 
     public SectionByTeacherCollectionViewModel()
     {
@@ -150,7 +150,7 @@ public partial class SectionByTeacherCollectionViewModel :
     }
 
     [ObservableProperty] UserViewModel teacher = UserViewModel.Empty;
-    [ObservableProperty] ImmutableArray<SectionViewModel> sections = [];
+    [ObservableProperty] List<SectionViewModel> sections = [];
 
     public static ConcurrentBag<SectionByTeacherCollectionViewModel> ViewModelCache { get; private set; } = [];
 
@@ -194,7 +194,7 @@ public partial class SectionByDepartmentCollectionViewModel :
     private static readonly BookstoreManagerService _managerService = ServiceHelper.GetService<BookstoreManagerService>();
 
     [ObservableProperty] string department = "";
-    [ObservableProperty] ImmutableArray<SectionViewModel> sections = [];
+    [ObservableProperty] List<SectionViewModel> sections = [];
 
     public static ConcurrentBag<SectionByDepartmentCollectionViewModel> ViewModelCache { get; private set; } = [];
 
@@ -266,8 +266,8 @@ public partial class SectionSearchViewModel :
         }
     }
 
-    [ObservableProperty] ImmutableArray<SectionByDepartmentCollectionViewModel> departmentSearch = [];
-    [ObservableProperty] ImmutableArray<SectionByTeacherCollectionViewModel> teacherSearch = [];
+    [ObservableProperty] List<SectionByDepartmentCollectionViewModel> departmentSearch = [];
+    [ObservableProperty] List<SectionByTeacherCollectionViewModel> teacherSearch = [];
     [ObservableProperty] SectionSearchMode searchMode = SectionSearchMode.ByTeacher;
     [ObservableProperty] UserSearchViewModel userSearch = new();
 

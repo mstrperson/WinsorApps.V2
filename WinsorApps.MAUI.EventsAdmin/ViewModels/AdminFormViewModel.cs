@@ -118,9 +118,9 @@ public partial class AdminFormViewModel :
         BusyMessage = $"Approving Room for {Form.Summary}";
         var result = await _admin.ApproveRoomUse(Form.Id, OnError.DefaultBehavior(this));
         
-        if (result.HasValue)
+        if (result is not null)
         {
-            Form.StatusSelection.Select(result.Value.status);
+            Form.StatusSelection.Select(result.status);
             await LoadHistory();
         }
         Busy = false;
@@ -135,9 +135,9 @@ public partial class AdminFormViewModel :
         BusyMessage = $"Revoking Room for {Form.Summary}";
         var result = await _admin.RevokeRoomUse(Form.Id, NoteEditor.Note, OnError.DefaultBehavior(this));
 
-        if (result.HasValue)
+        if (result is not null)
         {
-            Form.StatusSelection.Select(result.Value.status);
+            Form.StatusSelection.Select(result.status);
             await LoadHistory();
         }
 
@@ -189,15 +189,15 @@ public partial class ApprovalRecordViewModel :
     [ObservableProperty] UserViewModel manager = UserViewModel.Empty;
     [ObservableProperty] string note = "";
     [ObservableProperty] DateTime timeStamp;
-    public OptionalStruct<EventApprovalStatusRecord> Model { get; private set; }
+    public Optional<EventApprovalStatusRecord> Model { get; private set; }
 
     public static ApprovalRecordViewModel Get(EventApprovalStatusRecord model)
     {
         var registrar = ServiceHelper.GetService<RegistrarService>();
-        var mgr = registrar.AllUsers.FirstStructOrDefault(user => user.id == model.managerId, UserRecord.Empty);
+        var mgr = registrar.AllUsers.FirstOrDefault(user => user.id == model.managerId, UserRecord.Empty);
         return new()
         {
-            Model = OptionalStruct<EventApprovalStatusRecord>.Some(model),
+            Model = Optional<EventApprovalStatusRecord>.Some(model),
             Status = model.status,
             Manager = UserViewModel.Get(mgr),
             Note = model.note,

@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.EventForms.Services;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.MAUI.Shared.EventForms.ViewModels;
@@ -13,7 +14,8 @@ public partial class MarCommEventViewModel :
     IDefaultValueViewModel<MarCommEventViewModel>,
     IEventSubFormViewModel<MarCommEventViewModel, MarCommRequest>,
     IBusyViewModel,
-    IErrorHandling
+    IErrorHandling,
+    IModelCarrier<MarCommEventViewModel, MarCommRequest>
 {
     [ObservableProperty] string id = "";
     [ObservableProperty] bool printInvite;
@@ -48,7 +50,7 @@ public partial class MarCommEventViewModel :
 
     }
 
-    public MarCommRequest Model { get; private set; }
+    public Optional<MarCommRequest> Model { get; private set; } = Optional<MarCommRequest>.None();
 
     public static implicit operator NewMarCommRequest(MarCommEventViewModel vm) =>
         new(
@@ -61,7 +63,7 @@ public partial class MarCommEventViewModel :
             vm.DigitalProgram,
             vm.NeedsMedia,
             vm.NeedPhotographer,
-            vm.InviteList.Select(con => con.Id).ToImmutableArray()
+            vm.InviteList.Select(con => con.Id).ToList()
         );
 
 
@@ -69,7 +71,7 @@ public partial class MarCommEventViewModel :
     public void Clear()
     {
         Id = "";
-        Model = default;
+        Model = Optional<MarCommRequest>.None();
         PrintInvite = false;
         DigitalInvite = false;
         NewsletterReminder = false;
@@ -99,7 +101,7 @@ public partial class MarCommEventViewModel :
         DigitalProgram = model.digitalProgram;
         NeedsMedia = model.needCreatedMedia;
         NeedPhotographer = model.needPhotographer;
-        Model = model;
+        Model = Optional<MarCommRequest>.Some(model);
 
 
         InviteList = [..model.inviteList.Select(ContactViewModel.Get)];
@@ -121,9 +123,9 @@ public partial class MarCommEventViewModel :
     public async Task Continue(bool template = false)
     {
         var result = await _service.PostMarComRequest(Id, this, OnError.DefaultBehavior(this));
-        if (result.HasValue)
+        if (result is not null)
         {
-            Model = result.Value;
+            Model = Optional<MarCommRequest>.Some(result);
             if(!template)
                 ReadyToContinue?.Invoke(this, EventArgs.Empty);
         }
@@ -136,6 +138,12 @@ public partial class MarCommEventViewModel :
         if (result)
             Deleted?.Invoke(this, EventArgs.Empty);
     }
+
+    private MarCommEventViewModel(MarCommRequest request)
+    {
+        Load(request);
+    }
+    public static MarCommEventViewModel Get(MarCommRequest model) => new(model);
 }
 
 

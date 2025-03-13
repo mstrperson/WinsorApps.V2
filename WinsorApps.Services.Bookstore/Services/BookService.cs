@@ -4,16 +4,10 @@ using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.Services.Bookstore.Services;
 
-public class BookService : IAsyncInitService
+public class BookService(LocalLoggingService logging, ApiService api) : IAsyncInitService
 {
-    private readonly ApiService _api;
-    private readonly LocalLoggingService _logging;
-
-    public BookService(LocalLoggingService logging, ApiService api)
-    {
-        _logging = logging;
-        _api = api;
-    }
+    private readonly ApiService _api = api;
+    private readonly LocalLoggingService _logging = logging;
 
     public async Task Initialize(ErrorAction onError)
     {
@@ -23,24 +17,24 @@ public class BookService : IAsyncInitService
         
         Started = true;
 
-        var orderOptionTask = _api.SendAsync<ImmutableArray<OrderOption>>(HttpMethod.Get,
+        var orderOptionTask = _api.SendAsync<List<OrderOption>>(HttpMethod.Get,
             "api/book-orders/order-options", onError: onError);
         orderOptionTask.WhenCompleted(() =>
         {
             if (orderOptionTask.IsCompletedSuccessfully)
             {
-                OrderOptions = orderOptionTask.Result;
+                OrderOptions = orderOptionTask.Result ?? [];
                 Progress += 0.33;
             }
         });
 
-        var bindingTask = _api.SendAsync<ImmutableArray<BookBinding>>(HttpMethod.Get,
+        var bindingTask = _api.SendAsync<List<BookBinding>>(HttpMethod.Get,
             "api/books/list-bindings", onError: onError);
         bindingTask.WhenCompleted(() =>
         {
-            _bookBindings = bindingTask.Result;
+            BookBindings = bindingTask.Result ?? [];
             Progress += 0.33;
-            _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Loaded {_bookBindings.Value.Length} book Bindings");
+            _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Loaded {BookBindings.Count} book Bindings");
         });
 
         var bookCache = _api.SendAsync<List<BookDetail>>(HttpMethod.Get,
@@ -48,9 +42,9 @@ public class BookService : IAsyncInitService
 
         bookCache.WhenCompleted(() =>
         {
-            _bookCache = bookCache.Result;
+            BooksCache = bookCache.Result ?? [];
             Progress += 0.33;
-            _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Loaded {_bookCache?.Count ?? 0} Books");
+            _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Loaded {BooksCache.Count} Books");
         });
 
 
@@ -62,32 +56,11 @@ public class BookService : IAsyncInitService
 
     public bool Ready { get; private set; } = false;
 
-    public ImmutableArray<OrderOption> OrderOptions { get; private set; } = [];
+    public List<OrderOption> OrderOptions { get; private set; } = [];
 
-    private List<BookDetail>? _bookCache;
+    public List<BookDetail> BooksCache { get; private set; } = [];
 
-    public ImmutableArray<BookDetail> BooksCache
-    {
-        get
-        {
-            if (_bookCache is null)
-                throw new ServiceNotReadyException(_logging, $"Book service has not yet been fully initialized");
-
-            return [.. _bookCache];
-        }
-    }
-
-    private ImmutableArray<BookBinding>? _bookBindings;
-    public ImmutableArray<BookBinding> BookBindings
-    {
-        get
-        {
-            if (!_bookBindings.HasValue)
-                throw new ServiceNotReadyException(_logging, $"Book service has not yet been fully initialized");
-
-            return _bookBindings.Value;
-        }
-    }
+    public List<BookBinding> BookBindings { get; private set; } = [];
 
     public bool Started { get; private set; }
 
@@ -101,21 +74,21 @@ public class BookService : IAsyncInitService
             "api/books", onError: onError);
 
         if (cache is not null)
-            _bookCache = cache;
+            BooksCache = cache;
     }
 
     public async Task<ISBNDetail?> GetISBNDetails(string isbn, ErrorAction onError) =>
         await _api.SendAsync<ISBNDetail?>(HttpMethod.Get, $"api/books/isbn/{isbn}", onError: onError);
 
-    public async Task<ImmutableArray<ISBNDetail>> SearchISBN(BookSearchFilter filter, ErrorAction onError) =>
-        await _api.SendAsync<ImmutableArray<ISBNDetail>>(HttpMethod.Get,
-            $"api/books/isbn/search{filter}", onError: onError);
+    public async Task<List<ISBNDetail>> SearchISBN(BookSearchFilter filter, ErrorAction onError) =>
+        await _api.SendAsync<List<ISBNDetail>>(HttpMethod.Get,
+            $"api/books/isbn/search{filter}", onError: onError) ?? [];
 
-    public async Task<ImmutableArray<BookDetail>> SearchBooks(BookSearchFilter filter, ErrorAction onError) =>
+    public async Task<List<BookDetail>> SearchBooks(BookSearchFilter filter, ErrorAction onError) =>
         BooksCache.Any(filter.IsMatchFor) ?
         [.. BooksCache.Where(filter.IsMatchFor)] :
-        await _api.SendAsync<ImmutableArray<BookDetail>>(HttpMethod.Get,
-            $"api/books/search{filter}", onError: onError);
+        await _api.SendAsync<List<BookDetail>>(HttpMethod.Get,
+            $"api/books/search{filter}", onError: onError) ?? [];
 
     public async Task<BookDetail?> CreateNewBook(CreateBook newBook, ErrorAction onError)
     {
@@ -132,19 +105,19 @@ public class BookService : IAsyncInitService
         return HandleBookResult(result);
     }
 
-    private BookDetail? HandleBookResult(BookDetail result)
+    private BookDetail? HandleBookResult(BookDetail? result)
     {
-        if (result == default)
+        if (result is null)
             return null;
 
-        if (_bookCache!.TrueForAll(book => book.id != result.id))
+        if (BooksCache.TrueForAll(book => book.id != result.id))
         {
-            _bookCache!.Add(result);
+            BooksCache.Add(result);
         }
         else
         {
-            var old = _bookCache.First(book => book.id == result.id);
-            _bookCache.Replace(old, result);
+            var old = BooksCache.First(book => book.id == result.id);
+            BooksCache.Replace(old, result);
         }
 
         return result;
@@ -154,7 +127,7 @@ public class BookService : IAsyncInitService
     {
         var isbnInfo = await _api.SendAsync<CreateISBN, ISBNInfo?>(HttpMethod.Put,
             $"api/books/{bookId}/{oldIsbn}/replace", newIsbn, onError: onError);
-        if (!isbnInfo.HasValue) return null;
+        if (isbnInfo is null) return null;
 
         var book = await _api.SendAsync<BookDetail>(HttpMethod.Get, $"api/books/{bookId}", onError: onError);
 
@@ -166,7 +139,7 @@ public class BookService : IAsyncInitService
         var isbnInfo = await _api.SendAsync<CreateOdinData, ISBNDetail?>(HttpMethod.Post,
             $"api/books/isbn/{isbn}/price-data", odinData, onError: onError);
 
-        if (!isbnInfo.HasValue) return null;
+        if (isbnInfo is null) return null;
 
         var book = await _api.SendAsync<BookDetail>(HttpMethod.Get, $"api/books/{bookId}", onError: onError);
 
@@ -177,7 +150,7 @@ public class BookService : IAsyncInitService
     {
         var result = await _api.SendAsync<ISBNInfo?>(HttpMethod.Delete, $"api/books/isbn/{isbn}", onError: onError);
 
-        if (!result.HasValue)
+        if (result is null)
             return null;
 
         var book = await _api.SendAsync<BookDetail>(HttpMethod.Get, $"api/books/{bookId}", onError: onError);
@@ -200,6 +173,7 @@ public class BookService : IAsyncInitService
             await Task.Delay(250);
     }
 
+    public void ClearCache() { if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}"); }
     public async Task SaveCache()
     {
         throw new NotImplementedException();

@@ -12,6 +12,7 @@ namespace WinsorApps.Services.EventForms.Services
         private readonly ApiService _api;
         private readonly LocalLoggingService _logging;
         public string CacheFileName => ".theater.cache";
+        public void ClearCache() { if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}"); }
         public async Task SaveCache()
         {
             var json = JsonSerializer.Serialize(AvailableMenus);
@@ -26,7 +27,7 @@ namespace WinsorApps.Services.EventForms.Services
             try
             {
                 var json = File.ReadAllText($"{_logging.AppStoragePath}{CacheFileName}");
-                AvailableMenus = JsonSerializer.Deserialize<ImmutableArray<TheaterMenuCategory>>(json);
+                AvailableMenus = JsonSerializer.Deserialize<List<TheaterMenuCategory>>(json) ?? [];
                 return true;
             }
             catch
@@ -34,7 +35,7 @@ namespace WinsorApps.Services.EventForms.Services
                 return false;
             }
         }
-        public ImmutableArray<TheaterMenuCategory> AvailableMenus { get; private set; } = [];
+        public List<TheaterMenuCategory> AvailableMenus { get; private set; } = [];
 
         public TheaterService(ApiService api, LocalLoggingService logging)
         {
@@ -61,7 +62,7 @@ namespace WinsorApps.Services.EventForms.Services
             Started = true;
             if (!LoadCache())
             {
-                AvailableMenus = await _api.SendAsync<ImmutableArray<TheaterMenuCategory>?>(HttpMethod.Get,
+                AvailableMenus = await _api.SendAsync<List<TheaterMenuCategory>?>(HttpMethod.Get,
                     "api/events/theater/menu", onError: onError) ?? [];
                 await SaveCache();
             }
@@ -72,7 +73,7 @@ namespace WinsorApps.Services.EventForms.Services
         public async Task Refresh(ErrorAction onError)
         {
 
-            AvailableMenus = await _api.SendAsync<ImmutableArray<TheaterMenuCategory>?>(HttpMethod.Get,
+            AvailableMenus = await _api.SendAsync<List<TheaterMenuCategory>?>(HttpMethod.Get,
                 "api/events/theater/menu", onError: onError) ?? [];
             await SaveCache();
         }

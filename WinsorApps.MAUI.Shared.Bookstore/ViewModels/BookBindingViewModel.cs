@@ -33,7 +33,7 @@ public partial class BookBindingViewModel :
         BookService service = ServiceHelper.GetService<BookService>();
         LocalLoggingService logging = ServiceHelper.GetService<LocalLoggingService>();
 
-        var temp = service.BookBindings.FirstOrDefault(b => b.binding.ToLowerInvariant() == binding.ToLowerInvariant());
+        var temp = service.BookBindings.FirstOrDefault(b => b.binding.Equals(binding, StringComparison.InvariantCultureIgnoreCase));
         if(temp is null)
         {
             logging?.LogMessage(LocalLoggingService.LogLevel.Warning, $"{binding} is not a valid binding found in the Book Service...");
@@ -59,7 +59,7 @@ public partial class BookOrderOptionViewModel :
 
     public static BookOrderOptionViewModel Get(string option)
     {
-        var orderOption = BookService.OrderOptions.FirstOrDefault(opt => opt.label.Equals(option, StringComparison.InvariantCultureIgnoreCase));
+        var orderOption = BookService.OrderOptions.FirstOrDefault(opt => opt.label.Equals(option, StringComparison.InvariantCultureIgnoreCase)) ?? new("", "", "");
         if (string.IsNullOrEmpty(orderOption.id))
             return Empty;
         return Get(orderOption);

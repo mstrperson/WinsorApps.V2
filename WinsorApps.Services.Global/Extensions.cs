@@ -46,20 +46,20 @@ public static partial class RegexHelper
 /// </summary>
 public class Month
 {
-    public static readonly Month January = new Month(1);
-    public static readonly Month February = new Month(2);
-    public static readonly Month March = new Month(3);
-    public static readonly Month April = new Month(4);
-    public static readonly Month May = new Month(5);
-    public static readonly Month June = new Month(6);
-    public static readonly Month July = new Month(7);
-    public static readonly Month August = new Month(8);
-    public static readonly Month September = new Month(9);
-    public static readonly Month October = new Month(10);
-    public static readonly Month November = new Month(11);
-    public static readonly Month December = new Month(12);
+    public static readonly Month January = new(1);
+    public static readonly Month February = new(2);
+    public static readonly Month March = new(3);
+    public static readonly Month April = new(4);
+    public static readonly Month May = new(5);
+    public static readonly Month June = new(6);
+    public static readonly Month July = new(7);
+    public static readonly Month August = new(8);
+    public static readonly Month September = new(9);
+    public static readonly Month October = new(10);
+    public static readonly Month November = new(11);
+    public static readonly Month December = new(12);
 
-    public static readonly ImmutableArray<Month> Months =
+    public static readonly List<Month> Months =
     [
         Month.January,
         Month.February,
@@ -76,7 +76,7 @@ public class Month
     ];
 
     private readonly int _month;
-    private static readonly ImmutableArray<string> MonthNames =
+    private static readonly List<string> MonthNames =
     [
         "January",
         "February",
@@ -150,7 +150,7 @@ public class Month
     public override string ToString() => $"{MonthNames[_month - 1]}";
 }
 
-public readonly record struct DateRangeWrapper(DateOnly start, DateOnly end)
+public record DateRangeWrapper(DateOnly start, DateOnly end)
 {
     public static implicit operator DateRange(DateRangeWrapper wrapper) => new(wrapper.start, wrapper.end);
     public static implicit operator DateRangeWrapper(DateRange range) => new(range.start, range.end);
@@ -168,8 +168,8 @@ public record struct DateRange(DateOnly start, DateOnly end) : IEnumerable<DateO
 {
     public DateRange(DateTime start, DateTime end) : this(DateOnly.FromDateTime(start), DateOnly.FromDateTime(end)) { }
 
-    public bool Contains(DateOnly date) => date >= start && date <= end;
-    public bool Contains(DateTime date) => DateOnly.FromDateTime(date) >= start && DateOnly.FromDateTime(date) <= end;
+    public readonly bool Contains(DateOnly date) => date >= start && date <= end;
+    public readonly bool Contains(DateTime date) => DateOnly.FromDateTime(date) >= start && DateOnly.FromDateTime(date) <= end;
 
     public static DateRange MonthOf(int month, int year = -1) => MonthOf(month, year);
     public static DateRange MonthOf(int month, DateTime starting)
@@ -216,20 +216,20 @@ public record struct DateRange(DateOnly start, DateOnly end) : IEnumerable<DateO
             this.range = range;
         }
 
-        public DateOnly Current => current.HasValue ? current.Value : default;
+        public DateOnly Current => current ?? default;
 
-        object IEnumerator.Current => current.HasValue ? current.Value : default;
+        object IEnumerator.Current => current ?? default;
 
         public void Dispose()
         {
-            
+            GC.SuppressFinalize(this);
         }
 
         public bool MoveNext()
         {
-            if (!current.HasValue) current = range.start;
+            if (current is null) current = range.start;
             else current = current.Value.AddDays(1);
-            return current.Value <= range.end;
+            return current <= range.end;
         }
 
         public void Reset()
@@ -240,8 +240,8 @@ public record struct DateRange(DateOnly start, DateOnly end) : IEnumerable<DateO
 }
 public class DebugTimer : IDisposable
 {
-    Stopwatch sw;
-    string message;
+    readonly Stopwatch sw;
+    private readonly string _message;
     private readonly LocalLoggingService _logging;
 
     public DebugTimer(string message, LocalLoggingService logging)
@@ -253,16 +253,17 @@ public class DebugTimer : IDisposable
 #endif
         logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"starting:  {message}");
         sw = Stopwatch.StartNew();
-        this.message = message;
+        this._message = message;
     }
 
     public void Dispose()
     {
         sw.Stop();
 #if DEBUG
-        Debug.WriteLine($"{message} took {sw.ElapsedMilliseconds}ms.");
+        Debug.WriteLine($"{_message} took {sw.ElapsedMilliseconds}ms.");
 #endif
-        _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"{message} took {sw.ElapsedMilliseconds}ms.");
+        _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"{_message} took {sw.ElapsedMilliseconds}ms.");
+        GC.SuppressFinalize(this);
     }
 }
 public class SixWeekPeriod
@@ -270,7 +271,7 @@ public class SixWeekPeriod
     public DateOnly StartDate { get; init; }
     public DateOnly EndDate => StartDate.AddDays(6 * 7);
 
-    public SixWeekPeriod Next => new SixWeekPeriod { StartDate = EndDate };
+    public SixWeekPeriod Next => new() { StartDate = EndDate };
 
     public override string ToString() => string.Format("[{0} - {1}]", StartDate.ToShortDateString(), EndDate.ToShortDateString());
 
@@ -305,8 +306,7 @@ public class SixWeekPeriod
             dateList.Add(date);
         }
 
-        if (parallelOptions is null)
-            parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 16 };
+        parallelOptions ??= new ParallelOptions { MaxDegreeOfParallelism = 16 };
 
         Parallel.ForEach(dateList, parallelOptions, action);
     }
@@ -327,8 +327,7 @@ public class SixWeekPeriod
             dateList.Add(date);
         }
 
-        if (parallelOptions is null)
-            parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 16 };
+        parallelOptions ??= new ParallelOptions { MaxDegreeOfParallelism = 16 };
 
         Parallel.ForEach(dateList, parallelOptions, date => iterationOperation(output, action(date)));
 
@@ -367,23 +366,6 @@ public static partial class Extensions
             }
 
             list.Add(item);
-        }
-
-        return list;
-    }
-
-    public static ImmutableArray<T> Merge<T>(this ImmutableArray<T> list, IEnumerable<T> other, Func<T, T, bool>? replacementCriteria = null)
-    {
-        foreach (var item in other)
-        {
-            if (replacementCriteria is not null)
-            {
-                var existing = list.FirstOrDefault(it => replacementCriteria(it, item));
-                if (existing is not null && list.Contains(existing))
-                    list = list.Remove(existing);
-            }
-
-            list = list.Add(item);
         }
 
         return list;
@@ -584,11 +566,10 @@ public static partial class Extensions
     /// <exception cref="InvalidCastException"></exception>
     public static double ConvertToCurrency(this string input, bool throwIfInvalid = false)
     {
-        if (input is null)
-            input = string.Empty;
+        input ??= string.Empty;
         input = input.Trim();
-        if (input.StartsWith("$"))
-            input = input.Substring(1);
+        if (input.StartsWith('$'))
+            input = input[1..];
 
         input = input.Trim();
 
@@ -633,11 +614,11 @@ public static partial class Extensions
             task.SafeFireAndForget(errorHandler);
     }
 
-    public static UserRecord GetUserRecord(this StudentRecordShort student, RegistrarService registrar) => registrar.StudentList.FirstOrDefault(u => u.id == student.id);
+    public static UserRecord GetUserRecord(this StudentRecordShort student, RegistrarService registrar) => registrar.StudentList.FirstOrDefault(u => u.id == student.id) ?? UserRecord.Empty;
 
     public static void ReplaceBy<T>(this List<T> list, T toInsert, Func<T, bool> replaceCriteria)
     {
-        foreach(var item in list.ToImmutableArray())
+        foreach(var item in list.ToList())
             if(replaceCriteria(item))
                 list.Remove(item);
 
@@ -659,12 +640,12 @@ public static partial class Extensions
     public static TValue GetOrAdd<TKey, TValue>(this Dictionary<TKey,TValue> dict, TKey key, TValue value)
         where TKey : notnull
     {
-        ref var val = ref CollectionsMarshal.GetValueRefOrAddDefault(dict, key, out var exists);
-        if (exists)
+        if (dict.TryGetValue(key, out var val))
+        {
             return val;
+        }
 
-        val = value;
-
+        dict.Add(key, value);
         return value;
     }
 
@@ -683,24 +664,24 @@ public static partial class Extensions
         this Dictionary<TKey, TValue> dict, TKey key, TValue newValue)
         where TKey : notnull
     {
-        ref var val = ref CollectionsMarshal.GetValueRefOrNullRef(dict, key);
-        var found = true;
-        if (Unsafe.IsNullRef(ref val))
-            found = false;
+        if (dict.TryGetValue(key, out var _))
+        {
+            return true;
+        }
 
-        val = newValue;
-        return found;
+        dict.Add(key, newValue);
+        return false;
     }
 
     public static bool TryUpdate<TKey, TValue>(
         this Dictionary<TKey, TValue> dict, TKey key, TValue value) 
         where TKey : notnull
     {
-        ref var val = ref CollectionsMarshal.GetValueRefOrNullRef(dict, key);
-        if (Unsafe.IsNullRef(ref val))
-            return false;
-
-        val = value;
-        return true;
+        if (dict.ContainsKey(key))
+        {
+            dict[key] = value;
+            return true;
+        }
+        return false;
     }
 }

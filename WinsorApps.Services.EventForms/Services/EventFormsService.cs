@@ -22,12 +22,12 @@ namespace WinsorApps.Services.EventForms.Services
             _api.OnLoginSuccess += (_, _) => Initialize(_logging.LogError).SafeFireAndForget(e => e.LogException(_logging));
         }
 
-        public readonly record struct CacheStructure(
-            ImmutableArray<EventFormBase> events, 
-            ImmutableArray<EventFormBase> leadEvents, 
-            ImmutableArray<string> eventTypes,
-            ImmutableArray<ApprovalStatus> statusLabels,
-            ImmutableArray<VehicleCategory> vehicleCategories);
+        public record CacheStructure(
+            List<EventFormBase> events, 
+            List<EventFormBase> leadEvents, 
+            List<string> eventTypes,
+            List<ApprovalStatus> statusLabels,
+            List<VehicleCategory> vehicleCategories);
 
         public string CacheFileName => ".event-base.cache";
         public async Task SaveCache()
@@ -36,6 +36,8 @@ namespace WinsorApps.Services.EventForms.Services
             var json = JsonSerializer.Serialize(cache);
             await File.WriteAllTextAsync($"{_logging.AppStoragePath}{CacheFileName}", json);
         }
+
+        public void ClearCache() { if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}"); }
 
         public bool LoadCache()
         {
@@ -58,6 +60,7 @@ namespace WinsorApps.Services.EventForms.Services
             {
                 var json = File.ReadAllText($"{_logging.AppStoragePath}{CacheFileName}");
                 var cache = JsonSerializer.Deserialize<CacheStructure>(json);
+                if (cache is null) return false;
                 EventsCache = cache.events;
                 LeadEvents = cache.leadEvents;
                 EventTypes = cache.eventTypes;
@@ -72,15 +75,15 @@ namespace WinsorApps.Services.EventForms.Services
             }
         }
 
-        public ImmutableArray<EventFormBase> EventsCache { get; protected set; } = [];
+        public List<EventFormBase> EventsCache { get; protected set; } = [];
 
-        public ImmutableArray<EventFormBase> LeadEvents { get; private set; } = [];
+        public List<EventFormBase> LeadEvents { get; private set; } = [];
 
-        public ImmutableArray<string> EventTypes { get; private set; } = [];
+        public List<string> EventTypes { get; private set; } = [];
 
-        public ImmutableArray<ApprovalStatus> StatusLabels { get; private set; } = [];
+        public List<ApprovalStatus> StatusLabels { get; private set; } = [];
 
-        public ImmutableArray<VehicleCategory> VehicleCategories { get; private set; } = [];
+        public List<VehicleCategory> VehicleCategories { get; private set; } = [];
 
 
         public bool Started { get; protected set; }
@@ -112,35 +115,35 @@ namespace WinsorApps.Services.EventForms.Services
             {
                 double taskCount = 5;
 
-                var statusTask = _api.SendAsync<ImmutableArray<ApprovalStatus>?>(HttpMethod.Get, "api/events/status-labels", onError: onError);
+                var statusTask = _api.SendAsync<List<ApprovalStatus>?>(HttpMethod.Get, "api/events/status-labels", onError: onError);
                 statusTask.WhenCompleted(() =>
                 {
                     StatusLabels = statusTask.Result ?? [];
                     Progress += 1 / taskCount;
                 });
 
-                var typeTask = _api.SendAsync<ImmutableArray<string>?>(HttpMethod.Get, "api/events/event-types", onError: onError);
+                var typeTask = _api.SendAsync<List<string>?>(HttpMethod.Get, "api/events/event-types", onError: onError);
                 typeTask.WhenCompleted(() =>
                 {
                     EventTypes = typeTask.Result ?? [];
                     Progress += 1 / taskCount;
                 });
 
-                var vehicleTask = _api.SendAsync<ImmutableArray<VehicleCategory>?>(HttpMethod.Get, "api/events/transportation/vehicles", onError: onError);
+                var vehicleTask = _api.SendAsync<List<VehicleCategory>?>(HttpMethod.Get, "api/events/transportation/vehicles", onError: onError);
                 vehicleTask.WhenCompleted(() =>
                 {
                     VehicleCategories = vehicleTask.Result ?? [];
                     Progress += 1 / taskCount;
                 });
 
-                var createdTask = _api.SendAsync<ImmutableArray<EventFormBase>?>(HttpMethod.Get, "api/events/created", onError: onError);
+                var createdTask = _api.SendAsync<List<EventFormBase>?>(HttpMethod.Get, "api/events/created", onError: onError);
                 createdTask.WhenCompleted(() =>
                 {
                     EventsCache = createdTask.Result ?? [];
                     Progress += 1 / taskCount;
                 });
 
-                var leadTask = _api.SendAsync<ImmutableArray<EventFormBase>?>(HttpMethod.Get, "api/events/lead", onError: onError);
+                var leadTask = _api.SendAsync<List<EventFormBase>?>(HttpMethod.Get, "api/events/lead", onError: onError);
                 leadTask.WhenCompleted(() =>
                 {
                     LeadEvents = leadTask.Result ?? [];
@@ -150,7 +153,7 @@ namespace WinsorApps.Services.EventForms.Services
 
                 await Task.WhenAll(statusTask, typeTask, vehicleTask, createdTask, leadTask);
 
-                if (EventsCache.Any())
+                if (EventsCache.Count != 0)
                 {
                     CacheStartDate = EventsCache.Select(evt => evt.start).Min();
                     CacheEndDate = EventsCache.Select(evt => evt.start).Max();
@@ -168,8 +171,8 @@ namespace WinsorApps.Services.EventForms.Services
         {
             Refreshing = true;
             var updated = 
-                await _api.SendAsync<string[], ImmutableArray<EventFormBase>>(HttpMethod.Get, "api/events/list",
-                    EventsCache.Select(evt => evt.id).ToArray(), onError: onError);
+                await _api.SendAsync<string[], List<EventFormBase>>(HttpMethod.Get, "api/events/list",
+                    EventsCache.Select(evt => evt.id).ToArray(), onError: onError) ?? [];
             EventsCache = updated;
             Refreshing = false;
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);

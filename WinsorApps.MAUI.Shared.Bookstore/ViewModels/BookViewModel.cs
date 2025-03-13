@@ -55,7 +55,7 @@ public partial class BookViewModel :
     [ObservableProperty] private bool isNew;
     [ObservableProperty] private ObservableCollection<IsbnViewModel> isbns = [];
 
-    public OptionalStruct<BookDetail> Model { get; private set; } = OptionalStruct<BookDetail>.None();
+    public Optional<BookDetail> Model { get; private set; } = Optional<BookDetail>.None();
 
     public static ConcurrentBag<BookViewModel> ViewModelCache { get; private set; } = [];
 
@@ -82,7 +82,7 @@ public partial class BookViewModel :
             entry.IsbnUpdateRequested += (sender, e) => SaveIsbnRequested?.Invoke(this, e);
             entry.OdinUpdateRequested += (sender, e) => SaveOdinDataRequested?.Invoke(this, e);
         }
-        Model = OptionalStruct<BookDetail>.Some(book);
+        Model = Optional<BookDetail>.Some(book);
     }
 
     public static implicit operator BookViewModel(BookDetail book) => new(book);
@@ -103,32 +103,32 @@ public partial class BookViewModel :
         if (IsNew)
         {
             var book = await bookService.CreateNewBook(data, err => OnError?.Invoke(this, err));
-            if (!book.HasValue)
+            if (book is null)
             {
                 logging?.LogMessage(LocalLoggingService.LogLevel.Debug, $"Creating a new Book was unsuccessful.. {data}");
                 return;
             }
-            Model = OptionalStruct<BookDetail>.Some(book.Value);
+            Model = Optional<BookDetail>.Some(book);
 
-            ViewModelCache.Add(new(book.Value));
+            ViewModelCache.Add(new(book));
 
             return;
         }
 
         var updatedBook = await bookService.UpdateBook(Model.Reduce(BookDetail.Empty).id, data, err => OnError?.Invoke(this, err));
-        if (!updatedBook.HasValue)
+        if (updatedBook is null)
         {
             logging?.LogMessage(LocalLoggingService.LogLevel.Debug, $"Updating Book {Model.Reduce(BookDetail.Empty).id} was unsuccessful.. {data}");
             return;
         }
 
-        Model = OptionalStruct<BookDetail>.Some(updatedBook.Value);
-        var old = ViewModelCache.FirstOrDefault(vm => vm.Id == updatedBook.Value.id);
+        Model = Optional<BookDetail>.Some(updatedBook);
+        var old = ViewModelCache.FirstOrDefault(vm => vm.Id == updatedBook.id);
         if (old is null)
-            ViewModelCache.Add(new(updatedBook.Value));
+            ViewModelCache.Add(new(updatedBook));
         else
         {
-            ViewModelCache = [ .. ViewModelCache.Except([old]), new(updatedBook.Value)];
+            ViewModelCache = [ .. ViewModelCache.Except([old]), new(updatedBook)];
         }
     }
 

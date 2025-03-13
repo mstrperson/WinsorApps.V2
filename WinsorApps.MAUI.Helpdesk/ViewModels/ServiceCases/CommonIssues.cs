@@ -9,21 +9,14 @@ using WinsorApps.Services.Helpdesk.Services;
 
 namespace WinsorApps.MAUI.Helpdesk.ViewModels.ServiceCases;
 
-public partial class CommonIssueViewModel : ObservableObject, ISelectable<CommonIssueViewModel>
+public partial class CommonIssueViewModel(ServiceCaseCommonIssue issue) : ObservableObject, ISelectable<CommonIssueViewModel>
 {
-    [ObservableProperty] string id = "";
-    [ObservableProperty] string status = "";
-    [ObservableProperty] string description = "";
+    [ObservableProperty] string id = issue.id;
+    [ObservableProperty] string status = issue.status;
+    [ObservableProperty] string description = issue.description;
     [ObservableProperty] bool isSelected;
 
     public event EventHandler<CommonIssueViewModel>? Selected;
-
-    public CommonIssueViewModel(ServiceCaseCommonIssue issue)
-    {
-        id = issue.id;
-        status = issue.status;
-        description = issue.description;
-    }
 
     [RelayCommand]
     public void Select()
@@ -50,12 +43,12 @@ public partial class CommonIssueSelectionViewModel : ObservableObject, ICheckBox
         }
     }
 
-    public void Select(ImmutableArray<string> commonIssues)
+    public void Select(List<string> commonIssues)
     {
         foreach (var item in Items)
             item.IsSelected = commonIssues.Any(ci => item.Status == ci);
     }
-    public void Select(ImmutableArray<CommonIssueViewModel> commonIssues)
+    public void Select(List<CommonIssueViewModel> commonIssues)
     {
         foreach (var item in Items)
             item.IsSelected = commonIssues.Any(ci => item.Id == ci.Id);

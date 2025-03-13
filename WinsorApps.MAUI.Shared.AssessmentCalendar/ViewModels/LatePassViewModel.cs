@@ -7,136 +7,140 @@ using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 
-namespace WinsorApps.MAUI.Shared.AssessmentCalendar.ViewModels
+namespace WinsorApps.MAUI.Shared.AssessmentCalendar.ViewModels;
+
+public partial class LatePassViewModel :
+    ObservableObject,
+    IModelCarrier<LatePassViewModel, AssessmentPassDetail>
 {
-    public partial class LatePassViewModel :
-        ObservableObject,
-        IModelCarrier<LatePassViewModel, AssessmentPassDetail>
+    [ObservableProperty] string courseName = "";
+    [ObservableProperty] string note = "";
+    [ObservableProperty] DateTime dateAndTime;
+    [ObservableProperty] DateTime timestamp;
+    [ObservableProperty] UserViewModel student = UserViewModel.Empty;
+    [ObservableProperty] MakeupTimeViewModel makeupTime = MakeupTimeViewModel.Empty;
+
+    [ObservableProperty] FreeBlockCollectionViewModel freeBlockLookup = new();
+    [ObservableProperty] bool showFreeBlockLookup;
+    [ObservableProperty] bool showManualInput;
+
+    public Optional<AssessmentPassDetail> Model { get; private set; } = Optional<AssessmentPassDetail>.None();
+
+    public event EventHandler<AssessmentPassDetail>? LoadAssessmentRequested;
+
+    public static LatePassViewModel CreateEmpty(UserViewModel student, AssessmentCalendarEventViewModel assessment)
     {
-        [ObservableProperty] string courseName = "";
-        [ObservableProperty] string note = "";
-        [ObservableProperty] DateTime dateAndTime;
-        [ObservableProperty] DateTime timestamp;
-        [ObservableProperty] UserViewModel student = UserViewModel.Empty;
-        [ObservableProperty] MakeupTimeViewModel makeupTime = MakeupTimeViewModel.Empty;
-
-        [ObservableProperty] FreeBlockCollectionViewModel freeBlockLookup = new();
-        [ObservableProperty] bool showFreeBlockLookup;
-        [ObservableProperty] bool showManualInput;
-
-        public OptionalStruct<AssessmentPassDetail> Model { get; private set; } = OptionalStruct<AssessmentPassDetail>.None();
-
-        public event EventHandler<AssessmentPassDetail>? LoadAssessmentRequested;
-
-        public static LatePassViewModel CreateEmpty(UserViewModel student, AssessmentCalendarEventViewModel assessment)
+        var vm = new LatePassViewModel
         {
-            var vm = new LatePassViewModel() { Student = student, DateAndTime = assessment.Start };
-            
-            vm.CourseName = assessment.Details?.section.displayName ?? assessment.Description;
-            vm.FreeBlockLookup.User = student;
+            Student = student,
+            DateAndTime = assessment.Start,
+            CourseName = assessment.Details?.section.displayName ?? assessment.Description
+        };
+        vm.FreeBlockLookup.User = student;
 
-            var start = assessment.Start.Date.AddDays(1);
-            while (start is { DayOfWeek: DayOfWeek.Sunday or DayOfWeek.Saturday })
-                start = start.AddDays(1);
+        var start = assessment.Start.Date.AddDays(1);
+        while (start is { DayOfWeek: DayOfWeek.Sunday or DayOfWeek.Saturday })
+            start = start.AddDays(1);
 
-            var end = start.AddDays(2);
-            while (end is { DayOfWeek: DayOfWeek.Sunday or DayOfWeek.Saturday })
-                end = end.AddDays(1);
-            vm.FreeBlockLookup.Start = start;
-            vm.FreeBlockLookup.End = end;
-            vm.FreeBlockLookup.User = vm.Student;
+        var end = start.AddDays(2);
+        while (end is { DayOfWeek: DayOfWeek.Sunday or DayOfWeek.Saturday })
+            end = end.AddDays(1);
+        vm.FreeBlockLookup.Start = start;
+        vm.FreeBlockLookup.End = end;
+        vm.FreeBlockLookup.User = vm.Student;
 
-            vm.FreeBlockLookup.FreeBlockSelected += (_, block) =>
-            {
-                vm.MakeupTime = MakeupTimeViewModel.Get(new(block.Start, $"Make up during {block.BlockName} Block: {block.Start:dddd, d MMMM hh:mm tt}"));
-                vm.ShowFreeBlockLookup = false;
-            };
-
-            return vm;
-        }
-
-
-        protected LatePassViewModel() { }
-
-        public static ObservableCollection<LatePassViewModel> GetPasses(AssessmentEntryRecord assessment)
+        vm.FreeBlockLookup.FreeBlockSelected += (_, block) =>
         {
-            var registrar = ServiceHelper.GetService<RegistrarService>();
-            ObservableCollection<LatePassViewModel> passes = [];
-            foreach(var latePass in assessment.studentsUsingPasses)
-            {
-                var student = UserViewModel.Get(latePass.student.GetUserRecord(registrar));
+            vm.MakeupTime = MakeupTimeViewModel.Get(new(block.Start, $"Make up during {block.BlockName} Block: {block.Start:dddd, d MMMM hh:mm tt}"));
+            vm.ShowFreeBlockLookup = false;
+        };
 
-                passes.Add(new()
-                {
-                    Student = student,
-                    CourseName = assessment.section.displayName,
-                    Timestamp = latePass.timeStamp,
-                    Model = OptionalStruct<AssessmentPassDetail>.Some(
-                        new(new(assessment.assessmentId, AssessmentType.Assessment, "", "", 
-                        assessment.assessmentDateTime, assessment.assessmentDateTime, false, []), 
-                        student.Model.Reduce(UserRecord.Empty), latePass.timeStamp, new()))
-                });
-            }
-
-            return passes;
-        }
-
-        public static LatePassViewModel Get(AssessmentPassDetail model)
-        {
-            var registrar = ServiceHelper.GetService<RegistrarService>();
-            var vm = new LatePassViewModel()
-            {
-                CourseName = registrar.CourseList.FirstOrDefault(course => course.courseCode == model.assessment.summary).displayName,
-                Note = model.assessment.description,
-                DateAndTime = model.assessment.start,
-                Timestamp = model.timeStamp,
-                Student = UserViewModel.Get(model.student),
-                Model = OptionalStruct<AssessmentPassDetail>.Some(model)
-            };
-
-            var start = model.assessment.start.Date.AddDays(1);
-            while (start is { DayOfWeek: DayOfWeek.Sunday or DayOfWeek.Saturday })
-                start = start.AddDays(1);
-
-            var end = start.AddDays(2);
-            while (end is { DayOfWeek: DayOfWeek.Sunday or DayOfWeek.Saturday })
-                end = end.AddDays(1);
-
-            vm.FreeBlockLookup.Start = start;
-            vm.FreeBlockLookup.End = end;
-            vm.FreeBlockLookup.User = vm.Student;
-
-            vm.FreeBlockLookup.FreeBlockSelected += (_, block) =>
-            {
-                vm.MakeupTime = MakeupTimeViewModel.Get(new(block.Start, $"Make up during {block.BlockName} Block: {block.Start:dddd, d MMMM hh:mm tt}"));
-                vm.ShowFreeBlockLookup = false;
-            };
-
-            return vm;
-        }
-
-        [RelayCommand]
-        public async Task ToggleShowFreeBlockLookup()
-        {
-            ShowFreeBlockLookup = !ShowFreeBlockLookup;
-            if(ShowFreeBlockLookup)
-                await FreeBlockLookup.LoadFreeBlocks();
-        }
-
-        [RelayCommand]
-        public void ToggleManualInput()
-        {
-            ShowManualInput = !ShowManualInput;
-            if (ShowManualInput)
-                ShowFreeBlockLookup = false;
-        }
-
-        [RelayCommand]
-        public void LoadAssessment() => LoadAssessmentRequested?.Invoke(this, Model.Reduce(AssessmentPassDetail.Empty));
+        return vm;
     }
+
+
+    protected LatePassViewModel() { }
+
+    public static ObservableCollection<LatePassViewModel> GetPasses(AssessmentEntryRecord assessment)
+    {
+        var registrar = ServiceHelper.GetService<RegistrarService>();
+        ObservableCollection<LatePassViewModel> passes = [];
+        foreach (var latePass in assessment.studentsUsingPasses)
+        {
+            var student = UserViewModel.Get(latePass.student.GetUserRecord(registrar));
+
+            passes.Add(new()
+            {
+                Student = student,
+                CourseName = assessment.section.displayName,
+                Timestamp = latePass.timeStamp,
+                Model = Optional<AssessmentPassDetail>.Some(
+                    new(new(assessment.assessmentId, AssessmentType.Assessment, "", "",
+                    assessment.assessmentDateTime, assessment.assessmentDateTime, false, []),
+                    student.Model.Reduce(UserRecord.Empty), latePass.timeStamp, new()))
+            });
+        }
+
+        return passes;
+    }
+
+    public static LatePassViewModel Get(AssessmentPassDetail model)
+    {
+        var registrar = ServiceHelper.GetService<RegistrarService>();
+        var vm = new LatePassViewModel()
+        {
+            CourseName = registrar.CourseList.FirstOrDefault(course => course.courseCode == model.assessment.summary)?.displayName ?? "",
+            Note = model.assessment.description,
+            DateAndTime = model.assessment.start,
+            Timestamp = model.timeStamp,
+            Student = UserViewModel.Get(model.student),
+            Model = Optional<AssessmentPassDetail>.Some(model)
+        };
+
+        var start = model.assessment.start.Date.AddDays(1);
+        while (start is { DayOfWeek: DayOfWeek.Sunday or DayOfWeek.Saturday })
+            start = start.AddDays(1);
+
+        var end = start.AddDays(2);
+        while (end is { DayOfWeek: DayOfWeek.Sunday or DayOfWeek.Saturday })
+            end = end.AddDays(1);
+
+        vm.FreeBlockLookup.Start = start;
+        vm.FreeBlockLookup.End = end;
+        vm.FreeBlockLookup.User = vm.Student;
+
+        vm.FreeBlockLookup.FreeBlockSelected += (_, block) =>
+        {
+            vm.MakeupTime = MakeupTimeViewModel.Get(new(block.Start, $"Make up during {block.BlockName} Block: {block.Start:dddd, d MMMM hh:mm tt}"));
+            vm.ShowFreeBlockLookup = false;
+        };
+
+        return vm;
+    }
+
+    [RelayCommand]
+    public async Task ToggleShowFreeBlockLookup()
+    {
+        ShowFreeBlockLookup = !ShowFreeBlockLookup;
+        if (ShowFreeBlockLookup)
+            await FreeBlockLookup.LoadFreeBlocks();
+    }
+
+    [RelayCommand]
+    public void ToggleManualInput()
+    {
+        ShowManualInput = !ShowManualInput;
+        if (ShowManualInput)
+            ShowFreeBlockLookup = false;
+    }
+
+    [RelayCommand]
+    public void LoadAssessment() => LoadAssessmentRequested?.Invoke(this, Model.Reduce(AssessmentPassDetail.Empty));
 }
 
-public partial class MakeupTimeViewModel : ObservableObject,
+
+public partial class MakeupTimeViewModel :
+    ObservableObject,
     IErrorHandling,
     IDefaultValueViewModel<MakeupTimeViewModel>,
     IModelCarrier<MakeupTimeViewModel, MakeupTime>
@@ -154,7 +158,7 @@ public partial class MakeupTimeViewModel : ObservableObject,
     [ObservableProperty] string note = "";
     [ObservableProperty] bool isScheduled;
 
-    public OptionalStruct<MakeupTime> Model { get; set; } = OptionalStruct<MakeupTime>.None();
+    public Optional<MakeupTime> Model { get; set; } = Optional<MakeupTime>.None();
 
     public event EventHandler<ErrorRecord>? OnError;
 
@@ -162,7 +166,8 @@ public partial class MakeupTimeViewModel : ObservableObject,
     {
         Sheduled = model.makeupTime ?? DateTime.MaxValue,
         Note = model.note ?? string.Empty,
-        IsScheduled = model.makeupTime.HasValue,
-        Model = OptionalStruct<MakeupTime>.Some(model)
+        IsScheduled = model.makeupTime is not null,
+        Model = Optional<MakeupTime>.Some(model)
     };
+
 }

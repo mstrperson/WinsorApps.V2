@@ -24,15 +24,15 @@ using AcademicSectionViewModel = WinsorApps.MAUI.Shared.ViewModels.SectionViewMo
 
 namespace WinsorApps.MAUI.BookstoreManager.ViewModels;
 
-public partial class StudentPageViewModel :
+public partial class StudentPageViewModel(BookstoreManagerService manager, LocalLoggingService logging, RegistrarService registrar) :
     ObservableObject,
     IErrorHandling,
     IBusyViewModel,
     IAsyncInitService
 {
-    private readonly BookstoreManagerService _manager;
-    private readonly LocalLoggingService _logging;
-    private readonly RegistrarService _registrar;
+    private readonly BookstoreManagerService _manager = manager;
+    private readonly LocalLoggingService _logging = logging;
+    private readonly RegistrarService _registrar = registrar;
 
     [ObservableProperty] ObservableCollection<UserViewModel> students = [];
     [ObservableProperty] StudentCartViewModel selectedCart = new();
@@ -48,13 +48,6 @@ public partial class StudentPageViewModel :
 
     public string CacheFileName => throw new NotImplementedException();
 
-    public StudentPageViewModel(BookstoreManagerService manager, LocalLoggingService logging, RegistrarService registrar)
-    {
-        _manager = manager;
-        _logging = logging;
-        _registrar = registrar;
-    }
-
     public event EventHandler<ErrorRecord>? OnError;
 
     public async Task Initialize(ErrorAction onError)
@@ -65,7 +58,7 @@ public partial class StudentPageViewModel :
         BusyMessage = "Initializing";
         Started = true;
         _ = await _manager.GetStudentOrders(onError);
-        var students = _registrar.StudentList.Where(student => student.studentInfo.HasValue && student.studentInfo.Value.className.StartsWith("Class V"));
+        var students = _registrar.StudentList.Where(student => student.studentInfo is not null && student.studentInfo.className.StartsWith("Class V"));
         Progress = 0.5;
 
         Students = [.. UserViewModel.GetClonedViewModels(students)];
@@ -156,7 +149,7 @@ public partial class StudentPageViewModel :
                 .SelectMany(sec => sec.Cart.Where(req => req.IsSelected).Select(req => req.Isbn.Isbn))
                 .ToArray();
         var result = await _manager.MarkCompletedOrders(SelectedCart.Student.Id, selected, OnError.DefaultBehavior(this));
-        if (result.Length > 0)
+        if (result.Count > 0)
         {
             _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Confirmed pickup of {selected.Length} books.");
             var requiredBooks = await _manager.GetStudentBookRequirements(SelectedCart.Student.Id, OnError.DefaultBehavior(this));
@@ -170,7 +163,8 @@ public partial class StudentPageViewModel :
             await Task.Delay(250);
     }
 
-    public void SaveCache()
+    public void ClearCache() { if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}"); }
+    public async Task SaveCache()
     {
         throw new NotImplementedException();
     }
@@ -225,13 +219,13 @@ public partial class StudentSectionCartViewModel :
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "";
 
-    private StudentSectionBookOrder _model;
+    private readonly StudentSectionBookOrder Model;
 
     private readonly BookstoreManagerService _service = ServiceHelper.GetService<BookstoreManagerService>();
 
     public StudentSectionCartViewModel(StudentSectionBookOrder model)
     {
-        _model = model;
+        Model = model;
         Section = AcademicSectionViewModel.Get(model.section);
 
         Cart = [.. model.selectedBooks.DistinctBy(req => req.isbn).Select(b => new StudentBookRequestViewModel(b))];
@@ -244,8 +238,8 @@ public partial class StudentSectionCartViewModel :
                 BusyMessage = $"Removing {item.Isbn.Book.Title}";
                 Cart.Remove(item);
                 var isbns = Cart.Select(req => req.Isbn.Isbn);
-                var result = await _service.EditStudentBookOrder(_model.student.id, _model.sectionId, isbns, OnError.DefaultBehavior(this));
-                if(!result.HasValue)
+                var result = await _service.EditStudentBookOrder(Model.student.id, Model.sectionId, isbns, OnError.DefaultBehavior(this));
+                if(result is null)
                 {
                     Cart.Add(item);  // there was an error.
                 }
@@ -261,8 +255,8 @@ public partial class StudentSectionCartViewModel :
     {
         Busy = true;
         BusyMessage = "Loading Books";
-        var collection = await _service.GetStudentBookRequirements(_model.student.id, OnError.DefaultBehavior(this));
-        if(collection.Length == 0)
+        var collection = await _service.GetStudentBookRequirements(Model.student.id, OnError.DefaultBehavior(this));
+        if(collection.Count == 0)
         {
             Busy = false;
             return;
@@ -282,10 +276,10 @@ public partial class StudentSectionCartViewModel :
                 {
                     Busy = true;
                     BusyMessage = "Adding to Cart";
-                    var result = await _service.EditStudentBookOrder(_model.student.id, _model.sectionId, [.. Cart.Select(item => item.Isbn.Isbn), isbn.Isbn], OnError.DefaultBehavior(this));
-                    if (result.HasValue)
+                    var result = await _service.EditStudentBookOrder(Model.student.id, Model.sectionId, [.. Cart.Select(item => item.Isbn.Isbn), isbn.Isbn], OnError.DefaultBehavior(this));
+                    if (result is not null)
                     {
-                        Cart = [.. result.Value.selectedBooks.Select(b => new StudentBookRequestViewModel(b))];
+                        Cart = [.. result.selectedBooks.Select(b => new StudentBookRequestViewModel(b))];
                         NotSelectedIsbns.Remove(isbn);
                     }
                     Busy = false;
@@ -316,7 +310,7 @@ public partial class StudentBookRequestViewModel :
         var bookInfo = _books.BooksCache.FirstOrDefault(book => book.isbns.Any(isbn => isbn.isbn == model.isbn));
         if (bookInfo != default)
         {
-            var info = bookInfo.isbns.FirstOrDefault(isbn => isbn.isbn == model.isbn);
+            var info = bookInfo.isbns.FirstOrDefault(isbn => isbn.isbn == model.isbn) ?? ISBNInfo.Empty;
             Isbn = new(info);
         }
         else

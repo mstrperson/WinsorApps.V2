@@ -11,13 +11,13 @@ using SectionRecord = WinsorApps.Services.Global.Models.SectionRecord;
 
 namespace WinsorApps.MAUI.StudentBookstore.ViewModels
 {
-    public partial class StudentBookstoreViewModel :
+    public partial class StudentBookstoreViewModel(StudentBookstoreService bookService, RegistrarService registrarService) :
         ObservableObject,
         IErrorHandling,
         IBusyViewModel
     {
-        private readonly StudentBookstoreService _bookService;
-        private readonly RegistrarService _registrarService;
+        private readonly StudentBookstoreService _bookService = bookService;
+        private readonly RegistrarService _registrarService = registrarService;
         
         [ObservableProperty] bool busy;
         [ObservableProperty] string busyMessage = "Loading";
@@ -25,12 +25,6 @@ namespace WinsorApps.MAUI.StudentBookstore.ViewModels
         public event EventHandler<ErrorRecord>? OnError;
 
         [ObservableProperty] ObservableCollection<SectionRequiredBooksViewModel> sectionRequiredBooks = [];
-
-        public StudentBookstoreViewModel(StudentBookstoreService bookService, RegistrarService registrarService)
-        {
-            _bookService = bookService;
-            _registrarService = registrarService;
-        }
 
         public async Task Initialize(ErrorAction onError)
         {
@@ -51,7 +45,7 @@ namespace WinsorApps.MAUI.StudentBookstore.ViewModels
                 }
                 else
                 {
-                    SectionRequiredBooks.Add(new(section, new()));
+                    SectionRequiredBooks.Add(new(section, new("", [])));
                 }
             }
             Busy = false;
@@ -77,7 +71,7 @@ namespace WinsorApps.MAUI.StudentBookstore.ViewModels
     public partial class OptionGroupViewModel :
         ObservableObject
     {
-        private static double heightPerBook = 100;
+        private static readonly double heightPerBook = 100;
         [ObservableProperty] string option = "";
         [ObservableProperty] ObservableCollection<IsbnViewModel> books = [];
         [ObservableProperty] private double heightRequest;

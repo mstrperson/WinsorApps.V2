@@ -30,14 +30,14 @@ public partial class WorkoutLogViewModel :
     [ObservableProperty] DateTime endDate;
     [ObservableProperty] ObservableCollection<WorkoutViewModel> allWorkouts = [];
     [ObservableProperty] LogFilter filter = new(ServiceHelper.GetService<RegistrarService>());
-    [ObservableProperty] ObservableCollection<WorkoutViewModel> filteredWorkouts;
+    [ObservableProperty] ObservableCollection<WorkoutViewModel> filteredWorkouts = [];
     [ObservableProperty] bool displayFilter;
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "";
 
     public event EventHandler<ErrorRecord>? OnError;
 
-    public OptionalStruct<WorkoutLog> Model { get; private set; }
+    public Optional<WorkoutLog> Model { get; private set; } = Optional<WorkoutLog>.None();
 
     public static WorkoutLogViewModel Get(WorkoutLog model)
     {
@@ -46,7 +46,7 @@ public partial class WorkoutLogViewModel :
             StartDate = model.dateRange.start.ToDateTime(default),
             EndDate = model.dateRange.end.ToDateTime(default),
             AllWorkouts = [.. model.workouts.Select(WorkoutViewModel.Get)],
-            Model = OptionalStruct<WorkoutLog>.Some(model)
+            Model = Optional<WorkoutLog>.Some(model)
         };
 
         log.FilteredWorkouts = log.AllWorkouts;
@@ -88,17 +88,19 @@ public partial class WorkoutLogViewModel :
         var output = new CSV();
         foreach(var workout in FilteredWorkouts)
         {
-            var row = workout.Model.MapObject(model => new Row()
-            {
-                { "Last Name", model.user.lastName },
-                { "First Name", model.user.firstName },
-                { "Preferred Name", model.user.nickname },
-                { "Class", model.user.studentInfo?.className ?? "" },
-                { "Date", $"{model.timeIn:yyyy-MM-dd}" },
-                { "Time In", $"{model.timeIn:hh:mm tt}" },
-                { "Time Out", model.timeOut.HasValue ? $"{model.timeOut.Value:hh:mm tt}" : "Not Signed Out" },
-                { "For Credit", workout.ForCredit ? "X" : "" }
-            }, []);
+            var row = workout.Model
+                .Map(model => new Row()
+                {
+                    { "Last Name", model.user.lastName },
+                    { "First Name", model.user.firstName },
+                    { "Preferred Name", model.user.nickname },
+                    { "Class", model.user.studentInfo?.className ?? "" },
+                    { "Date", $"{model.timeIn:yyyy-MM-dd}" },
+                    { "Time In", $"{model.timeIn:hh:mm tt}" },
+                    { "Time Out", model.timeOut is not null ? $"{model.timeOut:hh:mm tt}" : "Not Signed Out" },
+                    { "For Credit", workout.ForCredit ? "X" : "" }
+                })
+                .Reduce([]);
 
             output.Add(row);
         }

@@ -4,18 +4,18 @@ using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.Services.Bookstore.Services;
 
-public class StudentBookstoreService : IAsyncInitService
+public class StudentBookstoreService(ApiService api, LocalLoggingService logging, RegistrarService registrar) : IAsyncInitService
 {
-    private readonly ApiService _api;
-    private readonly LocalLoggingService _logging;
-    private readonly RegistrarService _registrar;
+    private readonly ApiService _api = api;
+    private readonly LocalLoggingService _logging = logging;
+    private readonly RegistrarService _registrar = registrar;
 
     public StudentSemesterBookList FallBookList { get; private set; } = new("fall", []);
     public StudentSemesterBookList SpringBookList { get; private set; } = new("spring", []);
 
-    public ImmutableArray<OrderStatus> OrderStatusOptions { get; private set; } = [];
+    public List<OrderStatus> OrderStatusOptions { get; private set; } = [];
 
-    private List<StudentSectionBookOrder> _myOrders = new();
+    private List<StudentSectionBookOrder> _myOrders = [];
 
     /// <summary>
     /// Populated during Initialization, automatically updated when Student Orders are created
@@ -48,13 +48,6 @@ public class StudentBookstoreService : IAsyncInitService
         return fall ? FallBookList : SpringBookList;
     }
 
-    public StudentBookstoreService(ApiService api, LocalLoggingService logging, RegistrarService registrar)
-    {
-        _api = api;
-        _logging = logging;
-        _registrar = registrar;
-    }
-
     /// <summary>
     /// Call this method Once after the user has logged in successfully.  
     /// Ideally this will be in the OnLoginComplete event handler on the MainPage.
@@ -70,9 +63,9 @@ public class StudentBookstoreService : IAsyncInitService
 
         var mySchedule = await _registrar.GetMyAcademicScheduleAsync();
 
-        var statusTask = _api.SendAsync<ImmutableArray<OrderStatus>>(HttpMethod.Get,
+        var statusTask = _api.SendAsync<List<OrderStatus>>(HttpMethod.Get,
             "api/book-orders/students/status-list", onError: onError);
-        statusTask.WhenCompleted(() => { OrderStatusOptions = statusTask.Result; });
+        statusTask.WhenCompleted(() => { OrderStatusOptions = statusTask.Result ?? []; });
 
         var fallOrderTask = GetSemesterBookList(true, onError);
         var springOrderTask = GetSemesterBookList(false, onError);
@@ -106,17 +99,14 @@ public class StudentBookstoreService : IAsyncInitService
             $"api/book-orders/students/book-list?term={param}",
             onError: onError);
 
-        if (!result.HasValue)
-        {
-            result = new(param, []);
-        }
+        result ??= new(param, []);
 
         if (fall)
-            FallBookList = result.Value;
+            FallBookList = result;
         else
-            SpringBookList = result.Value;
+            SpringBookList = result;
 
-        return result.Value;
+        return result;
     }
 
     /// <summary>
@@ -126,16 +116,16 @@ public class StudentBookstoreService : IAsyncInitService
     /// </summary>
     /// <param name="onError"></param>
     /// <returns></returns>
-    public async Task<ImmutableArray<StudentSectionBookOrder>> GetMyOrders(ErrorAction onError)
+    public async Task<List<StudentSectionBookOrder>> GetMyOrders(ErrorAction onError)
     {
-        var result = await _api.SendAsync<ImmutableArray<StudentSectionBookOrder>?>(HttpMethod.Get,
+        var result = await _api.SendAsync<List<StudentSectionBookOrder>?>(HttpMethod.Get,
             $"api/book-orders/students/orders",
             onError: onError);
-        if (!result.HasValue)
-            result = [];
 
-        _myOrders = [..result.Value];
-        return result.Value;
+        result ??= [];
+
+        _myOrders = [..result];
+        return _myOrders;
     }
 
     /// <summary>
@@ -152,8 +142,8 @@ public class StudentBookstoreService : IAsyncInitService
             $"api/book-orders/students/orders/{sectionId}",
             onError: onError);
 
-        if (result.HasValue)
-            BookOrdersBySection[sectionId] = result.Value;
+        if (result is not null)
+            BookOrdersBySection[sectionId] = result;
 
         return result;
     }
@@ -176,17 +166,17 @@ public class StudentBookstoreService : IAsyncInitService
             selectedIsbns,
             onError: onError);
 
-        if (!result.HasValue)
+        if (result is null)
             return result;
 
-        BookOrdersBySection[sectionId] = result.Value;
+        BookOrdersBySection[sectionId] = result;
         if (_myOrders.Any(ord => ord.sectionId == sectionId))
         {
             var oldOrder = _myOrders!.First(ord => ord.sectionId == sectionId)!;
-            _myOrders.Replace(oldOrder, result.Value);
+            _myOrders.Replace(oldOrder, result);
         }
         else
-            _myOrders.Add(result.Value);
+            _myOrders.Add(result);
 
         return result;
     }
@@ -201,9 +191,9 @@ public class StudentBookstoreService : IAsyncInitService
     {
         var mySchedule = await _registrar.GetMyAcademicScheduleAsync();
 
-        var statusTask = _api.SendAsync<ImmutableArray<OrderStatus>>(HttpMethod.Get,
+        var statusTask = _api.SendAsync<List<OrderStatus>>(HttpMethod.Get,
             "api/book-orders/students/status-list", onError: onError);
-        statusTask.WhenCompleted(() => { OrderStatusOptions = statusTask.Result; });
+        statusTask.WhenCompleted(() => { OrderStatusOptions = statusTask.Result ?? []; });
 
         var fallOrderTask = GetSemesterBookList(true, onError);
         var springOrderTask = GetSemesterBookList(false, onError);
@@ -219,6 +209,7 @@ public class StudentBookstoreService : IAsyncInitService
 
     }
 
+    public void ClearCache() { if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}"); }
     public async Task SaveCache()
     {
         throw new NotImplementedException();

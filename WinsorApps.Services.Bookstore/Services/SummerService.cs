@@ -15,27 +15,27 @@ public partial class TeacherBookstoreService
 
     public async Task<Dictionary<string, List<SummerSection>>> GetSummerSections(ErrorAction onError)
     {
-        var result = await _api.SendAsync<ImmutableArray<SummerSection>?>(HttpMethod.Get, "api/book-orders/summer", onError: onError);
+        var result = await _api.SendAsync<List<SummerSection>>(HttpMethod.Get, "api/book-orders/summer", onError: onError);
 
-        if (result.HasValue)
+        if (result is not null)
         {
-            SummerSections = result.Value.SeparateByKeys(sec => sec.schoolYear);
+            SummerSections = result.SeparateByKeys(sec => sec.schoolYear);
         }
 
         return SummerSections;
     }
 
-    public async Task<OptionalStruct<SummerSection>> CreateSummerSection(string courseId, ErrorAction onError)
+    public async Task<Optional<SummerSection>> CreateSummerSection(string courseId, ErrorAction onError)
     {
         var result = await _api.SendAsync<SummerSection?>(HttpMethod.Post, $"api/book-orders/summer/{courseId}", onError: onError);
-        if (result.HasValue)
+        if (result is not null)
         {
-            var section= result.Value;
+            var section= result;
             SummerSections[section.schoolYear].Add(section);
-            return OptionalStruct<SummerSection>.Some(section);
+            return Optional<SummerSection>.Some(section);
         }
 
-        return OptionalStruct<SummerSection>.None();
+        return Optional<SummerSection>.None();
     }
 
     public async Task DeleteSummerSection(SummerSection section, ErrorAction onError)
@@ -44,30 +44,30 @@ public partial class TeacherBookstoreService
 
         SummerSections[section.schoolYear].Remove(section);
     }
-    public async Task<OptionalStruct<SummerSection>> GetSummerSection(string sectionId, ErrorAction onError)
+    public async Task<Optional<SummerSection>> GetSummerSection(string sectionId, ErrorAction onError)
     {
         var result = await _api.SendAsync<SummerSection?>(HttpMethod.Get, $"api/book-orders/summer/{sectionId}", onError: onError);
-        if (result.HasValue)
+        if (result is not null)
         {
-            var section = result.Value;
+            var section = result;
             SummerSections[section.schoolYear].ReplaceBy(section, sec => sec.id == sectionId);
-            return OptionalStruct<SummerSection>.Some(section);
+            return Optional<SummerSection>.Some(section);
         }
 
-        return OptionalStruct<SummerSection>.None();
+        return Optional<SummerSection>.None();
     }
 
-    public async Task<OptionalStruct<SummerSection>> AddOrUpdateSummerOrder(string sectionId, string isbn, int quantity, ErrorAction onError)
+    public async Task<Optional<SummerSection>> AddOrUpdateSummerOrder(string sectionId, string isbn, int quantity, ErrorAction onError)
     {
         var result = await _api.SendAsync<SummerSection?>(HttpMethod.Post, $"api/book-orders/summer/{sectionId}/{isbn}?quantity={quantity}", onError: onError);
-        if (result.HasValue)
+        if (result is not null)
         {
-            var section = result.Value;
+            var section = result;
             SummerSections[section.schoolYear].ReplaceBy(section, sec => sec.id == sectionId);
-            return OptionalStruct<SummerSection>.Some(section);
+            return Optional<SummerSection>.Some(section);
         }
 
-        return OptionalStruct<SummerSection>.None();
+        return Optional<SummerSection>.None();
     }
 
     public async Task DeleteSummerBook(SummerSection section, string isbn, ErrorAction onError)

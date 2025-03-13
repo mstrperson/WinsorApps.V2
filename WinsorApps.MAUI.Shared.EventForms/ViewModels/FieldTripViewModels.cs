@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.EventForms.Services;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.MAUI.Shared.EventForms.ViewModels;
@@ -12,7 +13,8 @@ namespace WinsorApps.MAUI.Shared.EventForms.ViewModels;
 public partial class FieldTripViewModel :
     ObservableObject,
     IEventSubFormViewModel<FieldTripViewModel, FieldTripDetails>,
-    IErrorHandling
+    IErrorHandling,
+    IModelCarrier<FieldTripViewModel, FieldTripDetails>
 {
     [ObservableProperty] string id = "";
     [ObservableProperty] ContactSearchViewModel primaryContactSearch = new() { SelectionMode = SelectionMode.Single };
@@ -32,14 +34,14 @@ public partial class FieldTripViewModel :
     public event EventHandler? Deleted;
     public event EventHandler<ErrorRecord>? OnError;
 
-    public FieldTripDetails Model { get; private set; }
+    public Optional<FieldTripDetails> Model { get; private set; } = Optional<FieldTripDetails>.None();
 
     public static implicit operator NewFieldTrip(FieldTripViewModel vm) =>
         new(
               vm.PrimaryContactSearch.Selected.Id,
               vm.Transportation,
               vm.StudentsByClass,
-              vm.ChaperoneSearch.AllSelected.Select(con => con.Id).ToImmutableArray(),
+              vm.ChaperoneSearch.AllSelected.Select(con => con.Id).ToList(),
               vm.ShowFood ? (NewFieldTripCateringRequest)vm.FieldTripCateringRequest : null
         );
 
@@ -70,7 +72,7 @@ public partial class FieldTripViewModel :
     public void Clear()
     {
         Id = "";
-        Model = default;
+        Model = Optional<FieldTripDetails>.None();
         StudentsByClass = new();
         Transportation = new();
         FieldTripCateringRequest = new();
@@ -91,11 +93,11 @@ public partial class FieldTripViewModel :
         Id = model.eventId;
         StudentsByClass = StudentsByClassViewModel.Get(model.studentCount);
         Transportation = TransportationViewModel.Get(model.transportationDetails);
-        Model = model;
+        Model = Optional<FieldTripDetails>.Some(model);
 
-        if (model.lunch.HasValue)
+        if (model.lunch is not null)
         {
-            FieldTripCateringRequest = FieldTripCateringRequestViewModel.Get(model.lunch.Value);
+            FieldTripCateringRequest = FieldTripCateringRequestViewModel.Get(model.lunch);
             ShowFood = true;
         }
 
@@ -121,9 +123,9 @@ public partial class FieldTripViewModel :
     public async Task Continue(bool template = false)
     {
         var result = await _service.PostFieldTripDetails(Id, this, OnError.DefaultBehavior(this));
-        if (result.HasValue)
+        if (result is not null)
         {
-            Model = result.Value;
+            Model = Optional<FieldTripDetails>.Some(result);
             if(!template)
                 ReadyToContinue?.Invoke(this, EventArgs.Empty);
         }
@@ -136,6 +138,10 @@ public partial class FieldTripViewModel :
         if (result)
             Deleted?.Invoke(this, EventArgs.Empty);
     }
+
+    private FieldTripViewModel(FieldTripDetails model) { Load(model); }
+
+    public static FieldTripViewModel Get(FieldTripDetails model) => new(model);
 }
 
 public partial class TransportationViewModel :
@@ -151,7 +157,7 @@ public partial class TransportationViewModel :
     public static implicit operator NewTransportationRequest(TransportationViewModel vm) =>
         new(vm.PublicTransit, vm.NoOrganizedTransit,
             vm.VehicleRequestCollection.Requests.Any() ?
-                vm.VehicleRequestCollection.Requests.Select(req => (NewVehicleRequest)req).ToImmutableArray() : null,
+                vm.VehicleRequestCollection.Requests.Select(req => (NewVehicleRequest)req).ToList() : null,
             vm.HiredBusses.Count > 0 ?
                 (FieldTripHiredBusRequest)vm.HiredBusses : null);
 
@@ -167,16 +173,16 @@ public partial class TransportationViewModel :
             PublicTransit = model.usePublicTransit,
             NoOrganizedTransit = model.noOrganizedTransit
         };
-        if (model.hiredBusses.HasValue)
+        if (model.hiredBusses is not null)
         {
             vm.ShowHiredBusses = true;
-            vm.HiredBusses = HiredBusViewModel.Get(model.hiredBusses.Value);
+            vm.HiredBusses = HiredBusViewModel.Get(model.hiredBusses);
         }
 
-        if (model.vehicleRequests.HasValue)
+        if (model.vehicleRequests is not null)
         {
             vm.ShowVehicleRequest = true;
-            vm.VehicleRequestCollection.LoadRequests(model.vehicleRequests.Value.Select(VehicleRequestViewModel.Get));
+            vm.VehicleRequestCollection.LoadRequests(model.vehicleRequests.Select(VehicleRequestViewModel.Get));
         }
 
         return vm;
@@ -238,7 +244,7 @@ public partial class FieldTripCateringRequestViewModel :
     public FieldTripCateringRequestViewModel()
     {
         MenuCollection = new(_service);
-        MenuCollection.Menus = MenuCollection.Menus.Where(menu => menu.IsFieldTrip).ToImmutableArray();
+        MenuCollection.Menus = MenuCollection.Menus.Where(menu => menu.IsFieldTrip).ToList();
         foreach (var menu in MenuCollection.Menus)
             menu.Items = [..menu.Items.Where(it => it.Item.FieldTripItem)];
     }
@@ -248,7 +254,7 @@ public partial class FieldTripCateringRequestViewModel :
             vm.MenuCollection.Menus.SelectMany(
                 menu => menu.Items.Where(item => item.IsSelected))
             .Select(item => item.Item.Id)
-            .ToImmutableArray(),
+            .ToList(),
             vm.DiningInCount,
             vm.EatingAway,
             TimeOnly.FromTimeSpan(vm.PickupTime));

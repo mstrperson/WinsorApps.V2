@@ -17,8 +17,8 @@ public partial class VehicleRequestCollectionViewModel :
     [ObservableProperty] VehicleCategoryCollectionViewModel categoryCollection;
     [ObservableProperty] ObservableCollection<VehicleRequestViewModel> requests = [];
 
-    public static implicit operator ImmutableArray<NewVehicleRequest>(VehicleRequestCollectionViewModel vm) =>
-        vm.Requests.Select(req => (NewVehicleRequest)req).ToImmutableArray();
+    public static implicit operator List<NewVehicleRequest>(VehicleRequestCollectionViewModel vm) =>
+        vm.Requests.Select(req => (NewVehicleRequest)req).ToList();
 
     public event EventHandler? Cleared;
 
@@ -92,7 +92,7 @@ public partial class VehicleCategoryCollectionViewModel :
     ObservableObject,
     IErrorHandling
 {
-    [ObservableProperty] ImmutableArray<VehicleCategoryViewModel> categories = [];
+    [ObservableProperty] List<VehicleCategoryViewModel> categories = [];
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<VehicleRequestViewModel>? CreateRequested;
@@ -101,7 +101,7 @@ public partial class VehicleCategoryCollectionViewModel :
 
     public VehicleCategoryCollectionViewModel(EventFormsService service)
     {
-        Categories = service.VehicleCategories.Select(VehicleCategoryViewModel.Get).ToImmutableArray();
+        Categories = service.VehicleCategories.Select(VehicleCategoryViewModel.Get).ToList();
         foreach (var cat in Categories)
             cat.CreateVehicleRequest += (sender, e) => CreateRequested?.Invoke(sender, e);
     }

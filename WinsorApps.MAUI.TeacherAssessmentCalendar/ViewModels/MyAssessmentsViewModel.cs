@@ -10,6 +10,7 @@ using WinsorApps.MAUI.Shared;
 using AsyncAwaitBestPractices;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Global.Services;
+using System.Diagnostics;
 
 namespace WinsorApps.MAUI.TeacherAssessmentCalendar.ViewModels;
 public partial class AssessmentGroupViewModel : 
@@ -33,7 +34,7 @@ public partial class AssessmentGroupViewModel :
     public event EventHandler<AssessmentDetailsViewModel>? ShowDetailsPageRequested;
     public event EventHandler<StudentAssessmentRosterEntry>? StudentSelected;
 
-    public static AssessmentGroupViewModel Empty = new AssessmentGroupViewModel();
+    public static AssessmentGroupViewModel Empty = new();
 
     [ObservableProperty] CourseViewModel course = CourseViewModel.Empty;
     [ObservableProperty] string note = "";
@@ -64,9 +65,29 @@ public partial class AssessmentGroupViewModel :
     public AssessmentGroupViewModel(AssessmentGroup group)
     {
         _group = group;
-        var course = _assessmentService.CourseList.First(course => course.courseId == group.courseId);
-        Course = CourseViewModel.Get(course);
         Note = _group.note;
+        var course = _assessmentService.CourseList.FirstOrDefault(course => course.courseId == group.courseId);
+        if(course is null)
+        {
+            _assessmentService.ClearCache();
+            var reinit = _assessmentService.Initialize(OnError.DefaultBehavior(this));
+            reinit.WhenCompleted(() =>
+            {
+                course = _assessmentService.CourseList.FirstOrDefault(course => course.courseId == group.courseId);
+                if (course is null)
+                {
+                    throw new UnreachableException();
+                }
+
+
+                Course = CourseViewModel.Get(course);
+                Label = string.IsNullOrEmpty(Note) ? Course.DisplayName : $"{Course.DisplayName} - {Note}";
+                LoadGroup().SafeFireAndForget(e => e.LogException());
+            });
+
+            return;
+        }
+        Course = CourseViewModel.Get(course);
         Label = string.IsNullOrEmpty(Note) ? Course.DisplayName : $"{Course.DisplayName} - {Note}";
         LoadGroup().SafeFireAndForget(e => e.LogException());
     }
@@ -88,17 +109,17 @@ public partial class AssessmentGroupViewModel :
         foreach (var entry in _group.assessments)
         {
             var detail = await _assessmentService.GetAssessmentDetails(entry.assessmentId, OnError.DefaultBehavior(this));
-            if (detail.HasValue)
+            if (detail is not null)
             {
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    var vm = Assessments.FirstOrDefault(ent => ent.Section.Model.Reduce(SectionRecord.Empty).sectionId == detail.Value.section.sectionId);
+                    var vm = Assessments.FirstOrDefault(ent => ent.Section.Model.Reduce(SectionRecord.Empty).sectionId == detail.section.sectionId);
                     if (vm is null)
                         return;
-                    vm.Model = OptionalStruct<AssessmentEntryRecord>.Some(detail.Value);
+                    vm.Model = Optional<AssessmentEntryRecord>.Some(detail);
                     vm.LoadDetails();
                     vm.IsSelected = true;
-                    vm.Date = detail.Value.assessmentDateTime;
+                    vm.Date = detail.assessmentDateTime;
                 });
             }
         }
@@ -128,13 +149,13 @@ public partial class AssessmentGroupViewModel :
             Assessments
             .Where(ent => ent.IsSelected)
             .Select(ent => new AssessmentDateRecord(ent.Section.Id, ent.Date))
-            .ToImmutableArray(), Note);
+            .ToList(), Note);
 
         var result = await _assessmentService.CreateNewAssessment(update, OnError.DefaultBehavior(this));
 
-        if (result.HasValue)
+        if (result is not null)
         {
-            _group = result.Value;
+            _group = result;
             IsNew = false;
             Label = string.IsNullOrEmpty(Note) ? Course.DisplayName : $"{Course.DisplayName} - {Note}";
             LoadGroup().SafeFireAndForget(e => e.LogException());
@@ -172,13 +193,13 @@ public partial class AssessmentGroupViewModel :
             Assessments
             .Where(ent => ent.IsSelected)
             .Select(ent => new AssessmentDateRecord(ent.Model.Reduce(AssessmentEntryRecord.Empty).section.sectionId, ent.Date))
-            .ToImmutableArray(), Note);
+            .ToList(), Note);
 
         var result = await _assessmentService.UpdateAssessment(_group.id, update, OnError.DefaultBehavior(this));
 
-        if (result.HasValue)
+        if (result is not null)
         {
-            _group = result.Value;
+            _group = result;
             Label = string.IsNullOrEmpty(Note) ? Course.DisplayName : $"{Course.DisplayName} - {Note}";
             LoadGroup().SafeFireAndForget(e => e.LogException());
             Saved?.Invoke(this, EventArgs.Empty);
@@ -202,7 +223,7 @@ public partial class AssessmentEditorViewModel :
     IErrorHandling
 {
     public readonly ReadonlyCalendarService _service = ServiceHelper.GetService<ReadonlyCalendarService>();
-    public OptionalStruct<AssessmentEntryRecord> Model { get; set; } = OptionalStruct<AssessmentEntryRecord>.None();
+    public Optional<AssessmentEntryRecord> Model { get; set; } = Optional<AssessmentEntryRecord>.None();
 
     [ObservableProperty] AssessmentDetailsViewModel details = new();
     [ObservableProperty] bool hasLatePasses;
@@ -238,11 +259,11 @@ public partial class AssessmentEditorViewModel :
             entry = Model.Reduce(AssessmentEntryRecord.Empty);
         }
         else
-            Model = OptionalStruct<AssessmentEntryRecord>.Some(entry);
+            Model = Optional<AssessmentEntryRecord>.Some(entry);
         Details = AssessmentDetailsViewModel.Get(entry);
         Details.StudentSelected += (sender, e) => StudentSelected?.Invoke(this, e);
-        HasConflicts = entry.studentConflicts.Any();
-        HasLatePasses = entry.studentsUsingPasses.Any();
+        HasConflicts = entry.studentConflicts.Count != 0;
+        HasLatePasses = entry.studentsUsingPasses.Count != 0;
         HasRedFlags = entry.studentConflicts.Any(conflict => conflict.redFlag);
         Section = SectionViewModel.Get(entry.section);
         date = entry.assessmentDateTime;
@@ -253,7 +274,7 @@ public partial class AssessmentEditorViewModel :
         Section = section;
         Date = DateTime.Today;
     }
-    public static AssessmentEditorViewModel Create(SectionViewModel section) => new AssessmentEditorViewModel(section);
+    public static AssessmentEditorViewModel Create(SectionViewModel section) => new(section);
 
     public static AssessmentEditorViewModel Get(AssessmentEntryRecord model) => new(model);
 
@@ -263,8 +284,8 @@ public partial class AssessmentEditorViewModel :
         if (string.IsNullOrEmpty(Model.Reduce(AssessmentEntryRecord.Empty).assessmentId)) return;
 
         IsInitalized = true;
-        HasConflicts = Model.Reduce(AssessmentEntryRecord.Empty).studentConflicts.Any();
-        HasLatePasses = Model.Reduce(AssessmentEntryRecord.Empty).studentsUsingPasses.Any();
+        HasConflicts = Model.Reduce(AssessmentEntryRecord.Empty).studentConflicts.Count != 0;
+        HasLatePasses = Model.Reduce(AssessmentEntryRecord.Empty).studentsUsingPasses.Count != 0;
         HasRedFlags = Model.Reduce(AssessmentEntryRecord.Empty).studentConflicts.Any(conflict => conflict.redFlag);
         Details = AssessmentDetailsViewModel.Get(Model.Reduce(AssessmentEntryRecord.Empty));
         Details.StudentSelected += (sender, e) => StudentSelected?.Invoke(this, e);

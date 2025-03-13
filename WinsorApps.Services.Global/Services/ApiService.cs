@@ -3,6 +3,7 @@
 
 using AsyncAwaitBestPractices;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
@@ -26,7 +27,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
 
     private static readonly int MaxConcurrentApiCalls = 100;
 
-    private readonly object _apiCountLock = new();
+    private readonly Lock _apiCountLock = new();
     private int _openApiCalls = 0;
 
     private DateTime _lastCallTime = DateTime.Now;
@@ -52,15 +53,17 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
 
     private async Task WaitForApiSpace()
     {
-        using DebugTimer _ = new($"Thread {Thread.CurrentThread.ManagedThreadId} waiting for api space", _logging);
+        using DebugTimer _ = new($"Thread {Environment.CurrentManagedThreadId} waiting for api space", _logging);
         while(_pauseApiCalls)
         {
             await Task.Delay(50);
 
-            if(_lastCallTime - DateTime.Now > TimeSpan.FromSeconds(30))
+            if(DateTime.Now - _lastReleaseTime > TimeSpan.FromMinutes(5) 
+                || DateTime.Now - _lastCallTime > TimeSpan.FromSeconds(30))
             {
                 _logging.LogMessage(LocalLoggingService.LogLevel.Debug, "Releasing Timer for Counting API Threads...");
                 _openApiCalls = 0;
+                _lastReleaseTime = DateTime.Now;
                 return;
             }
         }
@@ -78,9 +81,9 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
     public DateTime? AuthExpires => AuthorizedUser?.expires;
 
     private AuthResponse? AuthorizedUser { get; set; }
-    public UserRecord? UserInfo = default(UserRecord);
+    public UserRecord? UserInfo = default;
 
-    private readonly HttpClient client = new HttpClient()
+    private readonly HttpClient client = new()
     {
         BaseAddress =
 #if API_DEBUG
@@ -117,6 +120,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
 
     public string CacheFileName => ".login.cred";
 
+    public void ClearCache() { if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}"); }
     public async Task SaveCache() => await Task.CompletedTask;
     public bool LoadCache() => true;
 
@@ -141,14 +145,14 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
         Started = true;
 
         var savedCredential = await _credentialManager.GetSavedCredential();
-        if (savedCredential.HasValue)
+        if (savedCredential is not null)
         {
             AutoLoginInProgress = true;
 
             CheckForStuckLogin().SafeFireAndForget(e => e.LogException(_logging));
-            if (!string.IsNullOrEmpty(savedCredential.Value.JWT) && !string.IsNullOrEmpty(savedCredential.Value.RefreshToken))
+            if (!string.IsNullOrEmpty(savedCredential.JWT) && !string.IsNullOrEmpty(savedCredential.RefreshToken))
             {
-                AuthorizedUser = new AuthResponse("", savedCredential.Value.JWT, default, savedCredential.Value.RefreshToken);
+                AuthorizedUser = new AuthResponse("", savedCredential.JWT, default, savedCredential.RefreshToken);
                 try
                 {
                     var success = true;
@@ -158,10 +162,10 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
                         success = false;
                     });
 
-                    if (!success && !string.IsNullOrWhiteSpace(savedCredential.Value.SavedPassword))
+                    if (!success && !string.IsNullOrWhiteSpace(savedCredential.SavedPassword))
                     {
                         success = true;
-                        await Login(savedCredential.Value.SavedEmail, savedCredential.Value.SavedPassword, onError: err =>
+                        await Login(savedCredential.SavedEmail, savedCredential.SavedPassword, onError: err =>
                         {
                             onError(err);
                             success = false;
@@ -189,9 +193,9 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
 
             try
             {
-                await Login(savedCredential.Value.SavedEmail, savedCredential.Value.SavedPassword, onError);
+                await Login(savedCredential.SavedEmail, savedCredential.SavedPassword, onError);
                 _logging.LogMessage(LocalLoggingService.LogLevel.Information,
-                    $"Auto Login Successful:  {savedCredential.Value.SavedEmail}");
+                    $"Auto Login Successful:  {savedCredential.SavedEmail}");
             }
             catch (Exception ex)
             {
@@ -289,7 +293,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
     public async Task ForgotPassword(string email, string password, Action<string> onCompleteAction, ErrorAction onError)
     {
         using DebugTimer _ = new($"Submitting forgot password for {email}", _logging);
-        Login login = new Login(email, password);
+        Login login = new(email, password);
 
         try
         {
@@ -306,7 +310,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
     public async Task Register(string email, string password, Action<string> onCompleteAction, ErrorAction onError)
     {
         using DebugTimer _ = new($"Registering {email}", _logging);
-        Login login = new Login(email, password);
+        Login login = new(email, password);
 
         try
         {
@@ -359,9 +363,9 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
                 if (failed)
                 {
                     var saved = await _credentialManager.GetSavedCredential();
-                    if(saved.HasValue && !string.IsNullOrWhiteSpace(saved.Value.SavedPassword))
+                    if(saved is not null && !string.IsNullOrWhiteSpace(saved.SavedPassword))
                     {
-                        var savedCred = saved.Value;
+                        var savedCred = saved;
                         failed = false;
                         await Login(savedCred.SavedEmail, savedCred.SavedPassword, onError: err =>
                         {
@@ -390,15 +394,15 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
             else
             {
                 var savedCred = await _credentialManager.GetSavedCredential();
-                if (!savedCred.HasValue)
+                if (savedCred is not null)
                     throw new InvalidOperationException("Cannot renew a token without logging in first.");
 
-                if (!repeat && !string.IsNullOrEmpty(savedCred.Value.JWT) && !string.IsNullOrEmpty(savedCred.Value.RefreshToken))
+                if (!repeat && !string.IsNullOrEmpty(savedCred?.JWT) && !string.IsNullOrEmpty(savedCred.RefreshToken))
                 {
-                    AuthorizedUser = new(jwt: savedCred.Value.JWT, refreshToken: savedCred.Value.RefreshToken);
+                    AuthorizedUser = new(jwt: savedCred.JWT, refreshToken: savedCred.RefreshToken);
                 }
                 if (!string.IsNullOrWhiteSpace(savedCred?.SavedPassword))
-                    await Login(savedCred.Value.SavedEmail, savedCred.Value.SavedPassword, onError);
+                    await Login(savedCred.SavedEmail, savedCred.SavedPassword, onError);
                 else
                 {
                     Refreshing = false;
@@ -415,10 +419,10 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
 
         if (AuthorizedUser is not null)
         {
-            if (UserInfo is null)
-                UserInfo = await SendAsync<UserRecord>(HttpMethod.Get, "api/users/self");
+            UserInfo ??= await SendAsync<UserRecord>(HttpMethod.Get, "api/users/self");
+            
             _logging.LogMessage(LocalLoggingService.LogLevel.Information,
-                $"Login Successful:  {UserInfo.Value.email}");
+                $"Login Successful:  {UserInfo?.email ?? throw new UnreachableException()}");
             Ready = true; 
             
             if (FirstLogin)
@@ -432,16 +436,16 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
     private async Task<HttpRequestMessage> BuildRequest(HttpMethod method, string endpoint, string jsonContent = "",
         bool authorize = true, FileStreamWrapper? streamContent = null)
     {
-        HttpRequestMessage request = new HttpRequestMessage(method, endpoint);
+        HttpRequestMessage request = new(method, endpoint);
 
         if(authorize && Refreshing && !BypassRefreshing)
         {
-            _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Token is being renewed right now, so I have to wait... Thread: {Thread.CurrentThread.ManagedThreadId}");
+            _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Token is being renewed right now, so I have to wait... Thread: {Environment.CurrentManagedThreadId}");
             while(Refreshing)
             {
                 await Task.Delay(100);
             }
-            _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Awaited Token Refresh complete Thread: {Thread.CurrentThread.ManagedThreadId}");
+            _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Awaited Token Refresh complete Thread: {Environment.CurrentManagedThreadId}");
         }
 
         BypassRefreshing = false;
@@ -640,7 +644,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
 
     }
 
-    public async Task <ImmutableArray<TOut>> GetPagedResult<TIn, TOut>(
+    public async Task <List<TOut>> GetPagedResult<TIn, TOut>(
         HttpMethod method,
         string endpoint,
         TIn content,
@@ -651,7 +655,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
         return await GetPagedResult<TOut>(method, endpoint, json, authorize, onError);
     }
 
-    public async Task<ImmutableArray<T>> GetPagedResult<T>(
+    public async Task<List<T>> GetPagedResult<T>(
         HttpMethod method,
         string endpoint,
         string jsonContent = "",
@@ -660,7 +664,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
     {
         if (!endpoint.Contains("paged="))
         {
-            if (!endpoint.Contains("?"))
+            if (!endpoint.Contains('?'))
                 endpoint = $"{endpoint}?paged=true&page=0";
             else
                 endpoint = $"{endpoint}&paged=true&page=0";
@@ -694,7 +698,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
         DecrementApiCount();
 
         var pagedResult = await ProcessHttpResponse<PagedResult<T>>(response, onError, new(0, 0, 0, 0, []));
-        return pagedResult;
+        return pagedResult ?? PagedResult<T>.Empty;
     }
 
     public async Task<TOut?> SendAsync<TIn, TOut>(HttpMethod method, string endpoint, TIn content,
@@ -746,7 +750,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
         try
         {
             var err = JsonSerializer.Deserialize<ErrorRecord>(jsonContent);
-            onError(err);
+            onError(err ?? new("Unknown Error", jsonContent));
         }
         catch (Exception e)
         {
@@ -786,7 +790,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
         try
         {
             var err = JsonSerializer.Deserialize<ErrorRecord>(jsonContent);
-            onError(err);
+            onError(err ?? new("Unknown Error", jsonContent));
         }
         catch (Exception e)
         {

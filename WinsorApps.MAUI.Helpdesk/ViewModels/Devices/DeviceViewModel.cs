@@ -56,7 +56,7 @@ public partial class DeviceViewModel :
         ownerSearch.SetAvailableUsers(registrar.AllUsers);
         ownerSearch.OnSingleResult += (_, user) => 
             Owner = user;
-        _device = new();
+        _device = DeviceRecord.Empty;
         displayName = "New Device";
         id = "";
         type = "";
@@ -72,8 +72,8 @@ public partial class DeviceViewModel :
         displayName = device.serialNumber;
         id = device.id;
         serialNumber = device.serialNumber;
-        if (device.owner.HasValue)
-            Owner = UserViewModel.Get(device.owner.Value);
+        if (device.owner is not null)
+            Owner = UserViewModel.Get(device.owner);
         unicorn = device.unicorn;
         firstSeen = device.firstSeen;
         isActive = device.isActive;
@@ -82,7 +82,7 @@ public partial class DeviceViewModel :
 
         WinsorDevice = WinsorDeviceViewModel.Get(device);
         if (IsWinsorDevice)
-            DisplayName = device.winsorDevice!.Value.assetTag;
+            DisplayName = device.winsorDevice!.assetTag;
     }
 
     public CreateDeviceRecord GetCreateRecord(CreateWinsorDeviceRecord? winsorDevice = null) =>
@@ -100,10 +100,10 @@ public partial class DeviceViewModel :
             var newDev = GetCreateRecord(IsWinsorDevice ? WinsorDevice.GetCreateRecord() : null);
             var result = await _deviceService
                 .CreateNewDeviceRecord(newDev, OnErr);
-            if (!result.HasValue)
+            if (result is null)
                 return;
 
-            _device = result.Value;
+            _device = result;
             Id = _device.id;
         }
         else
@@ -112,16 +112,16 @@ public partial class DeviceViewModel :
             var updateResult = await _deviceService
                 .UpdateDevice(Id, update, OnErr);
 
-            if (!updateResult.HasValue)
+            if (updateResult is null)
                 return;
 
-            _device = updateResult.Value;
+            _device = updateResult;
         }
 
         if (_device.isWinsorDevice)
         {
             WinsorDevice = WinsorDeviceViewModel.Get(_device);
-            DisplayName = _device.winsorDevice!.Value.assetTag;
+            DisplayName = _device.winsorDevice!.assetTag;
         }
 
         Select();

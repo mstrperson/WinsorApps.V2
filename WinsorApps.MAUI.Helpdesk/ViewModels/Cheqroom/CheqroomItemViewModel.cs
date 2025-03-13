@@ -13,7 +13,7 @@ public partial class CheqroomItemViewModel :
     ICachedViewModel<CheqroomItemViewModel, CheqroomItem, CheqroomService>
 {
     private readonly CheqroomService _cheqroom;
-    private CheqroomItem _item;
+    private readonly CheqroomItem _item;
 
     [ObservableProperty] private string assetTag = "";
     [ObservableProperty] private string location = "";

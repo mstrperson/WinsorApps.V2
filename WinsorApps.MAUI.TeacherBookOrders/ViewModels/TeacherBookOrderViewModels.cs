@@ -40,14 +40,14 @@ public partial class ProtoSectionViewModel :
     [ObservableProperty] ObservableCollection<BookOrderGroupViewModel> bookOrders = [];
     [ObservableProperty] bool fallOrFullYear;
 
-    public OptionalStruct<ProtoSectionModel> Model { get; private set; } = OptionalStruct<ProtoSectionModel>.None();
+    public Optional<ProtoSectionModel> Model { get; private set; } = Optional<ProtoSectionModel>.None();
 
     private ProtoSectionViewModel() { }
 
     [RelayCommand]
     public async Task LoadBookOrders()
     {
-        var sectionId = Model.MapObject(ps => ps.id).Reduce("");
+        var sectionId = Model.Map(ps => ps.id).Reduce("");
         if (string.IsNullOrEmpty(sectionId)) return;
 
         var result = await _service.GetOrderGroups(sectionId, OnError.DefaultBehavior(this));
@@ -63,7 +63,7 @@ public partial class ProtoSectionViewModel :
 
     public static ProtoSectionViewModel Get(ProtoSectionModel model) => new()
     {
-        Model = OptionalStruct<ProtoSectionModel>.Some(model),
+        Model = Optional<ProtoSectionModel>.Some(model),
         Course = CourseViewModel.Get(model.course),
         Teacher = UserViewModel.Get(_registrar.AllUsers.First(u => u.id == model.teacherId)),
         SchoolYear = _registrar.SchoolYears.First(sy => sy.id == model.schoolYearId).label,
@@ -96,21 +96,21 @@ public partial class SelectedBookViewModel :
     {
         options = [.. _service.OrderOptions.Select(opt => opt.label)];
     }
-    public OptionalStruct<TeacherBookOrderGroup> Model { get; private set; } = OptionalStruct<TeacherBookOrderGroup>.None();
+    public Optional<TeacherBookOrderGroup> Model { get; private set; } = Optional<TeacherBookOrderGroup>.None();
 
     public static SelectedBookViewModel Get(TeacherBookOrderGroup model)
     {
-        if (model.isbns.Length == 0)
+        if (model.isbns.Count == 0)
             throw new InvalidDataException();
 
         var book = _bookService.BooksCache.FirstOrDefault(book => book.isbns.Any(ent => ent.isbn == model.isbns[0].isbn));
 
         var vm = new SelectedBookViewModel()
         {
-            Model = OptionalStruct<TeacherBookOrderGroup>.Some(model),
+            Model = Optional<TeacherBookOrderGroup>.Some(model),
             Option = model.option,
-            Book = BookViewModel.Get(book),
-            AvailableIsbns = [.. book.isbns.Where(ent => ent.available).Select(IsbnViewModel.Get)]
+            Book = BookViewModel.Get(book ?? BookDetail.Empty),
+            AvailableIsbns = [.. book?.isbns.Where(ent => ent.available).Select(IsbnViewModel.Get) ?? []]
         };
 
         foreach(var entry in vm.AvailableIsbns)
@@ -130,15 +130,15 @@ public partial class SelectedBookViewModel :
         CreateISBN newISBN = new(IsbnEditor.Isbn, IsbnEditor.Binding.Id);
 
         var result = await _bookService.AddIsbnToBook(Book.Id, newISBN, OnError.DefaultBehavior(this));
-        if (result.HasValue)
+        if (result is not null)
         {
-            var book = result.Value;
+            var book = result;
             Book = BookViewModel.Get(book);
             AvailableIsbns = [.. book.isbns.Where(ent => ent.available).Select(IsbnViewModel.Get)];
 
             foreach (var entry in AvailableIsbns)
             {
-                entry.IsSelected = Model.Reduce(new()).isbns.Any(ord => ord.isbn == entry.Isbn);
+                entry.IsSelected = Model.Reduce(TeacherBookOrderGroup.Empty).isbns.Any(ord => ord.isbn == entry.Isbn);
             }
         }
     }
@@ -166,13 +166,13 @@ public partial class BookOrderGroupViewModel :
         options = [.. _service.OrderOptions.Select(opt => opt.label)];
     }
 
-    public OptionalStruct<TeacherBookOrderGroup> Model { get; private set; } = OptionalStruct<TeacherBookOrderGroup>.None();
+    public Optional<TeacherBookOrderGroup> Model { get; private set; } = Optional<TeacherBookOrderGroup>.None();
 
     public static BookOrderGroupViewModel Get(TeacherBookOrderGroup model)
     {
         var vm = new BookOrderGroupViewModel()
         {
-            Model = OptionalStruct<TeacherBookOrderGroup>.Some(model),
+            Model = Optional<TeacherBookOrderGroup>.Some(model),
             Option = model.option,
             Orders = [.. model.isbns.Select(BookOrderEntryViewModel.Get)]
         };
@@ -198,14 +198,14 @@ public partial class BookOrderEntryViewModel :
     [ObservableProperty] bool springOnly;
 
 
-    public OptionalStruct<TeacherBookRequest> Model { get; private set;} = OptionalStruct<TeacherBookRequest>.None();
+    public Optional<TeacherBookRequest> Model { get; private set;} = Optional<TeacherBookRequest>.None();
 
 
     public static BookOrderEntryViewModel Get(TeacherBookRequest model)
     {
         var vm = new BookOrderEntryViewModel()
         {
-            Model = OptionalStruct<TeacherBookRequest>.Some(model),
+            Model = Optional<TeacherBookRequest>.Some(model),
             Isbn = IsbnViewModel.Get(model.isbn),
             Submitted = model.submitted,
             Quantity = model.quantity,

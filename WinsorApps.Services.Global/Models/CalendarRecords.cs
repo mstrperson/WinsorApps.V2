@@ -2,20 +2,20 @@
 
 namespace WinsorApps.Services.Global.Models;
 
-public record struct CalendarEvent<T>(
+public record CalendarEvent<T>(
     DateTime start,
     DateTime end,
     string summary,
     T details,
     UserRecord eventCreator,
-    IEnumerable<Location> locations);
+    List<Location> locations);
 
-public record struct Location(string id, string label, string type);
+public record Location(string id, string label, string type);
 
-public readonly record struct SchoolYear(
+public record SchoolYear(
     string id,
     string label,
-    ImmutableArray<TermRecord> terms,
+    List<TermRecord> terms,
     DateOnly startDate,
     DateOnly endDate,
     DateOnly seniorsLastDay)
@@ -23,4 +23,4 @@ public readonly record struct SchoolYear(
     public static implicit operator string(SchoolYear schoolYear) => schoolYear.label;
 }
 
-public record struct CycleDay(DateOnly date, string cycleDay);
+public record CycleDay(DateOnly date, string cycleDay);

@@ -27,6 +27,6 @@ namespace WinsorApps.MAUI.Shared.ViewModels
         }
 
         public static implicit operator SelectableEntryViewModel<T>(T value) => new(value);
-        public static implicit operator T(SelectableEntryViewModel<T> value) => value.Value;
+        public static implicit operator T(SelectableEntryViewModel<T> value) => value;
     }
 }

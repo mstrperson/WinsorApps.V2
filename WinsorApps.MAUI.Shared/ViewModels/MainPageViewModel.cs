@@ -62,17 +62,17 @@ public partial class MainPageViewModel : ObservableObject, IBusyViewModel, IErro
         }
         splashPageVM = new("Getting your Data",
             postLoginServices.Select(serv => 
-                $"Waiting for {serv.ServiceName}").ToImmutableArray());
+                $"Waiting for {serv.ServiceName}").ToList());
         
         BackgroundAwaiter().SafeFireAndForget(e => OnError?.Invoke(this, new("Initialization Error", e.Message)));
     }
 
     [RelayCommand]
-    public void ReloadAllServices()
+    public async Task ReloadAllServices()
     {
         foreach(var  serv in PostLoginServices)
         {
-            serv.Refresh();
+            await serv.Refresh();
         }
     }
 
@@ -89,7 +89,7 @@ public partial class MainPageViewModel : ObservableObject, IBusyViewModel, IErro
         Busy = true;
         OnSplashPageReady?.Invoke(this, SplashPageVM);
         var api = ServiceHelper.GetService<ApiService>()!;
-        UserVM = UserViewModel.Get(api.UserInfo!.Value);
+        UserVM = UserViewModel.Get(api.UserInfo!);
         foreach (var serv in PostLoginServices.Where(serv => !serv.Started))
             serv.Initialize();
     }
@@ -103,13 +103,13 @@ public partial class MainPageViewModel : ObservableObject, IBusyViewModel, IErro
 
 
         var api = ServiceHelper.GetService<ApiService>()!;
-        UserVM = UserViewModel.Get(api.UserInfo!.Value);
+        UserVM = UserViewModel.Get(api.UserInfo!);
         if (!_appService.Allowed)
         {
             Busy = true;
             BusyMessage = $"{UserVM.DisplayName} is not able to use this app.  You will now be logged out.";
             await Task.Delay(5000);
-            Logout();
+            await Logout();
         }
 
         UpdateAvailable = _appService.UpdateAvailable;
@@ -127,11 +127,11 @@ public partial class MainPageViewModel : ObservableObject, IBusyViewModel, IErro
     }
 
     [RelayCommand]
-    public void Logout()
+    public async Task Logout()
     {
         Busy = true;
         BusyMessage = "Logging out.";
-        _api.Logout();
+        await _api.Logout();
 
         Thread.Sleep(5000);
         Application.Current?.Quit();

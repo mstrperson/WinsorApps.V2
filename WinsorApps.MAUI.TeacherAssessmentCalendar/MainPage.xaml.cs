@@ -47,11 +47,11 @@ namespace WinsorApps.MAUI.TeacherAssessmentCalendar
 
             BindingContext = vm;
             vm.OnError += this.DefaultOnErrorHandler();
-            LoginPage loginPage = new LoginPage(logging, vm.LoginVM);
+            LoginPage loginPage = new(logging, vm.LoginVM);
             loginPage.OnLoginComplete += (_, _) =>
             {
                 //Navigation.PopAsync();
-                vm.UserVM = UserViewModel.Get(api.UserInfo!.Value);
+                vm.UserVM = UserViewModel.Get(api.UserInfo!);
                 Navigation.PushAsync(new AppLoadingPage(vm));
                 vm.LoadReadyContent += Vm_OnCompleted;
             };

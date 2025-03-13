@@ -53,7 +53,7 @@ public partial class ContactViewModel :
 
     public static ContactViewModel Empty => new();
 
-    public OptionalStruct<Contact> Model { get; private set; } = OptionalStruct<Contact>.None();
+    public Optional<Contact> Model { get; private set; } = Optional<Contact>.None();
 
     public static ContactViewModel Get(Contact model)
     {
@@ -69,7 +69,7 @@ public partial class ContactViewModel :
             Email = model.email,
             Phone = model.phone,
             IsPublic = model.isPublic,
-            Model = OptionalStruct<Contact>.Some(model)
+            Model = Optional<Contact>.Some(model)
         };
 
         if (!string.IsNullOrEmpty(model.associatedUserId))
@@ -165,9 +165,9 @@ public partial class ContactSearchViewModel :
     {
         SearchText = SearchText.Trim();
         NewItem = new();
-        if (SearchText.Contains("@"))
+        if (SearchText.Contains('@'))
             NewItem.Email = SearchText;
-        else if(SearchText.Contains(" "))
+        else if(SearchText.Contains(' '))
         {
             NewItem.FirstName = SearchText[..SearchText.IndexOf(' ')];
             NewItem.LastName = SearchText[(SearchText.IndexOf(' ') + 1)..];

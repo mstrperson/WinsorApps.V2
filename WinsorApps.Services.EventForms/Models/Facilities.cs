@@ -2,15 +2,18 @@
 using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.Services.EventForms.Models;
-public readonly record struct NewLocationSetup(string locationId, string instructions, bool includeSandwichSign = false, DateTime setupTime = default)
+public record NewLocationSetup(string locationId, string instructions, bool includeSandwichSign = false, DateTime setupTime = default)
 {
-    public bool RemoveLocation => locationId.StartsWith("-");
+    public bool RemoveLocation => locationId.StartsWith('-');
 }
 
-public readonly record struct LocationSetupInstructions(string locationId, string instructions, bool includeSandwichSign, DateTime setupTime);
+public record LocationSetupInstructions(string locationId, string instructions, bool includeSandwichSign, DateTime setupTime);
 
-public readonly record struct NewFacilitiesEvent(bool setup, bool presence, bool breakdown, bool overnight, bool parking,
-    ImmutableArray<NewLocationSetup> locationSetups);
+public record NewFacilitiesEvent(bool setup, bool presence, bool breakdown, bool overnight, bool parking,
+    List<NewLocationSetup> locationSetups);
 
-public readonly record struct FacilitiesEvent(string id, bool setup, bool presence, bool breakdown, bool parking, bool overnight,
-    ImmutableArray<LocationSetupInstructions> locations, ImmutableArray<DocumentHeader> documents);
+public record FacilitiesEvent(string id, bool setup, bool presence, bool breakdown, bool parking, bool overnight,
+    List<LocationSetupInstructions> locations, List<DocumentHeader> documents)
+{
+    public static readonly FacilitiesEvent Empty = new("", false, false, false, false, false, [], []);
+}

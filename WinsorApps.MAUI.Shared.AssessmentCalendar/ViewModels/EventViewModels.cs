@@ -33,7 +33,7 @@ public partial class AssessmentCalendarEventViewModel :
 
     public AssessmentEntryRecord? Details { get; private set; } = null;
 
-    public OptionalStruct<AssessmentCalendarEvent> Model { get; private set; } = OptionalStruct<AssessmentCalendarEvent>.None();
+    public Optional<AssessmentCalendarEvent> Model { get; private set; } = Optional<AssessmentCalendarEvent>.None();
 
 
     public event EventHandler<AssessmentCalendarEventViewModel>? Selected;
@@ -53,7 +53,7 @@ public partial class AssessmentCalendarEventViewModel :
             AffectedClasses = [.. model.affectedClasses],
             PassUsed = model.passUsed ?? false,
             PassAvailable = model.passAvailable ?? false,
-            Model = OptionalStruct<AssessmentCalendarEvent>.Some(model)
+            Model = Optional<AssessmentCalendarEvent>.Some(model)
         };
 
         //vm.LoadAssessmentDetails().SafeFireAndForget(e => e.LogException());
@@ -72,9 +72,9 @@ public partial class AssessmentCalendarEventViewModel :
 
             Details = await teacherService.GetAssessmentDetails(Model.Reduce(AssessmentCalendarEvent.Empty).id, OnError.DefaultBehavior(this));
 
-            if(Details.HasValue)
+            if(Details is not null)
             {
-                Description += $" [{Details.Value.section.teachers.First().lastName}]";
+                Description += $" [{Details.section.teachers.First().lastName}]";
             }
         }
     }
@@ -98,7 +98,7 @@ public partial class ApExamViewModel :
     [ObservableProperty] ObservableCollection<SectionViewModel> sections = [];
     [ObservableProperty] ObservableCollection<UserViewModel> students = [];
 
-    public OptionalStruct<APExamDetail> Model { get; private set; } = OptionalStruct<APExamDetail>.None();
+    public Optional<APExamDetail> Model { get; private set; } = Optional<APExamDetail>.None();
 
     public CreateAPExam ToCreateRecord() => new(CourseName, Start, End, [.. Sections.Select(sec => sec.Model.Reduce(SectionRecord.Empty).sectionId)], [.. Students.Select(stu => stu.Id)]);
 
@@ -113,8 +113,10 @@ public partial class ApExamViewModel :
             Start = model.startDateTime,
             End = model.endDateTime,
             Sections = [.. model.sectionIds.Select(id => SectionViewModel.Get(registrar.SectionDetailCache[id]))],
-            Students = [.. model.studentIds.Select(id => UserViewModel.Get(registrar.StudentList.FirstOrDefault(u => u.id == id)))],
-            Model = OptionalStruct<APExamDetail>.Some(model)
+            Students = [.. model.studentIds
+                .Select(id => UserViewModel.Get(registrar.StudentList.FirstOrDefault(u => u.id == id) ?? UserRecord.Empty))
+                .Where(student => !string.IsNullOrEmpty(student.Id))],
+            Model = Optional<APExamDetail>.Some(model)
         };
 
         return item;
@@ -128,9 +130,9 @@ public partial class DayNoteViewModel :
     [ObservableProperty] string id = "";
     [ObservableProperty] DateOnly date;
     [ObservableProperty] string note = "";
-    [ObservableProperty] ImmutableArray<StudentClassName> affectedClasses = [];
+    [ObservableProperty] List<StudentClassName> affectedClasses = [];
 
-    public OptionalStruct<DayNote> Model { get; private set; } = OptionalStruct<DayNote>.None();
+    public Optional<DayNote> Model { get; private set; } = Optional<DayNote>.None();
 
     public static DayNoteViewModel Get(DayNote model) => new()
     {
@@ -138,7 +140,7 @@ public partial class DayNoteViewModel :
         Date = model.date,
         Note = model.note,
         AffectedClasses = [.. model.affectedClasses],
-        Model = OptionalStruct<DayNote>.Some(model)
+        Model = Optional<DayNote>.Some(model)
     };
 }
 

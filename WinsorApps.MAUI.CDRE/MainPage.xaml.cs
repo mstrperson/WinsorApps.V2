@@ -48,7 +48,7 @@ namespace WinsorApps.MAUI.CDRE
             BindingContext = vm;
             vm.OnError += this.DefaultOnErrorHandler();
             vm.OnCompleted += Vm_OnCompleted;
-            LoginPage loginPage = new LoginPage(logging, vm.LoginVM);
+            LoginPage loginPage = new(logging, vm.LoginVM);
             loginPage.OnLoginComplete += (_, _) =>
                 Navigation.PopAsync();
 

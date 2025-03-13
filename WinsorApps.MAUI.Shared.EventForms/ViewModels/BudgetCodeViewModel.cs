@@ -53,11 +53,11 @@ public partial class BudgetCodeViewModel :
     public async Task Create()
     {
         var result = await _service.CreateNewBudgetCode(AccountNumber, CommonName, OnError.DefaultBehavior(this));
-        if(result.HasValue)
+        if(result is not null)
         {
-            CodeId = result.Value.codeId;
-            UserId = result.Value.userId;
-            ViewModelCache.Add((BudgetCodeViewModel)result.Value);
+            CodeId = result.codeId;
+            UserId = result.userId;
+            ViewModelCache.Add((BudgetCodeViewModel)result);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
     }
@@ -191,12 +191,12 @@ public partial class BudgetCodeSearchViewModel :
     {
         var result = await _service.CreateNewBudgetCode(NewAccountNumber, NewName, OnError.DefaultBehavior(this));
 
-        if(result.HasValue)
+        if(result is not null)
         {
             ShowNew = false;
             NewName = "";
             NewAccountNumber = "";
-            var vm = BudgetCodeViewModel.Get(result.Value);
+            var vm = BudgetCodeViewModel.Get(result);
             Available.Add(vm);
             Select(vm);
         }
@@ -208,13 +208,13 @@ public partial class BudgetCodeSearchViewModel :
         var possible = Available.Where(code =>
             code.CommonName.Contains(SearchText, StringComparison.InvariantCultureIgnoreCase) || 
             code.AccountNumber.Contains(SearchText, StringComparison.InvariantCultureIgnoreCase))
-            .ToImmutableArray();
+            .ToList();
 
         switch(SelectionMode)
         {
             case SelectionMode.Single:
                 
-                if(possible.Length == 1)
+                if(possible.Count == 1)
                 {
                     Selected = possible[0];
                     IsSelected = true;
@@ -228,7 +228,7 @@ public partial class BudgetCodeSearchViewModel :
                 Selected = BudgetCodeViewModel.Empty;
                 IsSelected = false;
 
-                if (possible.Length == 0)
+                if (possible.Count == 0)
                 {
                     Options = [];
                     ShowOptions = false;
@@ -242,7 +242,7 @@ public partial class BudgetCodeSearchViewModel :
                 ZeroResults = false;
                 return;
             case SelectionMode.Multiple:
-                if(possible.Length == 0)
+                if(possible.Count == 0)
                 {
                     ZeroResults = true;
                     OnZeroResults?.Invoke(this, EventArgs.Empty);

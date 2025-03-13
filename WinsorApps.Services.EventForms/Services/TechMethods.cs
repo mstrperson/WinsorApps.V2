@@ -1,4 +1,5 @@
 ﻿using WinsorApps.Services.EventForms.Models;
+using WinsorApps.Services.Global;
 
 namespace WinsorApps.Services.EventForms.Services;
 
@@ -10,11 +11,11 @@ public partial class EventFormsService
     {
         var result = await _api.SendAsync<NewTechEvent, TechEvent?>(HttpMethod.Post,
             $"api/events/{eventId}/technology", tech, onError: onError);
-        if(result.HasValue)
+        if(result is not null)
         {
             var evt = EventsCache.First(e => e.id == eventId);
             var updated = evt with { hasTechRequest = true };
-            EventsCache = EventsCache.Replace(evt, updated);
+            EventsCache.Replace(evt, updated);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
         return result;
@@ -39,7 +40,7 @@ public partial class EventFormsService
         {
             var evt = EventsCache.First(e => e.id == eventId);
             var updated = evt with { hasTechRequest = false };
-            EventsCache = EventsCache.Replace(evt, updated);
+            EventsCache.Replace(evt, updated);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
 
@@ -53,11 +54,11 @@ public partial class EventFormsService
     {
         var result = await _api.SendAsync<NewVirtualEvent, VirtualEvent?>(HttpMethod.Post,
             $"api/events/{eventId}/technology/virtual-event", virtualEvent, onError: onError);
-        if (result.HasValue)
+        if (result is not null)
         {
             var evt = EventsCache.First(e => e.id == eventId);
             var updated = evt with { hasTechRequest = true, hasZoom = true };
-            EventsCache = EventsCache.Replace(evt, updated);
+            EventsCache.Replace(evt, updated);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
         return result;
@@ -82,7 +83,7 @@ public partial class EventFormsService
         {
             var evt = EventsCache.First(e => e.id == eventId);
             var updated = evt with { hasZoom = false };
-            EventsCache = EventsCache.Replace(evt, updated);
+            EventsCache.Replace(evt, updated);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
 

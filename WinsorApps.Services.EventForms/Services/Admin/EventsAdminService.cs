@@ -9,31 +9,25 @@ using AsyncAwaitBestPractices;
 
 namespace WinsorApps.Services.EventForms.Services.Admin;
 
-public partial class EventsAdminService :
+public partial class EventsAdminService(ApiService api, RegistrarService registrar, LocalLoggingService logging) :
     IAsyncInitService,
     IAutoRefreshingCacheService
 {
-    private readonly RegistrarService _registrar;
-    private readonly ApiService _api;
-    private readonly LocalLoggingService _logging;
+    private readonly RegistrarService _registrar = registrar;
+    private readonly ApiService _api = api;
+    private readonly LocalLoggingService _logging = logging;
 
     public event EventHandler? OnCacheRefreshed;
-
-    public EventsAdminService(ApiService api, RegistrarService registrar, LocalLoggingService logging)
-    {
-        _api = api;
-        _registrar = registrar;
-        _logging = logging;
-    }
 
     public DateTime CacheStartDate { get; private set; }
     public DateTime CacheEndDate { get; private set; }
 
-    public ImmutableArray<EventFormBase> AllEvents { get; protected set; } = [];
+    public List<EventFormBase> AllEvents { get; protected set; } = [];
 
-    public ImmutableArray<EventFormBase> PendingEvents => [.. AllEvents.Where(evt => evt.status == ApprovalStatusLabel.Pending)];
-    public ImmutableArray<EventFormBase> WaitingForRoom => [.. AllEvents.Where(evt => evt.status == ApprovalStatusLabel.RoomNotCleared)];
+    public List<EventFormBase> PendingEvents => [.. AllEvents.Where(evt => evt.status == ApprovalStatusLabel.Pending)];
+    public List<EventFormBase> WaitingForRoom => [.. AllEvents.Where(evt => evt.status == ApprovalStatusLabel.RoomNotCleared)];
     public string CacheFileName => ".events-admin.cache";
+    public void ClearCache() { if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}"); }
     public async Task SaveCache()
     {
         var json = JsonSerializer.Serialize(AllEvents);
@@ -61,7 +55,7 @@ public partial class EventsAdminService :
         {
             _lastUpdated = File.GetLastWriteTime($"{_logging.AppStoragePath}{CacheFileName}");
             var json = File.ReadAllText($"{_logging.AppStoragePath}{CacheFileName}");
-            AllEvents = JsonSerializer.Deserialize<ImmutableArray<EventFormBase>>(json);
+            AllEvents = JsonSerializer.Deserialize<List<EventFormBase>>(json) ?? [];
             CacheStartDate = AllEvents.Select(evt => evt.start).Min();
             CacheEndDate = AllEvents.Select(evt => evt.start).Max();
             return true;
@@ -79,7 +73,7 @@ public partial class EventsAdminService :
     public double Progress { get; protected set; }
 
 
-    private TimeSpan _refInt = TimeSpan.FromMinutes(5);
+    private readonly TimeSpan _refInt = TimeSpan.FromMinutes(5);
     public TimeSpan RefreshInterval => _refInt;
 
     public bool Refreshing { get; protected set; }
@@ -87,7 +81,7 @@ public partial class EventsAdminService :
     public async Task Initialize(ErrorAction onError)
     {
         await _api.WaitForInit(onError);
-        while (!_registrar.SchoolYears.Any())
+        while (_registrar.SchoolYears.IsEmpty)
             await Task.Delay(100);
         Started = true;
 
@@ -102,7 +96,7 @@ public partial class EventsAdminService :
             _ = await GetPendingEventsAsync(onError);
             Progress = 0.66;
             _ = await GetRoomPendingEvents(onError);
-            SaveCache();
+            await SaveCache();
         }
         else
         {
@@ -129,38 +123,38 @@ public partial class EventsAdminService :
         
         _ = await GetAllEvents(_logging.LogError, schoolYear.startDate.ToDateTime(default), CacheStartDate, true);
 
-        SaveCache();
+        await SaveCache();
     }
 
     private DateTime _lastUpdated;
 
     public async Task Refresh(ErrorAction onError)
     {
-        var result = await _api.SendAsync<ImmutableArray<EventFormBase>?>(HttpMethod.Get, $"api/events/admin/delta?since={_lastUpdated:yyyy-MM-dd HH:mm:ss}", onError: onError);
-        if(result.HasValue && result.Value.Length > 0)
+        var result = await _api.SendAsync<List<EventFormBase>?>(HttpMethod.Get, $"api/events/admin/delta?since={_lastUpdated:yyyy-MM-dd HH:mm:ss}", onError: onError);
+        if(result is not null && result.Count > 0)
         {
-            ComputeChangesAndUpdates(result.Value);   
+            await ComputeChangesAndUpdates(result);   
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
-            SaveCache();
+            await SaveCache();
         }
         _lastUpdated = DateTime.Now;
     }
 
-    private void ComputeChangesAndUpdates(ImmutableArray<EventFormBase> incoming, bool suppressRefresh = false)
+    private async Task ComputeChangesAndUpdates(List<EventFormBase> incoming, bool suppressRefresh = false)
     {
         using DebugTimer _ = new("Computing Changes and Updates", _logging);
-        var newEvents = incoming.Where(evt => AllEvents.All(existing => existing.id != evt.id)).ToImmutableArray();
-        Debug.WriteLine($"{newEvents.Length} are not cached events.");
+        var newEvents = incoming.Where(evt => AllEvents.All(existing => existing.id != evt.id)).ToList();
+        Debug.WriteLine($"{newEvents.Count} are not cached events.");
 
-        var changes = incoming.Except(newEvents).Where(evt => AllEvents.All(existing => !existing.IsSameAs(evt))).ToImmutableArray();
-        Debug.WriteLine($"{changes.Length} Events that are different.");
+        var changes = incoming.Except(newEvents).Where(evt => AllEvents.All(existing => !existing.IsSameAs(evt))).ToList();
+        Debug.WriteLine($"{changes.Count} Events that are different.");
 
-        var toReplace = AllEvents.Where(evt => changes.Any(update => update.id == evt.id)).ToImmutableArray();
+        var toReplace = AllEvents.Where(evt => changes.Any(update => update.id == evt.id)).ToList();
 
         AllEvents = [.. AllEvents.Except(toReplace).Union(changes).Union(newEvents)];
         if(!suppressRefresh)
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
-        SaveCache();
+        await SaveCache();
     }
 
     public async Task WaitForInit(ErrorAction onError)
@@ -169,25 +163,28 @@ public partial class EventsAdminService :
             await Task.Delay(100);
     }
 
-    public async Task<ImmutableArray<EventFormBase>> GetPendingEventsAsync(ErrorAction onError)
+    public async Task<List<EventFormBase>> GetPendingEventsAsync(ErrorAction onError)
     {
-        var result = await _api.SendAsync<ImmutableArray<EventFormBase>?>(HttpMethod.Get, "api/events/admin/pending-events", onError: onError);
-        if(result.HasValue)
+        var result = await _api.SendAsync<List<EventFormBase>?>(HttpMethod.Get, "api/events/admin/pending-events", onError: onError);
+        if(result is not null)
         {
-            ComputeChangesAndUpdates(result.Value);
+            await ComputeChangesAndUpdates(result);
         }
         return result ?? [];
     }
 
-    public async Task<ImmutableArray<EventFormBase>> GetTwoWeekListAsync(ErrorAction onError)
+    public async Task<List<EventFormBase>> GetTwoWeekListAsync(ErrorAction onError)
     {
-        var result = await _api.SendAsync<ImmutableArray<EventFormBase>?>(HttpMethod.Get, "api/events/admin/two-week-list", onError: onError);
+        var result = await _api.SendAsync<List<EventFormBase>?>(HttpMethod.Get, "api/events/admin/two-week-list", onError: onError);
 
         return result ?? [];
     }
 
-    public async Task<ImmutableArray<EventFormBase>> GetAllEvents(ErrorAction onError, DateTime start, DateTime end, bool suppressRefresh = false)
+    public async Task<List<EventFormBase>> GetAllEvents(ErrorAction onError, DateTime start, DateTime end, bool suppressRefresh = false)
     {
+        if(suppressRefresh)
+            return [.. AllEvents.Where(evt => evt.start >= start && evt.end <= end)];
+
         if (end < CacheStartDate)
             end = CacheStartDate;
 
@@ -197,53 +194,57 @@ public partial class EventsAdminService :
         if (CacheStartDate > start)
             CacheStartDate = start;
 
-        var result = await _api.SendAsync<ImmutableArray<EventFormBase>?>(HttpMethod.Get,
+        var result = await _api.SendAsync<List<EventFormBase>?>(HttpMethod.Get,
             $"api/events/admin/all-events?start={start:yyyy-MM-dd}&end={end:yyyy-MM-dd}", onError: onError);
 
-        if (result.HasValue)
+        if (result is not null)
         {
-            ComputeChangesAndUpdates(result.Value);
+            await ComputeChangesAndUpdates(result);
         }
 
         return result ?? [];
     }
 
-    public async Task<OptionalStruct<EventFormBase>> ApproveEvent(string eventId, ErrorAction onError)
+    public async Task<Optional<EventFormBase>> ApproveEvent(string eventId, ErrorAction onError)
     {
         var result = await _api.SendAsync<EventFormBase?>(HttpMethod.Get, $"api/events/{eventId}/approve", onError: onError);
-        if(result.HasValue)
+        if(result is not null)
         {
-            ComputeChangesAndUpdates([result.Value]);
-            _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"{result.Value.summary} - {result.Value.start:yyyy-MM-dd} was approved.");
-            return OptionalStruct<EventFormBase>.Some(result.Value);
+            await ComputeChangesAndUpdates([result]);
+            _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"{result.summary} - {result.start:yyyy-MM-dd} was approved.");
+            return Optional<EventFormBase>.Some(result);
         }
 
-        return OptionalStruct<EventFormBase>.None();
+        return Optional<EventFormBase>.None();
     }
-    public async Task<OptionalStruct<EventFormBase>> DeclineEvent(string eventId, ErrorAction onError)
+    public async Task<Optional<EventFormBase>> DeclineEvent(string eventId, ErrorAction onError)
     {
         var result = await _api.SendAsync<EventFormBase?>(HttpMethod.Get, $"api/events/{eventId}/decline", onError: onError);
-        if (result.HasValue)
+        if (result is not null)
         {
-            ComputeChangesAndUpdates([result.Value]);
+            await ComputeChangesAndUpdates([result]);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
-            _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"{result.Value.summary} - {result.Value.start:yyyy-MM-dd} was declined.");
-            return OptionalStruct<EventFormBase>.Some(result.Value);
+            _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"{result.summary} - {result.start:yyyy-MM-dd} was declined.");
+            return Optional<EventFormBase>.Some(result);
         }
 
-        return OptionalStruct<EventFormBase>.None();
+        return Optional<EventFormBase>.None();
     }
 
     public async Task SendNote(string eventId, CreateApprovalNote note, ErrorAction onError)
     {
         var evt = AllEvents.FirstOrDefault(evt=> evt.id == eventId);
         await _api.SendAsync(HttpMethod.Post, $"api/events/{eventId}/approve", JsonSerializer.Serialize(note), onError: onError);
-        _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Note submitted to event {evt.summary} - {evt.start:yyyy-MM-dd}.");
+
+        if(evt is not null) 
+            _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Note submitted to event {evt.summary} - {evt.start:yyyy-MM-dd}.");
+        else
+            _logging.LogError(new("Event Not Found When sending note", eventId));
     }
 
-    public async Task<ImmutableArray<EventApprovalStatusRecord>> GetHistory(string eventId, ErrorAction onError)
+    public async Task<List<EventApprovalStatusRecord>> GetHistory(string eventId, ErrorAction onError)
     {
-        var result = await _api.SendAsync<ImmutableArray<EventApprovalStatusRecord>?>(HttpMethod.Get,
+        var result = await _api.SendAsync<List<EventApprovalStatusRecord>?>(HttpMethod.Get,
             $"api/events/{eventId}/approval-history", onError: onError);
 
         return result ?? [];

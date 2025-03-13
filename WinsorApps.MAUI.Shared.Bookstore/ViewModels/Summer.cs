@@ -55,7 +55,7 @@ public partial class SummerSectionViewModel :
     [ObservableProperty] DateTime submitted;
     [ObservableProperty] ObservableCollection<SummerBookOrderListItemViewModel> books = [];
 
-    public OptionalStruct<SummerSection> Model { get; private set; } = OptionalStruct<SummerSection>.None();
+    public Optional<SummerSection> Model { get; private set; } = Optional<SummerSection>.None();
 
     public static SummerSectionViewModel Get(SummerSection model)
     {
@@ -74,7 +74,7 @@ public partial class SummerSectionViewModel :
             {
                 vm.Busy = true;
                 vm.BusyMessage = $"Removing {item.Isbn.DisplayName}...";
-                await vm.Model.MapObject(section => vm._service.DeleteSummerBook(section, item.Isbn.Isbn, vm.OnError.DefaultBehavior(vm))).Reduce(Task.CompletedTask);
+                await vm.Model.Map(section => vm._service.DeleteSummerBook(section, item.Isbn.Isbn, vm.OnError.DefaultBehavior(vm))).Reduce(Task.CompletedTask);
                 vm.Busy = false;
             };
         }
@@ -85,7 +85,7 @@ public partial class SummerSectionViewModel :
     [RelayCommand]
     public async Task Refresh()
     {
-        var model = Model.Reduce(new());
+        var model = Model.Reduce(new("", Teacher.Model.Reduce(UserRecord.Empty), Course.Model.Reduce(CourseRecord.Empty), SchoolYear, DateTime.Today, []));
         if (string.IsNullOrEmpty(model.id)) return;
 
         Model = await _service.GetSummerSection(model.id, OnError.DefaultBehavior(this));
@@ -97,7 +97,7 @@ public partial class SummerSectionViewModel :
             {
                 Busy = true;
                 BusyMessage = $"Removing {item.Isbn.DisplayName}...";
-                await Model.MapObject(section => _service.DeleteSummerBook(section, item.Isbn.Isbn, OnError.DefaultBehavior(this))).Reduce(Task.CompletedTask);
+                await Model.Map(section => _service.DeleteSummerBook(section, item.Isbn.Isbn, OnError.DefaultBehavior(this))).Reduce(Task.CompletedTask);
                 Busy = false;
             };
         }

@@ -7,7 +7,7 @@ namespace WinsorApps.MAUI.Shared.ViewModels;
 
 public interface IMultiModalSearch<T> where T : ObservableObject
 {
-    ImmutableArray<string> SearchModes { get; }
+    List<string> SearchModes { get; }
 
     Func<T, bool> SearchFilter { get; }
 }

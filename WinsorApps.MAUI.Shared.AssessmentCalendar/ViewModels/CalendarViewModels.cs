@@ -38,8 +38,8 @@ public partial class CalendarDayViewModel :
         
         var cycleDays = ServiceHelper.GetService<CycleDayCollection>();
         var cd = cycleDays[date];
-        if (cd.HasValue)
-            vm.CycleDay = cd.Value.cycleDay;
+        if (cd is not null)
+            vm.CycleDay = cd.cycleDay;
 
         foreach (var evt in vm.Events)
         {
@@ -104,12 +104,12 @@ public partial class CalendarMonthViewModel :
     public event EventHandler<CalendarDayViewModel>? DaySelected;
     public event EventHandler<ErrorRecord>? OnError;
 
-    public Func<DateTime, Task<ImmutableArray<AssessmentCalendarEvent>>>? GetEventsTask;
+    public Func<DateTime, Task<List<AssessmentCalendarEvent>>>? GetEventsTask;
 
     [RelayCommand]
     public void ToggleShowFilter() => ShowFilter = !ShowFilter;
 
-    public static async Task<CalendarMonthViewModel> Get(DateTime date, Task<ImmutableArray<AssessmentCalendarEvent>> getEventsTask)
+    public static async Task<CalendarMonthViewModel> Get(DateTime date, Task<List<AssessmentCalendarEvent>> getEventsTask)
     {
         var events = await getEventsTask;
         return Get(date, events);
@@ -228,7 +228,7 @@ public partial class CalendarMonthViewModel :
         }
     }
 
-    public async Task IncrementMonth(Task<ImmutableArray<AssessmentCalendarEvent>> getEventsTask)
+    public async Task IncrementMonth(Task<List<AssessmentCalendarEvent>> getEventsTask)
     {
         var nextMonth = Month.AddMonths(1);
 
@@ -255,7 +255,7 @@ public partial class CalendarMonthViewModel :
         }
     }
 
-    public async Task DecrementMonth(Task<ImmutableArray<AssessmentCalendarEvent>> getEventsTask)
+    public async Task DecrementMonth(Task<List<AssessmentCalendarEvent>> getEventsTask)
     {
         var nextMonth = Month.AddMonths(-1);
 

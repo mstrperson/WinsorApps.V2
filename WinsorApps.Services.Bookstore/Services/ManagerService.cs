@@ -20,9 +20,9 @@ public partial class BookstoreManagerService :
 
     public event EventHandler? OnCacheRefreshed;
 
-    public ImmutableArray<ProtoSection> ProtoSections { get; protected set; } = [];
+    public List<ProtoSection> ProtoSections { get; protected set; } = [];
 
-    public ImmutableArray<TeacherBookOrder> OrderCache { get; protected set; } = [];
+    public List<TeacherBookOrder> OrderCache { get; protected set; } = [];
 
     public Dictionary<string, List<TeacherBookOrderDetail>> OrdersByTeacher
     {
@@ -65,17 +65,17 @@ public partial class BookstoreManagerService :
         while (!(_api.Ready && _registrar.Ready && _bookService.Ready))
             await Task.Delay(500);
 
-        var cacheTask = _api.SendAsync<ImmutableArray<TeacherBookOrder>>(HttpMethod.Get, "api/book-orders/manager/requests", onError: onError);
+        var cacheTask = _api.SendAsync<List<TeacherBookOrder>>(HttpMethod.Get, "api/book-orders/manager/requests", onError: onError);
         cacheTask.WhenCompleted(() =>
         {
-            OrderCache = cacheTask.Result;
+            OrderCache = cacheTask.Result ?? [];
             _logging.LogMessage(LocalLoggingService.LogLevel.Information, "Bookstore Manager Task => OrderCache loaded.");
         });
 
-        var sectionTask = _api.SendAsync<ImmutableArray<ProtoSection>>(HttpMethod.Get, "api/book-orders/manager/sections", onError: onError);
+        var sectionTask = _api.SendAsync<List<ProtoSection>>(HttpMethod.Get, "api/book-orders/manager/sections", onError: onError);
         sectionTask.WhenCompleted(() =>
         {
-            ProtoSections = sectionTask.Result;
+            ProtoSections = sectionTask.Result ?? [];
             _logging.LogMessage(LocalLoggingService.LogLevel.Information, "Bookstore Manager Task => Sections loaded.");
         });
 
@@ -94,27 +94,27 @@ public partial class BookstoreManagerService :
             .Select(order => new TeacherBookOrderDetail(
                 sections.First(sec => sec.id == order.protoSectionId),
                 order.books))
-            .ToImmutableArray();
+            .ToList();
 
 
         return new TeacherBookOrderCollection(teacher, orders);
     }
 
-    public async Task<ImmutableArray<ProtoSection>> GetTeacherSections(string teacherId, ErrorAction onError, bool forceUpdate = false)
+    public async Task<List<ProtoSection>> GetTeacherSections(string teacherId, ErrorAction onError, bool forceUpdate = false)
     {
         if (!forceUpdate && SectionsByTeacher.TryGetValue(teacherId, out var cached))
             return [.. cached];
 
-        var result = await _api.SendAsync<ImmutableArray<ProtoSection>>(HttpMethod.Get,
-            $"api/book-orders/teachers/{teacherId}/sections", onError: onError);
+        var result = await _api.SendAsync<List<ProtoSection>>(HttpMethod.Get,
+            $"api/book-orders/teachers/{teacherId}/sections", onError: onError) ?? [];
 
         SectionsByTeacher[teacherId] = [.. result];
         return result;
     }
 
-    public async Task<ImmutableArray<TeacherBookOrderGroup>> GetGroupedOrders(string sectionId, ErrorAction onError)
+    public async Task<List<TeacherBookOrderGroup>> GetGroupedOrders(string sectionId, ErrorAction onError)
     {
-        var result = await _api.SendAsync<ImmutableArray<TeacherBookOrderGroup>>(HttpMethod.Get, $"api/book-orders/teachers/{sectionId}/groups", onError: onError);
+        var result = await _api.SendAsync<List<TeacherBookOrderGroup>>(HttpMethod.Get, $"api/book-orders/teachers/{sectionId}/groups", onError: onError) ?? [];
         return result;
     }
 
@@ -130,7 +130,7 @@ public partial class BookstoreManagerService :
 
         var deletedOrders = OrderCache.Where(ord => ord.protoSectionId == sectionId).ToList();
         foreach (var del in deletedOrders)
-            OrderCache = OrderCache.Remove(del);
+            OrderCache.Remove(del);
 
         if (SectionsByTeacher.Any(kvp => kvp.Value.Any(sec => sec.id == sectionId)))
         {
@@ -144,13 +144,13 @@ public partial class BookstoreManagerService :
         var newSection = await _api.SendAsync<ProtoSection?>(HttpMethod.Post,
             $"api/book-orders/teachers/{teacherId}/sections?courseId={courseId}",
             onError: onError);
-        if (!newSection.HasValue)
+        if (newSection is null)
             return null;
 
         var val = SectionsByTeacher.GetOrAdd(teacherId, []);
-        val.Add(newSection.Value);
+        val.Add(newSection);
         OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
-        return newSection.Value;
+        return newSection;
     }
 
     public async Task<TeacherBookOrderDetail?> CreateOrUpdateBookOrder(
@@ -160,7 +160,7 @@ public partial class BookstoreManagerService :
             update ? HttpMethod.Put : HttpMethod.Post,
             $"api/book-orders/teachers/{sectionId}", order, onError: onError);
 
-        if (!result.HasValue)
+        if (result is null)
             return null;
 
 
@@ -172,7 +172,7 @@ public partial class BookstoreManagerService :
             return null;
         }
 
-        var orderDetail = new TeacherBookOrderDetail(cached.First(sec => sec.id == sectionId), result.Value.books);
+        var orderDetail = new TeacherBookOrderDetail(cached.First(sec => sec.id == sectionId), result.books);
         
         var ordersByTeacher = OrdersByTeacher.GetOrAdd(teacherId, [orderDetail]);
 
@@ -199,7 +199,7 @@ public partial class BookstoreManagerService :
             update ? HttpMethod.Put : HttpMethod.Post,
             $"api/book-orders/teachers/{sectionId}/group", order, onError: onError);
 
-        if (!result.HasValue)
+        if (result is null)
             return null;
 
 
@@ -211,7 +211,7 @@ public partial class BookstoreManagerService :
             return null;
         }
 
-        var orderDetail = new TeacherBookOrderDetail(SectionsByTeacher[teacherId].First(sec => sec.id == sectionId), result.Value.books);
+        var orderDetail = new TeacherBookOrderDetail(SectionsByTeacher[teacherId].First(sec => sec.id == sectionId), result.books);
         if (!OrdersByTeacher.ContainsKey(teacherId))
         {
             OrdersByTeacher[teacherId] = [orderDetail];
@@ -224,18 +224,18 @@ public partial class BookstoreManagerService :
         OrdersByTeacher[teacherId].Add(orderDetail);
         return orderDetail;
     }
-    public async Task<ImmutableArray<TeacherBookOrderCollection>> GetOrdersByDepartment(string department, ErrorAction onError, bool updateCache = false)
+    public async Task<List<TeacherBookOrderCollection>> GetOrdersByDepartment(string department, ErrorAction onError, bool updateCache = false)
     {
         if (updateCache)
         {
             await Initialize(onError);
         }
 
-        var sections = ProtoSections.Where(sec => sec.course.department == department).ToImmutableArray();
+        var sections = ProtoSections.Where(sec => sec.course.department == department).ToList();
         return GetBookOrderCollectionsByTeacher(sections);
     }
 
-    public async Task<ImmutableArray<TeacherBookOrderCollection>> GetOrdersByCourse(string courseId, ErrorAction onError, bool updateCache = false)
+    public async Task<List<TeacherBookOrderCollection>> GetOrdersByCourse(string courseId, ErrorAction onError, bool updateCache = false)
     {
         if (updateCache)
         {
@@ -246,30 +246,30 @@ public partial class BookstoreManagerService :
         return GetBookOrderCollectionsByTeacher(sections);
     }
 
-    private ImmutableArray<TeacherBookOrderCollection> GetBookOrderCollectionsByTeacher(IEnumerable<ProtoSection> sections)
+    private List<TeacherBookOrderCollection> GetBookOrderCollectionsByTeacher(IEnumerable<ProtoSection> sections)
     {
-        Dictionary<UserRecord, List<TeacherBookOrderDetail>> dict = new();
+        Dictionary<UserRecord, List<TeacherBookOrderDetail>> dict = [];
         foreach (var section in sections)
         {
             var teacher = _registrar.TeacherList.First(t => t.id == section.teacherId);
             if (!dict.ContainsKey(teacher))
-                dict.Add(teacher, new());
+                dict.Add(teacher, []);
 
             var sectionOrder = OrdersByTeacher[teacher.id].FirstOrDefault(order => order.section.id == section.id);
-
-            dict[teacher].Add(sectionOrder);
+            if(sectionOrder is not null)
+                dict[teacher].Add(sectionOrder);
         }
 
-        List<TeacherBookOrderCollection> output = new();
+        List<TeacherBookOrderCollection> output = [];
         foreach (var teacher in dict.Keys)
             output.Add(new(teacher, [.. dict[teacher]]));
 
         return [.. output];
     }
 
-    public async Task<ImmutableArray<BookOrderReportEntry>> GetBookOrderReport(ErrorAction onError)
-        => await _api.SendAsync<ImmutableArray<BookOrderReportEntry>>(HttpMethod.Get,
-            "api/book-orders/manager/report", onError: onError);
+    public async Task<List<BookOrderReportEntry>> GetBookOrderReport(ErrorAction onError)
+        => await _api.SendAsync<List<BookOrderReportEntry>>(HttpMethod.Get,
+            "api/book-orders/manager/report", onError: onError) ?? [];
 
     public async Task<byte[]> DownloadReportCSV(ErrorAction onError, bool fall = true, bool spring = false, bool byIsbn = false)
          => await _api.DownloadFile($"api/book-orders/manager/requests/csv?fall={fall}&spring={spring}&byIsbn={byIsbn}",
@@ -295,17 +295,17 @@ public partial class BookstoreManagerService :
 
         Refreshing = true;
 
-        var cacheTask = _api.SendAsync<ImmutableArray<TeacherBookOrder>>(HttpMethod.Get, "api/book-orders/manager/requests", onError: onError);
+        var cacheTask = _api.SendAsync<List<TeacherBookOrder>>(HttpMethod.Get, "api/book-orders/manager/requests", onError: onError);
         cacheTask.WhenCompleted(() =>
         {
-            OrderCache = cacheTask.Result;
+            OrderCache = cacheTask.Result ?? [];
             _logging.LogMessage(LocalLoggingService.LogLevel.Information, "Bookstore Manager Task => OrderCache loaded.");
         });
 
-        var sectionTask = _api.SendAsync<ImmutableArray<ProtoSection>>(HttpMethod.Get, "api/book-orders/manager/sections", onError: onError);
+        var sectionTask = _api.SendAsync<List<ProtoSection>>(HttpMethod.Get, "api/book-orders/manager/sections", onError: onError);
         sectionTask.WhenCompleted(() =>
         {
-            ProtoSections = sectionTask.Result;
+            ProtoSections = sectionTask.Result ?? [];
             _logging.LogMessage(LocalLoggingService.LogLevel.Information, "Bookstore Manager Task => Sections loaded.");
         });
 
@@ -324,6 +324,7 @@ public partial class BookstoreManagerService :
         }
     }
 
+    public void ClearCache() { if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}"); }
     public async Task SaveCache()
     {
         throw new NotImplementedException();

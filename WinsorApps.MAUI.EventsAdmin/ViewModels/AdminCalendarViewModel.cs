@@ -46,7 +46,7 @@ public partial class AdminCalendarViewModel :
                         && evt.status != ApprovalStatusLabel.Updating
                         && evt.status != ApprovalStatusLabel.Withdrawn
                         && evt.status != ApprovalStatusLabel.Declined)
-                    .ToImmutableArray();
+                    .ToList();
             }
         };
         Calendar.EventSelected += (_, evt) =>

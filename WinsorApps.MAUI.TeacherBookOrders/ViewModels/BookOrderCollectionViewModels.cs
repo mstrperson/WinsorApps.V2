@@ -16,7 +16,7 @@ using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.MAUI.TeacherBookOrders.ViewModels;
 
-public partial class BookOrderTermCollection :
+public partial class BookOrderTermCollection(TermRecord term) :
     ObservableObject,
     IErrorHandling,
     IBusyViewModel
@@ -27,15 +27,9 @@ public partial class BookOrderTermCollection :
     [ObservableProperty] string busyMessage = "";
     [ObservableProperty] ObservableCollection<ProtoSectionViewModel> sections = [];
     [ObservableProperty] ObservableCollection<SummerSectionViewModel> summer = [];
-    [ObservableProperty] string termName;
+    [ObservableProperty] string termName = $"{term.name} {term.schoolYear}";
 
-    public TermRecord Term { get; private set; }
-
-    public BookOrderTermCollection(TermRecord term)
-    {
-        Term = term;
-        termName = $"{term.name} {term.schoolYear}";
-    }
+    public TermRecord Term { get; private set; } = term;
 
     public event EventHandler<TermRecord>? NewSectionRequested;
 
@@ -62,14 +56,17 @@ public partial class BookOrderYearCollection :
     [ObservableProperty] bool visible;
     [ObservableProperty] bool isCurrent;
 
-    private SchoolYear _schoolYear;
+    private readonly SchoolYear _schoolYear;
 
     public BookOrderYearCollection(SchoolYear schoolYear)
     {
         _schoolYear = schoolYear;
         SchoolYear = schoolYear.label;
         isCurrent = schoolYear.endDate.ToDateTime(default) > DateTime.Today;
-        fall = new(schoolYear.terms.FirstOrDefault());
+        fall = new(schoolYear.terms.FirstOrDefault() ?? 
+            new TermRecord("", schoolYear.label, "none", 
+                schoolYear.startDate.ToDateTime(default), 
+                schoolYear.endDate.ToDateTime(default)));
     }
 
     [RelayCommand]
@@ -84,8 +81,8 @@ public partial class BookOrderYearCollection :
         Busy = true;
         BusyMessage = $"Loading sections for {SchoolYear}";
         await _service.WaitForInit(OnError.DefaultBehavior(this));
-        var sections = _service.MySections.Where(sec => sec.schoolYearId == _schoolYear.id).ToImmutableArray();
-        var allViewModels = sections.Select(ProtoSectionViewModel.Get).ToImmutableArray();
+        var sections = _service.MySections.Where(sec => sec.schoolYearId == _schoolYear.id).ToList();
+        var allViewModels = sections.Select(ProtoSectionViewModel.Get).ToList();
 
         foreach (var section in allViewModels)
         {

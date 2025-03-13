@@ -1,6 +1,6 @@
 ﻿namespace WinsorApps.Services.Global.Models;
 
-public readonly record struct StudentClassName
+public record StudentClassName
 {
     public static readonly StudentClassName ClassI      = new("Class I");
     public static readonly StudentClassName ClassII     = new("Class II");

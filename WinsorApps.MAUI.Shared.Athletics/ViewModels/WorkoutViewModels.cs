@@ -40,7 +40,7 @@ public partial class WorkoutViewModel :
     [ObservableProperty] bool editable;
     [ObservableProperty] bool confirmInvalid;
 
-    public OptionalStruct<Workout> Model { get; private set; } = OptionalStruct<Workout>.None();
+    public Optional<Workout> Model { get; private set; } = Optional<Workout>.None();
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler? SignedOut;
@@ -57,11 +57,11 @@ public partial class WorkoutViewModel :
         BusyMessage = $"Signing Out {Student.DisplayName} at {time:hh:mm tt} [Workout Time: {duration.TotalMinutes:#} Minutes].";
 
         var result = await _workoutService.SignOut(Id, OnError.DefaultBehavior(this));
-        if (result.HasValue)
+        if (result is not null)
         {
-            Model = OptionalStruct<Workout>.Some(result.Value);
-            TimeOut = result.Value.timeOut ?? default;
-            IsOpen = !result.Value.timeOut.HasValue;
+            Model = Optional<Workout>.Some(result);
+            TimeOut = result.timeOut ?? default;
+            IsOpen = !result.timeOut.HasValue;
             if (!IsOpen)
                 SignedOut?.Invoke(this, EventArgs.Empty);
         }
@@ -80,10 +80,10 @@ public partial class WorkoutViewModel :
         }
         if (!Editable)
         {
-            var model = Model.Reduce(new());
+            var model = Model.Reduce(Workout.Empty);
             
             TimeIn = model.timeIn;
-            TimeOut = model.timeOut.HasValue ? model.timeOut.Value : default;
+            TimeOut = model.timeOut ?? default;
             IsOpen = !model.timeOut.HasValue;
         }
     }
@@ -110,13 +110,13 @@ public partial class WorkoutViewModel :
 
         var workout = new Workout(Id, student, TimeIn, IsOpen ? null : TimeOut, ForCredit ? ["Credit"] : []);
         var result = await _workoutService.CreateOrUpdateWorkout(workout, OnError.DefaultBehavior(this));
-        if (result.HasValue)
+        if (result is not null)
         {
-            this.Model = OptionalStruct<Workout>.Some(result.Value);
+            this.Model = Optional<Workout>.Some(result);
             Editable = false;
-            TimeIn = result.Value.timeIn;
-            TimeOut = result.Value.timeOut ?? default;
-            IsOpen = !result.Value.timeOut.HasValue;
+            TimeIn = result.timeIn;
+            TimeOut = result.timeOut ?? default;
+            IsOpen = !result.timeOut.HasValue;
         }
 
         Busy = false;
@@ -166,7 +166,7 @@ public partial class WorkoutViewModel :
                 model.timeOut.Value - model.timeOut.Value.Date : 
                 model.timeIn - model.timeIn.Date,
             Student = UserViewModel.Get(model.user),
-            Model = OptionalStruct<Workout>.Some(model),
+            Model = Optional<Workout>.Some(model),
             ForCredit = model.workoutDetails.Any(tag => tag.Contains("credit", StringComparison.InvariantCultureIgnoreCase))
         };
 
@@ -199,7 +199,7 @@ public partial class NewWorkoutViewModel :
         {
             SelectedStudent = student;
             IsSelected = true;
-            ShowForCredit = student.Model.Reduce(UserRecord.Empty).studentInfo.HasValue;
+            ShowForCredit = student.Model.Reduce(UserRecord.Empty).studentInfo is not null;
         };
     }
 
@@ -220,12 +220,12 @@ public partial class NewWorkoutViewModel :
 
         Busy = true;
         BusyMessage = $"Signing In {SelectedStudent.DisplayName} at {DateTime.Now:hh:mm tt}";
-        ImmutableArray<string> tags = ForCredit ? [ "Credit" ] : [];
+        List<string> tags = ForCredit ? [ "Credit" ] : [];
         var result = await _workoutService.SignIn(SelectedStudent.Id, tags, OnError.DefaultBehavior(this));
-        if (result.HasValue)
+        if (result is not null)
         {
             
-            NewSignIn?.Invoke(this, WorkoutViewModel.Get(result.Value));
+            NewSignIn?.Invoke(this, WorkoutViewModel.Get(result));
             Clear();
         }
 

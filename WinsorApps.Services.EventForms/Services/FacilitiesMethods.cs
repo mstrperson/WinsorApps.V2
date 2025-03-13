@@ -1,4 +1,5 @@
 ﻿using WinsorApps.Services.EventForms.Models;
+using WinsorApps.Services.Global;
 
 namespace WinsorApps.Services.EventForms.Services;
 
@@ -11,11 +12,11 @@ public partial class EventFormsService
     {
         var result = await _api.SendAsync<NewFacilitiesEvent, FacilitiesEvent?>(HttpMethod.Post,
             $"api/events/{eventId}/facilities", newFacilities, onError: onError);
-        if(result.HasValue)
+        if(result is not null)
         {
             var evt = EventsCache.First(e => e.id == eventId);
             var updated = evt with { hasFacilitiesInfo = true };
-            EventsCache = EventsCache.Replace(evt, updated);
+            EventsCache.Replace(evt, updated);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
 
@@ -34,7 +35,7 @@ public partial class EventFormsService
         {
             var evt = EventsCache.First(e => e.id == eventId);
             var updated = evt with { hasFacilitiesInfo = false };
-            EventsCache = EventsCache.Replace(evt, updated);
+            EventsCache.Replace(evt, updated);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
 

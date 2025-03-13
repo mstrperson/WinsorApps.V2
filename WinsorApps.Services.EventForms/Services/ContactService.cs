@@ -17,6 +17,7 @@ namespace WinsorApps.Services.EventForms.Services
         public event EventHandler? OnCacheRefreshed;
 
         public string CacheFileName => ".contacts.cache";
+        public void ClearCache() { if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}"); }
         public async Task SaveCache()
         {
             var json = JsonSerializer.Serialize(MyContacts);
@@ -31,7 +32,7 @@ namespace WinsorApps.Services.EventForms.Services
             try
             {
                 var json = File.ReadAllText($"{_logging.AppStoragePath}{CacheFileName}");
-                MyContacts = JsonSerializer.Deserialize<ImmutableArray<Contact>>(json);
+                MyContacts = JsonSerializer.Deserialize<List<Contact>>(json) ?? [];
                 return true;
             }
             catch
@@ -47,17 +48,17 @@ namespace WinsorApps.Services.EventForms.Services
             _api.OnLoginSuccess += (_, _) => Initialize(_logging.LogError).SafeFireAndForget(e => e.LogException(_logging));
         }
 
-        public ImmutableArray<Contact> MyContacts { get; private set; } = [];
+        public List<Contact> MyContacts { get; private set; } = [];
 
         public async Task<Contact> CreateNewContact(NewContact newContact, ErrorAction onError)
         {
             var result = await _api.SendAsync<NewContact, Contact?>(HttpMethod.Post, "api/users/self/contacts", newContact, onError: onError);
-            if (!result.HasValue)
+            if (result is null)
                 return Contact.Empty;
 
-            MyContacts.Add(result.Value);
+            MyContacts.Add(result);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
-            return result.Value;
+            return result;
         }
 
 
@@ -79,7 +80,7 @@ namespace WinsorApps.Services.EventForms.Services
             Started = true;
             if (!LoadCache())
             {
-                MyContacts = await _api.SendAsync<ImmutableArray<Contact>?>(HttpMethod.Get, "api/users/self/contacts", onError: onError) ?? [];
+                MyContacts = await _api.SendAsync<List<Contact>?>(HttpMethod.Get, "api/users/self/contacts", onError: onError) ?? [];
                 await SaveCache();
             }
             Progress = 1;
@@ -88,7 +89,7 @@ namespace WinsorApps.Services.EventForms.Services
 
         public async Task Refresh(ErrorAction onError)
         {
-            MyContacts = await _api.SendAsync<ImmutableArray<Contact>?>(HttpMethod.Get, "api/users/self/contacts", onError: onError) ?? [];
+            MyContacts = await _api.SendAsync<List<Contact>?>(HttpMethod.Get, "api/users/self/contacts", onError: onError) ?? [];
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
             await SaveCache();
         }

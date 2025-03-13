@@ -13,7 +13,8 @@ public sealed class ApiException : Exception
         {
             try
             {
-                ErrorRecord = (ErrorRecord)JsonSerializer.Deserialize(responseMessage.Content.ReadAsStream(), typeof(ErrorRecord))!;
+                var json = responseMessage.Content.ReadAsStringAsync().Result;
+                ErrorRecord = JsonSerializer.Deserialize<ErrorRecord>(json) ?? new("Content was not an Error Record", json);
             }
             catch
             {
@@ -28,16 +29,17 @@ public sealed class ApiException : Exception
         public void Dispose()
         {
             ((IDisposable)contentStream).Dispose();
+            GC.SuppressFinalize(this);
         }
     }
-    public readonly record struct ErrorRecord(string type, string error);
+    public record ErrorRecord(string type, string error);
 
     /// <summary>
     /// Login Model used for Logging into the App!
     /// </summary>
     /// <param name="email"></param>
     /// <param name="password"></param>
-    public readonly record struct Login(string email, string password);
+    public record Login(string email, string password);
 
     public sealed record AuthResponse(
         string userId = "", 
@@ -62,26 +64,29 @@ public sealed class ApiException : Exception
     }
 public sealed record UserInfo(string firstName, string lastName, string email, int blackbaudId)
 {
-    private ImmutableArray<string>? _roles = null;
-    public async Task<ImmutableArray<string>> GetRoles(ApiService api)
+    private List<string> _roles = [];
+    public async Task<List<string>> GetRoles(ApiService api)
     {
-        if (!_roles.HasValue)
+        if (_roles.Count == 0)
         {
-            _roles = await api.SendAsync<ImmutableArray<string>>(HttpMethod.Get, "api/users/self/roles");
+            _roles = await api.SendAsync<List<string>>(HttpMethod.Get, "api/users/self/roles") ?? [];
         }
-        return _roles.Value;
+        return _roles;
     }
 
 }
 
-public readonly record struct FileContentResult(string documentId, string fileName, string mimeType, byte[] b64data);
+public record FileContentResult(string documentId, string fileName, string mimeType, byte[] b64data);
 
-public readonly record struct PagedResult<T>(
+public record PagedResult<T>(
     int page, 
     int pageCount, 
     int pageSize, 
     int totalResults, 
-    ImmutableArray<T> items);
+    List<T> items)
+{
+    public static readonly PagedResult<T> Empty = new(0, 0, 0, 0, []);
+}
 
 public static partial class PagedExtensions
 {
@@ -94,10 +99,10 @@ public static partial class PagedExtensions
         if (!regex.IsMatch(uri.Query))
             return uri;
 
-        var match = regex.Match(uri.Query).Value;
-        var page = int.Parse(match.Split('=')[1]) + 1; // necessarily parsable because of regex.
+        var match = regex.Match(uri.Query);
+        var page = int.Parse(match.Value.Split('=')[1]) + 1; // necessarily parsable because of regex.
         
-        var newUri = uri.PathAndQuery.Replace(match, $"page={page}");
+        var newUri = uri.PathAndQuery.Replace(match.Value, $"page={page}");
         return new Uri(newUri);
     }
 

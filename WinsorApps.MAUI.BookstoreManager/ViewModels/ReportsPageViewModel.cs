@@ -13,22 +13,17 @@ using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.MAUI.BookstoreManager.ViewModels;
 
-public partial class ReportsPageViewModel :
+public partial class ReportsPageViewModel(BookstoreManagerService managerService) :
     ObservableObject,
     IErrorHandling,
     IBusyViewModel
 {
-    private readonly BookstoreManagerService _managerService;
+    private readonly BookstoreManagerService _managerService = managerService;
 
     [ObservableProperty] bool springTerm;
     [ObservableProperty] bool byIsbn;
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "";
-
-    public ReportsPageViewModel(BookstoreManagerService managerService)
-    {
-        _managerService = managerService;
-    }
 
     public event EventHandler<ErrorRecord>? OnError;
 

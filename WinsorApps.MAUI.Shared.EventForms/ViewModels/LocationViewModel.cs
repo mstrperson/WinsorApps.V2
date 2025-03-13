@@ -56,10 +56,10 @@ public partial class LocationViewModel :
         if (!string.IsNullOrEmpty(Id)) return; // Can't create a thing that already exists!
 
         var result = await _service.CreateCustomLocation(Label, IsPublic, OnError.DefaultBehavior(this));
-        if(result.HasValue)
+        if(result is not null)
         {
-            this.Id = result.Value.id;
-            this.Type = result.Value.type;
+            this.Id = result.id;
+            this.Type = result.type;
         }
 
         Created?.Invoke(this, this);
@@ -78,7 +78,7 @@ public partial class LocationViewModel :
     public static LocationViewModel? Get(string locationId, bool custom = false)
     {
         var service = ServiceHelper.GetService<LocationService>();
-        var location = (custom ? service.MyCustomLocations : service.OnCampusLocations).FirstOrDefault(loc => loc.id == locationId);
+        var location = (custom ? service.MyCustomLocations : service.OnCampusLocations).FirstOrDefault(loc => loc.id == locationId) ?? Location.None;
         if (location.id == locationId)
             return Get(location);
         return null;

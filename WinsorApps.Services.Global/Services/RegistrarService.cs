@@ -7,46 +7,40 @@ using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.Services.Global.Services;
 
-public class RegistrarService : 
+public class RegistrarService(ApiService api, LocalLoggingService logging) : 
     IAsyncInitService
 {
     private record CacheStructure( 
-        ImmutableArray<string> roles, 
-        ImmutableArray<SchoolYear> schoolYears, 
-        ImmutableArray<ScheduleEntry> mySchedule, 
-        ImmutableArray<SectionRecord> myAcademicSchedule,
-        ImmutableArray<CourseRecord> courseList,
+        List<string> roles, 
+        List<SchoolYear> schoolYears, 
+        List<ScheduleEntry> mySchedule, 
+        List<SectionRecord> myAcademicSchedule,
+        List<CourseRecord> courseList,
         Dictionary<string, SectionDetailRecord> sectionDetails,
-        ImmutableArray<UserRecord> teachers,
-        ImmutableArray<UserRecord> employees,
-        ImmutableArray<UserRecord> students,
-        ImmutableArray<UserRecord> advisees,
+        List<UserRecord> teachers,
+        List<UserRecord> employees,
+        List<UserRecord> students,
+        List<UserRecord> advisees,
         Dictionary<string, string> uniqueNamesCache);
 
-    private readonly ApiService _api;
-    private readonly LocalLoggingService _logging;
+    private readonly ApiService _api = api;
+    private readonly LocalLoggingService _logging = logging;
 
     /// <summary>
     /// The Currently Logged-in User.
     /// </summary>
-    public UserRecord Me => _api.UserInfo!.Value;
-    public ImmutableArray<string> MyRoles { get; private set; } = [];
+    public UserRecord Me => _api.UserInfo!;
+    public List<string> MyRoles { get; private set; } = [];
 
-    private Dictionary<string, ConcurrentBag<SectionDetailRecord>> _sectionsByCourse;
+    private Dictionary<string, ConcurrentBag<SectionDetailRecord>> _sectionsByCourse = [];
 
     /// <summary>
     /// School Year data cache
     /// </summary>
     public ConcurrentBag<SchoolYear> SchoolYears { get; private set; } = [];
 
-    public RegistrarService(ApiService api, LocalLoggingService logging)
-    {
-        _api = api;
-        _logging = logging;
-        _sectionsByCourse = [];
-    }
-
     public string CacheFileName => ".registrar.cache";
+    public void ClearCache() { if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}"); }
     public async Task SaveCache()
     {
         int tryCount = 0;
@@ -63,7 +57,10 @@ public class RegistrarService :
                 [.. EmployeeList],
                 [.. StudentList],
                 [.. MyAdvisees],
-                _uniqueNameCache.Where(kvp => !string.IsNullOrEmpty(kvp.Key.id)).Select(kvp => KeyValuePair.Create(kvp.Key.id, kvp.Value)).ToDictionary());
+                _uniqueNameCache.Where(kvp => !string.IsNullOrEmpty(kvp.Key.id))
+                    .Select(kvp => KeyValuePair.Create(kvp.Key.id, kvp.Value))
+                    .DistinctBy(kvp => kvp.Key)
+                    .ToDictionary());
 
             File.WriteAllText($"{_logging.AppStoragePath}{CacheFileName}", JsonSerializer.Serialize(cache));
         }
@@ -79,8 +76,8 @@ public class RegistrarService :
         }
     }
 
-    public OptionalStruct<SchoolYear> GetSchoolYear(string label) => 
-        SchoolYears.FirstStructOrNone(sy => sy.label.Equals(label, StringComparison.InvariantCultureIgnoreCase));
+    public Optional<SchoolYear> GetSchoolYear(string label) => 
+        SchoolYears.FirstOrNone(sy => sy.label.Equals(label, StringComparison.InvariantCultureIgnoreCase));
 
     public bool LoadCache()
     {
@@ -108,7 +105,7 @@ public class RegistrarService :
                 return false;
             }
 
-            if (cache.students.Length == 0)
+            if (cache.students.Count == 0)
             {
                 return false;
             }
@@ -124,8 +121,9 @@ public class RegistrarService :
             _myAdvisees = [.. cache.advisees];
             Ready = true;
             _uniqueNameCache = cache.uniqueNamesCache
-                .Select(kvp => KeyValuePair.Create(AllUsers.FirstOrDefault(u => u.id == kvp.Value), kvp.Value))
-                .Where(kvp => kvp.Key != default)
+                .Select(kvp => KeyValuePair.Create(AllUsers.FirstOrDefault(u => u.id == kvp.Key), kvp.Value))
+                .Where(kvp => kvp.Key is not null)
+                .Select(kvp => KeyValuePair.Create(kvp.Key!, kvp.Value))
                 .ToDictionary();
             UniqueNamesReady = true;
         }
@@ -140,8 +138,8 @@ public class RegistrarService :
     {
 
         var result = await _api.SendAsync<DateRange, FreeBlockCollection?>(HttpMethod.Get, $"api/schedule/free-blocks/for/{userId}", inRange, onError: onError);
-        if(result.HasValue)
-            return result.Value;
+        if(result is not null)
+            return result;
 
         return new([], inRange);
     }
@@ -158,10 +156,10 @@ public class RegistrarService :
     private async Task DownloadSectionsByCourseAsync(ErrorAction onError)
     {
         var result = await 
-            _api.SendAsync<Dictionary<string, ImmutableArray<SectionDetailRecord>>>(
+            _api.SendAsync<Dictionary<string, List<SectionDetailRecord>>>(
                 HttpMethod.Get, "api/registrar/course/sections-by-course", onError: onError) ?? [];
 
-        _sectionsByCourse = new();
+        _sectionsByCourse = [];
         foreach (var key in result.Keys)
         {
             _sectionsByCourse.Add(key, [.. result[key]]);
@@ -189,12 +187,12 @@ public class RegistrarService :
         {
             if (_mySchedule.IsEmpty || force)
             {
-                _mySchedule = [..await _api.SendAsync<ImmutableArray<ScheduleEntry>>(HttpMethod.Get, "api/schedule")];
+                _mySchedule = [..await _api.SendAsync<List<ScheduleEntry>>(HttpMethod.Get, "api/schedule")];
             }
         }
         catch (Exception ex)
         {
-            _logging.LogMessage(LocalLoggingService.LogLevel.Error, "Failed to get My Schedule", ex.Message, ex.StackTrace);
+            _logging.LogMessage(LocalLoggingService.LogLevel.Error, "Failed to get My Schedule", ex.Message, ex?.StackTrace ?? "");
             _mySchedule = [];
         }
         return _mySchedule;
@@ -216,14 +214,14 @@ public class RegistrarService :
         {
             if (_myAcademicSchedule.IsEmpty || force)
             {
-                _myAcademicSchedule = [..await _api.SendAsync<ImmutableArray<SectionRecord>>(HttpMethod.Get, "api/schedule/academics?detailed=true")];
+                _myAcademicSchedule = [..await _api.SendAsync<List<SectionRecord>>(HttpMethod.Get, "api/schedule/academics?detailed=true")];
                 foreach (var section in _myAcademicSchedule)
                     _ = await GetSectionDetailsAsync(section.sectionId, _logging.LogError);
             }
         }
         catch (Exception ex)
         {
-            _logging.LogMessage(LocalLoggingService.LogLevel.Error, "Failed to get My Schedule", ex.Message, ex.StackTrace);
+            _logging.LogMessage(LocalLoggingService.LogLevel.Error, "Failed to get My Schedule", ex.Message, ex?.StackTrace ?? "");
             _myAcademicSchedule = [];
         }
 
@@ -268,9 +266,9 @@ public class RegistrarService :
     /// <param name="onError"></param>
     /// <returns></returns>
     private async Task<ConcurrentBag<SectionDetailRecord>> GetSectionsOfFromAPIAsync(string courseId, ErrorAction onError) =>
-        [..await _api.SendAsync<ImmutableArray<SectionDetailRecord>>(
+        [.. await _api.SendAsync<List<SectionDetailRecord>>(
             HttpMethod.Get, $"api/registrar/course/{courseId}/sections", 
-            onError: onError)];
+            onError: onError) ?? []];
 
     /// <summary>
     /// Get Course Data from the API.  Only used during init.
@@ -282,7 +280,7 @@ public class RegistrarService :
         {
             if (_courses.IsEmpty)
             {
-                _courses = [..await _api.SendAsync<ImmutableArray<CourseRecord>>(HttpMethod.Get, "api/registrar/course?getsBooks=true")];
+                _courses = [..await _api.SendAsync<List<CourseRecord>>(HttpMethod.Get, "api/registrar/course?getsBooks=true")];
             }
         }
         catch (Exception ex)
@@ -315,8 +313,8 @@ public class RegistrarService :
 
         var result = await _api.SendAsync<SectionDetailRecord?>(HttpMethod.Get, $"api/schedule/academics/{sectionId}", onError: onError);
 
-        if(result.HasValue)
-            SectionDetailCache[sectionId] = result.Value;
+        if(result is not null)
+            SectionDetailCache[sectionId] = result;
         return result;
     }
 
@@ -350,12 +348,12 @@ public class RegistrarService :
         {
             if (_teachers.IsEmpty)
             {
-                _teachers = [..await _api.SendAsync<ImmutableArray<UserRecord>>(HttpMethod.Get, "api/users/teachers")];
+                _teachers = [..await _api.SendAsync<List<UserRecord>>(HttpMethod.Get, "api/users/teachers")];
             }
         }
         catch (Exception ex)
         {
-            _logging.LogMessage(LocalLoggingService.LogLevel.Error, "Failed to get teacher list", ex.Message, ex.StackTrace);
+            _logging.LogMessage(LocalLoggingService.LogLevel.Error, "Failed to get teacher list", ex.Message, ex?.StackTrace ?? "");
             _teachers = [];
         }
 
@@ -415,12 +413,12 @@ public class RegistrarService :
         {
             if (_employees.IsEmpty)
             {
-                _employees = [..await _api.SendAsync<ImmutableArray<UserRecord>>(HttpMethod.Get, "api/users/employees")];
+                _employees = [..await _api.SendAsync<List<UserRecord>>(HttpMethod.Get, "api/users/employees")];
             }
         }
         catch (Exception ex)
         {
-            _logging.LogMessage(LocalLoggingService.LogLevel.Error, "Failed to get employee list", ex.Message, ex.StackTrace);
+            _logging.LogMessage(LocalLoggingService.LogLevel.Error, "Failed to get employee list", ex.Message, ex?.StackTrace ?? "");
             _employees = [];
         }
 
@@ -457,7 +455,7 @@ public class RegistrarService :
         {
             if (_students.IsEmpty)
             {
-                var result = await _api.SendAsync<ImmutableArray<UserRecord>>(HttpMethod.Get, "api/users/students");
+                var result = await _api.SendAsync<List<UserRecord>>(HttpMethod.Get, "api/users/students");
                 _students = [..
                     result
                     ];
@@ -465,7 +463,7 @@ public class RegistrarService :
         }
         catch (Exception ex)
         {
-            _logging.LogMessage(LocalLoggingService.LogLevel.Error, "Failed to get student list", ex.Message, ex.StackTrace);
+            _logging.LogMessage(LocalLoggingService.LogLevel.Error, "Failed to get student list", ex.Message, ex?.StackTrace ?? "");
             _students = [];
         }
 
@@ -476,14 +474,14 @@ public class RegistrarService :
     /// <summary>
     /// Get Department List synchronously from the CourseList Cache
     /// </summary>
-    public ImmutableArray<string> DepartmentList => [..CourseList.Select(c => c.department).Distinct()];
+    public List<string> DepartmentList => [..CourseList.Select(c => c.department).Distinct()];
 
     /// <summary>
     /// Get the list of all Courses in a given department.
     /// </summary>
     /// <param name="department"></param>
     /// <returns></returns>
-    public ImmutableArray<CourseRecord> GetDeptCourses(string department) =>
+    public List<CourseRecord> GetDeptCourses(string department) =>
         [..CourseList.Where(c => c.department == department)];
 
     /// <summary>
@@ -560,7 +558,7 @@ public class RegistrarService :
 
     private async Task DownloadData(ErrorAction onError)
     {
-        var getSchoolYearTask = _api.SendAsync<ImmutableArray<SchoolYear>>(HttpMethod.Get, "api/schedule/school-years", onError: onError);
+        var getSchoolYearTask = _api.SendAsync<List<SchoolYear>>(HttpMethod.Get, "api/schedule/school-years", onError: onError);
 
         getSchoolYearTask.WhenCompleted(() =>
         {
@@ -574,13 +572,13 @@ public class RegistrarService :
         var getEmployees = GetEmployeesAsync();
         var acad = GetMyAcademicScheduleAsync();
 
-        ImmutableArray<Task> tasks =
+        List<Task> tasks =
             [getSchoolYearTask, sbc, mySched, getCourses, getTeachers, getStudents, getEmployees, acad];
 
         foreach (var task in tasks)
             task.WhenCompleted(() =>
             {
-                Progress += 1.0 / tasks.Length;
+                Progress += 1.0 / tasks.Count;
             });
 
         await Task.WhenAll(
@@ -615,8 +613,8 @@ public class RegistrarService :
         if (!check)
         {
             var missed = _uniqueNameCache
-                .Where(kvp => _uniqueNameCache.Values.ToImmutableArray().Count(name => kvp.Value == name) > 1)
-                .SeparateByKeys(kvp => kvp.Value);
+                .Where(kvp => _uniqueNameCache.Values.ToList().Count(name => kvp.Value == name) > 1)
+                .SeparateByKeys(kvp => kvp);
 
             foreach (var name in missed.Keys)
             {
@@ -626,8 +624,8 @@ public class RegistrarService :
                     if (!string.IsNullOrEmpty(user.nickname) && user.nickname != user.firstName)
                     {
                         var fixedName = $"{user.nickname} \"{user.firstName}\" {user.lastName}";
-                        if (user.studentInfo.HasValue)
-                            fixedName += $" [{user.studentInfo.Value.className}]";
+                        if (user.studentInfo is not null)
+                            fixedName += $" [{user.studentInfo.className}]";
                         _uniqueNameCache[user] = fixedName;
 
                         Debug.WriteLine($"Got {fixedName} corrected!");
@@ -644,12 +642,12 @@ public class RegistrarService :
     /// <summary>
     /// Cache for MyAdvisees
     /// </summary>
-    private ImmutableArray<UserRecord>? _myAdvisees;
+    private List<UserRecord> _myAdvisees = [];
     
     /// <summary>
     /// Access the saved cache directly.  Returns empty list if cache has not been populated.
     /// </summary>
-    public ImmutableArray<UserRecord> MyAdvisees => _myAdvisees ?? [];
+    public List<UserRecord> MyAdvisees => _myAdvisees;
 
     /// <summary>
     /// Teachers only, Get Your List of Advisees
@@ -657,14 +655,14 @@ public class RegistrarService :
     /// </summary>
     /// <param name="onError"></param>
     /// <returns></returns>
-    public async Task<ImmutableArray<StudentRecordShort>> GetMyAdviseesAsync(ErrorAction onError)
+    public async Task<List<StudentRecordShort>> GetMyAdviseesAsync(ErrorAction onError)
     {
-        if(!_myAdvisees.HasValue)
+        if(_myAdvisees.Count == 0)
         {
-            _myAdvisees = await _api.SendAsync<ImmutableArray<UserRecord>>(HttpMethod.Get, "api/users/self/advisees", onError: onError);
+            _myAdvisees = await _api.SendAsync<List<UserRecord>>(HttpMethod.Get, "api/users/self/advisees", onError: onError) ?? [];
         }
 
-        return [.._myAdvisees.Value.Select(u => (StudentRecordShort)u)];
+        return [.._myAdvisees.Select(u => (StudentRecordShort)u)];
     }
 
     /// <summary>
@@ -675,9 +673,9 @@ public class RegistrarService :
     public async Task<FileContentResult?> GetUserPhotoAsync(string userId, ErrorAction onError) =>
         await _api.SendAsync<FileContentResult?>(HttpMethod.Get, $"api/users/{userId}/photo", onError: onError);
 
-    public async Task<ImmutableArray<SectionRecord>> GetAcademicScheduleFor(string userId, ErrorAction onError)
+    public async Task<List<SectionRecord>> GetAcademicScheduleFor(string userId, ErrorAction onError)
     {
-        var result = await _api.SendAsync<ImmutableArray<SectionRecord>?>(HttpMethod.Get,
+        var result = await _api.SendAsync<List<SectionRecord>?>(HttpMethod.Get,
             $"api/schedule/academics/for/{userId}?detailed=true", onError: onError);
 
         return result ?? [];

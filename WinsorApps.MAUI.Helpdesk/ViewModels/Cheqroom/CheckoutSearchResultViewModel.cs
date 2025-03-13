@@ -17,9 +17,10 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         ObservableObject, 
         IErrorHandling,
         IDefaultValueViewModel<CheckoutSearchResultViewModel>,
-        ICachedViewModel<CheckoutSearchResultViewModel, CheqroomCheckoutSearchResult, CheqroomService>
+        ICachedViewModel<CheckoutSearchResultViewModel, CheqroomCheckoutSearchResult, CheqroomService>,
+        IModelCarrier<CheckoutSearchResultViewModel, CheqroomCheckoutSearchResult>
     {
-        private readonly CheqroomCheckoutSearchResult _searchResult;
+        public Optional<CheqroomCheckoutSearchResult> Model { get; private set; } = Optional<CheqroomCheckoutSearchResult>.None();
         private readonly CheqroomService _cheqroom;
         private static readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
 
@@ -47,7 +48,6 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
 
         public CheckoutSearchResultViewModel()
         {
-            _searchResult = new();
             _cheqroom = ServiceHelper.GetService<CheqroomService>();
             user = UserViewModel.Empty;
             style = [];
@@ -56,7 +56,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
 
         private CheckoutSearchResultViewModel(CheqroomCheckoutSearchResult result)
         {
-            _searchResult = result;
+            Model = Optional<CheqroomCheckoutSearchResult>.Some(result);
             id = result._id;
             _cheqroom = ServiceHelper.GetService<CheqroomService>();
             user = UserViewModel.Get(result.user);
@@ -78,7 +78,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         [RelayCommand]
         public async Task<bool> CheckIn()
         {
-            _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Checking In {_searchResult.items.DelimeteredList(", ")} for {User.DisplayName}");
+            _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Checking In {Model.Reduce(null!).items.DelimeteredList(", ")} for {User.DisplayName}");
             Working = true;
             bool success = true;
             await _cheqroom.CheckInItem(Id,

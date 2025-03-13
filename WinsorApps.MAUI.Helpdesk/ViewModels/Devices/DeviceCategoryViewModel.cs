@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.ViewModels;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Helpdesk.Models;
 using WinsorApps.Services.Helpdesk.Services;
@@ -15,7 +16,7 @@ public partial class DeviceCategoryViewModel : ObservableObject, IDefaultValueVi
 
     public string Id => _category.id;
 
-    public static DeviceCategoryViewModel Empty => new();
+    public static DeviceCategoryViewModel Empty => new(DeviceCategoryRecord.Empty);
 
     [ObservableProperty] private string name = "";
     [ObservableProperty] private string prefix = "";
@@ -25,7 +26,7 @@ public partial class DeviceCategoryViewModel : ObservableObject, IDefaultValueVi
     [ObservableProperty] private string jamfDepartment = "";
     [ObservableProperty] private string jamfDeviceType = "";
 
-    public DeviceCategoryViewModel() { _category = new(); }
+    public DeviceCategoryViewModel() { _category = DeviceCategoryRecord.Empty; }
 
     public DeviceCategoryViewModel(DeviceCategoryRecord category)
     {
@@ -43,8 +44,9 @@ public partial class DeviceCategoryViewModel : ObservableObject, IDefaultValueVi
     {
         var service = ServiceHelper.GetService<DeviceService>()!;
         var category =
-            service.Categories.FirstOrDefault(cat =>
-                cat.name.Contains(name ?? "", StringComparison.InvariantCultureIgnoreCase));
+            service.Categories.FirstOrNone(cat =>
+                cat.name.Contains(name ?? "", StringComparison.InvariantCultureIgnoreCase))
+            .Reduce(DeviceCategoryRecord.Empty);
         
         _category = category;
         this.name = category.name;
@@ -59,7 +61,10 @@ public partial class DeviceCategoryViewModel : ObservableObject, IDefaultValueVi
     public override string ToString() => Name;
 }
 
-public partial class CategorySearchViewModel : ObservableObject, ICachedSearchViewModel<DeviceCategoryViewModel>, IErrorHandling
+public partial class CategorySearchViewModel : 
+    ObservableObject, 
+    ICachedSearchViewModel<DeviceCategoryViewModel>, 
+    IErrorHandling
 {
     [ObservableProperty] private ObservableCollection<DeviceCategoryViewModel> available;
     [ObservableProperty] private ObservableCollection<DeviceCategoryViewModel> allSelected = [];

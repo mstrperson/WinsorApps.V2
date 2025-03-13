@@ -5,16 +5,16 @@ using WinsorApps.Services.Global.Models;
 namespace WinsorApps.Services.AssessmentCalendar.Services;
 public partial class TeacherAssessmentService
 {
-    private ImmutableArray<StudentLateWorkCollection> _adviseeLateWork = [];
+    private List<StudentLateWorkCollection> _adviseeLateWork = [];
 
     public Dictionary<StudentRecordShort, StudentLateWorkCollection> AdviseeLateWork => _adviseeLateWork.ToDictionary(collection => collection.student);
 
-    public async Task<ImmutableArray<StudentLateWorkCollection>> GetAdviseesLateWork(ErrorAction onError, bool includeResolved = false) => 
-        await _api.SendAsync<ImmutableArray<StudentLateWorkCollection>>(HttpMethod.Get, $"api/assessment-calendar/late-work/advisees?includeResolved={includeResolved}",
-            onError: onError);
+    public async Task<List<StudentLateWorkCollection>> GetAdviseesLateWork(ErrorAction onError, bool includeResolved = false) => 
+        await _api.SendAsync<List<StudentLateWorkCollection>>(HttpMethod.Get, $"api/assessment-calendar/late-work/advisees?includeResolved={includeResolved}",
+            onError: onError) ?? [];
 
-    public async Task<ImmutableArray<LateWorkDetails>?> GetStudentLateWork(ErrorAction onError, string studentId, bool includeResolved = false) =>
-        await _api.SendAsync<ImmutableArray<LateWorkDetails>?>(HttpMethod.Get, $"api/assessment-calendar/late-work/student/{studentId}?includeResolved={includeResolved}",
+    public async Task<List<LateWorkDetails>?> GetStudentLateWork(ErrorAction onError, string studentId, bool includeResolved = false) =>
+        await _api.SendAsync<List<LateWorkDetails>?>(HttpMethod.Get, $"api/assessment-calendar/late-work/student/{studentId}?includeResolved={includeResolved}",
             onError: onError);
 
     public async Task<LateWorkByStudentCollection?> PostNewLateAssessment(ErrorAction onError, string assessmentId, NewLateWork lateWork) =>
@@ -26,9 +26,9 @@ public partial class TeacherAssessmentService
             onError: onError);
 
 
-    public async Task<ImmutableArray<StudentLateWorkCollection>> GetLateWorkBySection(ErrorAction onError, string sectionId, bool includeResolved = false) =>
-        await _api.SendAsync<ImmutableArray<StudentLateWorkCollection>>(HttpMethod.Get, $"api/assessment-calendar/late-work/section/{sectionId}?includeResolved={includeResolved}",
-            onError: onError);
+    public async Task<List<StudentLateWorkCollection>> GetLateWorkBySection(ErrorAction onError, string sectionId, bool includeResolved = false) =>
+        await _api.SendAsync<List<StudentLateWorkCollection>>(HttpMethod.Get, $"api/assessment-calendar/late-work/section/{sectionId}?includeResolved={includeResolved}",
+            onError: onError) ?? [];
 
 
     public async Task ResolveLateWorkPattern(string lateWorkId, ErrorAction onError) =>
@@ -48,9 +48,9 @@ public partial class TeacherAssessmentService
         
         var result = await _api.SendAsync<LateWorkDetails?>(HttpMethod.Get, $"api/assessment-calendar/late-work/pattern/{lateWorkId}",
             onError: onError);
-        if (!result.HasValue)
+        if (result is null)
             return null;
-        LateWorkDetailCache[(false, lateWorkId)] = result.Value;
+        LateWorkDetailCache[(false, lateWorkId)] = result;
 
         return LateWorkDetailCache[(false, lateWorkId)];
     }
@@ -62,9 +62,9 @@ public partial class TeacherAssessmentService
         {
             var result = await _api.SendAsync<LateWorkDetails?>(HttpMethod.Get, $"api/assessment-calendar/late-work/assessment/{lateWorkId}",
                 onError: onError);
-            if (!result.HasValue)
+            if (result is null)
                 return null;
-            LateWorkDetailCache[(true, lateWorkId)] = result.Value;
+            LateWorkDetailCache[(true, lateWorkId)] = result;
 
         }
 
@@ -76,6 +76,6 @@ public static partial class Extensions
 {
     public static async Task<LateWorkDetails> GetDetails(this LateWorkRecord lw, TeacherAssessmentService service, ErrorAction onError) =>
         lw.isAssessment ? 
-            (await service.GetLateAssessmentDetails(onError, lw.id))!.Value :
-            (await service.GetLateWorkPattern(onError, lw.id))!.Value;
+            (await service.GetLateAssessmentDetails(onError, lw.id))! :
+            (await service.GetLateWorkPattern(onError, lw.id))!;
 }

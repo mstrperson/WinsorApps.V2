@@ -68,7 +68,8 @@ public partial class WinsorDeviceViewModel :
         _jamf = ServiceHelper.GetService<JamfService>();
         CategorySearch.Select(new(_deviceService.Categories.First()));
         hasWinsorData = false;
-        _device = new();
+        _device = WinsorDeviceStub.Default;
+        _dev = DeviceRecord.Empty;
         assetTag = _device.assetTag;
         categoryName = _device.category;
         cheqroomId = _device.cheqroomId;
@@ -81,23 +82,21 @@ public partial class WinsorDeviceViewModel :
 
     private WinsorDeviceViewModel(DeviceRecord dev)
     {
-        using (DebugTimer _ = new($"Getting WinsorDevice ViewModel for {dev.winsorDevice?.assetTag ?? "Missing Asset Tag?"}", ServiceHelper.GetService<LocalLoggingService>()))
-        {
-            _deviceService = ServiceHelper.GetService<DeviceService>()!;
-            _cheqroom = ServiceHelper.GetService<CheqroomService>();
-            _jamf = ServiceHelper.GetService<JamfService>();
-            hasWinsorData = dev.isWinsorDevice;
-            _device = dev.winsorDevice ?? WinsorDeviceStub.Default;
-            _dev = dev;
-            assetTag = _device.assetTag ?? "";
-            categoryName = _device.category ?? "";
-            cheqroomId = _device.cheqroomId ?? "";
-            jamfId = _device.jamfId;
-            jamfInventoryPreloadId = _device.jamfInventoryPreloadId;
-            loaner = _device.loaner;
-            if(!string.IsNullOrEmpty(_device.category))
-                CategorySearch.Select(new(_device.category));
-        }
+        using DebugTimer _ = new($"Getting WinsorDevice ViewModel for {dev.winsorDevice?.assetTag ?? "Missing Asset Tag?"}", ServiceHelper.GetService<LocalLoggingService>());
+        _deviceService = ServiceHelper.GetService<DeviceService>()!;
+        _cheqroom = ServiceHelper.GetService<CheqroomService>();
+        _jamf = ServiceHelper.GetService<JamfService>();
+        hasWinsorData = dev.isWinsorDevice;
+        _device = dev.winsorDevice ?? WinsorDeviceStub.Default;
+        _dev = dev;
+        assetTag = _device.assetTag ?? "";
+        categoryName = _device.category ?? "";
+        cheqroomId = _device.cheqroomId ?? "";
+        jamfId = _device.jamfId;
+        jamfInventoryPreloadId = _device.jamfInventoryPreloadId;
+        loaner = _device.loaner;
+        if (!string.IsNullOrEmpty(_device.category))
+            CategorySearch.Select(new(_device.category));
     }
 
     private async Task LoadJamfDetails(string jamfId)
@@ -105,14 +104,14 @@ public partial class WinsorDeviceViewModel :
         if(Category.JamfDeviceType == "Computer")
         {
             var computer = await _jamf.GetComputerDetails(jamfId, OnError.DefaultBehavior(this));
-            if (computer.HasValue)
-                JamfDetails = new(computer.Value);
+            if (computer is not null)
+                JamfDetails = new(computer);
         }
         else
         {
             var device = await _jamf.GetMobileDeviceDetails(jamfId, OnError.DefaultBehavior(this));
-            if (device.HasValue)
-                JamfDetails = new(device.Value);
+            if (device is not null)
+                JamfDetails = new(device);
         }
 
         ShowJamf = !string.IsNullOrEmpty(JamfDetails.Id);
@@ -128,11 +127,11 @@ public partial class WinsorDeviceViewModel :
     public async Task LoadInventoryPreload(string id)
     {
         var preload = await _jamf.GetInventoryPreload(id, OnError.DefaultBehavior(this));
-        ShowInventoryPreload = preload.HasValue;
+        ShowInventoryPreload = preload is not null;
 
         if (ShowInventoryPreload)
         {
-            JamfInventoryPreload = new(preload.Value);
+            JamfInventoryPreload = new(preload!);
             JamfInventoryPreload.OnError += (sender, e) => OnError?.Invoke(sender, e);;
             JamfInventoryPreload.Selected += (sender, e) => InventoryPreloadSelected?.Invoke(sender, e);
         }
@@ -142,10 +141,10 @@ public partial class WinsorDeviceViewModel :
     public async Task LoadCheqroom(string id)
     {
         var item = await _cheqroom.GetItem(id, OnError.DefaultBehavior(this));
-        ShowCheqroom = item.HasValue;
+        ShowCheqroom = item is not null;
         if(ShowCheqroom)
         {
-            CheqroomItem = CheqroomItemViewModel.Get(item.Value);
+            CheqroomItem = CheqroomItemViewModel.Get(item!);
         }
     }
 
@@ -154,7 +153,7 @@ public partial class WinsorDeviceViewModel :
     {
         var details = 
             await _deviceService.GetWinsorDeviceDetails(_dev.id, OnError.DefaultBehavior(this))
-            ?? new WinsorDeviceRecord();
+            ?? WinsorDeviceRecord.Empty;
         
         PurchaseDate = details.purchaseDate;
         PurchaseCost = details.purchaseCost;
@@ -175,10 +174,10 @@ public partial class WinsorDeviceViewModel :
         List<WinsorDeviceViewModel> output = [];
         foreach(var  model in models)
         {
-            if (!model.winsorDevice.HasValue) 
+            if (model.winsorDevice is null) 
                 continue;
 
-            var vm = ViewModelCache.FirstOrDefault(dev => dev.AssetTag == model.winsorDevice!.Value.assetTag);
+            var vm = ViewModelCache.FirstOrDefault(dev => dev.AssetTag == model.winsorDevice!.assetTag);
             if(vm is null)
             {
                 vm = new WinsorDeviceViewModel(model);
@@ -198,7 +197,7 @@ public partial class WinsorDeviceViewModel :
             await Task.Delay(250);
         ViewModelCache = 
         [..
-            service.DeviceCache.Where(dev => dev.winsorDevice.HasValue)
+            service.DeviceCache.Where(dev => dev.winsorDevice is not null)
             .Select(dev => new WinsorDeviceViewModel(dev))
         ];
             
