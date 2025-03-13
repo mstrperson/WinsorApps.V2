@@ -203,7 +203,7 @@ public partial class BookstoreManagerService :
             return null;
 
 
-        if (!SectionsByTeacher.ContainsKey(teacherId) || !SectionsByTeacher[teacherId].Any(sec => sec.id == sectionId))
+        if (!SectionsByTeacher.TryGetValue(teacherId, out List<ProtoSection>? value) || !value.Any(sec => sec.id == sectionId))
         {
             onError(new("Unreachable Error", "Something went wrong... you shouldn't be able to see this message...  Please submit your logs on the Help Page."));
             _logging.LogMessage(LocalLoggingService.LogLevel.Debug,
@@ -211,17 +211,15 @@ public partial class BookstoreManagerService :
             return null;
         }
 
-        var orderDetail = new TeacherBookOrderDetail(SectionsByTeacher[teacherId].First(sec => sec.id == sectionId), result.books);
-        if (!OrdersByTeacher.ContainsKey(teacherId))
+        var orderDetail = new TeacherBookOrderDetail(value.First(sec => sec.id == sectionId), result.books);
+        if (!OrdersByTeacher.TryGetValue(teacherId, out var _))
         {
             OrdersByTeacher[teacherId] = [orderDetail];
             return orderDetail;
         }
 
-        if (OrdersByTeacher[teacherId].Any(ord => ord.section.id == sectionId))
-            OrdersByTeacher[teacherId].Remove(OrdersByTeacher[teacherId].First(ord => ord.section.id == sectionId));
+        OrdersByTeacher[teacherId].AddOrReplacyBy(orderDetail, ord => ord.section.id == sectionId);
 
-        OrdersByTeacher[teacherId].Add(orderDetail);
         return orderDetail;
     }
     public async Task<List<TeacherBookOrderCollection>> GetOrdersByDepartment(string department, ErrorAction onError, bool updateCache = false)

@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Services;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using Location = WinsorApps.Services.EventForms.Models.Location;
 
@@ -14,7 +15,8 @@ public partial class LocationViewModel :
     IDefaultValueViewModel<LocationViewModel>,
     ICachedViewModel<LocationViewModel, Location, LocationService>,
     ISelectable<LocationViewModel>,
-    IErrorHandling
+    IErrorHandling,
+    IModelCarrier<LocationViewModel, Location>
 {
     [ObservableProperty] string id = "";
     [ObservableProperty] string label = "";
@@ -84,6 +86,8 @@ public partial class LocationViewModel :
         return null;
     }
 
+    public Optional<Location> Model { get; private set; } = Optional<Location>.None();
+
     public static LocationViewModel Get(Location model)
     {
         var vm = ViewModelCache.FirstOrDefault(loc => loc.Id == model.id && loc.Type == model.type);
@@ -92,6 +96,7 @@ public partial class LocationViewModel :
 
         vm = new()
         {
+            Model = Optional<Location>.Some(model),
             Id = model.id,
             Label = model.label,
             Type = model.type,
@@ -121,6 +126,7 @@ public partial class LocationViewModel :
 
     public LocationViewModel Clone() => new()
     {
+        Model = Model with { },
         Id = Id,
         IsNew = IsNew,
         IsCustomLocation = IsCustomLocation,
@@ -313,10 +319,9 @@ public partial class LocationSearchViewModel :
                 var sta = Available.FirstOrDefault(st => st.Id == item.Id && st.Type == item.Type);
                 if (sta is null) 
                     return;
-                if (AllSelected.Contains(sta))
-                    AllSelected.Remove(sta);
-                else
-                    AllSelected.Add(sta);
+                
+                AllSelected.Add(sta);
+                AllSelected = [.. AllSelected.DistinctBy(st => st.Id)];
 
                 IsSelected = AllSelected.Count > 0;
                 if (IsSelected)

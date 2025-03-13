@@ -185,7 +185,6 @@ public partial class StudentCartViewModel :
     [ObservableProperty] bool isSelected;
 
     private readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
-    private readonly BookstoreManagerService _manager = ServiceHelper.GetService<BookstoreManagerService>();
 
     public StudentCartViewModel() { Student = UserViewModel.Empty; }
     public StudentCartViewModel(UserViewModel student, IEnumerable<StudentSectionBookOrder> sections)

@@ -4,10 +4,9 @@ using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.Services.AssessmentCalendar.Services;
 
-public partial class AssessmentCalendarRestrictedService(ApiService api, LocalLoggingService logging)
+public partial class AssessmentCalendarRestrictedService(ApiService api)
 {
         private readonly ApiService _api = api;
-        private readonly LocalLoggingService _logging = logging;
 
     public async Task<List<StudentLateWorkCollection>> GetLateWorkForAllStudents(ErrorAction onError, bool includeResolved = false) =>
             await _api.SendAsync<List<StudentLateWorkCollection>>(HttpMethod.Get, 

@@ -41,7 +41,7 @@ public partial class UserViewModel :
 
     public static UserViewModel Get(UserRecord user)
     {
-        //using DebugTimer _ = new($"Getting UserViewModel for {user.email}", _logging);
+        using DebugTimer _ = new($"Getting UserViewModel for {user.email}", _logging);
         var vm = ViewModelCache.FirstOrDefault(cvm => cvm.Model.Reduce(UserRecord.Empty).id == user.id);
         if (vm is null)
         {

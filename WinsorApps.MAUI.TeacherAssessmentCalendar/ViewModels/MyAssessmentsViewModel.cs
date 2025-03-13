@@ -20,7 +20,6 @@ public partial class AssessmentGroupViewModel :
     ISelectable<AssessmentGroupViewModel>
 {
     private readonly TeacherAssessmentService _assessmentService = ServiceHelper.GetService<TeacherAssessmentService>();
-    private readonly ReadonlyCalendarService _service = ServiceHelper.GetService<ReadonlyCalendarService>();
     private AssessmentGroup _group;
 
     public event EventHandler? LoadCompleted;
@@ -34,7 +33,7 @@ public partial class AssessmentGroupViewModel :
     public event EventHandler<AssessmentDetailsViewModel>? ShowDetailsPageRequested;
     public event EventHandler<StudentAssessmentRosterEntry>? StudentSelected;
 
-    public static AssessmentGroupViewModel Empty = new();
+    public static readonly AssessmentGroupViewModel Empty = new();
 
     [ObservableProperty] CourseViewModel course = CourseViewModel.Empty;
     [ObservableProperty] string note = "";
@@ -308,7 +307,6 @@ public partial class MyAssessmentsCollectionViewModel :
     IBusyViewModel
 {
     private readonly TeacherAssessmentService _service = ServiceHelper.GetService<TeacherAssessmentService>();
-    private readonly RegistrarService _registrar = ServiceHelper.GetService<RegistrarService>();
     private readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
 
     [ObservableProperty] ObservableCollection<AssessmentGroupViewModel> myAssessmentGroups = [];

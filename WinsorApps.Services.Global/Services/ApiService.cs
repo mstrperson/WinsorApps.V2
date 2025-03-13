@@ -482,7 +482,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
 
     public async Task<string> SendAsync(HttpMethod method, string endpoint, string jsonContent = "",
         bool authorize = true,
-        ErrorAction? onError = null, bool isReAuth = false,
+        ErrorAction? onError = null,
         FileStreamWrapper? stream = null)
     {
         await WaitForApiSpace();
@@ -709,7 +709,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
     }
 
     public async Task<T?> SendAsync<T>(HttpMethod method, string endpoint, string jsonContent = "",
-        bool authorize = true, ErrorAction? onError = null, bool isReAuth = false)
+        bool authorize = true, ErrorAction? onError = null)
     {
         await WaitForApiSpace();
         using DebugTimer _ = new($"Send Async to {endpoint} with jsonContent {jsonContent}", _logging);
