@@ -29,14 +29,14 @@ public partial class CheqroomItemViewModel :
     public CheqroomItemViewModel()
     {
 
-        _cheqroom = ServiceHelper.GetService<CheqroomService>()!;
+        _cheqroom = ServiceHelper.GetService<CheqroomService>();
         _item = CheqroomItem.Default;
         LoadItem(_item);
     }
 
     private CheqroomItemViewModel(CheqroomItem item)
     {
-        _cheqroom = ServiceHelper.GetService<CheqroomService>()!;
+        _cheqroom = ServiceHelper.GetService<CheqroomService>();
         _item = item;
         LoadItem(item);
     }

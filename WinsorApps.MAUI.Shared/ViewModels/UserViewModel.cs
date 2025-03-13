@@ -85,7 +85,7 @@ public partial class UserViewModel :
 
     public UserViewModel()
     {
-        _registrar = ServiceHelper.GetService<RegistrarService>()!;
+        _registrar = ServiceHelper.GetService<RegistrarService>();
         Model = new();
         displayName = "";
         ImageSource = ImageSource.FromUri(new("https://bbk12e1-cdn.myschoolcdn.com/ftpimages/1082/logo/2019-masterlogo-white.png"));
@@ -94,7 +94,7 @@ public partial class UserViewModel :
     {
         Model = Optional<UserRecord>.Some(user);
         displayName = $"{user.firstName} {user.lastName}";
-        _registrar = ServiceHelper.GetService<RegistrarService>()!;
+        _registrar = ServiceHelper.GetService<RegistrarService>();
         ImageSource = ImageSource.FromUri(new("https://bbk12e1-cdn.myschoolcdn.com/ftpimages/1082/logo/2019-masterlogo-white.png"));
     }
 

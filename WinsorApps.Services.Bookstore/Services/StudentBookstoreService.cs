@@ -172,7 +172,7 @@ public class StudentBookstoreService(ApiService api, LocalLoggingService logging
         BookOrdersBySection[sectionId] = result;
         if (_myOrders.Any(ord => ord.sectionId == sectionId))
         {
-            var oldOrder = _myOrders!.First(ord => ord.sectionId == sectionId)!;
+            var oldOrder = _myOrders.First(ord => ord.sectionId == sectionId);
             _myOrders.Replace(oldOrder, result);
         }
         else

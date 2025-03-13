@@ -42,7 +42,7 @@ public partial class DeviceCategoryViewModel : ObservableObject, IDefaultValueVi
 
     public DeviceCategoryViewModel(string name)
     {
-        var service = ServiceHelper.GetService<DeviceService>()!;
+        var service = ServiceHelper.GetService<DeviceService>();
         var category =
             service.Categories.FirstOrNone(cat =>
                 cat.name.Contains(name ?? "", StringComparison.InvariantCultureIgnoreCase))

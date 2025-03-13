@@ -128,10 +128,10 @@ public sealed class DeviceService(ApiService api, LocalLoggingService logging) :
 
 
         if (result is not null && DeviceCache.Any(dev => dev.id == result.id))
-            _deviceCache!.Replace(DeviceCache.First(dev => dev.id == result.id), result);
+            _deviceCache.Replace(DeviceCache.First(dev => dev.id == result.id), result);
         else if (result is not null)
         {
-            _deviceCache!.Add(result);
+            _deviceCache.Add(result);
             if (result.winsorDevice is not null)
             {
                 var newDetails = await GetWinsorDeviceDetails(deviceId, onError);
@@ -176,9 +176,9 @@ public sealed class DeviceService(ApiService api, LocalLoggingService logging) :
             result = temp;
 
         if (result is not null && DeviceCache.Any(dev => dev.id == result.id))
-            _deviceCache!.Replace(DeviceCache.First(dev => dev.id == result.id), result);
+            _deviceCache.Replace(DeviceCache.First(dev => dev.id == result.id), result);
         else if (result is not null)
-            _deviceCache!.Add(result);
+            _deviceCache.Add(result);
 
         await SaveCache();
         return result;
@@ -202,7 +202,7 @@ public sealed class DeviceService(ApiService api, LocalLoggingService logging) :
         {
             return DeviceCache.First(dev =>
                 dev.serialNumber.Equals(identifier, StringComparison.InvariantCultureIgnoreCase) ||
-                (dev.winsorDevice?.assetTag.ToUpperInvariant() ?? string.Empty) == identifier)!;
+                (dev.winsorDevice?.assetTag.ToUpperInvariant() ?? string.Empty) == identifier);
         }
 
         var results = await _api.SendAsync<List<DeviceRecord>>(HttpMethod.Get,
@@ -217,7 +217,7 @@ public sealed class DeviceService(ApiService api, LocalLoggingService logging) :
         foreach (var result in results)
         {
             if (DeviceCache.All(dev => dev.id != result.id))
-                _deviceCache!.Add(result);
+                _deviceCache.Add(result);
         }
 
         await SaveCache();
@@ -248,7 +248,7 @@ public sealed class DeviceService(ApiService api, LocalLoggingService logging) :
         if (result is null) return false;
 
         var dev = DeviceCache.First(d => d.id == id);
-        _deviceCache!.Replace(dev, result);
+        _deviceCache.Replace(dev, result);
         await SaveCache();
         return true;
     }

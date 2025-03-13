@@ -31,12 +31,13 @@
                 <VerticalStackLayout
                 Margin="0"
                 Padding="0"
+                WidthRequest="1630"
                 IsVisible="{Binding ShowFilter}">
                     <!--Filter Selection-->
                     <HorizontalStackLayout 
                     Margin="0"
                     Padding="0"
-                    WidthRequest="1280"
+                    WidthRequest="1630"
                     HorizontalOptions="Center"
                     Spacing="15">
                         <Label
@@ -214,12 +215,12 @@
                 <!--End Filters-->
                 <!--Calendar-->
                 <HorizontalStackLayout
-                    WidthRequest="1630"
                     HorizontalOptions="Center"
                     Spacing="75"
                     IsVisible="{Binding ShowEvent, Converter={StaticResource Invert}}">
                     <Label
                     StyleClass="LeftArrow"
+                    HorizontalOptions="Center"
                     FontSize="Large">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding Calendar.DecrementMonthCommand}" />
@@ -227,14 +228,16 @@
                     </Label>
 
                     <Label
+                        HorizontalOptions="Center"
                     Text="{Binding Calendar.Month, StringFormat='{0:MMMM yyyy}'}"
                     StyleClass="Header"
                     WidthRequest="500"
                     HorizontalTextAlignment="Center"/>
 
                     <Label
-                    StyleClass="RightArrow"
-                    FontSize="Large">
+                        HorizontalOptions="Center"
+                        StyleClass="RightArrow"
+                        FontSize="Large">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding Calendar.IncrementMonthCommand}" />
                         </Label.GestureRecognizers>
@@ -246,28 +249,30 @@
                     HorizontalOptions="Center"
                     IsVisible="{Binding ShowEvent, Converter={StaticResource Invert}}">
                     <CollectionView
-                    ItemsSource="{Binding Calendar.Weeks}"
-                    BackgroundColor="Transparent"
-                    VerticalScrollBarVisibility="Never">
+                        WidthRequest="1630"
+                        ItemsSource="{Binding Calendar.Weeks}"
+                        BackgroundColor="Transparent"
+                        VerticalScrollBarVisibility="Never">
                         <!--Week Day Headers-->
                         <CollectionView.Header>
                             <Grid
-                            RowDefinitions="*"
-                            ColumnDefinitions="230,230,230,230,230,230,230"
-                            Margin="0">
+                                WidthRequest="1630"
+                                RowDefinitions="*"
+                                ColumnDefinitions="230,230,230,230,230,230,230"
+                                Margin="0">
                                 <Border
-                                StrokeThickness="1"
-                                BackgroundColor="{AppThemeBinding Light={DynamicResource WarmGrey}, Dark={DynamicResource SlateDark}}">
+                                    StrokeThickness="1"
+                                    BackgroundColor="{AppThemeBinding Light={DynamicResource WarmGrey}, Dark={DynamicResource SlateDark}}">
                                     <Label
-                                Grid.Column="0"
-                                Text="Sunday"
-                                StyleClass="H3"
-                                HorizontalTextAlignment="Center"
-                                Margin="0,15,0,0" />
+                                    Grid.Column="0"
+                                    Text="Sunday"
+                                    StyleClass="H3"
+                                    HorizontalTextAlignment="Center"
+                                    Margin="0,15,0,0" />
                                 </Border>
                                 <Border StrokeThickness="1"
-                                Grid.Column="1"
-                                BackgroundColor="{AppThemeBinding Light={DynamicResource WarmGrey}, Dark={DynamicResource SlateDark}}">
+                                    Grid.Column="1"
+                                    BackgroundColor="{AppThemeBinding Light={DynamicResource WarmGrey}, Dark={DynamicResource SlateDark}}">
                                     <Label
                                     Text="Monday"
                                     StyleClass="H3"
@@ -326,12 +331,17 @@
                         </CollectionView.Header>
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="cvm:CalendarWeekViewModel">
-                                <CollectionView
-                                ItemsSource="{Binding Days}"
-                                ItemsLayout="HorizontalGrid"
-                                HeightRequest="200"
-                                BackgroundColor="Transparent"
-                                Margin="0">
+                                <HorizontalStackLayout
+                                    Padding="0"
+                                    Margin="0"
+                                    WidthRequest="1630">
+                                    <CollectionView
+                                    WidthRequest="1630"
+                                    ItemsSource="{Binding Days}"
+                                    ItemsLayout="HorizontalGrid"
+                                    HeightRequest="200"
+                                    BackgroundColor="Transparent"
+                                    Margin="0">
                                     <CollectionView.ItemTemplate>
                                         <DataTemplate x:DataType="cvm:CalendarDayViewModel">
                                             <Border
@@ -390,6 +400,7 @@
                                         </DataTemplate>
                                     </CollectionView.ItemTemplate>
                                 </CollectionView>
+                                </HorizontalStackLayout>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>

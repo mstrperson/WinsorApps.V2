@@ -83,7 +83,7 @@ public partial class WinsorDeviceViewModel :
     private WinsorDeviceViewModel(DeviceRecord dev)
     {
         using DebugTimer _ = new($"Getting WinsorDevice ViewModel for {dev.winsorDevice?.assetTag ?? "Missing Asset Tag?"}", ServiceHelper.GetService<LocalLoggingService>());
-        _deviceService = ServiceHelper.GetService<DeviceService>()!;
+        _deviceService = ServiceHelper.GetService<DeviceService>();
         _cheqroom = ServiceHelper.GetService<CheqroomService>();
         _jamf = ServiceHelper.GetService<JamfService>();
         hasWinsorData = dev.isWinsorDevice;

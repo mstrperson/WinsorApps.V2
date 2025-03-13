@@ -244,7 +244,7 @@ public partial class SectionViewModel :
     {
         Model = Optional<SectionRecord>.Some(new(section.sectionId, section.courseId, section.primaryTeacherId, [], [], section.termId, section.room, section.block, section.displayName, section.isCurrent));
         Id = section.sectionId;
-        var registrar = ServiceHelper.GetService<RegistrarService>()!;
+        var registrar = ServiceHelper.GetService<RegistrarService>();
 
         IsCurrent = section.isCurrent;
 
@@ -289,7 +289,7 @@ public partial class SectionViewModel :
         Id = section.sectionId;
         Model = Optional<SectionRecord>.Some(section);
         // Get the RegistrarService from the service helper...
-        var registrar = ServiceHelper.GetService<RegistrarService>()!;
+        var registrar = ServiceHelper.GetService<RegistrarService>();
         IsCurrent = section.isCurrent;
         // Get data about the teachers of this section
         // and create UserViewModels for each of them

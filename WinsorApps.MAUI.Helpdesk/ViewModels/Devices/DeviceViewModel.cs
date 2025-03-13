@@ -16,9 +16,10 @@ public partial class DeviceViewModel :
     IDefaultValueViewModel<DeviceViewModel>,
     ISelectable<DeviceViewModel>,
     IErrorHandling,
-    ICachedViewModel<DeviceViewModel, DeviceRecord, DeviceService>
+    ICachedViewModel<DeviceViewModel, DeviceRecord, DeviceService>,
+    IModelCarrier<DeviceViewModel, DeviceRecord>
 {
-    public static implicit operator DeviceRecord(DeviceViewModel vm) => vm._device;
+    public static implicit operator DeviceRecord(DeviceViewModel vm) => vm.Model.Reduce(DeviceRecord.Empty);
 
     public override string ToString() => DisplayName;
     public static ConcurrentBag<DeviceViewModel> ViewModelCache { get; private set; } = [];
@@ -27,22 +28,22 @@ public partial class DeviceViewModel :
 
     public DeviceViewModel Clone() => (DeviceViewModel)this.MemberwiseClone();
 
-    protected readonly DeviceService _deviceService;
-    protected DeviceRecord _device;
+    private readonly DeviceService _deviceService;
+    public Optional<DeviceRecord> Model { get; private set; }
 
-    [ObservableProperty] string id = "";
-    [ObservableProperty] private string serialNumber = "";
+    [ObservableProperty] string id;
+    [ObservableProperty] private string serialNumber;
     [ObservableProperty] UserSearchViewModel ownerSearch = new();
     [ObservableProperty] private UserViewModel owner = UserViewModel.Empty;
     [ObservableProperty] private bool unicorn;
     [ObservableProperty] private DateTime firstSeen = DateTime.Today;
     [ObservableProperty] private bool isActive = true;
-    [ObservableProperty] private string type = "";
+    [ObservableProperty] private string type;
     [ObservableProperty] private bool isWinsorDevice;
     [ObservableProperty] private WinsorDeviceViewModel winsorDevice = WinsorDeviceViewModel.Empty;
     [ObservableProperty] private bool isSelected;
 
-    [ObservableProperty] private string displayName = "";
+    [ObservableProperty] private string displayName;
 
     public event EventHandler<ErrorRecord>? OnError;
 
@@ -56,7 +57,7 @@ public partial class DeviceViewModel :
         ownerSearch.SetAvailableUsers(registrar.AllUsers);
         ownerSearch.OnSingleResult += (_, user) => 
             Owner = user;
-        _device = DeviceRecord.Empty;
+        Model = Optional<DeviceRecord>.None();
         displayName = "New Device";
         id = "";
         type = "";
@@ -64,33 +65,33 @@ public partial class DeviceViewModel :
         winsorDevice = WinsorDeviceViewModel.Empty;
     }
 
-    private DeviceViewModel(DeviceRecord device)
+    private DeviceViewModel(DeviceRecord model)
     {
-        using DebugTimer _ = new($"Initializing DeviceViewModel for {device.id}", ServiceHelper.GetService<LocalLoggingService>());
-        _deviceService = ServiceHelper.GetService<DeviceService>()!;
-        _device = device;
-        displayName = device.serialNumber;
-        id = device.id;
-        serialNumber = device.serialNumber;
-        if (device.owner is not null)
-            Owner = UserViewModel.Get(device.owner);
-        unicorn = device.unicorn;
-        firstSeen = device.firstSeen;
-        isActive = device.isActive;
-        type = device.type;
-        isWinsorDevice = device.isWinsorDevice;
+        using DebugTimer _ = new($"Initializing DeviceViewModel for {model.id}", ServiceHelper.GetService<LocalLoggingService>());
+        _deviceService = ServiceHelper.GetService<DeviceService>();
+        Model = Optional<DeviceRecord>.Some(model);
+        displayName = model.serialNumber;
+        id = model.id;
+        serialNumber = model.serialNumber;
+        if (model.owner is not null)
+            Owner = UserViewModel.Get(model.owner);
+        unicorn = model.unicorn;
+        firstSeen = model.firstSeen;
+        isActive = model.isActive;
+        type = model.type;
+        isWinsorDevice = model.isWinsorDevice;
 
-        WinsorDevice = WinsorDeviceViewModel.Get(device);
+        WinsorDevice = WinsorDeviceViewModel.Get(model);
         if (IsWinsorDevice)
-            DisplayName = device.winsorDevice!.assetTag;
+            DisplayName = model.winsorDevice!.assetTag;
     }
 
-    public CreateDeviceRecord GetCreateRecord(CreateWinsorDeviceRecord? winsorDevice = null) =>
+    private CreateDeviceRecord GetCreateRecord(CreateWinsorDeviceRecord? wd = null) =>
         new(SerialNumber, Type, string.IsNullOrEmpty(Owner.Id) ? null : Owner.Id, Unicorn,
-            IsActive, winsorDevice);
+            IsActive, wd);
 
-    public UpdateDeviceRecord GetUpdateRecord(UpdateWinsorDeviceRecord? winsorDevice = null) =>
-        new(string.IsNullOrEmpty(Owner.Id) ? null : Owner.Id, Type, Unicorn, IsActive, winsorDevice);
+    private UpdateDeviceRecord GetUpdateRecord(UpdateWinsorDeviceRecord? wd = null) =>
+        new(string.IsNullOrEmpty(Owner.Id) ? null : Owner.Id, Type, Unicorn, IsActive, wd);
 
     [RelayCommand]
     public async Task Save()
@@ -103,8 +104,8 @@ public partial class DeviceViewModel :
             if (result is null)
                 return;
 
-            _device = result;
-            Id = _device.id;
+            Model = Optional<DeviceRecord>.Some(result);
+            Id = result.id;
         }
         else
         {
@@ -115,13 +116,14 @@ public partial class DeviceViewModel :
             if (updateResult is null)
                 return;
 
-            _device = updateResult;
+            Model = Optional<DeviceRecord>.Some(updateResult);
         }
 
-        if (_device.isWinsorDevice)
+        var model = Model.Reduce(DeviceRecord.Empty);
+        if (model.isWinsorDevice)
         {
-            WinsorDevice = WinsorDeviceViewModel.Get(_device);
-            DisplayName = _device.winsorDevice!.assetTag;
+            WinsorDevice = WinsorDeviceViewModel.Get(model);
+            DisplayName = model.winsorDevice!.assetTag;
         }
 
         Select();
@@ -133,9 +135,9 @@ public partial class DeviceViewModel :
         var result = await _deviceService.DisposeDevice(Id, OnErr);
         if (result)
         {
-            _device = _deviceService.DeviceCache.First(dev => dev.id == Id);
+            Model = _deviceService.DeviceCache.FirstOrNone(dev => dev.id == Id);
             IsActive = false;
-            WinsorDevice = WinsorDeviceViewModel.Get(_device);
+            WinsorDevice = WinsorDeviceViewModel.Get(Model.Reduce(DeviceRecord.Empty));
         }
     }
 

@@ -26,8 +26,8 @@ public static partial class Extensions
     private static void InitializeBookstoreServices(this MauiApp app)
     {
         app.InitializeGlobalServices();
-        var logging = ServiceHelper.GetService<LocalLoggingService>()!;
-        var bookService = ServiceHelper.GetService<BookService>()!;
+        var logging = ServiceHelper.GetService<LocalLoggingService>();
+        var bookService = ServiceHelper.GetService<BookService>();
         bookService
             .Initialize(err => logging.LogMessage(LocalLoggingService.LogLevel.Error,
             err.type, err.error))
@@ -38,8 +38,8 @@ public static partial class Extensions
     public static void InitializeTeacherServices(this MauiApp app)
     {
         app.InitializeBookstoreServices();
-        var logging = ServiceHelper.GetService<LocalLoggingService>()!;
-        var service = ServiceHelper.GetService<TeacherBookstoreService>()!;
+        var logging = ServiceHelper.GetService<LocalLoggingService>();
+        var service = ServiceHelper.GetService<TeacherBookstoreService>();
         service
             .Initialize(err => logging.LogMessage(LocalLoggingService.LogLevel.Error,
                 err.type, err.error))
@@ -48,8 +48,8 @@ public static partial class Extensions
     public static void InitializeStudentServices(this MauiApp app)
     {
         app.InitializeBookstoreServices();
-        var logging = ServiceHelper.GetService<LocalLoggingService>()!;
-        var service = ServiceHelper.GetService<StudentBookstoreService>()!;
+        var logging = ServiceHelper.GetService<LocalLoggingService>();
+        var service = ServiceHelper.GetService<StudentBookstoreService>();
         service
             .Initialize(err => logging.LogMessage(LocalLoggingService.LogLevel.Error,
                 err.type, err.error))
@@ -58,8 +58,8 @@ public static partial class Extensions
     public static void InitializeManagerServices(this MauiApp app)
     {
         app.InitializeBookstoreServices();
-        var logging = ServiceHelper.GetService<LocalLoggingService>()!;
-        var service = ServiceHelper.GetService<BookstoreManagerService>()!;
+        var logging = ServiceHelper.GetService<LocalLoggingService>();
+        var service = ServiceHelper.GetService<BookstoreManagerService>();
         service
             .Initialize(err => logging.LogMessage(LocalLoggingService.LogLevel.Error,
                 err.type, err.error))

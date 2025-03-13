@@ -113,7 +113,7 @@ public static class Extensions
 
         var logging = ServiceHelper.GetService<LocalLoggingService>();
 
-        var api = ServiceHelper.GetService<ApiService>()!;
+        var api = ServiceHelper.GetService<ApiService>();
         
         api.Initialize(logging.LogError).SafeFireAndForget(e => e.LogException());
     }
