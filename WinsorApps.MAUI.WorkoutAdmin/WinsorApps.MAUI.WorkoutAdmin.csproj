@@ -54,6 +54,7 @@
 		<Version>1.0</Version>
 		<Authors>Jason Cox; Susan Zuo</Authors>
 		<PackageIcon>Resources\Images\logo_withwordmark_red.png</PackageIcon>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-maccatalyst|AnyCPU'">

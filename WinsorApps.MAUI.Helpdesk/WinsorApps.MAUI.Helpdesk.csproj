@@ -39,7 +39,7 @@
         <DefaultLanguage>en-us</DefaultLanguage>
         <AssemblyName>Winsor Helpdesk</AssemblyName>
         <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
-        <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+        <AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
         <PackageCertificateThumbprint>08B7D1EC7093C4213DDFAB8A6877EB0159A73BDD</PackageCertificateThumbprint>
         <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
         <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
@@ -53,6 +53,7 @@
         <Company>The Winsor School</Company>
         <Copyright>2024</Copyright>
         <PackageIcon>icon.png</PackageIcon>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     </PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-maccatalyst|AnyCPU'">
 		<ApplicationTitle>Winsor Helpdesk</ApplicationTitle>
