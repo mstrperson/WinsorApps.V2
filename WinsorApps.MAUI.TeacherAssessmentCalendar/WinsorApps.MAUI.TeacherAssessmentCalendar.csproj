@@ -37,9 +37,6 @@
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 		<GenerateAppInstallerFile>False</GenerateAppInstallerFile>
-		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
-		<PackageCertificateThumbprint>77DDC53276D11D02E0010F95FC0222D98CA84EF4</PackageCertificateThumbprint>
-		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
 		<AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
 		<AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
 		<GenerateTestArtifacts>True</GenerateTestArtifacts>
@@ -48,11 +45,15 @@
 		<Product>Teacher Assessment Calendar</Product>
 		<LangVersion>12</LangVersion>
 		<PackageId>edu.winsor.teacher-assessment-calendar</PackageId>
-		<Version>1.1</Version>
+		<Version>1.3.2</Version>
 		<Authors>Jason Cox; Susan Zuo</Authors>
 		<PackageIcon>Resources\Images\logo_withwordmark_red.png</PackageIcon>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+		<PackageCertificateThumbprint>7A73955DFD5C4E6CC517DDCCE635B2869E64796E</PackageCertificateThumbprint>
+		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
 	</PropertyGroup>
+	
 	
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-maccatalyst|AnyCPU'">
 		<ApplicationTitle>Teacher Assessment Calendar</ApplicationTitle>

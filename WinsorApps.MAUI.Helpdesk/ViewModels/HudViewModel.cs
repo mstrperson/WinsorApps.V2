@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Helpdesk.Pages;
 using WinsorApps.MAUI.Helpdesk.Pages.Devices;
 using WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom;
+using WinsorApps.MAUI.Helpdesk.ViewModels.Devices;
 using WinsorApps.MAUI.Helpdesk.ViewModels.ServiceCases;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.Pages;
@@ -16,7 +17,9 @@ using WinsorApps.Services.Helpdesk.Services;
 
 namespace WinsorApps.MAUI.Helpdesk.ViewModels
 {
-    public partial class HudViewModel : ObservableObject, IErrorHandling
+    public partial class HudViewModel : 
+        ObservableObject, 
+        IErrorHandling
     {
         private readonly ServiceCaseService _caseService;
         private readonly DeviceService _devices;
@@ -118,9 +121,28 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels
         [RelayCommand]
         public void StartServiceCase()
         {
-            var devicePage = new DeviceSearchPage();
-            devicePage.ViewModel.OnSingleResult += ServiceCaseDeviceSelected;
+            var dsvm = new DeviceSearchViewModel();
+            dsvm.OnSingleResult += ServiceCaseDeviceSelected;
+            dsvm.OnZeroResults += Dsvm_OnZeroResults;
+            dsvm.OnError += (sender, err) => OnError?.Invoke(sender, err);
+            var devicePage = new DeviceSearchPage(dsvm);
             PageRequested?.Invoke(this, devicePage);
+        }
+
+        private void Dsvm_OnZeroResults(object? sender, EventArgs e)
+        {
+            if (sender is not DeviceSearchViewModel dsvm)
+                return;
+            var dvm = new DeviceViewModel()
+            {
+                DisplayName = dsvm.SearchText
+            };
+
+            dvm.OnError += (sender, err) => OnError?.Invoke(sender, err);
+            dvm.ChangesSaved += ServiceCaseDeviceSelected;
+
+            var deviceEditorPage = new DeviceEditor(dvm);
+            PageRequested?.Invoke(this, deviceEditorPage);
         }
 
         private void ServiceCaseDeviceSelected(object? sender, Devices.DeviceViewModel e)

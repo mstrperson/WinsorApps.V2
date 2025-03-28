@@ -802,3 +802,20 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
     }
 }
 
+public static class HttpClientExtensions
+{
+    public static async Task<Optional<HttpResponseMessage>> TrySendAsync(this HttpClient client, HttpRequestMessage message, Action<Exception> errorHandler)
+    {
+        try
+        {
+            var response = await client.SendAsync(message);
+            return Optional<HttpResponseMessage>.Some(response);
+        }
+        catch(Exception e)
+        {
+            errorHandler(e);
+            return Optional<HttpResponseMessage>.None();
+        }
+    }
+}
+

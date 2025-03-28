@@ -36,6 +36,7 @@ public partial class StudentAssessmentRosterEntry :
     }
 }
 
+
 public partial class AssessmentDetailsViewModel : 
     ObservableObject,
     IModelCarrier<AssessmentDetailsViewModel, AssessmentCalendarEvent>,

@@ -7,6 +7,7 @@ using WinsorApps.MAUI.Helpdesk.Pages;
 using WinsorApps.MAUI.Helpdesk.Pages.Devices;
 using WinsorApps.MAUI.Helpdesk.ViewModels;
 using WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom;
+using WinsorApps.MAUI.Helpdesk.ViewModels.Devices;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.Pages;
 using WinsorApps.MAUI.Shared.ViewModels;
@@ -45,7 +46,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<CheqroomQuickTasksViewModel>();
         builder.Services.AddSingleton<CheqroomQuickTaskPage>();
         builder.Services.AddSingleton<CheckoutSearchPage>();
-        builder.Services.AddSingleton<DeviceSearchPage>();
+        builder.Services.AddTransient<DeviceSearchPage>();
         builder.Services.AddTransient<DeviceDetailsPage>();
         builder.Services.AddSingleton<HudViewModel>();
         builder.Services.AddSingleton<HUD>();

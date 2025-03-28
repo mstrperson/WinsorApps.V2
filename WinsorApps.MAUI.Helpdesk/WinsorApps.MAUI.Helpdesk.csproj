@@ -39,8 +39,8 @@
         <DefaultLanguage>en-us</DefaultLanguage>
         <AssemblyName>Winsor Helpdesk</AssemblyName>
         <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
-        <AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
-        <PackageCertificateThumbprint>08B7D1EC7093C4213DDFAB8A6877EB0159A73BDD</PackageCertificateThumbprint>
+        <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+        <PackageCertificateThumbprint>7A73955DFD5C4E6CC517DDCCE635B2869E64796E</PackageCertificateThumbprint>
         <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
         <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
         <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
@@ -54,6 +54,7 @@
         <Copyright>2024</Copyright>
         <PackageIcon>icon.png</PackageIcon>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<SignAssembly>False</SignAssembly>
     </PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-maccatalyst|AnyCPU'">
 		<ApplicationTitle>Winsor Helpdesk</ApplicationTitle>

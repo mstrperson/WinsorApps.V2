@@ -11,6 +11,12 @@ public partial class DeviceSearchPage : ContentPage
 		private set => BindingContext = value;
 	}
 
+	public DeviceSearchPage(DeviceSearchViewModel viewModel)
+	{
+		ViewModel = viewModel;
+		InitializeComponent();
+	}
+
 	public DeviceSearchPage()
 	{
 		ViewModel = new();

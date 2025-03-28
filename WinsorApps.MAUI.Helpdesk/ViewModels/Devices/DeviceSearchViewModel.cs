@@ -56,8 +56,8 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Devices
             using DebugTimer _ = new("Initializing Device Search ViewModel...", ServiceHelper.GetService<LocalLoggingService>());
             _deviceService = ServiceHelper.GetService<DeviceService>();
 
-            Available = [..DeviceViewModel.ViewModelCache
-                    .Where(GenerateFilter(Filter))];
+            Available = [..DeviceViewModel.GetClonedViewModels(
+                _deviceService.DeviceCache.Where(dev => dev.isActive))];
 
             foreach (var dev in Available)
             {

@@ -46,7 +46,7 @@ public partial class DeviceViewModel :
     [ObservableProperty] private string displayName;
 
     public event EventHandler<ErrorRecord>? OnError;
-
+    public event EventHandler<DeviceViewModel>? ChangesSaved;
 
     public event EventHandler<DeviceViewModel>? Selected;
 
@@ -54,6 +54,7 @@ public partial class DeviceViewModel :
     {
         _deviceService = ServiceHelper.GetService<DeviceService>();
         var registrar = ServiceHelper.GetService<RegistrarService>();
+        
         ownerSearch.SetAvailableUsers(registrar.AllUsers);
         ownerSearch.OnSingleResult += (_, user) => 
             Owner = user;
@@ -125,7 +126,7 @@ public partial class DeviceViewModel :
             WinsorDevice = WinsorDeviceViewModel.Get(model);
             DisplayName = model.winsorDevice!.assetTag;
         }
-
+        ChangesSaved?.Invoke(this, this);
         Select();
     }
 
