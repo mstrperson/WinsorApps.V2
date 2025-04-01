@@ -6,71 +6,69 @@ using WinsorApps.Services.AssessmentCalendar.Services;
 using WinsorApps.MAUI.TeacherAssessmentCalendar.ViewModels;
 using WinsorApps.MAUI.TeacherAssessmentCalendar.Pages;
 
-namespace WinsorApps.MAUI.TeacherAssessmentCalendar
+namespace WinsorApps.MAUI.TeacherAssessmentCalendar;
+
+public partial class MainPage : ContentPage
 {
-    public partial class MainPage : ContentPage
+
+    public MainPageViewModel ViewModel => (MainPageViewModel)BindingContext;
+
+    public MainPage(
+        ApiService api,
+        RegistrarService registrar,
+        AppService app,
+        LocalLoggingService logging,
+        CycleDayCollection cycleDays,
+        ReadonlyCalendarService calendarService,
+        TeacherAssessmentService teacherAssessmentService,
+        MyAssessmentsCollectionViewModel myAssessmentsCollectionViewModel,
+        MyAssessmentsPageViewModel myAssessmentsPageViewModel,
+        AllMyStudentsViewModel allMyStudents,
+        MonthlyCalendarViewModel monthly)
     {
+        MainPageViewModel vm = new(
+        [
+            new(registrar, "Registrar Data"),
+            new(cycleDays, "Cycle Days"),
+            new(calendarService, "Calendar Info"),
+            new(teacherAssessmentService, "My Assessments"),
+            new(app, "Checking for Updates")
 
-        public MainPageViewModel ViewModel => (MainPageViewModel)BindingContext;
-
-        public MainPage(
-            ApiService api,
-            RegistrarService registrar,
-            AppService app,
-            LocalLoggingService logging,
-            CycleDayCollection cycleDays,
-            ReadonlyCalendarService calendarService,
-            TeacherAssessmentService teacherAssessmentService,
-            MyAssessmentsCollectionViewModel myAssessmentsCollectionViewModel,
-            MyAssessmentsPageViewModel myAssessmentsPageViewModel,
-            AllMyStudentsViewModel allMyStudents,
-            MonthlyCalendarViewModel monthly)
+        ], app, api, logging)
         {
-            MainPageViewModel vm = new(
-            [
-                new(registrar, "Registrar Data"),
-                new(cycleDays, "Cycle Days"),
-                new(calendarService, "Calendar Info"),
-                new(teacherAssessmentService, "My Assessments"),
-                new(app, "Checking for Updates")
+            Completion = [
+                new(myAssessmentsCollectionViewModel.Initialize(this.DefaultOnErrorAction()), "My Assessments"),
+                new(myAssessmentsPageViewModel.Initialize(this.DefaultOnErrorAction()), "Assessments Page"),
+                new(allMyStudents.Initialize(this.DefaultOnErrorAction()), "My Students"),
+                new(monthly.Initialize(this.DefaultOnErrorAction()), "Monthly Calendar")
+            ],
+            AppId = "V71r6vDXOgD2"
+        };
 
-            ], app, api, logging)
-            {
-                Completion = [
-                    new(myAssessmentsCollectionViewModel.Initialize(this.DefaultOnErrorAction()), "My Assessments"),
-                    new(myAssessmentsPageViewModel.Initialize(this.DefaultOnErrorAction()), "Assessments Page"),
-                    new(allMyStudents.Initialize(this.DefaultOnErrorAction()), "My Students"),
-                    new(monthly.Initialize(this.DefaultOnErrorAction()), "Monthly Calendar")
-                ],
-                AppId = "V71r6vDXOgD2"
-            };
-
-            BindingContext = vm;
-            vm.OnError += this.DefaultOnErrorHandler();
-            LoginPage loginPage = new(logging, vm.LoginVM);
-            loginPage.OnLoginComplete += (_, _) =>
-            {
-                //Navigation.PopAsync();
-                vm.UserVM = UserViewModel.Get(api.UserInfo!);
-                Navigation.PushAsync(new AppLoadingPage(vm));
-                vm.LoadReadyContent += Vm_OnCompleted;
-            };
-
-
-            Navigation.PushAsync(loginPage);
-
-
-            InitializeComponent();
-        }
-
-        private void Vm_OnCompleted(object? sender, EventArgs e)
+        BindingContext = vm;
+        vm.OnError += this.DefaultOnErrorHandler();
+        LoginPage loginPage = new(logging, vm.LoginVM);
+        loginPage.OnLoginComplete += (_, _) =>
         {
-            if (!ViewModel.UpdateAvailable)
-            {
-                var page = ServiceHelper.GetService<MyAssessmentsPage>();
-                Navigation.PushAsync(page);
-            }
-        }
+            //Navigation.PopAsync();
+            vm.UserVM = UserViewModel.Get(api.UserInfo!);
+            Navigation.PushAsync(new AppLoadingPage(vm));
+            vm.LoadReadyContent += Vm_OnCompleted;
+        };
+
+
+        Navigation.PushAsync(loginPage);
+
+
+        InitializeComponent();
     }
 
+    private void Vm_OnCompleted(object? sender, EventArgs e)
+    {
+        if (!ViewModel.UpdateAvailable)
+        {
+            var page = ServiceHelper.GetService<MyAssessmentsPage>();
+            Navigation.PushAsync(page);
+        }
+    }
 }

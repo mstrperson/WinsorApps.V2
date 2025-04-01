@@ -235,6 +235,8 @@ public partial class EventFormViewModel :
     [RelayCommand]
     public async Task Print()
     {
+        Busy = true;
+        BusyMessage = "Downloading Printed Copy";
         var download = await _service.DownloadPdf(Id, OnError.DefaultBehavior(this));
         if(download.Length > 0)
         {
@@ -245,6 +247,8 @@ public partial class EventFormViewModel :
                 $"FileSaverResult has status IsSuccessful: {result.IsSuccessful}",
                 $"Saved file to: {result.FilePath ?? "nowhere"}");
         }
+
+        Busy= false;
     }
 
     private static readonly ApiService _api = ServiceHelper.GetService<ApiService>();

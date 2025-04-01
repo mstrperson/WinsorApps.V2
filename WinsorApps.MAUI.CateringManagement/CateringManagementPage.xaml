@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.CateringManagement.ViewModels"
+             xmlns:events="clr-namespace:WinsorApps.MAUI.Shared.EventForms.ViewModels;assembly=WinsorApps.MAUI.Shared.EventForms"
+             x:DataType="vm:CateringEventsPageViewModel"
+             x:Class="WinsorApps.MAUI.CateringManagement.CateringManagementPage"
+             Title="{Binding StartDate, StringFormat='Catering Events - {0:MMMM yyyy}'}">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem
+            StyleClass="RefreshButton"
+            Command="{Binding RefreshCommand}" />
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <VerticalStackLayout>
+            <HorizontalStackLayout
+                HorizontalOptions="Center"
+                Spacing="50">
+                <Label
+                    StyleClass="LeftArrow">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding PrevMonthCommand}" />
+                    </Label.GestureRecognizers>
+                </Label>
+                <Label
+                    StyleClass="Header"
+                    Text="{Binding StartDate, StringFormat='{0:MMMM yyyy}'}" />
+                <Label
+                    StyleClass="RightArrow">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NextMonthCommand}" />
+                    </Label.GestureRecognizers>
+                </Label>
+            </HorizontalStackLayout>
+            <CollectionView
+                WidthRequest="1875"
+                ItemsSource="{Binding SelectedEvents}">
+                <CollectionView.Header>
+                    <Grid
+                        ColumnDefinitions="200,750,200,*">
+                        <Label
+                            Grid.Column="0"
+                            StyleClass="H3"
+                            Text="Start Time" />
+                        <Label
+                            Grid.Column="1"
+                            StyleClass="H3"
+                            Text="Event" />
+                        <Label
+                            Grid.Column="2"
+                            StyleClass="H3"
+                            Text="Leader" />
+                        <Label
+                            Grid.Column="3"
+                            StyleClass="H3"
+                            Text="Commands" />
+                    </Grid>
+                </CollectionView.Header>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="events:EventFormViewModel">
+                        <Grid
+                            ColumnDefinitions="200,750,200,*">
+                            <HorizontalStackLayout
+                                Grid.Column="0"
+                                Margin="0"
+                                Padding="0"
+                                Spacing="10">
+                                <Label
+                                    Text="{Binding StartDate, StringFormat='{0:dddd dd}'}" />
+                                <Label
+                                    Text="{Binding StartTime, StringFormat='{0:hh:mm tt}'}" />
+                            </HorizontalStackLayout>
+                            <Label
+                                Grid.Column="1"
+                                StyleClass="H3"
+                                Text="{Binding Summary}"
+                                ToolTipProperties.Text="{Binding Description}"/>
+                            <Label
+                                Grid.Column="2"
+                                Text="{Binding Leader.DisplayName}"
+                                ToolTipProperties.Text="{Binding Leader.Email}"/>
+                            <HorizontalStackLayout
+                                Grid.Column="3"
+                                Margin="0"
+                                Padding="0"
+                                Spacing="25">
+                                <Button
+                                    StyleClass="EditButton"
+                                    Command="{Binding SelectCommand}" />
+                                <Button
+                                    StyleClass="PrintButton"
+                                    Command="{Binding PrintCommand}" />
+                            </HorizontalStackLayout>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+    </ContentPage.Content>
+</ContentPage>

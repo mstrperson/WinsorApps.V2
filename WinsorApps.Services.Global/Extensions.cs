@@ -171,7 +171,15 @@ public record struct DateRange(DateOnly start, DateOnly end) : IEnumerable<DateO
     public readonly bool Contains(DateOnly date) => date >= start && date <= end;
     public readonly bool Contains(DateTime date) => DateOnly.FromDateTime(date) >= start && DateOnly.FromDateTime(date) <= end;
 
-    public static DateRange MonthOf(int month, int year = -1) => MonthOf(month, year);
+    public static DateRange ThisMonth() => MonthOf(DateTime.Today.Month, DateTime.Today);
+
+    public static DateRange MonthOf(int month, int year = -1)
+    {
+        if (year < 1 || year > 9999)
+            year = DateTime.Today.Year;
+        var start = new DateOnly(year, month, 1);
+        return new(start, start.AddMonths(1).AddDays(-1));
+    }
     public static DateRange MonthOf(int month, DateTime starting)
     {
         if(month < starting.Month) 
