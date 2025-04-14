@@ -7,7 +7,7 @@ public partial class DeviceEditor : ContentPage
 	public DeviceEditor(DeviceViewModel viewModel)
 	{
 		BindingContext = viewModel;
-
+		InitializeComponent();
 	}
 
 	public DeviceEditor()

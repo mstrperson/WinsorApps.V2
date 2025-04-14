@@ -62,6 +62,11 @@ public partial class DeviceDetailsPage : ContentPage
 		ViewModel_ServiceCaseSelected(sender, vm);
     }
 
+	public DeviceDetailsPage(DeviceViewModel viewModel)
+    {
+		ViewModel = viewModel;
+    }
+
     public DeviceDetailsPage()
 	{
 		InitializeComponent();

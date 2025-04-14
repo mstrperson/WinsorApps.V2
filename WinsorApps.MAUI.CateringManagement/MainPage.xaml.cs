@@ -1,7 +1,9 @@
-﻿using WinsorApps.MAUI.CateringManagement.ViewModels;
+﻿using WinsorApps.MAUI.CateringManagement.Pages;
+using WinsorApps.MAUI.CateringManagement.ViewModels;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.Pages;
 using WinsorApps.MAUI.Shared.ViewModels;
+using WinsorApps.Services.EventForms.Services.Admin;
 using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.CateringManagement;
@@ -15,13 +17,15 @@ public partial class MainPage : ContentPage
         RegistrarService registrar,
         AppService app,
         LocalLoggingService logging,
+        EventsAdminService adminService,
         CateringEventsPageViewModel eventsPage)
     {
+        InitializeComponent();
         MainPageViewModel vm = new(
         [
             new(registrar, "Registrar Data"),
-            new(app, "Checking for Updates")
-
+            new(app, "Checking for Updates"),
+            new(adminService, "Event Forms"),
         ], app, api, logging)
         {
             Completion = [
@@ -45,7 +49,6 @@ public partial class MainPage : ContentPage
         Navigation.PushAsync(loginPage);
 
 
-        InitializeComponent();
     }
 
     private void Vm_OnCompleted(object? sender, EventArgs e)

@@ -11,6 +11,7 @@ using WinsorApps.MAUI.Shared.EventForms;
 using AsyncAwaitBestPractices;
 using WinsorApps.Services.EventForms.Services.Admin;
 using WinsorApps.MAUI.CateringManagement.ViewModels;
+using WinsorApps.MAUI.CateringManagement.Pages;
 
 namespace WinsorApps.MAUI.CateringManagement
 {
@@ -32,6 +33,8 @@ namespace WinsorApps.MAUI.CateringManagement
                 .AddGlobalServices()
                 .AddEventFormsServices();
 
+            builder.Services.AddSingleton<MainPage>();
+            builder.Services.AddSingleton<EventsAdminService>();
             builder.Services.AddSingleton<CateringEventsPageViewModel>();
             builder.Services.AddSingleton<CateringManagementPage>();
 

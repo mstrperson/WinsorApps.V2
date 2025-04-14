@@ -1,4 +1,4 @@
-namespace WinsorApps.MAUI.CateringManagement;
+namespace WinsorApps.MAUI.CateringManagement.Pages;
 
 public partial class CateringManagementPage : ContentPage
 {

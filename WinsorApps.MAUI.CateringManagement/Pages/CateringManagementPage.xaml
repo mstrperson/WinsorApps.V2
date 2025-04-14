@@ -5,7 +5,7 @@
              xmlns:vm="clr-namespace:WinsorApps.MAUI.CateringManagement.ViewModels"
              xmlns:events="clr-namespace:WinsorApps.MAUI.Shared.EventForms.ViewModels;assembly=WinsorApps.MAUI.Shared.EventForms"
              x:DataType="vm:CateringEventsPageViewModel"
-             x:Class="WinsorApps.MAUI.CateringManagement.CateringManagementPage"
+             x:Class="WinsorApps.MAUI.CateringManagement.Pages.CateringManagementPage"
              Title="{Binding StartDate, StringFormat='Catering Events - {0:MMMM yyyy}'}">
     <ContentPage.Resources>
         <ResourceDictionary>
