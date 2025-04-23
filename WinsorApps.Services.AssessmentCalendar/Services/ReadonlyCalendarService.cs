@@ -163,15 +163,15 @@ public partial class ReadonlyCalendarService(ApiService api, LocalLoggingService
     {
         if (start == default) { start = DateOnly.FromDateTime(DateTime.Today); }
         var param = end == default ? "" : $"&end={end:yyyy-MM-dd}";
-        var result = await _api.GetPagedResult<AssessmentCalendarEvent>(
+        var result = await _api.SendAsync<List<AssessmentCalendarEvent>>(
             HttpMethod.Get,
             $"api/assessment-calendar?start={start:yyyy-MM-dd}{param}",
             onError: onError);
 
         AssessmentCalendar = [.. AssessmentCalendar.ToList()
-            .Merge(result, (a, b) => a.id == b.id)
+            .Merge(result ?? [], (a, b) => a.id == b.id)
             .OrderBy(evt => evt.start)];
-        return result;
+        return result ?? [];
     }
 
     public async Task<List<AssessmentGroup>> GetAssessmentGroups(ErrorAction onError, DateOnly start = default, DateOnly end = default)

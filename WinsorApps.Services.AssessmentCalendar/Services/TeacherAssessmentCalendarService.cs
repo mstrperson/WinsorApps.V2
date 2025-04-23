@@ -89,7 +89,7 @@ public partial class TeacherAssessmentService(ApiService api, LocalLoggingServic
             return false;
         }
 
-        return true;
+        return CourseList.Count > 0;
     }
 
     public bool Ready { get; private set; } = false;
@@ -118,7 +118,7 @@ public partial class TeacherAssessmentService(ApiService api, LocalLoggingServic
     private async Task LoadCachedAssessmentDetails(ErrorAction onError, bool reloadCache = false)
     {
         var assessmentIds = _calendar.AssessmentCalendar
-            .Where(ent => ent.type == AssessmentType.Assessment)
+            .Where(ent => ent.type == AssessmentType.Assessment && ent.start >= DateTime.Today.MonthOf())
             .Select(ent => ent.id)
             .ToList();
 
@@ -213,18 +213,18 @@ public partial class TeacherAssessmentService(ApiService api, LocalLoggingServic
         if (end != default)
             query += $"&end={end:yyyy-MM-dd}";
 
-        var result = await _api.GetPagedResult<AssessmentGroup>(
+        var result = await _api.SendAsync<List<AssessmentGroup>>(
             HttpMethod.Get,
             $"api/assessment-calendar/teachers{query}",
             onError: onError);
 
-        if (result.ExceptBy(MyAssessments.Select(grp => grp.id), grp => grp.id).Any())
+        if (result?.ExceptBy(MyAssessments.Select(grp => grp.id), grp => grp.id).Any() ?? false)
         {
             MyAssessments = MyAssessments.Merge(result, (oldgrp, newgrp) => oldgrp.id == newgrp.id);
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
 
-        return result;
+        return result ?? [];
     }
 
     public async Task<List<AssessmentCalendarEvent>> GetCalendarByClassOn(string[] classes, DateTime date, ErrorAction onError)
@@ -289,7 +289,7 @@ public partial class TeacherAssessmentService(ApiService api, LocalLoggingServic
             assessmentIds = [.. assessmentIds.Except(output.Select(ent => ent.assessmentId))];
         }
 
-        var result = await _api.GetPagedResult<List<string>, AssessmentEntryRecord>(
+        var result = await _api.SendAsync<List<string>, ImmutableArray<AssessmentEntryRecord>>(
                 HttpMethod.Post,
             $"api/assessment-calendar/teachers/assessment-details", assessmentIds,
             onError: onError);

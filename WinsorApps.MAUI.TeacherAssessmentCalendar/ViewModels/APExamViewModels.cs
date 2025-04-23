@@ -1,4 +1,6 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using AsyncAwaitBestPractices;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -20,11 +22,11 @@ public partial class APExamDetailViewModel :
     IErrorHandling,
     ISelectable<APExamDetailViewModel>,
     IModelCarrier<APExamDetailViewModel, APExamDetail>,
-    IBusyViewModel,
+    IBusyViewModel
 {
 
-    private readonly AssessmentCalendarRestrictedService _service;
-    
+    private readonly AssessmentCalendarRestrictedService _service = ServiceHelper.GetService<AssessmentCalendarRestrictedService>();
+
     [ObservableProperty] bool isSelected;
     public Optional<APExamDetail> Model { get; private set; } = Optional<APExamDetail>.None();
 
@@ -33,31 +35,51 @@ public partial class APExamDetailViewModel :
 
     [ObservableProperty] string id = "";
     [ObservableProperty] string courseName = "";
-    [ObservableProperty] DateTime startDateTime = DateTime.Now;
-    [ObservableProperty] DateTime endDateTime = DateTime.Now;
+    [ObservableProperty] DateTime date = DateTime.Now;
+    [ObservableProperty] TimeSpan startTime = TimeSpan.Zero;
+    [ObservableProperty] TimeSpan endTime = TimeSpan.Zero;
     [ObservableProperty] ObservableCollection<SectionViewModel> sections = [];
     [ObservableProperty] ObservableCollection<StudentViewModel> students = [];
 
-    public APExamDetailViewModel(AssessmentCalendarRestrictedService service)
-    {
-        _service = service;
-    }
+    [ObservableProperty] UserSearchViewModel studentSearch = new UserSearchViewModel();
 
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<APExamDetailViewModel>? Selected;
+    public event EventHandler? Saved;
+    public event EventHandler<APExamDetailViewModel>? Deleted;
+
+    public APExamDetailViewModel()
+    {
+        var registrar = ServiceHelper.GetService<RegistrarService>();
+        studentSearch.OnSingleResult += StudentSearchOnOnSingleResult;
+        studentSearch.OnError += OnError;
+        studentSearch.SetAvailableUsers(registrar.StudentList);
+    }
+
+    private void StudentSearchOnOnSingleResult(object? sender, UserViewModel e)
+    {
+        if (Students.Any(stu => stu.UserInfo.Id == e.Id))
+            return;
+        var studentViewModel = StudentViewModel.Get(e);
+        studentViewModel.OnError += OnError;
+        studentViewModel.Selected += (_, _) => Students.Remove(studentViewModel);
+        Students.Add(studentViewModel);
+        StudentSearch.ClearSelection();
+    }
 
     public static APExamDetailViewModel Get(APExamDetail model)
     {
         var registrar = ServiceHelper.GetService<RegistrarService>();
 
-        var vm = new APExamDetailViewModel
+        var vm = new APExamDetailViewModel()
         {
             Id = model.id,
             CourseName = model.courseName,
-            StartDateTime = model.startDateTime,
-            EndDateTime = model.endDateTime,
-            Sections = [ .. model.sectionIds
+            Date = model.startDateTime.Date,
+            StartTime = TimeOnly.FromDateTime(model.startDateTime).ToTimeSpan(),
+            EndTime = TimeOnly.FromDateTime(model.endDateTime).ToTimeSpan(),
+            Sections = [.. model.sectionIds
                                 .Select(id => registrar.SectionDetailCache.ContainsKey(id) ? registrar.SectionDetailCache[id] : null)
                                 .Where(sec => sec is not null)
                                 .Select(sec => SectionViewModel.Get(sec!))],
@@ -67,6 +89,12 @@ public partial class APExamDetailViewModel :
                                 .Select(stu => StudentViewModel.Get(stu!))],
             Model = Optional<APExamDetail>.Some(model)
         };
+
+        foreach (var student in vm.Students)
+        {
+            student.OnError += vm.OnError;
+            student.Selected += (_, _) => vm.Students.Remove(student);
+        }
 
         return vm;
     }
@@ -81,24 +109,110 @@ public partial class APExamDetailViewModel :
     [RelayCommand]
     public async Task SaveChanges()
     {
+        Busy = true;
+        BusyMessage = "Saving Changes";
         if (string.IsNullOrEmpty(Id))
         {
             var result = await _service.CreateAPExam(
-                new CreateAPExam(CourseName, StartDateTime, EndDateTime, 
-                    [..Sections.Select(sec => sec.Id)],
-                    [.. Students.select(stu => stu.Id)]),
+                GetCreateAPExam(),
                 OnError.DefaultBehavior(this));
-            if(result is not null)
+            if (result is not null)
+            {
                 Model = Optional<APExamDetail>.Some(result);
-            return;
+                Id = result.id;
+            }
         }
-        var result2 = await _service.UpdateAPExam(
-            Id, 
-            new CreateAPExam(CourseName, StartDateTime, EndDateTime, 
-                [..Sections.Select(sec => sec.Id)],
-                [.. Students.select(stu => stu.Id)]),
-            OnError.DefaultBehavior(this));
-        if(result2 is not null)
-            Model = Optional<APExamDetail>.Some(result2);
+        else
+        {
+            var result2 = await _service.UpdateAPExam(
+                Id,
+                GetCreateAPExam(),
+                OnError.DefaultBehavior(this));
+            if (result2 is not null)
+                Model = Optional<APExamDetail>.Some(result2);
+        }
+        Busy = false;
+        Saved?.Invoke(this, EventArgs.Empty);
     }
+
+    [RelayCommand]
+    public async Task Delete()
+    {
+        if (!string.IsNullOrEmpty(Id))
+            await _service.DeleteAPExam(Id, OnError.DefaultBehavior(this));
+        Deleted?.Invoke(this, this);
+    }
+
+    private CreateAPExam GetCreateAPExam() => 
+        new (
+            CourseName,
+            Date.Date.Add(StartTime),
+            Date.Date.Add(EndTime),
+            [.. Sections.Select(sec => sec.Id)],
+            [.. Students.Select(stu => stu.UserInfo.Id)]);
+}
+
+public partial class APExamPageViewModel :
+    ObservableObject,
+    IErrorHandling,
+    IBusyViewModel
+{
+    private readonly AssessmentCalendarRestrictedService _service = ServiceHelper.GetService<AssessmentCalendarRestrictedService>();
+    [ObservableProperty] bool isSelected;
+    [ObservableProperty] bool busy;
+    [ObservableProperty] string busyMessage = "Loading...";
+    [ObservableProperty] ObservableCollection<APExamDetailViewModel> exams = [];
+
+    public event EventHandler<ErrorRecord>? OnError;
+    public event EventHandler<APExamDetailViewModel>? CreateAPRequested;
+    public event EventHandler<APExamDetailViewModel>? OnSelected;
+    public event EventHandler? PopRequested;
+
+    public APExamPageViewModel()
+    {
+        Refresh().SafeFireAndForget(e => e.LogException());
+    }
+
+    [RelayCommand]
+    public async Task Refresh()
+    {
+        Busy = true;
+        BusyMessage = "Loading Exams";
+        var result = await _service.GetAPExams(OnError.DefaultBehavior(this));
+        if (result is not null)
+        {
+            Exams = [.. result
+                .OrderBy(e => e.startDateTime)
+                .Select(APExamDetailViewModel.Get)];
+            foreach (var exam in Exams)
+            {
+                exam.Selected += (_, exam) => OnSelected?.Invoke(this, exam);
+                exam.OnError += (sender, err) => OnError?.Invoke(sender, err);
+                exam.Deleted += (_, _) =>
+                {
+                    Exams.Remove(exam);
+                    PopRequested?.Invoke(this, EventArgs.Empty);
+                };
+                exam.Saved += (_, _) => PopRequested?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        Busy = false;
+    }
+
+    [RelayCommand]
+    public void CreateNew()
+    {
+        var vm = new APExamDetailViewModel();
+        vm.Deleted += (_, _) =>
+        {
+            Exams.Remove(vm);
+            PopRequested?.Invoke(this, EventArgs.Empty);
+        };
+        vm.Saved += (_, _) => PopRequested?.Invoke(this, EventArgs.Empty);
+        vm.OnError += (sender, err) => OnError?.Invoke(sender, err);
+        Exams.Add(vm);
+        CreateAPRequested?.Invoke(this, vm);
+    }
+        
 }

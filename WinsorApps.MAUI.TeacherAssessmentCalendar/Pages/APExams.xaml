@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.TeacherAssessmentCalendar.ViewModels"
+             xmlns:svm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels;assembly=WinsorApps.MAUI.Shared"
+             x:Class="WinsorApps.MAUI.TeacherAssessmentCalendar.Pages.APExams"
+             x:DataType="vm:APExamPageViewModel"
+             Title="AP Exams">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem
+            Text="Add Exam"
+            StyleClass="AddButton"
+            Command="{Binding CreateNewCommand}" />
+        <ToolbarItem
+            Text="Refresh"
+            StyleClass="RefreshButton"
+            Command="{Binding RefreshCommand}" />
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <VerticalStackLayout
+            HorizontalOptions="Center">
+            <HorizontalStackLayout
+                IsVisible="{Binding Busy}">
+                <Label 
+                    StyleClass="SubHeader"
+                    Text="{Binding BusyMessage}" />
+                <Image
+                    StyleClass="loading_symbol" />
+            </HorizontalStackLayout>
+            <CollectionView
+                WidthRequest="1000"
+                ItemsSource="{Binding Exams}">
+                <CollectionView.Header>
+                    <Label 
+                        StyleClass="Header"
+                        Text="AP Exams" />
+                </CollectionView.Header>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:APExamDetailViewModel">
+                        <HorizontalStackLayout
+                            WidthRequest="1500"
+                            HeightRequest="50"
+                            Spacing="15"
+                            ToolTipProperties.Text="{Binding Students.Count, StringFormat='{0} Students'}">
+                            <HorizontalStackLayout.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding SelectCommand}" />
+                            </HorizontalStackLayout.GestureRecognizers>
+                            <Label
+                                Text="{Binding CourseName}" />
+                            <Label
+                                Text="{Binding Date, StringFormat='{0:dddd, dd MMM}'}" />
+                            <Label
+                                Text="{Binding StartTime, StringFormat='{0:hh:mm tt}'}" />
+                            <Label
+                                Text="-"/>
+                            <Label
+                                Text="{Binding EndTime, StringFormat='{0:hh:mm tt}'}" />
+                        </HorizontalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+    </ContentPage.Content>
+</ContentPage>

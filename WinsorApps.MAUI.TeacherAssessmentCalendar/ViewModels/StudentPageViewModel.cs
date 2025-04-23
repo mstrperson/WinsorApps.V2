@@ -157,6 +157,7 @@ public partial class StudentViewModel :
     private readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
     private readonly RegistrarService _registrar = ServiceHelper.GetService<RegistrarService>();
 
+
     [ObservableProperty] UserViewModel userInfo = UserViewModel.Empty;
     [ObservableProperty] string advisorName = "";
     [ObservableProperty] string className = "";
@@ -351,10 +352,11 @@ public partial class StudentViewModel :
     public async Task LoadAssessmentCalendar()
     {
         DateTime month = AssessmentCalendar.Month.Year != DateTime.Today.Year ? DateTime.Today.MonthOf() : AssessmentCalendar.Month;
-        AssessmentCalendar =
-            await CalendarMonthViewModel.Get(month,
+        var result = await
             _service.GetStudentCalendar(OnError.DefaultBehavior(this),
-             UserInfo.Id, DateOnly.FromDateTime(month), DateOnly.FromDateTime(month.AddMonths(1)))); 
+             UserInfo.Id, DateOnly.FromDateTime(month), DateOnly.FromDateTime(month.AddMonths(1)));
+        AssessmentCalendar =
+            CalendarMonthViewModel.Get(month, result); 
         AssessmentCalendar.PropertyChanged += ((IBusyViewModel)this).BusyChangedCascade;
         AssessmentCalendar.EventSelected += (sender, e) => AssessmentSelected?.Invoke(sender, AssessmentDetailsViewModel.Get(e.Model.Reduce(AssessmentCalendarEvent.Empty)));
     }

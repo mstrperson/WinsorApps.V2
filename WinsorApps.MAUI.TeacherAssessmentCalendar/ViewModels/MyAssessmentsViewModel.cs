@@ -68,23 +68,13 @@ public partial class AssessmentGroupViewModel :
         var course = _assessmentService.CourseList.FirstOrDefault(course => course.courseId == group.courseId);
         if(course is null)
         {
-            _assessmentService.ClearCache();
-            var reinit = _assessmentService.Initialize(OnError.DefaultBehavior(this));
-            reinit.WhenCompleted(() =>
+            var registrar = ServiceHelper.GetService<RegistrarService>();
+            course = registrar.CourseList.FirstOrDefault(c => c.courseId == group.courseId);
+            if (course is null)
             {
-                course = _assessmentService.CourseList.FirstOrDefault(course => course.courseId == group.courseId);
-                if (course is null)
-                {
-                    throw new UnreachableException();
-                }
-
-
-                Course = CourseViewModel.Get(course);
-                Label = string.IsNullOrEmpty(Note) ? Course.DisplayName : $"{Course.DisplayName} - {Note}";
-                LoadGroup().SafeFireAndForget(e => e.LogException());
-            });
-
-            return;
+                OnError?.Invoke(this, new ErrorRecord("Course Not Found", "Course Not Found"));
+                return;
+            }
         }
         Course = CourseViewModel.Get(course);
         Label = string.IsNullOrEmpty(Note) ? Course.DisplayName : $"{Course.DisplayName} - {Note}";

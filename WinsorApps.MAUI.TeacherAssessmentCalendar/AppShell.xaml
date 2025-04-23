@@ -39,4 +39,9 @@
         ContentTemplate="{DataTemplate shared:HelpPage}"
         Route="HelpPage" />
 
+    <ShellContent
+        Title="AP Exams"
+        ContentTemplate="{DataTemplate pages:APExams}"
+        Route="APExams" />
+
 </Shell>

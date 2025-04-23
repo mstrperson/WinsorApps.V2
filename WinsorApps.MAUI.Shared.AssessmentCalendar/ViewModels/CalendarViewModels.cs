@@ -109,11 +109,6 @@ public partial class CalendarMonthViewModel :
     [RelayCommand]
     public void ToggleShowFilter() => ShowFilter = !ShowFilter;
 
-    public static async Task<CalendarMonthViewModel> Get(DateTime date, Task<List<AssessmentCalendarEvent>> getEventsTask)
-    {
-        var events = await getEventsTask;
-        return Get(date, events);
-    }
 
     public static CalendarMonthViewModel Get(DateTime date, IEnumerable<AssessmentCalendarEvent> events)
     {

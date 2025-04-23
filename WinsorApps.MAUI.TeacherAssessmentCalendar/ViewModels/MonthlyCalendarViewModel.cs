@@ -45,9 +45,10 @@ public partial class MonthlyCalendarViewModel :
         BusyMessage = "Initializing";
         await _service.WaitForInit(onError);
         var today = DateTime.Today.MonthOf();
-        Calendar = await CalendarMonthViewModel.Get(today, 
-            _service.GetAssessmentCalendarInRange(onError, DateOnly.FromDateTime(today), 
-                DateOnly.FromDateTime(today.AddMonths(1))));
+        var result = await
+            _service.GetAssessmentCalendarInRange(onError, DateOnly.FromDateTime(today),
+                DateOnly.FromDateTime(today.AddMonths(1)));
+        Calendar = CalendarMonthViewModel.Get(today, result);
         Calendar.GetEventsTask = (date) => _service.GetAssessmentCalendarInRange(onError, DateOnly.FromDateTime(date), DateOnly.FromDateTime(date.AddMonths(1)));
         Calendar.EventSelected += (_, e) => EventSelected?.Invoke(this, e);
         Calendar.DaySelected += (_, day) => DaySelected?.Invoke(this, day);
@@ -59,9 +60,10 @@ public partial class MonthlyCalendarViewModel :
     {
         Busy = true;
         BusyMessage = "Refreshing Calendar";
-        Calendar = await CalendarMonthViewModel.Get(Calendar.Month, 
-            _service.GetAssessmentCalendarInRange(OnError.DefaultBehavior(this), DateOnly.FromDateTime(Calendar.Month), 
-                DateOnly.FromDateTime(Calendar.Month.AddMonths(1))));
+        var result =
+           await _service.GetAssessmentCalendarInRange(OnError.DefaultBehavior(this), DateOnly.FromDateTime(Calendar.Month),
+                DateOnly.FromDateTime(Calendar.Month.AddMonths(1)));
+        Calendar = CalendarMonthViewModel.Get(Calendar.Month, result);
         Calendar.GetEventsTask = (date) => _service.GetAssessmentCalendarInRange(OnError.DefaultBehavior(this), DateOnly.FromDateTime(date), DateOnly.FromDateTime(date.AddMonths(1)));
         Calendar.EventSelected += (_, e) => EventSelected?.Invoke(this, e);
         Calendar.DaySelected += (_, day) => DaySelected?.Invoke(this, day);

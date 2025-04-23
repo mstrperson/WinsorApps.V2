@@ -53,6 +53,8 @@ namespace WinsorApps.MAUI.TeacherAssessmentCalendar
             builder.Services.AddSingleton<MonthlyCalendarViewModel>();
             builder.Services.AddSingleton<MonthlyCalendar>();
 
+            builder.Services.AddSingleton<APExamPageViewModel>();
+            builder.Services.AddSingleton<APExams>();
 
 #if DEBUG
             builder.Logging.AddDebug();

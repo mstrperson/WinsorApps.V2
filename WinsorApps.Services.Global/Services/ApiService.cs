@@ -677,8 +677,10 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
         var pagedResult = await SendPagedRequest<T>(request, onError);
         var accumulator = pagedResult.items;
 
-        while(pagedResult.page+1 < pagedResult.pageCount)
+        while (pagedResult.page+1 < pagedResult.pageCount)
         {
+            Debug.WriteLine($"Paged Result: {pagedResult.items.Count} items on page {pagedResult.page} of {pagedResult.pageCount}");
+
             request = await BuildRequest(method,
                 endpoint.Replace($"page={pagedResult.page}", $"page={pagedResult.page + 1}"),
                 jsonContent,

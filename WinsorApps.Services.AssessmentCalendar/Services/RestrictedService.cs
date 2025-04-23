@@ -55,17 +55,17 @@ public partial class AssessmentCalendarRestrictedService(ApiService api)
             await _api.SendAsync<CreateAPExam, APExamDetail>(HttpMethod.Put, 
                 $"api/assessment-calendar/ap-exam/{examId}", exam, onError: onError);
 
-        public async Task<AssessmentCalendarDisplayRecord?> CreateAPExam(CreateAPExam exam, ErrorAction onError) =>
-            await _api.SendAsync<CreateAPExam, AssessmentCalendarDisplayRecord?>(HttpMethod.Post, 
+        public async Task<APExamDetail?> CreateAPExam(CreateAPExam exam, ErrorAction onError) =>
+            await _api.SendAsync<CreateAPExam, APExamDetail?>(HttpMethod.Post, 
                 "api/assessment-calendar/ap-exam", exam, onError: onError);
 
-        public async Task DeleteAP(string examId, ErrorAction onError) =>
+        public async Task DeleteAPExam(string examId, ErrorAction onError) =>
             await _api.SendAsync(HttpMethod.Delete, $"api/assessment-calendar/ap-exam/{examId}", onError: onError);
 
         public async Task<APExamDetail?> GetAPExam(string id, ErrorAction onError) =>
             await _api.SendAsync<APExamDetail?>(HttpMethod.Get, $"api/assessment-calendar/ap-exam/{id}", onError: onError);
 
-        public async Task<List<APExamDetail>> ApExams(ErrorAction onError) =>
+        public async Task<List<APExamDetail>> GetAPExams(ErrorAction onError) =>
             await _api.SendAsync<List<APExamDetail>>(HttpMethod.Get, $"api/assessment-calendar/ap-exam", onError: onError) ?? [];
 
         #endregion // AP Exams
