@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.AssessmentCalendar.Models;
+using WinsorApps.Services.AssessmentCalendar.Services;
 using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
@@ -22,6 +23,8 @@ public partial class APExamDetailViewModel :
     IBusyViewModel,
 {
 
+    private readonly AssessmentCalendarRestrictedService _service;
+    
     [ObservableProperty] bool isSelected;
     public Optional<APExamDetail> Model { get; private set; } = Optional<APExamDetail>.None();
 
@@ -34,6 +37,11 @@ public partial class APExamDetailViewModel :
     [ObservableProperty] DateTime endDateTime = DateTime.Now;
     [ObservableProperty] ObservableCollection<SectionViewModel> sections = [];
     [ObservableProperty] ObservableCollection<StudentViewModel> students = [];
+
+    public APExamDetailViewModel(AssessmentCalendarRestrictedService service)
+    {
+        _service = service;
+    }
 
 
     public event EventHandler<ErrorRecord>? OnError;
@@ -63,8 +71,34 @@ public partial class APExamDetailViewModel :
         return vm;
     }
 
+    [RelayCommand]
     public void Select()
     {
-        throw new NotImplementedException();
+        IsSelected = !IsSelected;
+        Selected?.Invoke(this, this);
+    }
+
+    [RelayCommand]
+    public async Task SaveChanges()
+    {
+        if (string.IsNullOrEmpty(Id))
+        {
+            var result = await _service.CreateAPExam(
+                new CreateAPExam(CourseName, StartDateTime, EndDateTime, 
+                    [..Sections.Select(sec => sec.Id)],
+                    [.. Students.select(stu => stu.Id)]),
+                OnError.DefaultBehavior(this));
+            if(result is not null)
+                Model = Optional<APExamDetail>.Some(result);
+            return;
+        }
+        var result2 = await _service.UpdateAPExam(
+            Id, 
+            new CreateAPExam(CourseName, StartDateTime, EndDateTime, 
+                [..Sections.Select(sec => sec.Id)],
+                [.. Students.select(stu => stu.Id)]),
+            OnError.DefaultBehavior(this));
+        if(result2 is not null)
+            Model = Optional<APExamDetail>.Some(result2);
     }
 }
