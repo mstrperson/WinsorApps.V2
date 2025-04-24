@@ -273,9 +273,12 @@ public partial class APExamPageViewModel :
 public partial class APExamConflict :
     ObservableObject
 {
+    private static readonly double HEADER_HEIGHT = 75;
+    private static readonly double STUDENT_HEIGHT = 50;
     [ObservableProperty] SectionViewModel section = SectionViewModel.Empty;
     [ObservableProperty] ObservableCollection<UserViewModel> students = [];
     [ObservableProperty] bool showStudents;
+    [ObservableProperty] double heightRequest = HEADER_HEIGHT;
     public APExamConflict(APExamSectionConflict model)
     {
         var registrar = ServiceHelper.GetService<RegistrarService>();
@@ -292,14 +295,22 @@ public partial class APExamConflict :
     }
 
     [RelayCommand]
-    public void ToggleShowStudents() => ShowStudents = !ShowStudents;
+    public void ToggleShowStudents()
+    {
+        ShowStudents = !ShowStudents;
+        HeightRequest =
+            ShowStudents
+                ? HEADER_HEIGHT + (Students.Count * STUDENT_HEIGHT)
+                : HEADER_HEIGHT;
+    }
 }
 
 public partial class APExamConflictReportViewModel :
     ObservableObject
 {
+    private static readonly double HEADER_HEIGHT = 50;
     [ObservableProperty] ObservableCollection<APExamConflict> conflicts = [];
-
+    [ObservableProperty] double heightRequest;
     public APExamConflictReportViewModel()
     {
         conflicts = [];
@@ -313,5 +324,14 @@ public partial class APExamConflictReportViewModel :
                     .OrderBy(conflict => conflict.section.block)
                     .Select(conflict => new APExamConflict(conflict))
             ];
+
+        foreach (var conflict in conflicts)
+            conflict.PropertyChanged += (_, args) =>
+            {
+                if (args.PropertyName == nameof(APExamConflict.HeightRequest))
+                    HeightRequest = HEADER_HEIGHT + conflicts.Sum(c => c.HeightRequest);
+            };
+
+        HeightRequest = HEADER_HEIGHT + conflicts.Sum(c => c.HeightRequest);
     }
 }

@@ -47,13 +47,18 @@
                     ColumnDefinitions="500,500">
                     <CollectionView
                         Grid.Column="0"
+                        VerticalOptions="Start"
                         WidthRequest="500"
+                        MinimumHeightRequest="200"
                         BackgroundColor="Transparent"
                         ItemsSource="{Binding Students}">
                         <CollectionView.Header>
-                            <Label
-                                StyleClass="Header"
-                                Text="Students Taking Exam" />
+                            <HorizontalStackLayout
+                                WidthRequest="500">
+                                <Label
+                                    StyleClass="Header"
+                                    Text="Students Taking Exam" />
+                            </HorizontalStackLayout>
                         </CollectionView.Header>
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="vm:StudentViewModel">
@@ -70,17 +75,23 @@
                     <CollectionView
                         Grid.Column="1"
                         WidthRequest="500"
+                        MinimumHeightRequest="200"
                         BackgroundColor="Transparent"
+                        HeightRequest="{Binding Conflicts.HeightRequest}"
                         ItemsSource="{Binding Conflicts.Conflicts}">
                         <CollectionView.Header>
-                            <Label
-                                StyleClass="Header"
-                                Text="Affected Classes" />
+                            <HorizontalStackLayout
+                                WidthRequest="500">
+                                <Label
+                                    StyleClass="Header"
+                                    Text="Affected Classes" />
+                            </HorizontalStackLayout>
                         </CollectionView.Header>
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="vm:APExamConflict">
                                 <VerticalStackLayout
-                                    WidthRequest="1000">
+                                    WidthRequest="1000"
+                                    HeightRequest="{Binding HeightRequest}">
                                     <HorizontalStackLayout
                                         WidthRequest="1000"
                                         HeightRequest="50"
@@ -103,7 +114,8 @@
                                     </HorizontalStackLayout>
                                     <CollectionView
                                         ItemsSource="{Binding Students}"
-                                        IsVisible="{Binding ShowStudents}">
+                                        IsVisible="{Binding ShowStudents}"
+                                        HeightRequest="{Binding HeightRequest}">
                                         <CollectionView.Header>
                                             <Label
                                                 StyleClass="H3"
