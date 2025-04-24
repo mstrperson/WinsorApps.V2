@@ -116,9 +116,11 @@
                                         IsVisible="{Binding ShowStudents}"
                                         HeightRequest="{Binding HeightRequest}">
                                         <CollectionView.Header>
-                                            <Label
-                                                StyleClass="H3"
-                                                Text="Students"/>
+                                            <HorizontalStackLayout>
+                                                <Label
+                                                    StyleClass="H3"
+                                                    Text="Students"/>
+                                            </HorizontalStackLayout>
                                         </CollectionView.Header>
                                         <CollectionView.ItemTemplate>
                                             <DataTemplate x:DataType="svm:UserViewModel">
