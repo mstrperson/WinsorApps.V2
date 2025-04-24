@@ -300,7 +300,7 @@ public partial class APExamConflict :
         ShowStudents = !ShowStudents;
         HeightRequest =
             ShowStudents
-                ? HEADER_HEIGHT + (Students.Count * STUDENT_HEIGHT)
+                ? HEADER_HEIGHT*3 + (Students.Count * STUDENT_HEIGHT)
                 : HEADER_HEIGHT;
     }
 }
