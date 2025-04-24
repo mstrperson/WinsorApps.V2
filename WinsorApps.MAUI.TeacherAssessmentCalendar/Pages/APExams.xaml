@@ -23,6 +23,7 @@
             Command="{Binding RefreshCommand}" />
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
+        <ScrollView>
         <VerticalStackLayout
             HorizontalOptions="Center">
             <HorizontalStackLayout
@@ -67,5 +68,6 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
         </VerticalStackLayout>
+        </ScrollView>
     </ContentPage.Content>
 </ContentPage>
