@@ -76,7 +76,7 @@
                         Grid.Column="1"
                         WidthRequest="500"
                         BackgroundColor="Transparent"
-                        HeightRequest="1000"
+                        HeightRequest="{OnPlatform MacCatalyst=1000}"
                         ItemsSource="{Binding Conflicts.Conflicts}">
                         <CollectionView.Header>
                             <HorizontalStackLayout
@@ -90,7 +90,7 @@
                             <DataTemplate x:DataType="vm:APExamConflict">
                                 <VerticalStackLayout
                                     WidthRequest="500"
-                                    HeightRequest="{Binding HeightRequest}">
+                                    HeightRequest="{OnPlatform MacCatalyst={Binding HeightRequest}}">
                                     
                                     <BoxView StyleClass="Bar" />
                                     <HorizontalStackLayout
@@ -117,7 +117,7 @@
                                         BackgroundColor="Transparent"
                                         ItemsSource="{Binding Students}"
                                         IsVisible="{Binding ShowStudents}"
-                                        HeightRequest="{Binding HeightRequest}">
+                                        HeightRequest="{OnPlatform MacCatalyst={Binding HeightRequest}}">
                                         <CollectionView.Header>
                                             <HorizontalStackLayout>
                                                 <Label
