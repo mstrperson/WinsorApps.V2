@@ -151,7 +151,13 @@ public record SectionDetailRecord(string sectionId, CourseRecord course, UserRec
         new(sec.sectionId, sec.course.courseId, sec.primaryTeacher.id,
             [.. sec.teachers],
             [.. sec.students],
-            sec.term.termId, sec.room?.name ?? "", sec.block?.name ?? "", sec.displayName, sec.isCurrent);
+            sec.term.termId, 
+            sec.room?.name ?? "", 
+            sec.block?.name ?? "", 
+            sec.block?.blockId ?? "",
+            sec.displayName, 
+            "",
+            sec.isCurrent);
 }
 
 /// <summary>
@@ -168,9 +174,9 @@ public record SectionDetailRecord(string sectionId, CourseRecord course, UserRec
 /// <param name="displayName">Section Display (as seen on your Google Calendar)</param>
 public record SectionRecord(string sectionId, string courseId, string? primaryTeacherId,
     List<AdvisorRecord> teachers, List<StudentRecordShort> students, string termId,
-    string room, string block, string displayName, bool isCurrent)
+    string room, string block, string blockId, string displayName, string schoolLevel, bool isCurrent)
 {
-    public static readonly SectionRecord Empty = new("", "", "", [], [], "", "", "", "", false);
+    public static readonly SectionRecord Empty = new("", "", "", [], [], "", "", "", "", "", "", false);
 }
 
 public record SectionMinimalRecord(string sectionId, string courseId, string? primaryTeacherId,

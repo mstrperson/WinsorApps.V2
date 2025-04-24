@@ -1,3 +1,4 @@
+using AsyncAwaitBestPractices;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.TeacherAssessmentCalendar.ViewModels;
 using WinsorApps.Services.AssessmentCalendar.Models;
@@ -21,6 +22,13 @@ public partial class MonthlyCalendar : ContentPage
         if (model.type == AssessmentType.Assessment)
         {
             var page = new AssessmentDetailPage(AssessmentDetailsViewModel.Get(model));
+            Navigation.PushAsync(page);
+        }
+        if(model.type == AssessmentType.ApExam)
+        {
+            var vm = new APExamDetailViewModel();
+            vm.LoadFromEventData(model).SafeFireAndForget(e => e.LogException());
+            var page = new APExamView(vm);
             Navigation.PushAsync(page);
         }
     }

@@ -21,6 +21,9 @@
     <MauiXaml Update="Pages\APExams.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
+    <MauiXaml Update="Pages\APExamView.xaml">
+      <SubType>Designer</SubType>
+    </MauiXaml>
     <MauiXaml Update="Pages\CalendarDayPage.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>

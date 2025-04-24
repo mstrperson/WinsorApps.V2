@@ -77,7 +77,9 @@ public partial class CourseViewModel :
                 sec.term.termId,
                 sec.room?.name ?? "",
                 sec.block?.name ?? "",
+                sec.block?.blockId ?? "",
                 sec.displayName,
+                "",
                 sec.isCurrent)))];
 
         if (MySectionsOnly)
@@ -248,7 +250,21 @@ public partial class SectionViewModel :
 
     private SectionViewModel(SectionMinimalRecord section)
     {
-        Model = Optional<SectionRecord>.Some(new(section.sectionId, section.courseId, section.primaryTeacherId, [], [], section.termId, section.room, section.block, section.displayName, section.isCurrent));
+        Model = Optional<SectionRecord>.Some(
+            new(
+                section.sectionId, 
+                section.courseId, 
+                section.primaryTeacherId, 
+                [], 
+                [], 
+                section.termId, 
+                section.room, 
+                section.block, 
+                section.blockId, 
+                section.displayName, 
+                section.schoolLevel, 
+                section.isCurrent)
+            );
         Id = section.sectionId;
         var registrar = ServiceHelper.GetService<RegistrarService>();
 

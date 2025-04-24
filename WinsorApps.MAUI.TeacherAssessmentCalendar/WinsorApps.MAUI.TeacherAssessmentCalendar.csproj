@@ -128,6 +128,9 @@
 	  <MauiXaml Update="Pages\APExams.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Pages\APExamView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Pages\CalendarDayPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

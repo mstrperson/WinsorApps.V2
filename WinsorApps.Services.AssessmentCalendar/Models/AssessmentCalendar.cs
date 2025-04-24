@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.Services.AssessmentCalendar.Models;
 
@@ -25,6 +26,9 @@ public record APExamDetail(string id, string courseName, DateTime startDateTime,
 {
     public static readonly APExamDetail Empty = new("", "", DateTime.Now, DateTime.Now, "", [], []);
 }
+
+public record APExamSectionConflict(SectionRecord section, ImmutableArray<StudentRecordShort> studentsInExam);
+public record APExamSectionConflictReport(string examId, ImmutableArray<APExamSectionConflict> conflicts);
 
 public record AssessmentType
 {

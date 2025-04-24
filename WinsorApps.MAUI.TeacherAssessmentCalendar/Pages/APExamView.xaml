@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.TeacherAssessmentCalendar.ViewModels"
+             xmlns:svm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels;assembly=WinsorApps.MAUI.Shared"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             x:Class="WinsorApps.MAUI.TeacherAssessmentCalendar.Pages.APExamView"
+             x:DataType="vm:APExamDetailViewModel"
+             Title="{Binding CourseName}">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.Content>
+        <ScrollView>
+            <VerticalStackLayout
+                WidthRequest="1000"
+                HorizontalOptions="Center">
+                <HorizontalStackLayout
+                    IsVisible="{Binding Busy}">
+                    <Label
+                        StyleClass="SubHeader"
+                        Text="{Binding BusyMessage}" />
+                    <Image
+                        StyleClass="loading_symbol" />
+                </HorizontalStackLayout>
+                <HorizontalStackLayout
+                    Margin="0"
+                    Padding="0"
+                    Spacing="15">
+                    <Label
+                        StyleClass="SubHeader"
+                        Text="{Binding Date, StringFormat='{0:dddd dd MMMM}'}" />
+                    <TimePicker
+                        Time="{Binding StartTime}"
+                        IsEnabled="False" />
+                    <Label
+                        StyleClass="SubHeader"
+                        Text="-" />
+                    <TimePicker
+                        Time="{Binding EndTime}"
+                        IsEnabled="False" />
+                </HorizontalStackLayout>
+                <Grid
+                    RowDefinitions="*"
+                    ColumnDefinitions="500,500">
+                    <CollectionView
+                        Grid.Column="0"
+                        WidthRequest="500"
+                        BackgroundColor="Transparent"
+                        ItemsSource="{Binding Students}">
+                        <CollectionView.Header>
+                            <Label
+                                StyleClass="Header"
+                                Text="Students Taking Exam" />
+                        </CollectionView.Header>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:StudentViewModel">
+                                <HorizontalStackLayout
+                                    WidthRequest="500"
+                                    HeightRequest="50"
+                                    Spacing="15">
+                                    <Label
+                                        Text="{Binding UserInfo.DisplayName}" />
+                                </HorizontalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <CollectionView
+                        Grid.Column="1"
+                        WidthRequest="500"
+                        BackgroundColor="Transparent"
+                        ItemsSource="{Binding Conflicts.Conflicts}">
+                        <CollectionView.Header>
+                            <Label
+                                StyleClass="Header"
+                                Text="Affected Classes" />
+                        </CollectionView.Header>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:APExamConflict">
+                                <VerticalStackLayout
+                                    WidthRequest="1000">
+                                    <HorizontalStackLayout
+                                        WidthRequest="1000"
+                                        HeightRequest="50"
+                                        Spacing="15">
+                                        <HorizontalStackLayout.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding ToggleShowStudentsCommand}" />
+                                        </HorizontalStackLayout.GestureRecognizers>
+                                        <Label
+                                            Text="{Binding Section.DisplayName}" />
+                                        <Label
+                                            Text="{Binding Section.Block}" />
+                                        <Image
+                                            StyleClass="DownArrow"
+                                            MaximumHeightRequest="20"
+                                            IsVisible="{Binding ShowStudents, Converter={StaticResource Invert}}" />
+                                        <Image
+                                            StyleClass="UpArrow"
+                                            HeightRequest="20"
+                                            IsVisible="{Binding ShowStudents}" />
+                                    </HorizontalStackLayout>
+                                    <CollectionView
+                                        ItemsSource="{Binding Students}"
+                                        IsVisible="{Binding ShowStudents}">
+                                        <CollectionView.Header>
+                                            <Label
+                                                StyleClass="H3"
+                                                Text="Students"/>
+                                        </CollectionView.Header>
+                                        <CollectionView.ItemTemplate>
+                                            <DataTemplate x:DataType="svm:UserViewModel">
+                                                <Label
+                                                    Text="{Binding DisplayName}" />
+                                            </DataTemplate>
+                                        </CollectionView.ItemTemplate>
+                                    </CollectionView>
+                                </VerticalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Grid>
+            </VerticalStackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>
