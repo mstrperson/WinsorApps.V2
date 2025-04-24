@@ -75,9 +75,8 @@
                     <CollectionView
                         Grid.Column="1"
                         WidthRequest="500"
-                        MinimumHeightRequest="200"
                         BackgroundColor="Transparent"
-                        HeightRequest="{Binding Conflicts.HeightRequest}"
+                        HeightRequest="1000"
                         ItemsSource="{Binding Conflicts.Conflicts}">
                         <CollectionView.Header>
                             <HorizontalStackLayout
