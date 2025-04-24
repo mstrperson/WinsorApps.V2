@@ -289,7 +289,7 @@ public partial class TeacherAssessmentService(ApiService api, LocalLoggingServic
             assessmentIds = [.. assessmentIds.Except(output.Select(ent => ent.assessmentId))];
         }
 
-        var result = await _api.SendAsync<List<string>, ImmutableArray<AssessmentEntryRecord>>(
+        var result = await _api.SendAsync<List<string>, List<AssessmentEntryRecord>>(
                 HttpMethod.Post,
             $"api/assessment-calendar/teachers/assessment-details", assessmentIds,
             onError: onError);

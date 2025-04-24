@@ -89,10 +89,10 @@
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="vm:APExamConflict">
                                 <VerticalStackLayout
-                                    WidthRequest="1000"
+                                    WidthRequest="500"
                                     HeightRequest="{Binding HeightRequest}">
                                     <HorizontalStackLayout
-                                        WidthRequest="1000"
+                                        WidthRequest="500"
                                         HeightRequest="50"
                                         Spacing="15">
                                         <HorizontalStackLayout.GestureRecognizers>

@@ -27,8 +27,8 @@ public record APExamDetail(string id, string courseName, DateTime startDateTime,
     public static readonly APExamDetail Empty = new("", "", DateTime.Now, DateTime.Now, "", [], []);
 }
 
-public record APExamSectionConflict(SectionRecord section, ImmutableArray<StudentRecordShort> studentsInExam);
-public record APExamSectionConflictReport(string examId, ImmutableArray<APExamSectionConflict> conflicts);
+public record APExamSectionConflict(SectionRecord section, StudentRecordShort[] studentsInExam);
+public record APExamSectionConflictReport(string examId, APExamSectionConflict[] conflicts);
 
 public record AssessmentType
 {

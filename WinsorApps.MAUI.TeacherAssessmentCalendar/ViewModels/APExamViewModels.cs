@@ -64,12 +64,13 @@ public partial class APExamDetailViewModel :
         if (evt.type != AssessmentType.ApExam)
             return;
 
+        Busy = true;
+        BusyMessage = "Fetching Exam Info";
         var model = await _service.GetAPExam(evt.id, OnError.DefaultBehavior(this));
+        Busy = false;
         if (model is null)
             return;
 
-        Busy = true;
-        BusyMessage = "Fetching Exam Info";
 
         var registrar = ServiceHelper.GetService<RegistrarService>();
 
@@ -96,7 +97,6 @@ public partial class APExamDetailViewModel :
 
         await LoadConflicts();
 
-        Busy = false;
     }
 
     private void StudentSearchOnOnSingleResult(object? sender, UserViewModel e)
