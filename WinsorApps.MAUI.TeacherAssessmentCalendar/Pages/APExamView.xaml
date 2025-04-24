@@ -91,6 +91,8 @@
                                 <VerticalStackLayout
                                     WidthRequest="500"
                                     HeightRequest="{Binding HeightRequest}">
+                                    
+                                    <BoxView StyleClass="Bar" />
                                     <HorizontalStackLayout
                                         WidthRequest="500"
                                         HeightRequest="50"
@@ -112,6 +114,7 @@
                                             IsVisible="{Binding ShowStudents}" />
                                     </HorizontalStackLayout>
                                     <CollectionView
+                                        BackgroundColor="Transparent"
                                         ItemsSource="{Binding Students}"
                                         IsVisible="{Binding ShowStudents}"
                                         HeightRequest="{Binding HeightRequest}">
