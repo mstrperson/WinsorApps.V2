@@ -273,8 +273,8 @@ public partial class APExamPageViewModel :
 public partial class APExamConflict :
     ObservableObject
 {
-    private static readonly double HEADER_HEIGHT = 75;
-    private static readonly double STUDENT_HEIGHT = 50;
+    private static readonly double HEADER_HEIGHT = Environment.OSVersion.Platform == PlatformID.Win32NT ? 75 : 50;
+    private static readonly double STUDENT_HEIGHT = Environment.OSVersion.Platform == PlatformID.Win32NT ? 50 : 30;
     [ObservableProperty] SectionViewModel section = SectionViewModel.Empty;
     [ObservableProperty] ObservableCollection<UserViewModel> students = [];
     [ObservableProperty] bool showStudents;
