@@ -63,6 +63,10 @@
                 <HorizontalStackLayout
                     WidthRequest="1200"
                     Spacing="50">
+                    <Image 
+                        Source="{Binding OpenEntry.User.ImageSource}"
+                        WidthRequest="300"
+                        IsVisible="{Binding OpenEntry.HasUser}" />
                     <Label 
                         StyleClass="H3"
                         Text="Notes:" />
@@ -74,6 +78,7 @@
                         Text="Submit"
                         Command="{Binding OpenEntry.SubmitCommand}" />
                 </HorizontalStackLayout>
+                
                 <HorizontalStackLayout
                     IsVisible="{Binding Busy}">
                     <Label 
@@ -82,6 +87,86 @@
                     <Image StyleClass="loading_symbol" />
                 </HorizontalStackLayout>
                 <BoxView StyleClass="Bar"/>
+                
+                <Grid
+                    RowDefinitions="*,*"
+                    ColumnDefinitions="150, 150, 150, 150, 150, 300"
+                    IsVisible="{Binding ShowPrev}"
+                    WidthRequest="1200"
+                    HeightRequest="300">
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding PrevEntry.SelectCommand}"/>
+                    </Grid.GestureRecognizers>
+                    <Label
+                        StyleClass="H3"
+                        Text="Laptop"
+                        Grid.Row="0"
+                        Grid.Column="0" />
+                    <Label
+                        StyleClass="H3"
+                        Grid.Row="0"
+                        Grid.Column="1" 
+                        Text="{Binding PrevEntry.AssetTag}"/>
+
+                    <Label
+                        StyleClass="H3"
+                        Text="Charger"
+                        Grid.Row="0"
+                        Grid.Column="2" />
+                    <Label
+                        StyleClass="H3"
+                        Grid.Row="0"
+                        Grid.Column="3"
+                        Text="{Binding PrevEntry.ChargerAssetTag}" />
+                    <Label
+                        StyleClass="H3"
+                        Text="Has Cord"
+                        Grid.Row="0"
+                        Grid.Column="4"
+                        IsVisible="{Binding PrevEntry.HasCord}" />
+                    <Label
+                        StyleClass="H3"
+                        Text="Missing Cord"
+                        Grid.Row="0"
+                        Grid.Column="4"
+                        IsVisible="{Binding PrevEntry.HasCord, Converter={StaticResource Invert}}"/>
+                    <Image
+                        Grid.Row="0"
+                        Grid.Column="5"
+                        Grid.RowSpan="2"
+                        WidthRequest="300"
+                        IsVisible="{Binding PrevEntry.HasUser}"
+                        Source="{Binding PrevEntry.User.ImageSource}"/>
+                    <Editor
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        IsReadOnly="True"
+                        Text="{Binding PrevEntry.Notes}"/>
+                    <Label
+                        StyleClass="H3"
+                        Grid.Row="1"
+                        Grid.Column="2"
+                        Grid.ColumnSpan="2"
+                        IsVisible="{Binding PrevEntry.HasUser}"
+                        Text="{Binding PrevEntry.User.DisplayName}"/>
+                    <Label
+                        StyleClass="H3"
+                        Grid.Row="1"
+                        Grid.Column="2"
+                        Grid.ColumnSpan="2"
+                        Text="{Binding PrevEntry.User.DisplayName}"
+                        IsVisible="{Binding PrevEntry.HasUser}"/>
+                    <Label
+                        StyleClass="H3"
+                        Grid.Row="1"
+                        Grid.Column="2"
+                        Grid.ColumnSpan="2"
+                        Text="No User Associated"
+                        IsVisible="{Binding PrevEntry.HasUser, Converter={StaticResource Invert}"/>
+                </Grid>
+                <BoxView StyleClass="Bar"/>
+                
                 <CollectionView
                     WidthRequest="1200"
                     ItemsSource="{Binding CollectionEntries}">

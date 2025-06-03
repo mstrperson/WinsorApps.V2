@@ -57,7 +57,12 @@ public partial class DeviceCollectionViewModel :
             User = string.IsNullOrEmpty(model.student.id) ? UserViewModel.Empty : UserViewModel.Get(model.student),
             Timestamp = model.timestamp,
             HasUser = !string.IsNullOrEmpty(model.student.id)
-        }; 
+        };
+
+        if (vm.HasUser)
+        {
+            vm.User.GetPhotoCommand.Execute(null);
+        }
         
         return vm;
     }
@@ -106,6 +111,10 @@ public partial class DeviceCollectionViewModel :
             User = string.IsNullOrEmpty(result.student.id) ? UserViewModel.Empty : UserViewModel.Get(result.student);
             Timestamp = result.timestamp;
             HasUser = !string.IsNullOrEmpty(result.student.id);
+            if (HasUser)
+            {
+                User.GetPhotoCommand.Execute(null);
+            }
             Submitted?.Invoke(this, EventArgs.Empty);
         }
     }
@@ -126,6 +135,8 @@ public partial class DeviceCollectionPageViewModel :
     private readonly DeviceCollectionService service = ServiceHelper.GetService<DeviceCollectionService>();
     [ObservableProperty] ObservableCollection<DeviceCollectionViewModel> collectionEntries = [];
     [ObservableProperty] DeviceCollectionViewModel openEntry;
+    [ObservableProperty] DeviceCollectionViewModel prevEntry;
+    [ObservableProperty] bool showPrev;
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "";
 
@@ -151,6 +162,8 @@ public partial class DeviceCollectionPageViewModel :
         };
         entry.Submitted += (_, _) =>
         {
+            prevEntry = entry;
+            showPrev = true;
             OpenEntry = CreateEmptyCVM();
             OpenEntry.Clear();
             LoadEntries().SafeFireAndForget(e => e.LogException());
