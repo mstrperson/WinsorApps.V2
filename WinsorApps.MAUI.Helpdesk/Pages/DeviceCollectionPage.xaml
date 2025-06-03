@@ -160,6 +160,7 @@
                 
                 <CollectionView
                     WidthRequest="1200"
+                    HeightRequest="{Binding CollectionHeight}"
                     ItemsSource="{Binding CollectionEntries}">
                     <CollectionView.Header>
                         <Grid

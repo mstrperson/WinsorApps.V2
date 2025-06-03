@@ -142,6 +142,10 @@ public partial class DeviceCollectionPageViewModel :
     [ObservableProperty] bool busy;
     [ObservableProperty] string busyMessage = "";
 
+    private static readonly double _headerHeight = 40;
+    private static readonly double _rowHeight = 25;
+    [ObservableProperty] double collectionHeight = 500;
+
     private async Task BackgroundTask()
     {
         await Task.Delay(TimeSpan.FromMinutes(2));
@@ -152,6 +156,12 @@ public partial class DeviceCollectionPageViewModel :
         LoadEntries().SafeFireAndForget(e => e.LogException());
         OpenEntry = CreateEmptyCVM();
         BackgroundTask().SafeFireAndForget(e => e.LogException());
+        CollectionEntries.CollectionChanged += CollectionEntries_CollectionChanged;
+    }
+
+    private void CollectionEntries_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    {
+        CollectionHeight = Math.Min(500, _rowHeight * (CollectionEntries.Count) + _headerHeight);
     }
 
     private DeviceCollectionViewModel CreateEmptyCVM()
