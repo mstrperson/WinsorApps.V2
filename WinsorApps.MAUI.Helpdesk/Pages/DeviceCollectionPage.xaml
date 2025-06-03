@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.Helpdesk.ViewModels"
+             xmlns:svm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels;assembly=WinsorApps.MAUI.Shared"
+             x:Class="WinsorApps.MAUI.Helpdesk.Pages.DeviceCollectionPage"
+             x:DataType="vm:DeviceCollectionPageViewModel"
+             Title="Device Collection Page">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem
+            Text="Refresh"
+            StyleClass="RefreshButton"
+            Command="{Binding LoadEntriesCommand}" />
+        <ToolbarItem
+            Text="Download Report"
+            Command="{Binding DownloadReportCommand}" />
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <ScrollView>
+            <VerticalStackLayout
+                WidthRequest="1200">
+                <HorizontalStackLayout
+                    WidthRequest="1200"
+                    Spacing="50">
+                    <Label 
+                        StyleClass="H3"
+                        Text="Laptop:" />
+                    <Entry
+                        Text="{Binding OpenEntry.AssetTag}"
+                        WidthRequest="250" />
+                    <Label
+                        StyleClass="H3"
+                        Text="Charger:" />
+                    <Entry
+                        Text="{Binding OpenEntry.ChargerAssetTag}"
+                        Placeholder="Present if sticker missing." />
+                    <CheckBox 
+                        IsChecked="{Binding OpenEntry.HasCord}"/>
+                    <HorizontalStackLayout
+                        Margin="0"
+                        Padding="0"
+                        TranslationX="-50"
+                        TranslationY="2.5">
+                        <HorizontalStackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenEntry.ToggleHasCordCommand}" />
+                        </HorizontalStackLayout.GestureRecognizers>
+                        <Label
+                            StyleClass="H3"
+                            Text="Has Cord"
+                            IsVisible="{Binding OpenEntry.HasCord}" />
+                        <Label
+                            StyleClass="H3"
+                            Text="Missing Cord"
+                            IsVisible="{Binding OpenEntry.HasCord, Converter={StaticResource Invert}}"/>
+                    </HorizontalStackLayout>
+                </HorizontalStackLayout>
+                <HorizontalStackLayout
+                    WidthRequest="1200"
+                    Spacing="50">
+                    <Label 
+                        StyleClass="H3"
+                        Text="Notes:" />
+                    <Editor
+                        Text="{Binding OpenEntry.Notes}"
+                        HeightRequest="100"
+                        WidthRequest="800"/>
+                    <Button
+                        Text="Submit"
+                        Command="{Binding OpenEntry.SubmitCommand}" />
+                </HorizontalStackLayout>
+                <HorizontalStackLayout
+                    IsVisible="{Binding Busy}">
+                    <Label 
+                        StyleClass="SubHeader"
+                        Text="{Binding BusyMessage}"/>
+                    <Image StyleClass="loading_symbol" />
+                </HorizontalStackLayout>
+                <BoxView StyleClass="Bar"/>
+                <CollectionView
+                    WidthRequest="1200"
+                    ItemsSource="{Binding CollectionEntries}">
+                    <CollectionView.Header>
+                        <Grid
+                            ColumnDefinitions="150,150,150,300,*">
+                            <Label
+                                Grid.Column="0"
+                                StyleClass="H3"
+                                Text="Asset Tag" />
+                            <Label
+                                Grid.Column="1"
+                                StyleClass="H3"
+                                Text="Charger" />
+                            <Label
+                                Grid.Column="2"
+                                StyleClass="H3"
+                                Text="Cord" />
+                            <Label
+                                Grid.Column="3"
+                                StyleClass="H3"
+                                Text="Student" />
+                            <Label
+                                Grid.Column="4"
+                                StyleClass="H3"
+                                Text="Notes" />
+                        </Grid>
+                    </CollectionView.Header>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:DeviceCollectionViewModel">
+                            <Grid
+                                ColumnDefinitions="150,150,150,300,*">
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                </Grid.GestureRecognizers>
+                                <Label
+                                    Grid.Column="0"
+                                    Text="{Binding AssetTag}" />
+                                <Label
+                                    Grid.Column="1"
+                                    Text="{Binding ChargerAssetTag}" />
+                                <Label
+                                    Grid.Column="2"
+                                    Text="Has Cord"
+                                    IsVisible="{Binding HasCord}"/>
+                                <Label
+                                    Grid.Column="2"
+                                    Text="Missing Cord"
+                                    IsVisible="{Binding HasCord, Converter={StaticResource Invert}}"/>
+                                <Label
+                                    Grid.Column="3"
+                                    Text="{Binding User.DisplayName}"
+                                    IsVisible="{Binding HasUser}"/>
+                                <Label
+                                    Grid.Column="4"
+                                    Text="{Binding Notes}" />         
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

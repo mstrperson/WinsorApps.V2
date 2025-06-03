@@ -19,6 +19,9 @@
     <MauiXaml Update="Pages\CheqroomQuickTaskPage.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
+    <MauiXaml Update="Pages\DeviceCollectionPage.xaml">
+      <SubType>Designer</SubType>
+    </MauiXaml>
     <MauiXaml Update="Pages\Devices\DeviceDetailsPage.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>

@@ -19,7 +19,10 @@
         Title="Heads Up Display"
         ContentTemplate="{DataTemplate pages:HUD}"
         Route="HUD" />
-
+    <ShellContent
+        Title="Device Collections"
+        ContentTemplate="{DataTemplate pages:DeviceCollectionPage}"
+        Route="DeviceCollectionPage" />
     <ShellContent
         Title="Search Devices"
         ContentTemplate="{DataTemplate devices:DeviceSearchPage}"

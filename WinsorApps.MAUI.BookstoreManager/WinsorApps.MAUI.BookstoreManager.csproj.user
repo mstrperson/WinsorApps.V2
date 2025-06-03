@@ -10,6 +10,9 @@
     <PackageOptionalProjectsInIdeBuilds>False</PackageOptionalProjectsInIdeBuilds>
   </PropertyGroup>
   <ItemGroup>
+    <MauiXaml Update="Pages\CreateTeacherOrderPage.xaml">
+      <SubType>Designer</SubType>
+    </MauiXaml>
     <MauiXaml Update="Pages\ManagerBookEditor.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>

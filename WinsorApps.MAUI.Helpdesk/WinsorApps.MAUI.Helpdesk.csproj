@@ -143,6 +143,9 @@
       <MauiXaml Update="Pages\CheqroomQuickTaskPage.xaml">
         <Generator>MSBuild:Compile</Generator>
       </MauiXaml>
+      <MauiXaml Update="Pages\DeviceCollectionPage.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
       <MauiXaml Update="Pages\Devices\DeviceDetailsPage.xaml">
         <Generator>MSBuild:Compile</Generator>
       </MauiXaml>

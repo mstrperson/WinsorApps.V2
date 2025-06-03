@@ -50,6 +50,9 @@ public static class MauiProgram
         builder.Services.AddTransient<DeviceDetailsPage>();
         builder.Services.AddSingleton<HudViewModel>();
         builder.Services.AddSingleton<HUD>();
+        builder.Services.AddSingleton<DeviceCollectionService>();
+        builder.Services.AddSingleton<DeviceCollectionPageViewModel>();
+        builder.Services.AddSingleton<DeviceCollectionPage>();
 
 #if DEBUG
         builder.Logging.AddDebug();

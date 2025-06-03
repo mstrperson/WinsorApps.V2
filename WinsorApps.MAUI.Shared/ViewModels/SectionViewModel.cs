@@ -158,7 +158,6 @@ public partial class CourseListViewModel :
     IDefaultValueViewModel<CourseListViewModel>,
     IErrorHandling
 {
-
     private readonly RegistrarService _registrar = ServiceHelper.GetService<RegistrarService>();
 
     [ObservableProperty]
@@ -199,6 +198,41 @@ public partial class CourseListViewModel :
     [RelayCommand]
     public void Search()
     {
+        if (string.IsNullOrEmpty(SearchText))
+        {
+            return;
+        }
+        var searchText = SearchText.ToLowerInvariant();
+        var results = Available
+            .Where(c => c.DisplayName.ToLowerInvariant().Contains(searchText) ||
+                        c.CourseCode.ToLowerInvariant().Contains(searchText))
+            .ToList();
+
+        if (results.Count == 0)
+        {
+            OnZeroResults?.Invoke(this, EventArgs.Empty);
+            return;
+        }
+        
+        if(SelectionMode == SelectionMode.Single)
+        {
+            if(results.Count == 1)
+            {
+                Selected = results[0];
+                OnSingleResult?.Invoke(this, Selected);
+            }
+            else
+            {
+                ShowOptions = true;
+                Options = [.. results];
+            }
+        }
+        else if(SelectionMode == SelectionMode.Multiple)
+        {
+            ShowOptions = true;
+            Options = [.. results];
+            OnMultipleResult?.Invoke(this, Options);
+        }
     }
 
     public void Select(CourseViewModel item)
