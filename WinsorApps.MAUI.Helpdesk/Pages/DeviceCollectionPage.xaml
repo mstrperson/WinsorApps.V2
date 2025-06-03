@@ -38,34 +38,31 @@
                         StyleClass="H3"
                         Text="Charger:" />
                     <Entry
+                        WidthRequest="250"
                         Text="{Binding OpenEntry.ChargerAssetTag}"
                         Placeholder="Present if sticker missing." />
-                    <CheckBox 
-                        IsChecked="{Binding OpenEntry.HasCord}"/>
                     <HorizontalStackLayout
                         Margin="0"
                         Padding="0"
-                        TranslationX="-50"
                         TranslationY="2.5">
                         <HorizontalStackLayout.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding OpenEntry.ToggleHasCordCommand}" />
                         </HorizontalStackLayout.GestureRecognizers>
                         <Label
                             StyleClass="H3"
-                            Text="Has Cord"
-                            IsVisible="{Binding OpenEntry.HasCord}" />
-                        <Label
-                            StyleClass="H3"
-                            Text="Missing Cord"
-                            IsVisible="{Binding OpenEntry.HasCord, Converter={StaticResource Invert}}"/>
+                            Text="Cord:"/>
                     </HorizontalStackLayout>
+                    <CheckBox 
+                        TranslationX="-50"
+                        IsChecked="{Binding OpenEntry.HasCord}"/>
+                    
                 </HorizontalStackLayout>
                 <HorizontalStackLayout
                     WidthRequest="1200"
                     Spacing="50">
                     <Image 
                         Source="{Binding OpenEntry.User.ImageSource}"
-                        WidthRequest="300"
+                        WidthRequest="150"
                         IsVisible="{Binding OpenEntry.HasUser}" />
                     <Label 
                         StyleClass="H3"
@@ -73,7 +70,7 @@
                     <Editor
                         Text="{Binding OpenEntry.Notes}"
                         HeightRequest="100"
-                        WidthRequest="800"/>
+                        WidthRequest="650"/>
                     <Button
                         Text="Submit"
                         Command="{Binding OpenEntry.SubmitCommand}" />
@@ -93,7 +90,7 @@
                     ColumnDefinitions="150, 150, 150, 150, 150, 300"
                     IsVisible="{Binding ShowPrev}"
                     WidthRequest="1200"
-                    HeightRequest="300">
+                    HeightRequest="200">
                     <Grid.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding PrevEntry.SelectCommand}"/>
                     </Grid.GestureRecognizers>
@@ -134,33 +131,27 @@
                         Grid.Row="0"
                         Grid.Column="5"
                         Grid.RowSpan="2"
-                        WidthRequest="300"
+                        WidthRequest="150"
                         IsVisible="{Binding PrevEntry.HasUser}"
                         Source="{Binding PrevEntry.User.ImageSource}"/>
                     <Editor
                         Grid.Row="1"
                         Grid.Column="0"
-                        Grid.ColumnSpan="2"
+                        Grid.ColumnSpan="3"
                         IsReadOnly="True"
                         Text="{Binding PrevEntry.Notes}"/>
                     <Label
                         StyleClass="H3"
                         Grid.Row="1"
-                        Grid.Column="2"
+                        Grid.Column="3"
                         Grid.ColumnSpan="2"
-                        IsVisible="{Binding PrevEntry.HasUser}"
-                        Text="{Binding PrevEntry.User.DisplayName}"/>
-                    <Label
-                        StyleClass="H3"
-                        Grid.Row="1"
-                        Grid.Column="2"
-                        Grid.ColumnSpan="2"
+                        HorizontalTextAlignment="Center"
                         Text="{Binding PrevEntry.User.DisplayName}"
                         IsVisible="{Binding PrevEntry.HasUser}"/>
                     <Label
                         StyleClass="H3"
                         Grid.Row="1"
-                        Grid.Column="2"
+                        Grid.Column="3"
                         Grid.ColumnSpan="2"
                         Text="No User Associated"
                         IsVisible="{Binding PrevEntry.HasUser, Converter={StaticResource Invert}}"/>

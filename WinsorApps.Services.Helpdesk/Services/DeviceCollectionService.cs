@@ -51,6 +51,12 @@ public class DeviceCollectionService(ApiService api) :
     public async Task<CollectionEntry?> UpdateEntry(string id, CreateCollectionEntry entry, ErrorAction onError) =>
         await api.SendAsync<CreateCollectionEntry, CollectionEntry>(HttpMethod.Put, $"api/helpdesk/collection/{id}", entry, onError: onError);
 
+    public async Task<(byte[], string)> DownloadReport(ErrorAction onError)
+    {
+        var result = await api.DownloadFile("api/helpdesk/collection/report", onError: onError);
+        return (result ?? [], "Report.csv");
+    }
+
     public async Task WaitForInit(ErrorAction onError)
     {
         while (!Ready)

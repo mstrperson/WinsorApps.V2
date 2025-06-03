@@ -1,4 +1,5 @@
 ﻿using AsyncAwaitBestPractices;
+using CommunityToolkit.Maui.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
@@ -41,6 +42,7 @@ public partial class DeviceCollectionViewModel :
     [ObservableProperty] UserViewModel user = UserViewModel.Empty;
     [ObservableProperty] DateTime timestamp = DateTime.Now;
     [ObservableProperty] bool hasUser;
+    [ObservableProperty] bool showCancel;
 
     public Optional<CollectionEntry> Model { get; private set; } = Optional<CollectionEntry>.None();
 
@@ -159,11 +161,14 @@ public partial class DeviceCollectionPageViewModel :
         entry.Selected += (_, vm) =>
         {
             OpenEntry = vm;
+            ShowPrev = false;
+            vm.ShowCancel = true;
         };
         entry.Submitted += (_, _) =>
         {
-            prevEntry = entry;
-            showPrev = true;
+            PrevEntry = entry;
+            entry.ShowCancel = true;
+            ShowPrev = true;
             OpenEntry = CreateEmptyCVM();
             OpenEntry.Clear();
             LoadEntries().SafeFireAndForget(e => e.LogException());
@@ -183,6 +188,17 @@ public partial class DeviceCollectionPageViewModel :
             OnError?.Invoke(this, new ErrorRecord("No Entries", "No entries to download"));
             return;
         }
+
+        Busy = true;
+        BusyMessage = "Downloading Report...";
+        var (data, fileName) = await service.DownloadReport(OnError.DefaultBehavior(this));
+        using MemoryStream ms = new(data);
+        var result = await FileSaver.SaveAsync(fileName, ms);
+        if (!result.IsSuccessful)
+        {
+            OnError?.Invoke(this, new ErrorRecord("Download Failed", result.Exception?.Message ?? "Download Not Saved"));
+        }
+        Busy = false;
     }
 
     [RelayCommand]
@@ -198,10 +214,14 @@ public partial class DeviceCollectionPageViewModel :
             entry.Selected += (_, vm) =>
             {
                 OpenEntry = vm;
+                ShowPrev = false;
             };
             entry.Submitted += (_, _) =>
             {
+                PrevEntry = entry;
+                ShowPrev = true;
                 OpenEntry = CreateEmptyCVM();
+                OpenEntry.Clear();
                 LoadEntries().SafeFireAndForget(e => e.LogException());
             };
             entry.PropertyChanged += ((IBusyViewModel)this).BusyChangedCascade;
