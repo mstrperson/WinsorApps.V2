@@ -163,7 +163,7 @@
                         Grid.Column="2"
                         Grid.ColumnSpan="2"
                         Text="No User Associated"
-                        IsVisible="{Binding PrevEntry.HasUser, Converter={StaticResource Invert}"/>
+                        IsVisible="{Binding PrevEntry.HasUser, Converter={StaticResource Invert}}"/>
                 </Grid>
                 <BoxView StyleClass="Bar"/>
                 
