@@ -161,7 +161,8 @@
                 <CollectionView
                     WidthRequest="1200"
                     HeightRequest="{Binding CollectionHeight}"
-                    ItemsSource="{Binding CollectionEntries}">
+                    ItemsSource="{Binding CollectionEntries}"
+                    BackgroundColor="Transparent">
                     <CollectionView.Header>
                         <Grid
                             ColumnDefinitions="150,150,150,300,*">
