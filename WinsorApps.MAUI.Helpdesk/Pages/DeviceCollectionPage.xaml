@@ -166,57 +166,63 @@
                     <CollectionView.Header>
                         <Grid
                             ColumnDefinitions="150,150,150,300,*">
-                            <Label
+                                <Label
                                 Grid.Column="0"
                                 StyleClass="H3"
                                 Text="Asset Tag" />
-                            <Label
+                                <Label
                                 Grid.Column="1"
                                 StyleClass="H3"
                                 Text="Charger" />
-                            <Label
+                                <Label
                                 Grid.Column="2"
                                 StyleClass="H3"
                                 Text="Cord" />
-                            <Label
+                                <Label
                                 Grid.Column="3"
                                 StyleClass="H3"
                                 Text="Student" />
-                            <Label
+                                <Label
                                 Grid.Column="4"
                                 StyleClass="H3"
                                 Text="Notes" />
-                        </Grid>
+                            </Grid>
                     </CollectionView.Header>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="vm:DeviceCollectionViewModel">
-                            <Grid
+                            <Border
+                            StrokeShape="RoundRectangle 3"
+                            StrokeThickness="1"
+                            Stroke="{AppThemeBinding Dark=White, Light={DynamicResource WinsorRed}}"
+                            Margin="0,0,0,10">
+                                <Grid
                                 ColumnDefinitions="150,150,150,300,*">
-                                <Grid.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding SelectCommand}" />
-                                </Grid.GestureRecognizers>
-                                <Label
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                    </Grid.GestureRecognizers>
+                                    <Label
                                     Grid.Column="0"
                                     Text="{Binding AssetTag}" />
-                                <Label
+                                    <Label
                                     Grid.Column="1"
                                     Text="{Binding ChargerAssetTag}" />
-                                <Label
+                                    <Label
                                     Grid.Column="2"
                                     Text="Has Cord"
                                     IsVisible="{Binding HasCord}"/>
-                                <Label
+                                    <Label
                                     Grid.Column="2"
                                     Text="Missing Cord"
                                     IsVisible="{Binding HasCord, Converter={StaticResource Invert}}"/>
-                                <Label
+                                    <Label
                                     Grid.Column="3"
                                     Text="{Binding User.DisplayName}"
                                     IsVisible="{Binding HasUser}"/>
-                                <Label
+                                    <Label
                                     Grid.Column="4"
-                                    Text="{Binding Notes}" />         
-                            </Grid>
+                                    Text="{Binding Notes}" />
+                                </Grid>
+                            </Border>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
