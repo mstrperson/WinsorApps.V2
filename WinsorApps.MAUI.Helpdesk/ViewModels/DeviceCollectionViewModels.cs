@@ -163,7 +163,7 @@ public partial class DeviceCollectionPageViewModel :
     {
         LoadEntries().SafeFireAndForget(e => e.LogException());
         OpenEntry = CreateEmptyCVM();
-        BackgroundTask().SafeFireAndForget(e => e.LogException());
+        //BackgroundTask().SafeFireAndForget(e => e.LogException());
         CollectionEntries.CollectionChanged += CollectionEntries_CollectionChanged;
     }
 
