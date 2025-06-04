@@ -24,6 +24,7 @@
     <ContentPage.Content>
         <ScrollView>
             <VerticalStackLayout
+                HorizontalOptions="Center"
                 WidthRequest="1200">
                 <HorizontalStackLayout
                     WidthRequest="1200"
