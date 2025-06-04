@@ -37,6 +37,7 @@ public partial class DeviceCollectionViewModel :
     [ObservableProperty] string assetTag = "";
     [ObservableProperty] string chargerAssetTag = "";
     [ObservableProperty] bool hasCord = true;
+    [ObservableProperty] bool parentalLockEnabled = false;
     [ObservableProperty] string notes = "";
     [ObservableProperty] bool isSelected;
     [ObservableProperty] UserViewModel user = UserViewModel.Empty;
@@ -55,6 +56,7 @@ public partial class DeviceCollectionViewModel :
             AssetTag = model.assetTag,
             ChargerAssetTag = model.chargerAssetTag,
             HasCord = model.hasCord,
+            ParentalLockEnabled = model.parentalLock,
             Notes = model.notes,
             User = string.IsNullOrEmpty(model.student.id) ? UserViewModel.Empty : UserViewModel.Get(model.student),
             Timestamp = model.timestamp,
@@ -70,6 +72,9 @@ public partial class DeviceCollectionViewModel :
     }
 
     [RelayCommand]
+    public void ToggleParentalLock() => ParentalLockEnabled = !ParentalLockEnabled;
+
+    [RelayCommand]
     public void ToggleHasCord() => HasCord = !HasCord;
 
     [RelayCommand]
@@ -78,6 +83,7 @@ public partial class DeviceCollectionViewModel :
         AssetTag = "";
         ChargerAssetTag = "";
         HasCord = true;
+        ParentalLockEnabled = false;
         Id = "";
         Model = Optional<CollectionEntry>.None();
         Timestamp = default;
@@ -93,6 +99,7 @@ public partial class DeviceCollectionViewModel :
             AssetTag,
             ChargerAssetTag,
             HasCord,
+            ParentalLockEnabled,
             Notes
         );
 
@@ -109,6 +116,7 @@ public partial class DeviceCollectionViewModel :
             AssetTag = result.assetTag;
             ChargerAssetTag = result.chargerAssetTag;
             HasCord = result.hasCord;
+            ParentalLockEnabled = result.parentalLock;
             Notes = result.notes;
             User = string.IsNullOrEmpty(result.student.id) ? UserViewModel.Empty : UserViewModel.Get(result.student);
             Timestamp = result.timestamp;

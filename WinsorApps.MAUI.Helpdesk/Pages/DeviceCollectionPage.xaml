@@ -27,7 +27,7 @@
                 WidthRequest="1200">
                 <HorizontalStackLayout
                     WidthRequest="1200"
-                    Spacing="50">
+                    Spacing="25">
                     <Label 
                         StyleClass="H3"
                         Text="Laptop:" />
@@ -53,8 +53,22 @@
                             Text="Cord:"/>
                     </HorizontalStackLayout>
                     <CheckBox 
-                        TranslationX="-50"
+                        TranslationX="-25"
                         IsChecked="{Binding OpenEntry.HasCord}"/>
+                    <HorizontalStackLayout
+                        Margin="0"
+                        Padding="0"
+                        TranslationY="2.5">
+                        <HorizontalStackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenEntry.ParentalLockEnabled}" />
+                        </HorizontalStackLayout.GestureRecognizers>
+                        <Label
+                            StyleClass="H3"
+                            Text="Parental Lock:"/>
+                    </HorizontalStackLayout>
+                    <CheckBox 
+                        TranslationX="-25"
+                        IsChecked="{Binding OpenEntry.ParentalLockEnabled}"/>
                     
                 </HorizontalStackLayout>
                 <HorizontalStackLayout
@@ -87,7 +101,7 @@
                 
                 <Grid
                     RowDefinitions="*,*"
-                    ColumnDefinitions="150, 150, 150, 150, 150, 300"
+                    ColumnDefinitions="150, 150, 150, 150, 150, 150, 200"
                     IsVisible="{Binding ShowPrev}"
                     WidthRequest="1200"
                     HeightRequest="200">
@@ -127,9 +141,15 @@
                         Grid.Row="0"
                         Grid.Column="4"
                         IsVisible="{Binding PrevEntry.HasCord, Converter={StaticResource Invert}}"/>
-                    <Image
+                    <Label
+                        StyleClass="H3"
+                        Text="Parental Lock Enabled"
                         Grid.Row="0"
                         Grid.Column="5"
+                        IsVisible="{Binding PrevEntry.ParentalLockEnabled}" />
+                    <Image
+                        Grid.Row="0"
+                        Grid.Column="6"
                         Grid.RowSpan="2"
                         WidthRequest="150"
                         IsVisible="{Binding PrevEntry.HasUser}"
@@ -144,7 +164,7 @@
                         StyleClass="H3"
                         Grid.Row="1"
                         Grid.Column="3"
-                        Grid.ColumnSpan="2"
+                        Grid.ColumnSpan="3"
                         HorizontalTextAlignment="Center"
                         Text="{Binding PrevEntry.User.DisplayName}"
                         IsVisible="{Binding PrevEntry.HasUser}"/>
@@ -152,7 +172,7 @@
                         StyleClass="H3"
                         Grid.Row="1"
                         Grid.Column="3"
-                        Grid.ColumnSpan="2"
+                        Grid.ColumnSpan="3"
                         Text="No User Associated"
                         IsVisible="{Binding PrevEntry.HasUser, Converter={StaticResource Invert}}"/>
                 </Grid>
@@ -165,25 +185,29 @@
                     BackgroundColor="Transparent">
                     <CollectionView.Header>
                         <Grid
-                            ColumnDefinitions="150,150,150,300,*">
-                                <Label
+                            ColumnDefinitions="150,150,150,150,300,*">
+                            <Label
                                 Grid.Column="0"
                                 StyleClass="H3"
                                 Text="Asset Tag" />
-                                <Label
+                            <Label
                                 Grid.Column="1"
                                 StyleClass="H3"
                                 Text="Charger" />
-                                <Label
+                            <Label
                                 Grid.Column="2"
                                 StyleClass="H3"
                                 Text="Cord" />
-                                <Label
+                            <Label
                                 Grid.Column="3"
                                 StyleClass="H3"
-                                Text="Student" />
-                                <Label
+                                Text="Parental Lock" />
+                            <Label
                                 Grid.Column="4"
+                                StyleClass="H3"
+                                Text="Student" />
+                            <Label
+                                Grid.Column="5"
                                 StyleClass="H3"
                                 Text="Notes" />
                             </Grid>
@@ -196,7 +220,7 @@
                             Stroke="{AppThemeBinding Dark=White, Light={DynamicResource WinsorRed}}"
                             Margin="0,0,0,10">
                                 <Grid
-                                ColumnDefinitions="150,150,150,300,*">
+                                ColumnDefinitions="150,150,150,150,300,*">
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding SelectCommand}" />
                                     </Grid.GestureRecognizers>
@@ -216,10 +240,14 @@
                                     IsVisible="{Binding HasCord, Converter={StaticResource Invert}}"/>
                                     <Label
                                     Grid.Column="3"
+                                    Text="Enabled"
+                                    IsVisible="{Binding ParentalLockEnabled}"/>
+                                    <Label
+                                    Grid.Column="4"
                                     Text="{Binding User.DisplayName}"
                                     IsVisible="{Binding HasUser}"/>
                                     <Label
-                                    Grid.Column="4"
+                                    Grid.Column="5"
                                     Text="{Binding Notes}" />
                                 </Grid>
                             </Border>
