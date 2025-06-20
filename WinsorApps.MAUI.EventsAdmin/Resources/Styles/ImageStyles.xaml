@@ -7,22 +7,10 @@
     Class="AddButton">
         <Setter 
             Property="Source"
-            Value="{AppThemeBinding
-            Light=
-            { 
-                FontImage 
+            Value="{FontImage 
                 FontFamily=Serif,
                 Glyph=+,
-                Color=Black,
-                Size=32
-            },
-            Dark=
-            { 
-                FontImage 
-                FontFamily=Serif,
-                Glyph=+,
-                Size=32
-            }}" />
+                Size=32}" />
         <Setter
             Property="HeightRequest"
             Value="{OnPlatform MacCatalyst=40}" />
@@ -75,6 +63,9 @@
                 FontFamily=Serif,
                 Glyph=🚫,
                 Size=18}" />
+        <Setter
+            Property="ToolTipProperties.Text"
+            Value="Cancel" />
         <Setter
             Property="HeightRequest"
             Value="{OnPlatform MacCatalyst=40}" />

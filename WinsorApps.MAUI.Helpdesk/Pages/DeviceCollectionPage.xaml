@@ -215,12 +215,12 @@
                     </CollectionView.Header>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="vm:DeviceCollectionViewModel">
-                            <Border
+                        <Border
                             StrokeShape="RoundRectangle 3"
                             StrokeThickness="1"
                             Stroke="{AppThemeBinding Dark=White, Light={DynamicResource WinsorRed}}"
                             Margin="0,0,0,10">
-                                <Grid
+                            <Grid
                                 ColumnDefinitions="150,150,150,150,300,*">
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding SelectCommand}" />

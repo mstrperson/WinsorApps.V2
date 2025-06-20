@@ -68,6 +68,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinsorApps.MAUI.TeacherBook
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinsorApps.MAUI.CateringManagement", "WinsorApps.MAUI.CateringManagement\WinsorApps.MAUI.CateringManagement.csproj", "{F4693296-9FE6-42EA-B89F-C8625FEC233C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinsorApps.Services.Clubs", "WinsorApps.Services.Clubs\WinsorApps.Services.Clubs.csproj", "{4C58E837-83AD-48A4-9426-71E933604DF8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinsorApps.MAUI.ClubAttendance", "WinsorApps.MAUI.ClubAttendance\WinsorApps.MAUI.ClubAttendance.csproj", "{0AFB6893-2DC8-4876-BC40-ABAA0962C16F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -194,6 +198,14 @@ Global
 		{F4693296-9FE6-42EA-B89F-C8625FEC233C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F4693296-9FE6-42EA-B89F-C8625FEC233C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F4693296-9FE6-42EA-B89F-C8625FEC233C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C58E837-83AD-48A4-9426-71E933604DF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C58E837-83AD-48A4-9426-71E933604DF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C58E837-83AD-48A4-9426-71E933604DF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C58E837-83AD-48A4-9426-71E933604DF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0AFB6893-2DC8-4876-BC40-ABAA0962C16F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0AFB6893-2DC8-4876-BC40-ABAA0962C16F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0AFB6893-2DC8-4876-BC40-ABAA0962C16F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0AFB6893-2DC8-4876-BC40-ABAA0962C16F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -226,6 +238,8 @@ Global
 		{6176CFC5-785E-4EFF-83DC-9690A980EA1C} = {FC3004BF-B329-4BCE-BDE9-ED055008E277}
 		{51C5C2B9-DB57-4806-AF17-6161647C4F0F} = {FC3004BF-B329-4BCE-BDE9-ED055008E277}
 		{F4693296-9FE6-42EA-B89F-C8625FEC233C} = {FC3004BF-B329-4BCE-BDE9-ED055008E277}
+		{4C58E837-83AD-48A4-9426-71E933604DF8} = {0199C9DF-CE60-4C52-B67D-8B9DA716AB1B}
+		{0AFB6893-2DC8-4876-BC40-ABAA0962C16F} = {FC3004BF-B329-4BCE-BDE9-ED055008E277}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {93BB8C21-5802-4E69-B338-B7EA30A80BFD}

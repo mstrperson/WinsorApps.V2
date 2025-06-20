@@ -379,6 +379,30 @@ public static partial class Extensions
         return list;
     }
 
+    public static byte[] ToByteArray(this int value)
+    {
+        var bytes = new byte[4];
+        bytes[0] = (byte)(value >> 24);
+        bytes[1] = (byte)(value >> 16);
+        bytes[2] = (byte)(value >> 8);
+        bytes[3] = (byte)value;
+        return bytes;
+    }
+
+    public static byte[] ToByteArray(this long value)
+    {
+        var bytes = new byte[8];
+        bytes[0] = (byte)(value >> 56);
+        bytes[1] = (byte)(value >> 48);
+        bytes[2] = (byte)(value >> 40);
+        bytes[3] = (byte)(value >> 32);
+        bytes[4] = (byte)(value >> 24);
+        bytes[5] = (byte)(value >> 16);
+        bytes[6] = (byte)(value >> 8);
+        bytes[7] = (byte)value;
+        return bytes;
+    }
+
     public static DateTime At(this DateOnly date, TimeOnly time) => new(date.Year, date.Month, date.Day, time.Hour, time.Minute, time.Second);
     public static DateTime At(this DateOnly date, TimeSpan time) => new(date.Year, date.Month, date.Day, time.Hours, time.Minutes, time.Seconds);
 
