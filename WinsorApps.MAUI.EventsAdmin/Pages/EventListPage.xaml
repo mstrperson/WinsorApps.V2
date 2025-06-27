@@ -2,7 +2,6 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:WinsorApps.MAUI.EventsAdmin.ViewModels"
-             xmlns:svm="clr-namespace:WinsorApps.MAUI.Shared.EventForms.ViewModels;assembly=WinsorApps.MAUI.Shared.EventForms"
              xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
              x:DataType="vm:EventListPageViewModel"
              x:Class="WinsorApps.MAUI.EventsAdmin.Pages.EventListPage"
@@ -63,7 +62,7 @@
                             <Grid
                                 RowDefinitions="*"
                                 ColumnDefinitions="120,400,200,150,300"
-                                BackgroundColor="{AppThemeBinding Light={DynamicResource WinsorRed}, Dark={DynamicResource SlateDark}}">
+                                BackgroundColor="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource SlateDark}}">
                                 <Label
                                     Grid.Column="0"
                                     StyleClass="SubHeader"
@@ -217,7 +216,7 @@
                             <Grid
                                 RowDefinitions="*"
                                 ColumnDefinitions="120,400,200,150,300"
-                                BackgroundColor="{AppThemeBinding Light={DynamicResource WinsorRed}, Dark={DynamicResource SlateDark}}">
+                                BackgroundColor="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource SlateDark}}">
                                 <Label
                                         Grid.Column="0"
                                         StyleClass="SubHeader"
@@ -386,7 +385,7 @@
                             <Grid
                                     RowDefinitions="*"
                                     ColumnDefinitions="120,400,200,150,300"
-                                    BackgroundColor="{AppThemeBinding Light={DynamicResource WinsorRed}, Dark={DynamicResource SlateDark}}">
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource SlateDark}}">
                                 <Label
                                         Grid.Column="0"
                                         StyleClass="SubHeader"
@@ -554,7 +553,7 @@
                             <Grid
                                 RowDefinitions="*"
                                 ColumnDefinitions="120,550,200,150,150"
-                                BackgroundColor="{AppThemeBinding Light={DynamicResource WinsorRed}, Dark={DynamicResource SlateDark}}">
+                                BackgroundColor="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource SlateDark}}">
                                 <Label
                                     Grid.Column="0"
                                     StyleClass="SubHeader"

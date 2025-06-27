@@ -16,6 +16,9 @@
     </ContentPage.Resources>
     <ContentPage.ToolbarItems>
         <ToolbarItem
+            StyleClass="PrintButton"
+            Command="{Binding DownloadAllVisibleCommand}"/>
+        <ToolbarItem
             StyleClass="RefreshButton"
             Command="{Binding RefreshCommand}" />
         <ToolbarItem
@@ -83,18 +86,18 @@
                         <Label
                             StyleClass="H3"
                             TextDecorations="Underline"
-                            Text="Creator or Leader"
-                            IsVisible="{Binding EventFilterViewModel.ShowPeople}">
+                            Text="Dept Needs"
+                            IsVisible="{Binding EventFilterViewModel.ShowNeeds}">
                             <Label.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ToggleShowPeopleCommand}" />
+                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ToggleShowNeedsCommand}" />
                             </Label.GestureRecognizers>
                         </Label>
                         <Label
                             StyleClass="H3"
-                            Text="Creator or Leader"
-                            IsVisible="{Binding EventFilterViewModel.ShowPeople, Converter={StaticResource Invert}}">
+                            Text="Dept Needs"
+                            IsVisible="{Binding EventFilterViewModel.ShowNeeds, Converter={StaticResource Invert}}">
                             <Label.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ToggleShowPeopleCommand}" />
+                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ToggleShowNeedsCommand}" />
                             </Label.GestureRecognizers>
                         </Label>
                         <Image
@@ -109,14 +112,15 @@
                     <HorizontalStackLayout
                         Margin="0"
                         Padding="0"
-                        Width="1670"
+                        WidthRequest="1670"
+                        HorizontalOptions="Center"
                         HeightRequest="75"
                         IsVisible="{Binding EventFilterViewModel.ShowStatus}"
                         Spacing="30">
                         <CollectionView
                             Margin="0"
                             BackgroundColor="Transparent"
-                            Width="1670"
+                            WidthRequest="1670"
                             HeightRequest="75"
                             ItemsSource="{Binding EventFilterViewModel.ByStatus.Statuses}">
                             <CollectionView.ItemsLayout>
@@ -152,14 +156,15 @@
                     <HorizontalStackLayout
                         Margin="0"
                         Padding="0"
-                        Width="1670"
+                        WidthRequest="1670"
+                        HorizontalOptions="Center"
                         HeightRequest="75"
                         IsVisible="{Binding EventFilterViewModel.ShowType}"
                         Spacing="30">
                         <CollectionView
                             Margin="0"
                             BackgroundColor="Transparent"
-                            Width="1670"
+                            WidthRequest="1670"
                             HeightRequest="75"
                             ItemsSource="{Binding EventFilterViewModel.ByType.Types}">
                             <CollectionView.ItemsLayout>
@@ -195,18 +200,128 @@
                     <HorizontalStackLayout
                         Margin="0"
                         Padding="0"
-                        Width="1670"
+                        WidthRequest="1670"
                         HeightRequest="75"
                         IsVisible="{Binding EventFilterViewModel.ShowPeople}">
                         <Label StyleClass="H3" Text="People:"/>
                         <SearchBar
                             Placeholder="Leader or Creator Name"
-                            WidthRequest="500" 
+                            WidthRequest="1200" 
+                            HeightRequest="40"
                             Text="{Binding EventFilterViewModel.ByPerson.SearchText}"
                             SearchCommand="{Binding ApplyFilterCommand}"/>
                         
                     </HorizontalStackLayout>
                     <!--End Person Filter-->
+                    <!-- Needs Filter -->
+                    <HorizontalStackLayout
+                        WidthRequest="1670"
+                        HorizontalOptions="Center"
+                        Spacing="50"
+                        IsVisible="{Binding EventFilterViewModel.ShowNeeds}">
+                        <Label
+                            StyleClass="H3"
+                            Text="All Of"
+                            IsVisible="{Binding EventFilterViewModel.ByNeed.Exclusive}">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ByNeed.ToggleExclusiveCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <Label
+                            StyleClass="H3"
+                            Text="Any Of"
+                            IsVisible="{Binding EventFilterViewModel.ByNeed.Exclusive, Converter={StaticResource Invert}}">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ByNeed.ToggleExclusiveCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <Label
+                            StyleClass="H3"
+                            TextDecorations="Underline"
+                            Text="{Binding EventFilterViewModel.ByNeed.Facilities.Label}"
+                            IsVisible="{Binding EventFilterViewModel.ByNeed.Facilities.IsSelected}">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ByNeed.Facilities.SelectCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <Label
+                            StyleClass="H3"
+                            Text="{Binding EventFilterViewModel.ByNeed.Facilities.Label}"
+                            IsVisible="{Binding EventFilterViewModel.ByNeed.Facilities.IsSelected, Converter={StaticResource Invert}}">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ByNeed.Facilities.SelectCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <Label
+                            StyleClass="H3"
+                            TextDecorations="Underline"
+                            Text="{Binding EventFilterViewModel.ByNeed.Technology.Label}"
+                            IsVisible="{Binding EventFilterViewModel.ByNeed.Technology.IsSelected}">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ByNeed.Technology.SelectCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <Label
+                            StyleClass="H3"
+                            Text="{Binding EventFilterViewModel.ByNeed.Technology.Label}"
+                            IsVisible="{Binding EventFilterViewModel.ByNeed.Technology.IsSelected, Converter={StaticResource Invert}}">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ByNeed.Technology.SelectCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <Label
+                            StyleClass="H3"
+                            TextDecorations="Underline"
+                            Text="{Binding EventFilterViewModel.ByNeed.Theater.Label}"
+                            IsVisible="{Binding EventFilterViewModel.ByNeed.Theater.IsSelected}">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ByNeed.Theater.SelectCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <Label
+                            StyleClass="H3"
+                            Text="{Binding EventFilterViewModel.ByNeed.Theater.Label}"
+                            IsVisible="{Binding EventFilterViewModel.ByNeed.Theater.IsSelected, Converter={StaticResource Invert}}">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ByNeed.Theater.SelectCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <Label
+                            StyleClass="H3"
+                            TextDecorations="Underline"
+                            Text="{Binding EventFilterViewModel.ByNeed.Comms.Label}"
+                            IsVisible="{Binding EventFilterViewModel.ByNeed.Comms.IsSelected}">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ByNeed.Comms.SelectCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <Label
+                            StyleClass="H3"
+                            Text="{Binding EventFilterViewModel.ByNeed.Comms.Label}"
+                            IsVisible="{Binding EventFilterViewModel.ByNeed.Comms.IsSelected, Converter={StaticResource Invert}}">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ByNeed.Comms.SelectCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <Label
+                            StyleClass="H3"
+                            TextDecorations="Underline"
+                            Text="{Binding EventFilterViewModel.ByNeed.Catering.Label}"
+                            IsVisible="{Binding EventFilterViewModel.ByNeed.Catering.IsSelected}">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ByNeed.Catering.SelectCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <Label
+                            StyleClass="H3"
+                            Text="{Binding EventFilterViewModel.ByNeed.Catering.Label}"
+                            IsVisible="{Binding EventFilterViewModel.ByNeed.Catering.IsSelected, Converter={StaticResource Invert}}">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ByNeed.Catering.SelectCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </HorizontalStackLayout>
+                    <!-- End Needs Filter -->
                     <BoxView StyleClass="Bar" />
                 </VerticalStackLayout>
                 <HorizontalStackLayout
@@ -264,9 +379,9 @@
                                 Margin="0">
                                 <Border
                                     StrokeThickness="1"
-                                    BackgroundColor="{AppThemeBinding Light={DynamicResource WarmGrey}, Dark={DynamicResource SlateDark}}">
-                                    <Label
                                     Grid.Column="0"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource WarmGrey}, Dark={StaticResource SlateDark}}">
+                                    <Label
                                     Text="Sunday"
                                     StyleClass="H3"
                                     HorizontalTextAlignment="Center"
@@ -274,7 +389,7 @@
                                 </Border>
                                 <Border StrokeThickness="1"
                                     Grid.Column="1"
-                                    BackgroundColor="{AppThemeBinding Light={DynamicResource WarmGrey}, Dark={DynamicResource SlateDark}}">
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource WarmGrey}, Dark={StaticResource SlateDark}}">
                                     <Label
                                         Text="Monday"
                                         StyleClass="H3"
@@ -283,7 +398,7 @@
                                 </Border>
                                 <Border StrokeThickness="1"
                                     Grid.Column="2"
-                                    BackgroundColor="{AppThemeBinding Light={DynamicResource WarmGrey}, Dark={DynamicResource SlateDark}}">
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource WarmGrey}, Dark={StaticResource SlateDark}}">
                                     <Label
                                         Text="Tuesday"
                                         StyleClass="H3"
@@ -292,7 +407,7 @@
                                 </Border>
                                 <Border StrokeThickness="1"
                                     Grid.Column="3"
-                                    BackgroundColor="{AppThemeBinding Light={DynamicResource WarmGrey}, Dark={DynamicResource SlateDark}}">
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource WarmGrey}, Dark={StaticResource SlateDark}}">
                                     <Label
                                         Text="Wednesday"
                                         StyleClass="H3"
@@ -302,7 +417,7 @@
                                 <Border 
                                     StrokeThickness="1"
                                     Grid.Column="4"
-                                    BackgroundColor="{AppThemeBinding Light={DynamicResource WarmGrey}, Dark={DynamicResource SlateDark}}">
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource WarmGrey}, Dark={StaticResource SlateDark}}">
                                     <Label
                                         Text="Thursday"
                                         StyleClass="H3"
@@ -312,7 +427,7 @@
                                 <Border 
                                     StrokeThickness="1"
                                     Grid.Column="5"
-                                    BackgroundColor="{AppThemeBinding Light={DynamicResource WarmGrey}, Dark={DynamicResource SlateDark}}">
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource WarmGrey}, Dark={StaticResource SlateDark}}">
                                     <Label
                                         Text="Friday"
                                         StyleClass="H3"
@@ -322,7 +437,7 @@
                                 <Border 
                                     StrokeThickness="1"
                                     Grid.Column="6"
-                                    BackgroundColor="{AppThemeBinding Light={DynamicResource WarmGrey}, Dark={DynamicResource SlateDark}}">
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource WarmGrey}, Dark={StaticResource SlateDark}}">
                                     <Label
                                         Text="Saturday"
                                         StyleClass="H3"
@@ -343,7 +458,7 @@
                                         <DataTemplate x:DataType="cvm:CalendarDayViewModel">
                                             <Border
                                                 StrokeThickness="1"
-                                                BackgroundColor="{AppThemeBinding Light={DynamicResource WarmGrey}, Dark={DynamicResource SlateDark}}">
+                                                BackgroundColor="{AppThemeBinding Light={StaticResource WarmGrey}, Dark={StaticResource SlateDark}}">
                                                 <VerticalStackLayout
                                                     WidthRequest="228">
                                                     <HorizontalStackLayout

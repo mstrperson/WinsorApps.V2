@@ -16,11 +16,14 @@ public partial class EventFilterViewModel :
     [ObservableProperty] bool showType;
     [ObservableProperty] PersonSearchFilterViewModel byPerson = new();
     [ObservableProperty] bool showPeople;
+    [ObservableProperty] EventNeedsFilterViewModel byNeed = new();
+    [ObservableProperty] bool showNeeds;
 
     public Func<EventFormViewModel, bool> Filter =>
         (evt) => ByStatus.Filter(evt)
               && ByType.Filter(evt)
-              && ByPerson.Filter(evt);
+              && ByPerson.Filter(evt)
+              && ByNeed.Filter(evt);
 
     [RelayCommand]
     public void ClearFilter()
@@ -28,8 +31,15 @@ public partial class EventFilterViewModel :
         ByStatus.ClearFilter();
         ByType.ClearFilter();
         ByPerson.ClearFilter();
+        ByNeed.ClearFilter();
     }
 
+    [RelayCommand]
+    public void ToggleShowNeeds()
+    {
+        ShowNeeds = !ShowNeeds;
+    }
+    
     [RelayCommand]
     public void ToggleShowStatus()
     {
@@ -46,6 +56,39 @@ public partial class EventFilterViewModel :
         ShowPeople = !ShowPeople;
     }
 
+}
+
+public partial class EventNeedsFilterViewModel :
+    ObservableObject,
+    IEventFormFilter
+{
+    [ObservableProperty] private SelectableLabelViewModel facilities = new() { Label = "Facilities" };
+    [ObservableProperty] private SelectableLabelViewModel technology = new() { Label = "Technology" };
+    [ObservableProperty] private SelectableLabelViewModel theater = new() { Label = "Theater" };
+    [ObservableProperty] private SelectableLabelViewModel comms = new() { Label = "Comms" };
+    [ObservableProperty] private SelectableLabelViewModel catering =  new() { Label = "Catering" };
+    [ObservableProperty] private bool exclusive;
+    public void ClearFilter()
+    {
+        Facilities.IsSelected = false;
+    }
+
+    [RelayCommand]
+    public void ToggleExclusive() => Exclusive = !Exclusive;
+    
+    public Func<EventFormViewModel, bool> Filter => 
+        (evt) =>
+        Exclusive 
+        ?   ((Facilities.IsSelected && evt.HasFacilities) || (!Facilities.IsSelected && !evt.HasFacilities))
+        &&  ((Technology.IsSelected && evt.HasTech) || (!Technology.IsSelected && !evt.HasTech))
+        &&  ((Theater.IsSelected && evt.HasTheater) || (!Theater.IsSelected && !evt.HasTheater))
+        &&  ((Comms.IsSelected && evt.HasMarComm) || (!Comms.IsSelected && !evt.HasMarComm))
+        &&  ((Catering.IsSelected && evt.HasCatering) || (!Catering.IsSelected && !evt.HasCatering))
+        :   (!Facilities.IsSelected || evt.HasFacilities)
+        &&  (!Technology.IsSelected || evt.HasTech)
+        &&  (!Theater.IsSelected || evt.HasTheater)
+        &&  (!Comms.IsSelected || evt.HasMarComm)
+        &&  (!Catering.IsSelected || evt.HasCatering);
 }
 
 public partial class PersonSearchFilterViewModel :

@@ -1,4 +1,7 @@
 ﻿using System.Collections.Immutable;
+using System.Diagnostics;
+using System.IO.Compression;
+using CommunityToolkit.Maui.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using WinsorApps.MAUI.Shared;
@@ -64,6 +67,72 @@ public partial class AdminCalendarViewModel :
         };
     }
 
+    [RelayCommand]
+    public async Task DownloadAllVisible()
+    {
+        Busy = true;
+        BusyMessage = "Downloading all visible events...";
+        var events =
+            Calendar.Weeks
+                .SelectMany(week => week.Days
+                    .SelectMany(day => day.FilteredEvents))
+                .ToList();
+
+        var invalidChars = Path.GetInvalidFileNameChars();
+        
+        var evtCount = events.Count;
+        BusyMessage = $"Downloading {evtCount} events...";
+        List<(string, byte[])> downloads = [];
+        foreach (var evt in events)
+        {
+            var pdf = await evt.GetPdfData();
+            var summary = evt.Summary;
+            foreach (var c in summary.ToArray())
+            {
+                if (invalidChars.Contains(c))
+                    summary = summary.Replace($"{c}", "");
+            }
+            
+            downloads.Add(($"({evt.StartDate+evt.StartTime:MM-dd hh-mm tt}) {summary}.pdf", pdf));
+            
+            BusyMessage = $"Downloading {--evtCount} events...";
+        }
+        
+        BusyMessage = "Zipping downloaded events...";
+
+        using MemoryStream ms = new();
+        using (ZipArchive archive = new(ms, ZipArchiveMode.Create, true))
+        {
+            foreach (var (fileName, bytes) in downloads)
+            {
+                var entry = archive.CreateEntry(fileName);
+                await using var stream = entry.Open();
+                stream.Write(bytes);
+                await stream.FlushAsync();
+            }
+
+            await ms.FlushAsync();
+        }
+
+        ms.Position = 0;
+        BusyMessage = "Saving Downloaded events...";
+        var result = await FileSaver.SaveAsync($"{Calendar.Month:MMMM} Events.zip", ms);
+        if(!result.IsSuccessful)
+            OnError?.Invoke(this, new("File Not Saved", result.Exception?.Message ?? ""));
+
+        if (result is { IsSuccessful: true, FilePath: not null })
+        {
+            ProcessStartInfo psi = new($"{result.FilePath}")
+            {
+                UseShellExecute = true,
+                Verb = "open"
+            };
+            Process.Start(psi);
+        }
+        
+        Busy = false;
+    }
+    
     [RelayCommand]
     public async Task Refresh()
     {

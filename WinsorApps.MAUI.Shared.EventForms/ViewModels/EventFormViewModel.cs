@@ -232,12 +232,14 @@ public partial class EventFormViewModel :
         FieldTrip.OnError += (sender, err) => OnError?.Invoke(sender, err);
     }
 
+    public async Task<byte[]> GetPdfData() => await _service.DownloadPdf(Id, OnError.DefaultBehavior(this));
+    
     [RelayCommand]
     public async Task Print()
     {
         Busy = true;
         BusyMessage = "Downloading Printed Copy";
-        var download = await _service.DownloadPdf(Id, OnError.DefaultBehavior(this));
+        var download = await GetPdfData();
         if(download.Length > 0)
         {
             using MemoryStream ms = new(download);

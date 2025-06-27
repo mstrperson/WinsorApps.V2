@@ -45,9 +45,7 @@ public static class Extensions
         SplashPageViewModel spvm = new(err.type, [err.error], TimeSpan.FromSeconds(30)) { IsCaptive = false };
         spvm.OnClose += (_, _) =>
         {
-            if (onConfirmAction is not null)
-                onConfirmAction();
-
+            onConfirmAction?.Invoke();
             parent.Navigation.PopAsync();
         };
 
