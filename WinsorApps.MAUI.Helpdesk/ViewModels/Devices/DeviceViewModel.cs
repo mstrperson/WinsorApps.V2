@@ -31,9 +31,9 @@ public partial class DeviceViewModel :
     private readonly DeviceService _deviceService;
     public Optional<DeviceRecord> Model { get; private set; }
 
-    [ObservableProperty] string id;
+    [ObservableProperty] private string id;
     [ObservableProperty] private string serialNumber;
-    [ObservableProperty] UserSearchViewModel ownerSearch = new();
+    [ObservableProperty] private UserSearchViewModel ownerSearch = new();
     [ObservableProperty] private UserViewModel owner = UserViewModel.Empty;
     [ObservableProperty] private bool unicorn;
     [ObservableProperty] private DateTime firstSeen = DateTime.Today;

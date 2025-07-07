@@ -16,12 +16,12 @@ public partial class FreeBlockViewModel : ObservableObject,
     IModelCarrier<FreeBlockViewModel, BlockMeetingTime>,
     ISelectable<FreeBlockViewModel>
 {
-    [ObservableProperty] string blockName = "";
-    [ObservableProperty] DateTime start;
-    [ObservableProperty] DateTime end;
+    [ObservableProperty] private string blockName = "";
+    [ObservableProperty] private DateTime start;
+    [ObservableProperty] private DateTime end;
 
     public Optional<BlockMeetingTime> Model { get; set; } = Optional<BlockMeetingTime>.None();
-    [ObservableProperty] bool isSelected;
+    [ObservableProperty] private bool isSelected;
 
     public event EventHandler<FreeBlockViewModel>? Selected;
 
@@ -49,10 +49,10 @@ public partial class FreeBlockCollectionViewModel : ObservableObject,
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<FreeBlockViewModel>? FreeBlockSelected;
 
-    [ObservableProperty] DateTime start;
-    [ObservableProperty] DateTime end;
-    [ObservableProperty] ObservableCollection<FreeBlockViewModel> freeBlocks = [];
-    [ObservableProperty] UserViewModel user = UserViewModel.Empty;
+    [ObservableProperty] private DateTime start;
+    [ObservableProperty] private DateTime end;
+    [ObservableProperty] private ObservableCollection<FreeBlockViewModel> freeBlocks = [];
+    [ObservableProperty] private UserViewModel user = UserViewModel.Empty;
 
     [RelayCommand]
     public async Task LoadFreeBlocks()

@@ -59,7 +59,7 @@ public class StringToIntegerConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is string str && int.TryParse(str, out int n))
+        if (value is string str && int.TryParse(str, out var n))
             return n;
 
         return 0;

@@ -43,7 +43,7 @@ public class RegistrarService(ApiService api, LocalLoggingService logging) :
     public void ClearCache() { if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}"); }
     public async Task SaveCache()
     {
-        int tryCount = 0;
+        var tryCount = 0;
         TryAgain:
         try
         {

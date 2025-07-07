@@ -14,12 +14,12 @@ public partial class DepartmentViewModel :
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<DepartmentViewModel>? Selected;
 
-    [ObservableProperty] ObservableCollection<CourseViewModel> courses = [];
-    [ObservableProperty] string name = "";
+    [ObservableProperty] private ObservableCollection<CourseViewModel> courses = [];
+    [ObservableProperty] private string name = "";
 
     public static readonly DepartmentViewModel Empty = new();
 
-    [ObservableProperty] bool isSelected;
+    [ObservableProperty] private bool isSelected;
 
     public static DepartmentViewModel Get(string departmentName) =>
         new()
@@ -47,7 +47,7 @@ public partial class DepartmentSearchViewModel(RegistrarService registrar) :
     private readonly RegistrarService _registrar = registrar;
     public event EventHandler<ErrorRecord>? OnError;
 
-    [ObservableProperty] ObservableCollection<DepartmentViewModel> departments = 
+    [ObservableProperty] private ObservableCollection<DepartmentViewModel> departments = 
     [
         ..registrar.DepartmentList
             .Select(DepartmentViewModel.Get)

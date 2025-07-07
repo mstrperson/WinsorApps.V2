@@ -159,7 +159,7 @@ namespace WinsorApps.Services.Global.Services
 
             Started = true;
 
-            bool success = false;
+            var success = false;
             if (File.Exists(VersionFilePath))
             {
                 var versionFileJson = File.ReadAllText(VersionFilePath);

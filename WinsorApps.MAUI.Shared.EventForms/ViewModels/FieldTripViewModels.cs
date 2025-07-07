@@ -16,16 +16,16 @@ public partial class FieldTripViewModel :
     IErrorHandling,
     IModelCarrier<FieldTripViewModel, FieldTripDetails>
 {
-    [ObservableProperty] string id = "";
-    [ObservableProperty] ContactSearchViewModel primaryContactSearch = new() { SelectionMode = SelectionMode.Single };
-    [ObservableProperty] ContactSearchViewModel chaperoneSearch = new() { SelectionMode = SelectionMode.Single };
-    [ObservableProperty] ObservableCollection<ContactViewModel> chaperones = [];
-    [ObservableProperty] TransportationViewModel transportation = new();
-    [ObservableProperty] StudentsByClassViewModel studentsByClass = new();
-    [ObservableProperty] FieldTripCateringRequestViewModel fieldTripCateringRequest = new();
-    [ObservableProperty] bool showFood;
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private ContactSearchViewModel primaryContactSearch = new() { SelectionMode = SelectionMode.Single };
+    [ObservableProperty] private ContactSearchViewModel chaperoneSearch = new() { SelectionMode = SelectionMode.Single };
+    [ObservableProperty] private ObservableCollection<ContactViewModel> chaperones = [];
+    [ObservableProperty] private TransportationViewModel transportation = new();
+    [ObservableProperty] private StudentsByClassViewModel studentsByClass = new();
+    [ObservableProperty] private FieldTripCateringRequestViewModel fieldTripCateringRequest = new();
+    [ObservableProperty] private bool showFood;
     [ObservableProperty] private bool hasLoaded;
-    [ObservableProperty] double contactsHeightRequest;
+    [ObservableProperty] private double contactsHeightRequest;
 
     private static readonly double ContactHeaderHeight = 32.0;
     private static readonly double ContactRowHeight = 30;
@@ -147,12 +147,12 @@ public partial class FieldTripViewModel :
 public partial class TransportationViewModel :
     ObservableObject
 {
-    [ObservableProperty] bool publicTransit;
-    [ObservableProperty] bool noOrganizedTransit;
-    [ObservableProperty] VehicleRequestCollectionViewModel vehicleRequestCollection = new();
-    [ObservableProperty] HiredBusViewModel hiredBusses = new();
-    [ObservableProperty] bool showHiredBusses;
-    [ObservableProperty] bool showVehicleRequest;
+    [ObservableProperty] private bool publicTransit;
+    [ObservableProperty] private bool noOrganizedTransit;
+    [ObservableProperty] private VehicleRequestCollectionViewModel vehicleRequestCollection = new();
+    [ObservableProperty] private HiredBusViewModel hiredBusses = new();
+    [ObservableProperty] private bool showHiredBusses;
+    [ObservableProperty] private bool showVehicleRequest;
 
     public static implicit operator NewTransportationRequest(TransportationViewModel vm) =>
         new(vm.PublicTransit, vm.NoOrganizedTransit,
@@ -192,14 +192,14 @@ public partial class TransportationViewModel :
 public partial class StudentsByClassViewModel :
     ObservableObject
 {
-    [ObservableProperty] int classI;
-    [ObservableProperty] int classII;
-    [ObservableProperty] int classIII;
-    [ObservableProperty] int classIV;
-    [ObservableProperty] int classV;
-    [ObservableProperty] int classVI;
-    [ObservableProperty] int classVII;
-    [ObservableProperty] int classVIII;
+    [ObservableProperty] private int classI;
+    [ObservableProperty] private int classII;
+    [ObservableProperty] private int classIII;
+    [ObservableProperty] private int classIV;
+    [ObservableProperty] private int classV;
+    [ObservableProperty] private int classVI;
+    [ObservableProperty] private int classVII;
+    [ObservableProperty] private int classVIII;
 
     public static implicit operator StudentsByClassCount(StudentsByClassViewModel vm) =>
         new(vm.ClassI, vm.ClassII, vm.ClassIII, vm.ClassIV, vm.ClassV, vm.ClassVI, vm.ClassVII, vm.ClassVIII);
@@ -222,11 +222,11 @@ public partial class FieldTripCateringRequestViewModel :
 {
     public readonly CateringMenuService _service = ServiceHelper.GetService<CateringMenuService>();
 
-    [ObservableProperty] CateringMenuCollectionViewModel menuCollection;
-    [ObservableProperty] int numberOfLunches;
-    [ObservableProperty] int diningInCount;
-    [ObservableProperty] bool eatingAway;
-    [ObservableProperty] TimeSpan pickupTime;
+    [ObservableProperty] private CateringMenuCollectionViewModel menuCollection;
+    [ObservableProperty] private int numberOfLunches;
+    [ObservableProperty] private int diningInCount;
+    [ObservableProperty] private bool eatingAway;
+    [ObservableProperty] private TimeSpan pickupTime;
 
     public event EventHandler? Deleted;
 

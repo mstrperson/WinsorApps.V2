@@ -7,9 +7,8 @@ namespace WinsorApps.MAUI.Shared.ViewModels
 {
     public partial class EmailListViewModel : ObservableObject
     {
-        [ObservableProperty]
-        ObservableCollection<SelectableLabelViewModel> emails = [];
-        [ObservableProperty] string emailEntry = "";
+        [ObservableProperty] private ObservableCollection<SelectableLabelViewModel> emails = [];
+        [ObservableProperty] private string emailEntry = "";
 
         [RelayCommand]
         public void AddEmail()

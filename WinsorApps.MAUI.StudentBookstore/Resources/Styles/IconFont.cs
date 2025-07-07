@@ -1,5 +1,6 @@
 ﻿namespace WinsorApps.MAUI.StudentBookstore.Resources.Styles;
-static class IconFont
+
+internal static class IconFont
 {
     // FontAwesome
     public const string Ad = "\uf641";

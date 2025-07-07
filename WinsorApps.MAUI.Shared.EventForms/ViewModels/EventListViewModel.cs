@@ -13,7 +13,7 @@ public partial class EventListViewModel :
     IErrorHandling,
     IBusyViewModel
 {
-    [ObservableProperty] ObservableCollection<EventFormViewModel> events = [];
+    [ObservableProperty] private ObservableCollection<EventFormViewModel> events = [];
 
     public event EventHandler<ContentPage>? PopThenPushRequested;
     public event EventHandler<ContentPage>? PageRequested;
@@ -54,13 +54,13 @@ public partial class EventListViewModel :
 
     private readonly EventFormsService _service = ServiceHelper.GetService<EventFormsService>();
 
-    [ObservableProperty] DateTime start;
-    [ObservableProperty] DateTime end;
+    [ObservableProperty] private DateTime start;
+    [ObservableProperty] private DateTime end;
     [ObservableProperty] private bool busy;
     [ObservableProperty] private string busyMessage = "Working...";
-    [ObservableProperty] string pageLabel = "My Events List";
+    [ObservableProperty] private string pageLabel = "My Events List";
 
-    Func<EventFormBase, bool> EventFilter { get; set; } = evt => true;
+    private Func<EventFormBase, bool> EventFilter { get; set; } = evt => true;
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<EventFormViewModel>? OnEventSelected;

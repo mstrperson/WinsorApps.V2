@@ -25,14 +25,14 @@ public partial class CateringEventViewModel :
     private static readonly EventFormsService _eventsService = ServiceHelper.GetService<EventFormsService>();
     private static readonly CateringMenuService _cateringService = ServiceHelper.GetService<CateringMenuService>();
 
-    [ObservableProperty] string id = "";
-    [ObservableProperty] bool serversNeeded;
-    [ObservableProperty] bool cleanupRequired;
-    [ObservableProperty] double laborCost;
-    [ObservableProperty] CateringMenuCollectionViewModel menu = new(_cateringService);
-    [ObservableProperty] BudgetCodeSearchViewModel budgetCodeSearch = new();
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "Working";
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private bool serversNeeded;
+    [ObservableProperty] private bool cleanupRequired;
+    [ObservableProperty] private double laborCost;
+    [ObservableProperty] private CateringMenuCollectionViewModel menu = new(_cateringService);
+    [ObservableProperty] private BudgetCodeSearchViewModel budgetCodeSearch = new();
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "Working";
     [ObservableProperty] private bool hasLoaded;
 
     public static CateringEventViewModel Empty => new();
@@ -133,11 +133,11 @@ public partial class CateringMenuSelectionViewModel :
     ISelectable<CateringMenuSelectionViewModel>,
     IErrorHandling
 {
-    [ObservableProperty] CateringMenuItemViewModel item = CateringMenuItemViewModel.Empty;
-    [ObservableProperty] int quantity;
-    [ObservableProperty] double cost;
+    [ObservableProperty] private CateringMenuItemViewModel item = CateringMenuItemViewModel.Empty;
+    [ObservableProperty] private int quantity;
+    [ObservableProperty] private double cost;
 
-    [ObservableProperty] bool isSelected;
+    [ObservableProperty] private bool isSelected;
 
     public static CateringMenuSelectionViewModel Empty => new();
 
@@ -185,13 +185,13 @@ public partial class CateringMenuViewModel :
     ISelectable<CateringMenuViewModel>,
     IErrorHandling
 {
-    [ObservableProperty] string id = "";
-    [ObservableProperty] string title = "";
-    [ObservableProperty] ObservableCollection<CateringMenuSelectionViewModel> items = [];
-    [ObservableProperty] bool isFieldTrip;
-    [ObservableProperty] bool isDeleted;
-    [ObservableProperty] bool isSelected;
-    [ObservableProperty] double menuHeightRequest;
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private string title = "";
+    [ObservableProperty] private ObservableCollection<CateringMenuSelectionViewModel> items = [];
+    [ObservableProperty] private bool isFieldTrip;
+    [ObservableProperty] private bool isDeleted;
+    [ObservableProperty] private bool isSelected;
+    [ObservableProperty] private double menuHeightRequest;
 
     private static readonly double MenuRowHeight = 100;
 
@@ -285,9 +285,9 @@ public partial class CateringMenuCollectionViewModel :
     IErrorHandling
 {
     private readonly CateringMenuService _service;
-    [ObservableProperty] List<CateringMenuViewModel> menus = [];
-    [ObservableProperty] CateringMenuViewModel selectedMenu = new();
-    [ObservableProperty] bool showMenus = true;
+    [ObservableProperty] private List<CateringMenuViewModel> menus = [];
+    [ObservableProperty] private CateringMenuViewModel selectedMenu = new();
+    [ObservableProperty] private bool showMenus = true;
 
     public CateringMenuViewModel this[string menuId]
     {
@@ -395,13 +395,13 @@ public partial class CateringMenuItemViewModel :
 {
     private readonly CateringMenuService _menuService = ServiceHelper.GetService<CateringMenuService>();
 
-    [ObservableProperty] string id = "";
-    [ObservableProperty] string name = "";
-    [ObservableProperty] double pricePerPerson;
-    [ObservableProperty] string category = "";
-    [ObservableProperty] bool deleted;
-    [ObservableProperty] bool fieldTripItem;
-    [ObservableProperty] int ordinal = -1;
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private string name = "";
+    [ObservableProperty] private double pricePerPerson;
+    [ObservableProperty] private string category = "";
+    [ObservableProperty] private bool deleted;
+    [ObservableProperty] private bool fieldTripItem;
+    [ObservableProperty] private int ordinal = -1;
 
     public static ConcurrentBag<CateringMenuItemViewModel> ViewModelCache { get; protected set; } = [];
 
@@ -458,11 +458,11 @@ public partial class CateringMenuCategoryViewModel :
     private readonly CateringMenuService _menuService = ServiceHelper.GetService<CateringMenuService>();
     private readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
 
-    [ObservableProperty] string id = "";
-    [ObservableProperty] string name = "";
-    [ObservableProperty] bool isDeleted;
-    [ObservableProperty] bool fieldTripCategory;
-    [ObservableProperty] List<CateringMenuItemViewModel> items;
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private string name = "";
+    [ObservableProperty] private bool isDeleted;
+    [ObservableProperty] private bool fieldTripCategory;
+    [ObservableProperty] private List<CateringMenuItemViewModel> items;
 
     public CateringMenuCategoryViewModel()
     {

@@ -35,14 +35,14 @@ public partial class AssessmentGroupViewModel :
 
     public static readonly AssessmentGroupViewModel Empty = new();
 
-    [ObservableProperty] CourseViewModel course = CourseViewModel.Empty;
-    [ObservableProperty] string note = "";
-    [ObservableProperty] ObservableCollection<AssessmentEditorViewModel> assessments = [];
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
-    [ObservableProperty] bool isSelected;
-    [ObservableProperty] bool isNew;
-    [ObservableProperty] string label = "";
+    [ObservableProperty] private CourseViewModel course = CourseViewModel.Empty;
+    [ObservableProperty] private string note = "";
+    [ObservableProperty] private ObservableCollection<AssessmentEditorViewModel> assessments = [];
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
+    [ObservableProperty] private bool isSelected;
+    [ObservableProperty] private bool isNew;
+    [ObservableProperty] private string label = "";
 
     private AssessmentGroupViewModel() { }
 
@@ -214,21 +214,20 @@ public partial class AssessmentEditorViewModel :
     public readonly ReadonlyCalendarService _service = ServiceHelper.GetService<ReadonlyCalendarService>();
     public Optional<AssessmentEntryRecord> Model { get; set; } = Optional<AssessmentEntryRecord>.None();
 
-    [ObservableProperty] AssessmentDetailsViewModel details = new();
-    [ObservableProperty] bool hasLatePasses;
-    [ObservableProperty] bool hasConflicts;
-    [ObservableProperty] bool hasRedFlags;
+    [ObservableProperty] private AssessmentDetailsViewModel details = new();
+    [ObservableProperty] private bool hasLatePasses;
+    [ObservableProperty] private bool hasConflicts;
+    [ObservableProperty] private bool hasRedFlags;
 
-    [ObservableProperty] SectionViewModel section = SectionViewModel.Empty;
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
-    [ObservableProperty] bool isSelected;
+    [ObservableProperty] private SectionViewModel section = SectionViewModel.Empty;
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
+    [ObservableProperty] private bool isSelected;
 
-    [ObservableProperty] bool isInitalized;
+    [ObservableProperty] private bool isInitalized;
 
 
-    [ObservableProperty]
-    DateTime date;
+    [ObservableProperty] private DateTime date;
 
     public event EventHandler<AssessmentDetailsViewModel>? Selected;
     public event EventHandler<AssessmentDetailsViewModel>? ShowDetailsRequested;
@@ -299,11 +298,11 @@ public partial class MyAssessmentsCollectionViewModel :
     private readonly TeacherAssessmentService _service = ServiceHelper.GetService<TeacherAssessmentService>();
     private readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
 
-    [ObservableProperty] ObservableCollection<AssessmentGroupViewModel> myAssessmentGroups = [];
-    [ObservableProperty] AssessmentGroupViewModel selectedAssessmentGroup = AssessmentGroupViewModel.Empty;
-    [ObservableProperty] bool showSelectedGroup;
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] private ObservableCollection<AssessmentGroupViewModel> myAssessmentGroups = [];
+    [ObservableProperty] private AssessmentGroupViewModel selectedAssessmentGroup = AssessmentGroupViewModel.Empty;
+    [ObservableProperty] private bool showSelectedGroup;
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<AssessmentDetailsViewModel>? ShowDetailsRequested;

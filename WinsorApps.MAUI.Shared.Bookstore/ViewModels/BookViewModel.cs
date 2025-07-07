@@ -95,8 +95,8 @@ public partial class BookViewModel :
     [RelayCommand]
     public async Task Save()
     {
-        BookService bookService = ServiceHelper.GetService<BookService>();
-        LocalLoggingService logging = ServiceHelper.GetService<LocalLoggingService>();
+        var bookService = ServiceHelper.GetService<BookService>();
+        var logging = ServiceHelper.GetService<LocalLoggingService>();
 
         var data = GetUpdateDetails();
 

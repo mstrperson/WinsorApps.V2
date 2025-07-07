@@ -1,0 +1,484 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.EventForms.ViewModels"
+             x:DataType="vm:EventFormViewModel"
+             x:Class="WinsorApps.MAUI.Shared.EventForms.Pages.FormView">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem
+            StyleClass="PrintButton"
+            Command="{Binding PrintCommand}"/>
+        <ToolbarItem
+            Text="Template"
+            Command="{Binding TemplateCommand}"/>
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <ScrollView>
+            <VerticalStackLayout
+                HorizontalOptions="Center"
+                WidthRequest="1600">
+                <Label
+                    StyleClass="Header"
+                    HorizontalTextAlignment="Center"
+                    WidthRequest="1600"
+                    Text="{Binding Summary}"/>
+                <Editor
+                    WidthRequest="1600"
+                    HeightRequest="100"
+                    IsReadOnly="True"
+                    Text="{Binding Description}"/>
+                <BoxView StyleClass="Bar" />
+                <!-- Event Base Details -->
+                <Grid
+                    WidthRequest="1600"
+                    HorizontalOptions="Center"
+                    ColumnDefinitions="400,400,400,400"
+                    RowDefinitions="*,*,*,*,*">
+                    <!-- row 0 -->
+                    <Label
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        WidthRequest="400"
+                        HorizontalTextAlignment="End"
+                        StyleClass="H3"
+                        FontAttributes="None"
+                        Text="Creator"/>
+                    <Label
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        WidthRequest="400"
+                        HorizontalTextAlignment="Start"
+                        StyleClass="H3"
+                        Text="{Binding Creator.DisplayName}"/>
+                    <Label
+                        Grid.Row="0"
+                        Grid.Column="2"
+                        WidthRequest="400"
+                        HorizontalTextAlignment="End"
+                        StyleClass="H3"
+                        FontAttributes="None"
+                        Text="Event Type"/>
+                    <Label
+                        Grid.Row="0"
+                        Grid.Column="3"
+                        WidthRequest="400"
+                        HorizontalTextAlignment="Start"
+                        StyleClass="H3"
+                        Text="{Binding Type.Type}"/>
+                    <!-- row 1 -->
+                    <Label
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        WidthRequest="400"
+                        HorizontalTextAlignment="End"
+                        StyleClass="H3"
+                        FontAttributes="None"
+                        Text="Leader"/>
+                    <Label
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        WidthRequest="400"
+                        HorizontalTextAlignment="Start"
+                        StyleClass="H3"
+                        Text="{Binding Leader.DisplayName}"/>
+                    <Label
+                        Grid.Row="1"
+                        Grid.Column="2"
+                        WidthRequest="400"
+                        HorizontalTextAlignment="End"
+                        StyleClass="H3"
+                        FontAttributes="None"
+                        Text="Attendee Count"/>
+                    <Label
+                        Grid.Row="1"
+                        Grid.Column="3"
+                        WidthRequest="400"
+                        HorizontalTextAlignment="Start"
+                        StyleClass="H3"
+                        Text="{Binding AttendeeCount}"/>
+                    <!-- row 2 -->
+                    <Label
+                        Grid.Row="2"
+                        Grid.Column="0"
+                        WidthRequest="400"
+                        HorizontalTextAlignment="End"
+                        StyleClass="H3"
+                        FontAttributes="None"
+                        Text="Start"/>
+                    <Label
+                        Grid.Row="2"
+                        Grid.Column="1"
+                        WidthRequest="400"
+                        HorizontalTextAlignment="Start"
+                        StyleClass="H3"
+                        Text="{Binding StartDateTime, StringFormat='{0:ddd dd MMM - hh:mm tt}'}"/>
+                    <Label
+                        Grid.Row="2"
+                        Grid.Column="2"
+                        WidthRequest="400"
+                        HorizontalTextAlignment="End"
+                        StyleClass="H3"
+                        FontAttributes="None"
+                        Text="End"/>
+                    <Label
+                        Grid.Row="2"
+                        Grid.Column="3"
+                        WidthRequest="400"
+                        HorizontalTextAlignment="Start"
+                        StyleClass="H3"
+                        Text="{Binding EndDateTime, StringFormat='{0:ddd dd MMM - hh:mm tt}'}"/>
+                    <!-- row 3 -->
+                    <Label
+                        Grid.Row="3"
+                        Grid.Column="0"
+                        WidthRequest="400"
+                        HorizontalTextAlignment="End"
+                        StyleClass="H3"
+                        FontAttributes="None"
+                        Text="Status"/>
+                    <Label
+                        Grid.Row="3"
+                        Grid.Column="1"
+                        WidthRequest="400"
+                        HorizontalTextAlignment="Start"
+                        StyleClass="H3"
+                        Text="{Binding StatusSelection.Selected.Label}" />
+                    <!-- Locations -->
+                    <CollectionView
+                        Grid.Row="4"
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        WidthRequest="800"
+                        BackgroundColor="Transparent"
+                        HorizontalOptions="Center"
+                        ItemsSource="{Binding SelectedLocations}">
+                        <CollectionView.Header>
+                            <VerticalStackLayout
+                                Margin="0"
+                                Padding="0"
+                                Spacing="2">
+                                <Label
+                                    WidthRequest="800"
+                                    StyleClass="H3"
+                                    Text="Locations"
+                                    HorizontalTextAlignment="Center"/>
+                                <BoxView StyleClass="Bar"/>
+                            </VerticalStackLayout>
+                        </CollectionView.Header>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:LocationViewModel">
+                                <Border
+                                    WidthRequest="800"
+                                    Margin="0"
+                                    Padding="0">
+                                    <Label
+                                        HorizontalOptions="Center"
+                                        Text="{Binding Label}" />
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <CollectionView
+                        Grid.Row="4"
+                        Grid.Column="2"
+                        Grid.ColumnSpan="2"
+                        WidthRequest="800"
+                        BackgroundColor="Transparent"
+                        HorizontalOptions="Center"
+                        ItemsSource="{Binding SelectedCustomLocations}">
+                        <CollectionView.Header>
+                            <VerticalStackLayout
+                                Margin="0"
+                                Padding="0"
+                                Spacing="2">
+                                <Label
+                                    WidthRequest="800"
+                                    StyleClass="H3"
+                                    Text="Custom Locations"
+                                    HorizontalTextAlignment="Center"/>
+                                <BoxView StyleClass="Bar"/>
+                            </VerticalStackLayout>
+                        </CollectionView.Header>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:LocationViewModel">
+                                <Border
+                                    WidthRequest="800"
+                                    Margin="0"
+                                    Padding="0">
+                                    <Label
+                                        HorizontalOptions="Center"
+                                        Text="{Binding Label}" />
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Grid>
+                <!-- Facilities Details -->
+                <VerticalStackLayout
+                    Margin="0"
+                    Padding="0"
+                    IsVisible="{Binding HasFacilities}">
+                    <BoxView StyleClass="Bar" />
+                    <Label
+                        StyleClass="SubHeader"
+                        HorizontalTextAlignment="Center"
+                        WidthRequest="1600"
+                        Text="Facilities Details"/>
+                    <Grid
+                        Width="1600"
+                        RowDefinitions="*,*,*"
+                        ColumnDefinitions="400,400,400,400">
+                        <!-- Row 0 -->
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            FontAttributes="None"
+                            HorizontalTextAlignment="End"
+                            Text="Setup"/>
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="Start"
+                            IsVisible="{Binding Facilites.Setup}"
+                            Text="Yes"/>
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="Start"
+                            IsVisible="{Binding Facilites.Setup, Converter={StaticResource Invert}}"
+                            Text="No"/>
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="2"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            FontAttributes="None"
+                            HorizontalTextAlignment="End"
+                            Text="Breakdown"/>
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="3"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="Start"
+                            IsVisible="{Binding Facilites.Breakdown}"
+                            Text="Yes"/>
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="3"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="Start"
+                            IsVisible="{Binding Facilites.Breakdown, Converter={StaticResource Invert}}"
+                            Text="No"/>
+                        <!-- Row 1 -->
+                        <Label
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            FontAttributes="None"
+                            HorizontalTextAlignment="End"
+                            Text="Presence During Event"/>
+                        <Label
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="Start"
+                            IsVisible="{Binding Facilites.Presence}"
+                            Text="Yes"/>
+                        <Label
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="Start"
+                            IsVisible="{Binding Facilites.Presence, Converter={StaticResource Invert}}"
+                            Text="No"/>
+                        <Label
+                            Grid.Row="1"
+                            Grid.Column="2"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            FontAttributes="None"
+                            HorizontalTextAlignment="End"
+                            Text="Parking Attendant"/>
+                        <Label
+                            Grid.Row="1"
+                            Grid.Column="3"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="Start"
+                            IsVisible="{Binding Facilites.Parking}"
+                            Text="Yes"/>
+                        <Label
+                            Grid.Row="1"
+                            Grid.Column="3"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="Start"
+                            IsVisible="{Binding Facilites.Parking, Converter={StaticResource Invert}}"
+                            Text="No"/>
+                        <!-- Row 2 -->
+                        <Label
+                            Grid.Row="2"
+                            Grid.Column="0"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            FontAttributes="None"
+                            HorizontalTextAlignment="End"
+                            Text="Overnight"/>
+                        <Label
+                            Grid.Row="2"
+                            Grid.Column="1"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="Start"
+                            IsVisible="{Binding Facilites.Overnight}"
+                            Text="Yes"/>
+                        <Label
+                            Grid.Row="2"
+                            Grid.Column="1"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="Start"
+                            IsVisible="{Binding Facilites.Overnight, Converter={StaticResource Invert}}"
+                            Text="No"/>
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="2"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            FontAttributes="None"
+                            HorizontalTextAlignment="End"
+                            Text="Breakdown"/>
+                    </Grid>
+                    <CollectionView
+                        BackgroundColor="Transparent"
+                        WidthRequest="1600"
+                        ItemsSource="{Binding Facilites.Locations.Setups}">
+                        <CollectionView.Header>
+                            <HorizontalStackLayout
+                                Margin="0"
+                                Padding="0">
+                                <Label 
+                                    StyleClass="H3" 
+                                    WidthRequest="1600"
+                                    HorizontalTextAlignment="Center"
+                                    Text="Location Setup Instructions"/>
+                            </HorizontalStackLayout>
+                        </CollectionView.Header>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:LocationSetupViewModel">
+                                <Grid
+                                    WidthRequest="1600"
+                                    HeightRequest="180"
+                                    RowDefinitions="*,*"
+                                    ColumnDefinitions="800,800">
+                                    <Label
+                                        Grid.Row="0"
+                                        Grid.Column="0"
+                                        WidthRequest="800"
+                                        HorizontalTextAlignment="End"
+                                        FontAttributes="Bold"
+                                        Text="{Binding LocationSearch.Selected.Label}"/>
+                                    <Label
+                                        Grid.Row="1"
+                                        Grid.Column="0"
+                                        WidthRequest="800"
+                                        HorizontalTextAlignment="End"
+                                        IsVisible="{Binding SandwichSign}"
+                                        Text="Needs Sandwich Sign" />
+                                    <Editor
+                                        Grid.Row="0"
+                                        Grid.RowSpan="2"
+                                        Grid.Column="1"
+                                        WidthRequest="800"
+                                        HeightRequest="140"
+                                        IsReadOnly="True"
+                                        Text="{Binding Instructions}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+                <!-- End Facilities Details -->
+                <!-- Catering Details -->
+                <VerticalStackLayout
+                    WidthRequest="1600"
+                    Margin="0"
+                    Padding="0"
+                    IsVisible="{Binding HasCatering}">
+                    <BoxView StyleClass="Bar" />
+                    <Label
+                        StyleClass="SubHeader"
+                        HorizontalTextAlignment="Center"
+                        WidthRequest="1600"
+                        Text="Catering Details"/>
+                    <CollectionView
+                        WidthRequest="1600"
+                        ItemsSource="{Binding Catering.Menu.SelectedMenu}">
+                        
+                    </CollectionView>
+                </VerticalStackLayout>
+                <!-- End Catering Details -->
+                <!-- Technology Details -->
+                <VerticalStackLayout
+                    WidthRequest="1600"
+                    Margin="0"
+                    Padding="0"
+                    IsVisible="{Binding HasCatering}">
+                    <BoxView StyleClass="Bar" />
+                    <Label
+                        StyleClass="SubHeader"
+                        HorizontalTextAlignment="Center"
+                        WidthRequest="1600"
+                        Text="Technology Details"/>
+                </VerticalStackLayout>
+                <!-- End Technology Details -->
+                <!-- Theater Details -->
+                <VerticalStackLayout
+                    WidthRequest="1600"
+                    Margin="0"
+                    Padding="0"
+                    IsVisible="{Binding HasCatering}">
+                    <BoxView StyleClass="Bar" />
+                    <Label
+                        StyleClass="SubHeader"
+                        HorizontalTextAlignment="Center"
+                        WidthRequest="1600"
+                        Text="Theater Details"/>
+                </VerticalStackLayout>
+                <!-- End Theater Details -->
+                <!-- MarComm Details -->
+                <VerticalStackLayout
+                    WidthRequest="1600"
+                    Margin="0"
+                    Padding="0"
+                    IsVisible="{Binding HasCatering}">
+                    <BoxView StyleClass="Bar" />
+                    <Label
+                        StyleClass="SubHeader"
+                        HorizontalTextAlignment="Center"
+                        WidthRequest="1600"
+                        Text="Communications Details"/>
+                </VerticalStackLayout>
+                <!-- End MarComm Details -->
+            </VerticalStackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

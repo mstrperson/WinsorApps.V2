@@ -20,11 +20,11 @@ public partial class TeacherOrderViewModel :
 {
     private readonly BookstoreManagerService _managerService = ServiceHelper.GetService<BookstoreManagerService>();
 
-    [ObservableProperty] SectionViewModel section = SectionViewModel.Empty;
-    [ObservableProperty] List<BookRequestViewModel> bookRequests = [];
+    [ObservableProperty] private SectionViewModel section = SectionViewModel.Empty;
+    [ObservableProperty] private List<BookRequestViewModel> bookRequests = [];
 
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
 
     public event EventHandler<ErrorRecord>? OnError;
 
@@ -90,9 +90,9 @@ public partial class BookRequestOptionGroupViewModel :
     ObservableObject,
     ICachedViewModel<BookRequestOptionGroupViewModel, TeacherBookOrderGroup, BookstoreManagerService>
 {
-    [ObservableProperty] string groupId = "";
-    [ObservableProperty] BookOrderOptionViewModel option = BookOrderOptionViewModel.Empty;
-    [ObservableProperty] List<BookRequestViewModel> requests = [];
+    [ObservableProperty] private string groupId = "";
+    [ObservableProperty] private BookOrderOptionViewModel option = BookOrderOptionViewModel.Empty;
+    [ObservableProperty] private List<BookRequestViewModel> requests = [];
 
     public static ConcurrentBag<BookRequestOptionGroupViewModel> ViewModelCache { get; private set; } = [];
 
@@ -134,15 +134,15 @@ public partial class BookRequestViewModel :
     ObservableObject,
     ISelectable<BookRequestViewModel>
 {
-    [ObservableProperty] IsbnViewModel isbn = IsbnViewModel.Empty;
-    [ObservableProperty] DateTime submitted;
-    [ObservableProperty] int quantity;
-    [ObservableProperty] bool fallOrFullYear = true;
-    [ObservableProperty] bool springOnly = false;
-    [ObservableProperty] string status = "";
-    [ObservableProperty] string groupId = "";
+    [ObservableProperty] private IsbnViewModel isbn = IsbnViewModel.Empty;
+    [ObservableProperty] private DateTime submitted;
+    [ObservableProperty] private int quantity;
+    [ObservableProperty] private bool fallOrFullYear = true;
+    [ObservableProperty] private bool springOnly = false;
+    [ObservableProperty] private string status = "";
+    [ObservableProperty] private string groupId = "";
 
-    [ObservableProperty] bool isSelected; 
+    [ObservableProperty] private bool isSelected; 
 
     public event EventHandler<BookRequestViewModel>? Selected;
 

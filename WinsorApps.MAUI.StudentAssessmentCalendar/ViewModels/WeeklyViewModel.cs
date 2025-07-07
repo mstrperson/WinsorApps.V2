@@ -21,14 +21,14 @@ public partial class WeeklyViewModel(StudentAssessmentService service, LocalLogg
     private readonly LocalLoggingService _logging = logging;
     private readonly CycleDayCollection _cycleDays = cycleDays;
 
-    [ObservableProperty] StudentWeekViewModel calendar =new();
+    [ObservableProperty] private StudentWeekViewModel calendar =new();
 
     // I forgot why we wanted this? but here it is? lol
-    [ObservableProperty] StudentAssessmentViewModel selectedAssessment = new(new());
-    [ObservableProperty] bool showSelectedAssessment;
+    [ObservableProperty] private StudentAssessmentViewModel selectedAssessment = new(new());
+    [ObservableProperty] private bool showSelectedAssessment;
 
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
 
     public event EventHandler<StudentAssessmentViewModel>? EventSelected;
     public event EventHandler<ErrorRecord>? OnError;
@@ -91,8 +91,8 @@ public partial class StudentDayViewModel :
     [ObservableProperty] private ObservableCollection<StudentAssessmentViewModel> assessments = [];
     [ObservableProperty] private CalendarDayViewModel day = new();
 
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<StudentAssessmentViewModel>? AssessmentSelected;
@@ -123,8 +123,8 @@ public partial class StudentWeekViewModel :
     [ObservableProperty] private ObservableCollection<StudentDayViewModel> days = [];
     [ObservableProperty] private CalendarWeekViewModel week = new();
 
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<StudentAssessmentViewModel>? AssessmentSelected;

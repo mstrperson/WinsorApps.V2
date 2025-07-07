@@ -18,28 +18,28 @@ public partial class LocationViewModel :
     IErrorHandling,
     IModelCarrier<LocationViewModel, Location>
 {
-    [ObservableProperty] string id = "";
-    [ObservableProperty] string label = "";
-    [ObservableProperty] string type = "custom-location";
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private string label = "";
+    [ObservableProperty] private string type = "custom-location";
     
     /// <summary>
     /// Only applies to custom locations,
     /// Only Editable for New entries
     /// </summary>
-    [ObservableProperty] bool isPublic;
+    [ObservableProperty] private bool isPublic;
 
     /// <summary>
     /// Flag for allowing the Create command and
     /// for editablility the IsPublic property
     /// </summary>
-    [ObservableProperty] bool isNew = true;
+    [ObservableProperty] private bool isNew = true;
 
     /// <summary>
     /// Flag for displaying the IsPublic property
     /// </summary>
-    [ObservableProperty] bool isCustomLocation = true;
+    [ObservableProperty] private bool isCustomLocation = true;
 
-    [ObservableProperty] bool isSelected;
+    [ObservableProperty] private bool isSelected;
 
     private readonly LocationService _service = ServiceHelper.GetService<LocationService>();
 
@@ -151,7 +151,7 @@ public partial class LocationSearchViewModel :
 {
     private readonly LocationService _service = ServiceHelper.GetService<LocationService>();
 
-    [ObservableProperty] bool customLocations;
+    [ObservableProperty] private bool customLocations;
 
     public LocationSearchViewModel()
     {
@@ -218,11 +218,9 @@ public partial class LocationSearchViewModel :
     [ObservableProperty]
     private bool showOptions;
 
-    [ObservableProperty]
-    bool showCreate;
+    [ObservableProperty] private bool showCreate;
 
-    [ObservableProperty]
-    LocationViewModel newItem = new();
+    [ObservableProperty] private LocationViewModel newItem = new();
 
     public event EventHandler<ObservableCollection<LocationViewModel>>? OnMultipleResult;
     public event EventHandler<LocationViewModel>? OnSingleResult;

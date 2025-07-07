@@ -17,22 +17,22 @@ public partial class MarCommEventViewModel :
     IErrorHandling,
     IModelCarrier<MarCommEventViewModel, MarCommRequest>
 {
-    [ObservableProperty] string id = "";
-    [ObservableProperty] bool printInvite;
-    [ObservableProperty] bool digitalInvite;
-    [ObservableProperty] bool newsletterReminder;
-    [ObservableProperty] bool emailReminder;
-    [ObservableProperty] bool scriptHelp;
-    [ObservableProperty] bool printedProgram;
-    [ObservableProperty] bool digitalProgram;
-    [ObservableProperty] bool needsMedia;
-    [ObservableProperty] bool needPhotographer;
-    [ObservableProperty] ObservableCollection<ContactViewModel> inviteList = [];
-    [ObservableProperty] ContactSearchViewModel contactSearch = new() { SelectionMode = SelectionMode.Single };
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private bool printInvite;
+    [ObservableProperty] private bool digitalInvite;
+    [ObservableProperty] private bool newsletterReminder;
+    [ObservableProperty] private bool emailReminder;
+    [ObservableProperty] private bool scriptHelp;
+    [ObservableProperty] private bool printedProgram;
+    [ObservableProperty] private bool digitalProgram;
+    [ObservableProperty] private bool needsMedia;
+    [ObservableProperty] private bool needPhotographer;
+    [ObservableProperty] private ObservableCollection<ContactViewModel> inviteList = [];
+    [ObservableProperty] private ContactSearchViewModel contactSearch = new() { SelectionMode = SelectionMode.Single };
     [ObservableProperty] private bool hasLoaded;
 
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "Working";
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "Working";
 
     public MarCommEventViewModel()
     {

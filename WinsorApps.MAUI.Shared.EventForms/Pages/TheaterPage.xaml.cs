@@ -4,7 +4,7 @@ namespace WinsorApps.MAUI.Shared.EventForms.Pages;
 
 public partial class TheaterPage : ContentPage
 {
-	TheaterEventViewModel ViewModel
+	private TheaterEventViewModel ViewModel
 	{
 		get => (TheaterEventViewModel)BindingContext;
 		set => BindingContext = value;

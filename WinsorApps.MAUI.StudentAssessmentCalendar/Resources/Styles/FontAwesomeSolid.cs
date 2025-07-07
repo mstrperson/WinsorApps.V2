@@ -1,6 +1,6 @@
 ﻿namespace WinsorApps.MAUI.StudentBookstore.Resources.Styles;
 
-static class FontAwesomeSolid
+internal static class FontAwesomeSolid
 {
     // FontAwesome
     public const string Ad = "\uf641";

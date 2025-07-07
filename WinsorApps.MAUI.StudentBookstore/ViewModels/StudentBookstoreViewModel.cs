@@ -19,12 +19,12 @@ namespace WinsorApps.MAUI.StudentBookstore.ViewModels
         private readonly StudentBookstoreService _bookService = bookService;
         private readonly RegistrarService _registrarService = registrarService;
         
-        [ObservableProperty] bool busy;
-        [ObservableProperty] string busyMessage = "Loading";
-        [ObservableProperty] bool ready;
+        [ObservableProperty] private bool busy;
+        [ObservableProperty] private string busyMessage = "Loading";
+        [ObservableProperty] private bool ready;
         public event EventHandler<ErrorRecord>? OnError;
 
-        [ObservableProperty] ObservableCollection<SectionRequiredBooksViewModel> sectionRequiredBooks = [];
+        [ObservableProperty] private ObservableCollection<SectionRequiredBooksViewModel> sectionRequiredBooks = [];
 
         public async Task Initialize(ErrorAction onError)
         {
@@ -56,8 +56,8 @@ namespace WinsorApps.MAUI.StudentBookstore.ViewModels
     public partial class SectionRequiredBooksViewModel :
         ObservableObject
     {
-        [ObservableProperty] SectionViewModel section = SectionViewModel.Empty;
-        [ObservableProperty] ObservableCollection<OptionGroupViewModel> requiredBooks = [];
+        [ObservableProperty] private SectionViewModel section = SectionViewModel.Empty;
+        [ObservableProperty] private ObservableCollection<OptionGroupViewModel> requiredBooks = [];
 
         private SectionRequiredBooksViewModel() { }
 
@@ -72,8 +72,8 @@ namespace WinsorApps.MAUI.StudentBookstore.ViewModels
         ObservableObject
     {
         private static readonly double heightPerBook = 100;
-        [ObservableProperty] string option = "";
-        [ObservableProperty] ObservableCollection<IsbnViewModel> books = [];
+        [ObservableProperty] private string option = "";
+        [ObservableProperty] private ObservableCollection<IsbnViewModel> books = [];
         [ObservableProperty] private double heightRequest;
 
         public OptionGroupViewModel(StudentSectionBookOptionGroup group) 

@@ -1,15 +1,23 @@
+using System;
 using AsyncAwaitBestPractices;
+using Microsoft.Maui.Controls;
 using WinsorApps.MAUI.EventsAdmin.ViewModels;
 using WinsorApps.MAUI.Shared;
+using WinsorApps.MAUI.Shared.EventForms.Pages;
 
 namespace WinsorApps.MAUI.EventsAdmin.Pages;
 
 public partial class MonthlyCalendar : ContentPage
 {
-	AdminCalendarViewModel ViewModel => (AdminCalendarViewModel)BindingContext;
-	public MonthlyCalendar(AdminCalendarViewModel vm)
+	private AdminCalendarViewModel ViewModel => (AdminCalendarViewModel)BindingContext;
+	public MonthlyCalendar(AdminCalendarViewModel viewModel)
 	{
-		BindingContext = vm;
+		BindingContext = viewModel;
+		viewModel.Calendar.EventSelected += (_, vm) =>
+		{
+			FormView page = new(vm);
+			Navigation.PushAsync(page);
+		};
 		InitializeComponent();
 	}
 

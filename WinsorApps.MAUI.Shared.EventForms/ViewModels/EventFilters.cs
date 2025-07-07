@@ -10,14 +10,14 @@ public partial class EventFilterViewModel :
     ObservableObject,
     IEventFormFilter
 {
-    [ObservableProperty] StatusFilterViewModel byStatus = new();
-    [ObservableProperty] bool showStatus;
-    [ObservableProperty] TypeFilterViewModel byType = new();
-    [ObservableProperty] bool showType;
-    [ObservableProperty] PersonSearchFilterViewModel byPerson = new();
-    [ObservableProperty] bool showPeople;
-    [ObservableProperty] EventNeedsFilterViewModel byNeed = new();
-    [ObservableProperty] bool showNeeds;
+    [ObservableProperty] private StatusFilterViewModel byStatus = new();
+    [ObservableProperty] private bool showStatus;
+    [ObservableProperty] private TypeFilterViewModel byType = new();
+    [ObservableProperty] private bool showType;
+    [ObservableProperty] private PersonSearchFilterViewModel byPerson = new();
+    [ObservableProperty] private bool showPeople;
+    [ObservableProperty] private EventNeedsFilterViewModel byNeed = new();
+    [ObservableProperty] private bool showNeeds;
 
     public Func<EventFormViewModel, bool> Filter =>
         (evt) => ByStatus.Filter(evt)
@@ -95,7 +95,7 @@ public partial class PersonSearchFilterViewModel :
     ObservableObject,
     IEventFormFilter
 {
-    [ObservableProperty] string searchText = "";
+    [ObservableProperty] private string searchText = "";
 
     public Func<EventFormViewModel, bool> Filter =>
         evt => evt.Leader.DisplayName.Contains(SearchText, StringComparison.InvariantCultureIgnoreCase)
@@ -112,8 +112,7 @@ public partial class TypeFilterViewModel :
     ObservableObject,
     IEventFormFilter
 {
-    [ObservableProperty]
-    ObservableCollection<SelectableLabelViewModel> types =
+    [ObservableProperty] private ObservableCollection<SelectableLabelViewModel> types =
     [
         new() { Label = EventType.Default },
         new() { Label = EventType.Rental },
@@ -140,8 +139,7 @@ public partial class StatusFilterViewModel :
     ObservableObject,
     IEventFormFilter
 {
-    [ObservableProperty]
-    ObservableCollection<SelectableLabelViewModel> statuses =
+    [ObservableProperty] private ObservableCollection<SelectableLabelViewModel> statuses =
         [
             new() { Label = ApprovalStatusLabel.Approved },
             new() { Label = ApprovalStatusLabel.Pending },

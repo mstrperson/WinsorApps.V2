@@ -18,13 +18,13 @@ public partial class FacilitesEventViewModel :
 {
     private readonly EventFormsService _service = ServiceHelper.GetService<EventFormsService>();
 
-    [ObservableProperty] string id = "";
-    [ObservableProperty] bool setup;
-    [ObservableProperty] bool presence;
-    [ObservableProperty] bool breakdown;
-    [ObservableProperty] bool overnight;
-    [ObservableProperty] bool parking;
-    [ObservableProperty] LocationSetupCollectionViewModel locations = new();
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private bool setup;
+    [ObservableProperty] private bool presence;
+    [ObservableProperty] private bool breakdown;
+    [ObservableProperty] private bool overnight;
+    [ObservableProperty] private bool parking;
+    [ObservableProperty] private LocationSetupCollectionViewModel locations = new();
     [ObservableProperty] private bool hasLoaded;
 
     public event EventHandler? ReadyToContinue;
@@ -114,9 +114,9 @@ public partial class FacilitesEventViewModel :
 public partial class LocationSetupCollectionViewModel :
     ObservableObject
 {
-    [ObservableProperty] ObservableCollection<LocationSetupViewModel> setups = [];
-    [ObservableProperty] LocationSetupViewModel selected = new();
-    [ObservableProperty] bool showSelected;
+    [ObservableProperty] private ObservableCollection<LocationSetupViewModel> setups = [];
+    [ObservableProperty] private LocationSetupViewModel selected = new();
+    [ObservableProperty] private bool showSelected;
 
     public static implicit operator List<NewLocationSetup>(LocationSetupCollectionViewModel vm) =>
         vm.Setups.Where(setup => setup.LocationSearch.IsSelected).Select(setup => (NewLocationSetup)setup).ToList();
@@ -198,12 +198,12 @@ public partial class LocationSetupViewModel :
     ObservableObject,
     ISelectable<LocationSetupViewModel>
 {
-    [ObservableProperty] LocationSearchViewModel locationSearch = new() { CustomLocations = false, SelectionMode = SelectionMode.Single };
-    [ObservableProperty] string instructions = "";
-    [ObservableProperty] bool sandwichSign;
-    [ObservableProperty] DateTime setupDate;
-    [ObservableProperty] TimeSpan setupTime;
-    [ObservableProperty] bool isSelected;
+    [ObservableProperty] private LocationSearchViewModel locationSearch = new() { CustomLocations = false, SelectionMode = SelectionMode.Single };
+    [ObservableProperty] private string instructions = "";
+    [ObservableProperty] private bool sandwichSign;
+    [ObservableProperty] private DateTime setupDate;
+    [ObservableProperty] private TimeSpan setupTime;
+    [ObservableProperty] private bool isSelected;
 
     public LocationSetupInstructions Model { get; private set; }
 

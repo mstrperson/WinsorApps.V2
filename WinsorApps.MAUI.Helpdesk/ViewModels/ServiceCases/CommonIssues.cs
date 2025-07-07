@@ -11,10 +11,10 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.ServiceCases;
 
 public partial class CommonIssueViewModel(ServiceCaseCommonIssue issue) : ObservableObject, ISelectable<CommonIssueViewModel>
 {
-    [ObservableProperty] string id = issue.id;
-    [ObservableProperty] string status = issue.status;
-    [ObservableProperty] string description = issue.description;
-    [ObservableProperty] bool isSelected;
+    [ObservableProperty] private string id = issue.id;
+    [ObservableProperty] private string status = issue.status;
+    [ObservableProperty] private string description = issue.description;
+    [ObservableProperty] private bool isSelected;
 
     public event EventHandler<CommonIssueViewModel>? Selected;
 
@@ -31,7 +31,7 @@ public partial class CommonIssueSelectionViewModel : ObservableObject, ICheckBox
 {
     private readonly ServiceCaseService _caseService = ServiceHelper.GetService<ServiceCaseService>();
 
-    [ObservableProperty] ObservableCollection<CommonIssueViewModel> items;
+    [ObservableProperty] private ObservableCollection<CommonIssueViewModel> items;
 
     public ObservableCollection<CommonIssueViewModel> Selected
     {

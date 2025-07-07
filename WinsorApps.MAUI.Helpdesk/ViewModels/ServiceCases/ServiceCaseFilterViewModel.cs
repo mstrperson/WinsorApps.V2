@@ -7,12 +7,12 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.ServiceCases
 {
     public partial class ServiceCaseFilterViewModel : ObservableObject
     {
-        [ObservableProperty] SelectableEntryViewModel<bool> open = true;
-        [ObservableProperty] SelectableEntryViewModel<ServiceStatusSearchViewModel> status = new ServiceStatusSearchViewModel();
-        [ObservableProperty] SelectableEntryViewModel<DeviceSearchViewModel> device = new DeviceSearchViewModel();
-        [ObservableProperty] SelectableEntryViewModel<UserSearchViewModel> owner = new UserSearchViewModel();
-        [ObservableProperty] SelectableEntryViewModel<DateTime> start = DateTime.Today.AddDays(-7);
-        [ObservableProperty] SelectableEntryViewModel<DateTime> end = DateTime.Today.AddDays(1);
+        [ObservableProperty] private SelectableEntryViewModel<bool> open = true;
+        [ObservableProperty] private SelectableEntryViewModel<ServiceStatusSearchViewModel> status = new ServiceStatusSearchViewModel();
+        [ObservableProperty] private SelectableEntryViewModel<DeviceSearchViewModel> device = new DeviceSearchViewModel();
+        [ObservableProperty] private SelectableEntryViewModel<UserSearchViewModel> owner = new UserSearchViewModel();
+        [ObservableProperty] private SelectableEntryViewModel<DateTime> start = DateTime.Today.AddDays(-7);
+        [ObservableProperty] private SelectableEntryViewModel<DateTime> end = DateTime.Today.AddDays(1);
 
         public ServiceCaseFilter Filter => new(
             Open.IsSelected ? Open.Value : null,

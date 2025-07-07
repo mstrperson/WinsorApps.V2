@@ -27,23 +27,23 @@ public partial class APExamDetailViewModel :
 
     private readonly AssessmentCalendarRestrictedService _service = ServiceHelper.GetService<AssessmentCalendarRestrictedService>();
 
-    [ObservableProperty] bool isSelected;
+    [ObservableProperty] private bool isSelected;
     public Optional<APExamDetail> Model { get; private set; } = Optional<APExamDetail>.None();
 
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "Loading...";
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "Loading...";
 
-    [ObservableProperty] string id = "";
-    [ObservableProperty] string courseName = "";
-    [ObservableProperty] DateTime date = DateTime.Now;
-    [ObservableProperty] TimeSpan startTime = TimeSpan.Zero;
-    [ObservableProperty] TimeSpan endTime = TimeSpan.Zero;
-    [ObservableProperty] ObservableCollection<SectionViewModel> sections = [];
-    [ObservableProperty] ObservableCollection<StudentViewModel> students = [];
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private string courseName = "";
+    [ObservableProperty] private DateTime date = DateTime.Now;
+    [ObservableProperty] private TimeSpan startTime = TimeSpan.Zero;
+    [ObservableProperty] private TimeSpan endTime = TimeSpan.Zero;
+    [ObservableProperty] private ObservableCollection<SectionViewModel> sections = [];
+    [ObservableProperty] private ObservableCollection<StudentViewModel> students = [];
 
-    [ObservableProperty] APExamConflictReportViewModel conflicts = new();
+    [ObservableProperty] private APExamConflictReportViewModel conflicts = new();
 
-    [ObservableProperty] UserSearchViewModel studentSearch = new UserSearchViewModel();
+    [ObservableProperty] private UserSearchViewModel studentSearch = new UserSearchViewModel();
 
 
     public event EventHandler<ErrorRecord>? OnError;
@@ -211,10 +211,10 @@ public partial class APExamPageViewModel :
     IBusyViewModel
 {
     private readonly AssessmentCalendarRestrictedService _service = ServiceHelper.GetService<AssessmentCalendarRestrictedService>();
-    [ObservableProperty] bool isSelected;
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "Loading...";
-    [ObservableProperty] ObservableCollection<APExamDetailViewModel> exams = [];
+    [ObservableProperty] private bool isSelected;
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "Loading...";
+    [ObservableProperty] private ObservableCollection<APExamDetailViewModel> exams = [];
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<APExamDetailViewModel>? CreateAPRequested;
@@ -275,10 +275,10 @@ public partial class APExamConflict :
 {
     private static readonly double HEADER_HEIGHT = Environment.OSVersion.Platform == PlatformID.Win32NT ? 75 : 80;
     private static readonly double STUDENT_HEIGHT = Environment.OSVersion.Platform == PlatformID.Win32NT ? 50 : 30;
-    [ObservableProperty] SectionViewModel section = SectionViewModel.Empty;
-    [ObservableProperty] ObservableCollection<UserViewModel> students = [];
-    [ObservableProperty] bool showStudents;
-    [ObservableProperty] double heightRequest = HEADER_HEIGHT;
+    [ObservableProperty] private SectionViewModel section = SectionViewModel.Empty;
+    [ObservableProperty] private ObservableCollection<UserViewModel> students = [];
+    [ObservableProperty] private bool showStudents;
+    [ObservableProperty] private double heightRequest = HEADER_HEIGHT;
     public APExamConflict(APExamSectionConflict model)
     {
         var registrar = ServiceHelper.GetService<RegistrarService>();
@@ -309,8 +309,8 @@ public partial class APExamConflictReportViewModel :
     ObservableObject
 {
     private static readonly double HEADER_HEIGHT = 50;
-    [ObservableProperty] ObservableCollection<APExamConflict> conflicts = [];
-    [ObservableProperty] double heightRequest;
+    [ObservableProperty] private ObservableCollection<APExamConflict> conflicts = [];
+    [ObservableProperty] private double heightRequest;
     public APExamConflictReportViewModel()
     {
         conflicts = [];

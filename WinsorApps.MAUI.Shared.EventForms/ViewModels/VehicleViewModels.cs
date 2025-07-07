@@ -14,8 +14,8 @@ public partial class VehicleRequestCollectionViewModel :
     ObservableObject
 {
     private readonly EventFormsService _service = ServiceHelper.GetService<EventFormsService>();
-    [ObservableProperty] VehicleCategoryCollectionViewModel categoryCollection;
-    [ObservableProperty] ObservableCollection<VehicleRequestViewModel> requests = [];
+    [ObservableProperty] private VehicleCategoryCollectionViewModel categoryCollection;
+    [ObservableProperty] private ObservableCollection<VehicleRequestViewModel> requests = [];
 
     public static implicit operator List<NewVehicleRequest>(VehicleRequestCollectionViewModel vm) =>
         vm.Requests.Select(req => (NewVehicleRequest)req).ToList();
@@ -69,9 +69,9 @@ public partial class VehicleRequestViewModel :
 {
     private static readonly EventFormsService _service = ServiceHelper.GetService<EventFormsService>();
 
-    [ObservableProperty] VehicleCategoryViewModel category = new();
-    [ObservableProperty] int countRequested;
-    [ObservableProperty] string notes = "";
+    [ObservableProperty] private VehicleCategoryViewModel category = new();
+    [ObservableProperty] private int countRequested;
+    [ObservableProperty] private string notes = "";
 
     public event EventHandler? Deleted;
 
@@ -92,7 +92,7 @@ public partial class VehicleCategoryCollectionViewModel :
     ObservableObject,
     IErrorHandling
 {
-    [ObservableProperty] List<VehicleCategoryViewModel> categories = [];
+    [ObservableProperty] private List<VehicleCategoryViewModel> categories = [];
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<VehicleRequestViewModel>? CreateRequested;
@@ -111,11 +111,11 @@ public partial class VehicleCategoryViewModel :
     ObservableObject,
     ISelectable<VehicleCategoryViewModel>
 {
-    [ObservableProperty] string id = "";
-    [ObservableProperty] string label = "";
-    [ObservableProperty] int passengers;
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private string label = "";
+    [ObservableProperty] private int passengers;
 
-    [ObservableProperty] bool isSelected;
+    [ObservableProperty] private bool isSelected;
 
     public event EventHandler<VehicleCategoryViewModel>? Selected;
     public event EventHandler<VehicleRequestViewModel>? CreateVehicleRequest;
@@ -143,12 +143,12 @@ public partial class VehicleCategoryViewModel :
 public partial class HiredBusViewModel :
     ObservableObject
 {
-    [ObservableProperty] int count;
-    [ObservableProperty] TimeSpan departureTime;
-    [ObservableProperty] TimeSpan pickupTime;
-    [ObservableProperty] TimeSpan returnArrivalTime;
-    [ObservableProperty] string instructions = "";
-    [ObservableProperty] bool showHiredBusses;
+    [ObservableProperty] private int count;
+    [ObservableProperty] private TimeSpan departureTime;
+    [ObservableProperty] private TimeSpan pickupTime;
+    [ObservableProperty] private TimeSpan returnArrivalTime;
+    [ObservableProperty] private string instructions = "";
+    [ObservableProperty] private bool showHiredBusses;
 
     public static implicit operator FieldTripHiredBusRequest(HiredBusViewModel vm) =>
         new(vm.Count, TimeOnly.FromTimeSpan(vm.DepartureTime), TimeOnly.FromTimeSpan(vm.PickupTime), TimeOnly.FromTimeSpan(vm.ReturnArrivalTime), vm.Instructions);

@@ -26,14 +26,14 @@ public partial class WorkoutLogViewModel :
     IErrorHandling,
     IBusyViewModel
 {
-    [ObservableProperty] DateTime startDate;
-    [ObservableProperty] DateTime endDate;
-    [ObservableProperty] ObservableCollection<WorkoutViewModel> allWorkouts = [];
-    [ObservableProperty] LogFilter filter = new(ServiceHelper.GetService<RegistrarService>());
-    [ObservableProperty] ObservableCollection<WorkoutViewModel> filteredWorkouts = [];
-    [ObservableProperty] bool displayFilter;
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] private DateTime startDate;
+    [ObservableProperty] private DateTime endDate;
+    [ObservableProperty] private ObservableCollection<WorkoutViewModel> allWorkouts = [];
+    [ObservableProperty] private LogFilter filter = new(ServiceHelper.GetService<RegistrarService>());
+    [ObservableProperty] private ObservableCollection<WorkoutViewModel> filteredWorkouts = [];
+    [ObservableProperty] private bool displayFilter;
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
 
     public event EventHandler<ErrorRecord>? OnError;
 
@@ -143,11 +143,11 @@ public partial class LogFilter : ObservableObject
         UserSearch.SetAvailableUsers(registrar.StudentList);
     }
 
-    [ObservableProperty] bool forCreditOnly;
-    [ObservableProperty] bool byClass;
-    [ObservableProperty] ObservableCollection<SelectableLabelViewModel> classes = [ "Class V", "Class VI", "Class VII", "Class VIII" ];
-    [ObservableProperty] bool byUser;
-    [ObservableProperty] UserSearchViewModel userSearch = new();
+    [ObservableProperty] private bool forCreditOnly;
+    [ObservableProperty] private bool byClass;
+    [ObservableProperty] private ObservableCollection<SelectableLabelViewModel> classes = [ "Class V", "Class VI", "Class VII", "Class VIII" ];
+    [ObservableProperty] private bool byUser;
+    [ObservableProperty] private UserSearchViewModel userSearch = new();
 
     internal bool Matches(WorkoutViewModel workout)
     {

@@ -155,7 +155,7 @@ public sealed class DeviceService(ApiService api, LocalLoggingService logging) :
     public async Task<DeviceRecord?> CreateNewDeviceRecord(CreateDeviceRecord newDevice, ErrorAction onError)
     {
         DeviceRecord? temp = null;
-        bool wait = false;
+        var wait = false;
         var result = await _api.SendAsync<CreateDeviceRecord, DeviceRecord?>(HttpMethod.Post, "api/devices", newDevice,
             onError: async (err) =>
             {

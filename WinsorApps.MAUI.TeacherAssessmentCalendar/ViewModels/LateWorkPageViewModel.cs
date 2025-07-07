@@ -20,11 +20,11 @@ public partial class LateWorkPageViewModel(TeacherAssessmentService service, Reg
     private readonly TeacherAssessmentService _service = service;
     private readonly RegistrarService _registrar = registrar;
 
-    [ObservableProperty] ObservableCollection<SectionLateWorkCollection> sections = [];
-    [ObservableProperty] SectionLateWorkCollection selectedSection = new();
-    [ObservableProperty] bool showSelectedSection;
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] private ObservableCollection<SectionLateWorkCollection> sections = [];
+    [ObservableProperty] private SectionLateWorkCollection selectedSection = new();
+    [ObservableProperty] private bool showSelectedSection;
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
 
     public event EventHandler<ErrorRecord>? OnError;
 
@@ -63,15 +63,15 @@ public partial class LateWorkViewModel :
     public event EventHandler? Resolved;
     public Optional<LateWorkDetails> Model { get; private set; } = Optional<LateWorkDetails>.None();
 
-    [ObservableProperty] string id = "";
-    [ObservableProperty] string details = "";
-    [ObservableProperty] DateTime resolvedDate;
-    [ObservableProperty] bool isResolved;
-    [ObservableProperty] DateTime marked;
-    [ObservableProperty] bool isAssessment;
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private string details = "";
+    [ObservableProperty] private DateTime resolvedDate;
+    [ObservableProperty] private bool isResolved;
+    [ObservableProperty] private DateTime marked;
+    [ObservableProperty] private bool isAssessment;
 
-    [ObservableProperty] AssessmentDetailsViewModel assessment = new();
-    [ObservableProperty] SectionViewModel section = SectionViewModel.Empty;
+    [ObservableProperty] private AssessmentDetailsViewModel assessment = new();
+    [ObservableProperty] private SectionViewModel section = SectionViewModel.Empty;
 
     public event EventHandler<ErrorRecord>? OnError;
 
@@ -114,7 +114,7 @@ public partial class LateWorkViewModel :
     [RelayCommand]
     public async Task Resolve()
     {
-        bool success = true;
+        var success = true;
         if (IsAssessment)
             await _service.ResolveLateAssessment(this.Id, err =>
             {
@@ -144,14 +144,14 @@ public partial class StudentLateWorkCollectionViewModel :
 {
     private readonly TeacherAssessmentService _service = ServiceHelper.GetService<TeacherAssessmentService>();
 
-    [ObservableProperty] StudentViewModel student = new();
-    [ObservableProperty] int totalLateWork;
-    [ObservableProperty] int outstandingLateWork;
-    [ObservableProperty] ObservableCollection<LateWorkViewModel> lateWorkPatterns = [];
-    [ObservableProperty] ObservableCollection<LateWorkViewModel> lateAssessments = [];
-    [ObservableProperty] bool hasPatterns;
-    [ObservableProperty] bool hasAssessments;
-    [ObservableProperty] bool showLateWork;
+    [ObservableProperty] private StudentViewModel student = new();
+    [ObservableProperty] private int totalLateWork;
+    [ObservableProperty] private int outstandingLateWork;
+    [ObservableProperty] private ObservableCollection<LateWorkViewModel> lateWorkPatterns = [];
+    [ObservableProperty] private ObservableCollection<LateWorkViewModel> lateAssessments = [];
+    [ObservableProperty] private bool hasPatterns;
+    [ObservableProperty] private bool hasAssessments;
+    [ObservableProperty] private bool showLateWork;
 
     [ObservableProperty] private double patternHeight;
     [ObservableProperty] private double assessmentHeight;
@@ -230,21 +230,21 @@ public partial class SectionLateWorkCollection :
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<SectionLateWorkCollection>? Selected;
 
-    [ObservableProperty] SectionViewModel section = SectionViewModel.Empty;
-    [ObservableProperty] ObservableCollection<StudentLateWorkCollectionViewModel> lateWorkByStudent = [];
-    [ObservableProperty] bool showResolved;
-    [ObservableProperty] bool isSelected;
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] private SectionViewModel section = SectionViewModel.Empty;
+    [ObservableProperty] private ObservableCollection<StudentLateWorkCollectionViewModel> lateWorkByStudent = [];
+    [ObservableProperty] private bool showResolved;
+    [ObservableProperty] private bool isSelected;
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
 
-    [ObservableProperty] ObservableCollection<AssessmentEditorViewModel> assessments = [];
-    [ObservableProperty] bool showAssessments;
-    [ObservableProperty] bool assessmentSelected;
-    [ObservableProperty] CreateLateAssessmentViewModel createLateAssessment = CreateLateAssessmentViewModel.Empty;
-    [ObservableProperty] bool showNewLateAssessment;
-    [ObservableProperty] CreateLateWorkPatternViewModel createPattern = new();
-    [ObservableProperty] bool showNewPattern;
-    [ObservableProperty] bool showLateWork = true;
+    [ObservableProperty] private ObservableCollection<AssessmentEditorViewModel> assessments = [];
+    [ObservableProperty] private bool showAssessments;
+    [ObservableProperty] private bool assessmentSelected;
+    [ObservableProperty] private CreateLateAssessmentViewModel createLateAssessment = CreateLateAssessmentViewModel.Empty;
+    [ObservableProperty] private bool showNewLateAssessment;
+    [ObservableProperty] private CreateLateWorkPatternViewModel createPattern = new();
+    [ObservableProperty] private bool showNewPattern;
+    [ObservableProperty] private bool showLateWork = true;
 
     public SectionLateWorkCollection() { }
 
@@ -364,10 +364,10 @@ public partial class CreateLateWorkPatternViewModel :
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<CreateLateWorkPatternViewModel>? Submitted;
 
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
 
-    [ObservableProperty] SectionViewModel section = new();
+    [ObservableProperty] private SectionViewModel section = new();
 
     public CreateLateWorkPatternViewModel()
     {
@@ -390,9 +390,9 @@ public partial class CreateLateWorkPatternViewModel :
         }
     }
 
-    [ObservableProperty] string details = "";
-    [ObservableProperty] ObservableCollection<UserViewModel> selectedStudents = [];
-    [ObservableProperty] ObservableCollection<UserViewModel> notSelectedStudents = []; 
+    [ObservableProperty] private string details = "";
+    [ObservableProperty] private ObservableCollection<UserViewModel> selectedStudents = [];
+    [ObservableProperty] private ObservableCollection<UserViewModel> notSelectedStudents = []; 
     
     [RelayCommand]
     public async Task Submit()
@@ -420,14 +420,14 @@ public partial class CreateLateAssessmentViewModel :
     public event EventHandler<CreateLateAssessmentViewModel>? Selected;
     public event EventHandler<CreateLateAssessmentViewModel>? Submitted;
 
-    [ObservableProperty] AssessmentEditorViewModel assessment;
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
-    [ObservableProperty] bool isSelected;
+    [ObservableProperty] private AssessmentEditorViewModel assessment;
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
+    [ObservableProperty] private bool isSelected;
 
-    [ObservableProperty] string details = "";
-    [ObservableProperty] ObservableCollection<UserViewModel> selectedStudents = [];
-    [ObservableProperty] ObservableCollection<UserViewModel> notSelectedStudents = [];
+    [ObservableProperty] private string details = "";
+    [ObservableProperty] private ObservableCollection<UserViewModel> selectedStudents = [];
+    [ObservableProperty] private ObservableCollection<UserViewModel> notSelectedStudents = [];
 
     public static implicit operator CreateLateAssessmentViewModel(AssessmentEditorViewModel assessment) => new(assessment);
 

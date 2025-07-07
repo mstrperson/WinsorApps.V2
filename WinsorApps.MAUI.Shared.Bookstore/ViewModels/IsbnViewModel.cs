@@ -20,14 +20,14 @@ public partial class IsbnViewModel :
     public event EventHandler<IsbnViewModel>? IsbnUpdateRequested;
     public event EventHandler<IsbnViewModel>? Selected;
 
-    [ObservableProperty] bool editable = true;
+    [ObservableProperty] private bool editable = true;
      
-    [ObservableProperty] string isbn = "";
+    [ObservableProperty] private string isbn = "";
 
-    [ObservableProperty] BookBindingViewModel binding = new("Hardcover");
+    [ObservableProperty] private BookBindingViewModel binding = new("Hardcover");
 
-    [ObservableProperty] bool available = true;
-    [ObservableProperty] bool isSelected;
+    [ObservableProperty] private bool available = true;
+    [ObservableProperty] private bool isSelected;
 
     public string AvailableString => Available ? "Available" : "Not Available";
 
@@ -36,17 +36,17 @@ public partial class IsbnViewModel :
     public static IsbnViewModel Empty => new();
 
 
-    [ObservableProperty] string displayName = "";
+    [ObservableProperty] private string displayName = "";
 
-    [ObservableProperty] bool hasOdinData = false;
+    [ObservableProperty] private bool hasOdinData = false;
 
-    [ObservableProperty] OdinDataViewModel currentOdinData = OdinDataViewModel.Empty;
+    [ObservableProperty] private OdinDataViewModel currentOdinData = OdinDataViewModel.Empty;
 
-    [ObservableProperty] List<string> bindingOptions = [];
+    [ObservableProperty] private List<string> bindingOptions = [];
 
-    [ObservableProperty] string bookId = "";
+    [ObservableProperty] private string bookId = "";
 
-    [ObservableProperty] BookInfoViewModel book = new();
+    [ObservableProperty] private BookInfoViewModel book = new();
 
     public IsbnViewModel(ISBNInfo info)
     {
@@ -61,7 +61,7 @@ public partial class IsbnViewModel :
             OdinUpdateRequested?.Invoke(this, (OdinDataViewModel) sender!);
         if (hasOdinData)
             FetchOdinData().SafeFireAndForget();
-        BookService bookService = ServiceHelper.GetService<BookService>();
+        var bookService = ServiceHelper.GetService<BookService>();
         bindingOptions = bookService.BookBindings.Select(b => $"{b}").ToList();
         LoadBookDetails();
     }
@@ -77,7 +77,7 @@ public partial class IsbnViewModel :
         currentOdinData = new();
         CurrentOdinData.UpdateRequested += (sender, e) =>
             OdinUpdateRequested?.Invoke(this, (OdinDataViewModel)sender!);
-        BookService? bookService = ServiceHelper.GetService<BookService>();
+        var bookService = ServiceHelper.GetService<BookService>();
         bindingOptions = bookService?.BookBindings.Select(b => $"{b}").ToList() ?? [];
 
         LoadBookDetails();
@@ -117,7 +117,7 @@ public partial class IsbnViewModel :
         currentOdinData = new();
         CurrentOdinData.UpdateRequested += (sender, e) =>
             OdinUpdateRequested?.Invoke(this, (OdinDataViewModel) sender!);
-        BookService? bookService = ServiceHelper.GetService<BookService>();
+        var bookService = ServiceHelper.GetService<BookService>();
         bindingOptions = bookService?.BookBindings.Select(b => $"{b}").ToList() ?? [];
     }
 
@@ -141,8 +141,8 @@ public partial class IsbnViewModel :
     [RelayCommand]
     public async Task Save()
     {
-        BookService? bookService = ServiceHelper.GetService<BookService>();
-        LocalLoggingService? logging = ServiceHelper.GetService<LocalLoggingService>();
+        var bookService = ServiceHelper.GetService<BookService>();
+        var logging = ServiceHelper.GetService<LocalLoggingService>();
 
         if (bookService is null)
         {
@@ -161,8 +161,8 @@ public partial class IsbnViewModel :
     [RelayCommand]
     public async Task Delete()
     {
-        BookService? bookService = ServiceHelper.GetService<BookService>();
-        LocalLoggingService? logging = ServiceHelper.GetService<LocalLoggingService>();
+        var bookService = ServiceHelper.GetService<BookService>();
+        var logging = ServiceHelper.GetService<LocalLoggingService>();
 
         if (bookService is null)
         {
@@ -178,8 +178,8 @@ public partial class IsbnViewModel :
     [RelayCommand]
     public async Task FetchOdinData()
     {
-        BookService? bookService = ServiceHelper.GetService<BookService>();
-        LocalLoggingService? logging = ServiceHelper.GetService<LocalLoggingService>();
+        var bookService = ServiceHelper.GetService<BookService>();
+        var logging = ServiceHelper.GetService<LocalLoggingService>();
 
         if (bookService is null)
         {
@@ -278,11 +278,9 @@ public partial class OdinDataViewModel :
 
     public event EventHandler<OdinData>? UpdateRequested;
 
-    [ObservableProperty]
-    string plu = "";
+    [ObservableProperty] private string plu = "";
 
-    [ObservableProperty]
-    double cost;
+    [ObservableProperty] private double cost;
 
     public string CostString
     {
@@ -292,8 +290,7 @@ public partial class OdinDataViewModel :
 
     public static OdinDataViewModel Empty => new();
 
-    [ObservableProperty]
-    bool isCurrent;
+    [ObservableProperty] private bool isCurrent;
 
     public OdinDataViewModel()
     {

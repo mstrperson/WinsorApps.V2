@@ -12,8 +12,8 @@ public partial class DeviceViewModel
 {
     private readonly ServiceCaseService _caseService = ServiceHelper.GetService<ServiceCaseService>();
 
-    [ObservableProperty] ObservableCollection<ServiceCaseViewModel> serviceHistory = [];
-    [ObservableProperty] bool showServiceHistory;
+    [ObservableProperty] private ObservableCollection<ServiceCaseViewModel> serviceHistory = [];
+    [ObservableProperty] private bool showServiceHistory;
 
     [RelayCommand]
     public async Task LoadServiceHistory()

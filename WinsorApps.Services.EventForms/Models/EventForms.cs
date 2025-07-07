@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.Services.EventForms.Models;
@@ -106,11 +107,11 @@ public record EventFormBase(string id, string summary, string description, strin
         bool hasFacilitiesInfo = false, bool hasTechRequest = false, bool hasCatering = false, bool hasTheaterRequest = false, bool hasFieldTripInfo = false,
         bool hasZoom = false, bool hasMarCom = false)
 {
-
     public bool IsSameAs(EventFormBase b)
     {
-        if(id != b.id) return false;
-
+        if(id != b.id) 
+            return false;
+        using DebugTimer _ = new($"Checking diff of event {id}");
         var result = summary.Equals(b.summary, StringComparison.InvariantCultureIgnoreCase)
             && description.Equals(b.description, StringComparison.InvariantCultureIgnoreCase)
             && type.Equals(b.type, StringComparison.InvariantCultureIgnoreCase)

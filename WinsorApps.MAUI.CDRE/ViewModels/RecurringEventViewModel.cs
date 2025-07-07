@@ -44,13 +44,13 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         private readonly CycleDayRecurringEventService _eventService = ServiceHelper.GetService<CycleDayRecurringEventService>();
         private readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
 
-        [ObservableProperty] List<RecurringEventViewModel> events = [];
+        [ObservableProperty] private List<RecurringEventViewModel> events = [];
         public event EventHandler<RecurringEventViewModel>? CreateRequested;
         public event EventHandler<RecurringEventViewModel>? Reload;
         public event EventHandler<RecurringEventViewModel>? EditRequested;
         public event EventHandler<ErrorRecord>? OnError;
 
-        [ObservableProperty] bool isBusy;
+        [ObservableProperty] private bool isBusy;
 
         [RelayCommand]
         public void LoadEvents()
@@ -118,23 +118,23 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
     {
         private readonly CycleDayRecurringEventService _eventService = ServiceHelper.GetService<CycleDayRecurringEventService>();
 
-        [ObservableProperty] string id = "";
-        [ObservableProperty] DateTime beginning = DateTime.Today;
-        [ObservableProperty] DateTime ending = DateTime.Today;
-        [ObservableProperty] string creatorId = "";
-        [ObservableProperty] string summary = "";
-        [ObservableProperty] string description = "";
-        [ObservableProperty] EmailListViewModel attendees = new();
-        [ObservableProperty] bool allDay;
-        [ObservableProperty] TimeSpan startTime;
-        [ObservableProperty] TimeSpan endTime;
-        [ObservableProperty] CycleDaySelectionViewModel cycleDays = new();
-        [ObservableProperty] int frequency = 1;
-        [ObservableProperty] bool isPublic;
-        [ObservableProperty] bool showDelete = false;
-        [ObservableProperty] int[] frequencyOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-        [ObservableProperty] bool busy;
-        [ObservableProperty] string busyMessage = "Loading";
+        [ObservableProperty] private string id = "";
+        [ObservableProperty] private DateTime beginning = DateTime.Today;
+        [ObservableProperty] private DateTime ending = DateTime.Today;
+        [ObservableProperty] private string creatorId = "";
+        [ObservableProperty] private string summary = "";
+        [ObservableProperty] private string description = "";
+        [ObservableProperty] private EmailListViewModel attendees = new();
+        [ObservableProperty] private bool allDay;
+        [ObservableProperty] private TimeSpan startTime;
+        [ObservableProperty] private TimeSpan endTime;
+        [ObservableProperty] private CycleDaySelectionViewModel cycleDays = new();
+        [ObservableProperty] private int frequency = 1;
+        [ObservableProperty] private bool isPublic;
+        [ObservableProperty] private bool showDelete = false;
+        [ObservableProperty] private int[] frequencyOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+        [ObservableProperty] private bool busy;
+        [ObservableProperty] private string busyMessage = "Loading";
        
         public int Duration => (int)(EndTime - StartTime).TotalMinutes;
 
@@ -184,7 +184,7 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         }
 
         #region ISelectable stuff
-        [ObservableProperty] bool isSelected;
+        [ObservableProperty] private bool isSelected;
 
         /// <summary>
         /// Do something if this Recurring Event is Selected.

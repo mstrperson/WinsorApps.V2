@@ -38,7 +38,7 @@ public record BookSearchFilter(string? title = null, string? isbn = null, string
     public override string ToString()
     {
         var output = "";
-        char sep = '?';
+        var sep = '?';
         if (!string.IsNullOrEmpty(title))
         {
             output += $"{sep}title={title}";

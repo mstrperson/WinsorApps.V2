@@ -20,10 +20,10 @@ public partial class ReportsPageViewModel(BookstoreManagerService managerService
 {
     private readonly BookstoreManagerService _managerService = managerService;
 
-    [ObservableProperty] bool springTerm;
-    [ObservableProperty] bool byIsbn;
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] private bool springTerm;
+    [ObservableProperty] private bool byIsbn;
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
 
     public event EventHandler<ErrorRecord>? OnError;
 

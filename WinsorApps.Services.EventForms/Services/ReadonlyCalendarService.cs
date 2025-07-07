@@ -109,12 +109,12 @@ namespace WinsorApps.Services.EventForms.Services
             Started = true;
             if (!LoadCache())
             {
-                await ManualLoadData(onError);
+                ManualLoadData(onError).SafeFireAndForget(e => e.LogException(_logging));
             }
             else
                 Refresh(onError).SafeFireAndForget(e => e.LogException(_logging));
 
-            Progress = 1;
+            //Progress = 1;
             Ready = true;
 
             RefreshInBackground(CancellationToken.None, onError).SafeFireAndForget(e => e.LogException(_logging));
@@ -122,11 +122,11 @@ namespace WinsorApps.Services.EventForms.Services
 
         private async Task ManualLoadData(ErrorAction onError)
         {
-            int year = DateTime.Today.Month > 6 ? DateTime.Today.Year : DateTime.Today.Year - 1;
+            var year = DateTime.Today.Month > 6 ? DateTime.Today.Year : DateTime.Today.Year - 1;
 
             var allEventsTask = _api.SendAsync<List<CalendarEvent<EventFormBase>>?>(HttpMethod.Get, $"api/events/calendar?start={year}-07-01&end={year + 1}-06-30", onError: onError);
             var cateringTask = _api.SendAsync<List<CalendarEvent<CateringEvent>>?>(HttpMethod.Get, $"api/events/calendar/catering?start={year}-07-01&end={year + 1}-06-30", onError: onError);
-            var facilitiesTask = _api.SendAsync<List<CalendarEvent<FacilitiesEvent>>?>(HttpMethod.Get, $"api/events/facilities?start={year}-07-01&end={year + 1}-06-30", onError: onError);
+            var facilitiesTask = _api.SendAsync<List<CalendarEvent<FacilitiesEvent>>?>(HttpMethod.Get, $"api/events/calendar/facilities?start={year}-07-01&end={year + 1}-06-30", onError: onError);
             var technologyTask = _api.SendAsync<List<CalendarEvent<TechEvent>>?>(HttpMethod.Get, $"api/events/calendar/technology?start={year}-07-01&end={year + 1}-06-30", onError: onError);
             var theaterTask = _api.SendAsync<List<CalendarEvent<TheaterEvent>>?>(HttpMethod.Get, $"api/events/calendar/theater?start={year}-07-01&end={year + 1}-06-30", onError: onError);
             var marcomTask = _api.SendAsync<List<CalendarEvent<MarCommRequest>>?>(HttpMethod.Get, $"api/events/calendar/marcom?start={year}-07-01&end={year + 1}-06-30", onError: onError);

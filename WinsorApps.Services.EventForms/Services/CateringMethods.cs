@@ -39,7 +39,7 @@ public partial class EventFormsService
         if (string.IsNullOrEmpty(eventBase.id))
             return;
 
-        bool success = true;
+        var success = true;
         await _api.SendAsync(HttpMethod.Delete, $"api/events/{id}/catering", onError: err =>
         {
             success = false;

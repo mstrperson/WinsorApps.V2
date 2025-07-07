@@ -65,7 +65,7 @@ public class LocationService(LocalLoggingService logging, ApiService api) :
         var location = MyCustomLocations.FirstOrDefault(loc => loc.id == id);
 
 
-        bool success = true;
+        var success = true;
         await _api.SendAsync(HttpMethod.Delete, $"api/events/location/custom/{id}", 
             onError: err =>
             {

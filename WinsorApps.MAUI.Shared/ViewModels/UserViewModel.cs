@@ -75,7 +75,7 @@ public partial class UserViewModel :
 
     [ObservableProperty] private List<SectionViewModel> academicSchedule = [];
     [ObservableProperty] private bool showButton = false;
-    [ObservableProperty] bool isSelected = false;
+    [ObservableProperty] private bool isSelected = false;
 
     [ObservableProperty] private ImageSource imageSource;
 

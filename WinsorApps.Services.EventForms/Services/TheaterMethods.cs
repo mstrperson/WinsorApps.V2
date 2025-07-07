@@ -26,7 +26,7 @@ public partial class EventFormsService
 
     public async Task<bool> DeleteTheaterDetails(string eventId, ErrorAction onError)
     {
-        bool success = true;
+        var success = true;
         await _api.SendAsync(HttpMethod.Delete, $"api/events/{eventId}/theater", onError: err =>
         {
             success = false;
@@ -54,7 +54,7 @@ public partial class EventFormsService
 
     public async Task<bool> DeleteAttachment(string eventId, string documentId, ErrorAction onError)
     {
-        bool success = true;
+        var success = true;
 
         await _api.SendAsync(HttpMethod.Delete, $"api/events/{eventId}/attachments/{documentId}", onError: 
             err =>

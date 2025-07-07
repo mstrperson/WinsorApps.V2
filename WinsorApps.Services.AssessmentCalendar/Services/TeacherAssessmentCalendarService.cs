@@ -36,7 +36,7 @@ public partial class TeacherAssessmentService(ApiService api, LocalLoggingServic
 
     public async Task SaveCache()
     {
-        int retryCount = 0;
+        var retryCount = 0;
         TryAgain:
          var cache = new CacheStructure(MyStudents, CourseList, [..MyAssessments], _adviseeLateWork, AssessmentDetailsCache);
         try
@@ -367,7 +367,7 @@ public partial class TeacherAssessmentService(ApiService api, LocalLoggingServic
 
     public async Task DeleteAssessment(string groupId, ErrorAction onError)
     {
-        bool error = false;
+        var error = false;
         await _api.SendAsync(HttpMethod.Delete, $"api/assessment-calendar/teachers/{groupId}", onError: onError);
 
         if (!error)

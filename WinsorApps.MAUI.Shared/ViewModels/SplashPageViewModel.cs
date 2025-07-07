@@ -9,15 +9,15 @@ namespace WinsorApps.MAUI.Shared.ViewModels;
 
 public partial class SplashPageViewModel(string title, List<string>? startingMessages = null, TimeSpan? timeout = null) : ObservableObject
 {
-    [ObservableProperty] string title = title;
+    [ObservableProperty] private string title = title;
 
-    [ObservableProperty] string subTitle = "";
+    [ObservableProperty] private string subTitle = "";
 
-    [ObservableProperty] List<string> messages = startingMessages ?? [];
+    [ObservableProperty] private List<string> messages = startingMessages ?? [];
 
-    [ObservableProperty] bool isCaptive = true;
+    [ObservableProperty] private bool isCaptive = true;
 
-    [ObservableProperty] TimeSpan timeout = timeout ?? TimeSpan.MaxValue;
+    [ObservableProperty] private TimeSpan timeout = timeout ?? TimeSpan.MaxValue;
 
     public event EventHandler? OnClose;
 

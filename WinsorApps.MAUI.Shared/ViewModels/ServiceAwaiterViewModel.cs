@@ -11,8 +11,8 @@ public partial class TaskAwaiterViewModel : ObservableObject
 {
     private readonly Task _task;
 
-    [ObservableProperty] bool ready;
-    [ObservableProperty] string taskName;
+    [ObservableProperty] private bool ready;
+    [ObservableProperty] private string taskName;
 
     public TaskAwaiterViewModel(Task task, string taskName)
     {

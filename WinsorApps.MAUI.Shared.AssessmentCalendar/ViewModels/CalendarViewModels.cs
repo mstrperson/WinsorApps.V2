@@ -14,10 +14,10 @@ public partial class CalendarDayViewModel :
     ObservableObject,
     ISelectable<CalendarDayViewModel>
 {
-    [ObservableProperty] ObservableCollection<AssessmentCalendarEventViewModel> events = [];
-    [ObservableProperty] DateTime date;
-    [ObservableProperty] string cycleDay = "";
-    [ObservableProperty] bool isSelected;
+    [ObservableProperty] private ObservableCollection<AssessmentCalendarEventViewModel> events = [];
+    [ObservableProperty] private DateTime date;
+    [ObservableProperty] private string cycleDay = "";
+    [ObservableProperty] private bool isSelected;
 
     public EventHandler<AssessmentCalendarEventViewModel>? EventSelected;
 
@@ -60,8 +60,8 @@ public partial class CalendarDayViewModel :
 public partial class CalendarWeekViewModel :
     ObservableObject
 {
-    [ObservableProperty] DateTime monday;
-    [ObservableProperty] ObservableCollection<CalendarDayViewModel> days = [];
+    [ObservableProperty] private DateTime monday;
+    [ObservableProperty] private ObservableCollection<CalendarDayViewModel> days = [];
 
     public event EventHandler<AssessmentCalendarEventViewModel>? EventSelected;
     public event EventHandler<CalendarDayViewModel>? DaySelected;
@@ -94,11 +94,11 @@ public partial class CalendarMonthViewModel :
 {
     private readonly CycleDayCollection _cycleDays = ServiceHelper.GetService<CycleDayCollection>();
 
-    [ObservableProperty] DateTime month;
-    [ObservableProperty] ObservableCollection<CalendarWeekViewModel> weeks = [];
+    [ObservableProperty] private DateTime month;
+    [ObservableProperty] private ObservableCollection<CalendarWeekViewModel> weeks = [];
 
-    [ObservableProperty] CalendarFilterByClassViewModel classFilter = new();
-    [ObservableProperty] bool showFilter;
+    [ObservableProperty] private CalendarFilterByClassViewModel classFilter = new();
+    [ObservableProperty] private bool showFilter;
 
     public event EventHandler<AssessmentCalendarEventViewModel>? EventSelected;
     public event EventHandler<CalendarDayViewModel>? DaySelected;
@@ -281,7 +281,7 @@ public partial class CalendarMonthViewModel :
 public partial class CalendarFilterByClassViewModel :
     ObservableObject
 {
-    [ObservableProperty] ObservableCollection<SelectableLabelViewModel> classNames = ["Class V", "Class VI", "Class VII", "Class VIII"];
+    [ObservableProperty] private ObservableCollection<SelectableLabelViewModel> classNames = ["Class V", "Class VI", "Class VII", "Class VIII"];
 
     public Func<AssessmentCalendarEvent, bool> Filter => evt =>
         ClassNames.All(c => !c.IsSelected) || evt.affectedClasses.Intersect(ClassNames.Where(c => c.IsSelected).Select(c => c.Label)).Any();

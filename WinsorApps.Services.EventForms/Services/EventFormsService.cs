@@ -9,8 +9,7 @@ namespace WinsorApps.Services.EventForms.Services
 {
     public partial class EventFormsService :
         IAsyncInitService,
-        IAutoRefreshingCacheService,
-        ICacheService
+        IAutoRefreshingCacheService
     {
         private readonly ApiService _api;
         private readonly LocalLoggingService _logging;

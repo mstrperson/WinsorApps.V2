@@ -39,7 +39,7 @@ public partial class ServiceCaseViewModel :
 
     public ServiceCaseViewModel Self => this;
 
-    [ObservableProperty] string summaryText = "New Service Case";
+    [ObservableProperty] private string summaryText = "New Service Case";
 
     [RelayCommand]
     public void Select() => Selected?.Invoke(this, this);

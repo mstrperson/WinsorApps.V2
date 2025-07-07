@@ -135,7 +135,7 @@ public class ServiceCaseService(ApiService api, LocalLoggingService logging) : I
 
     public async Task<bool> SendPickupNotification(string caseId, ErrorAction onError)
     {
-        bool success = true;
+        var success = true;
         await _api.SendAsync(HttpMethod.Get, $"api/helpdesk/service-cases/{caseId}/notify", onError: err =>
         {
             success = false;

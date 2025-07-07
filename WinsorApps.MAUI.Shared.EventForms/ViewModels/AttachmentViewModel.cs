@@ -21,12 +21,12 @@ public partial class AttachmentViewModel :
     private readonly EventFormsService _service = ServiceHelper.GetService<EventFormsService>();
     private readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
 
-    [ObservableProperty] string id = "";
-    [ObservableProperty] string fileName = "";
-    [ObservableProperty] string mimeType = "";
-    [ObservableProperty] string location = "";
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "Downloading...";
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private string fileName = "";
+    [ObservableProperty] private string mimeType = "";
+    [ObservableProperty] private string location = "";
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "Downloading...";
 
     public Optional<DocumentHeader> Model { get; private set; } = Optional<DocumentHeader>.None();
 
@@ -80,11 +80,11 @@ public partial class AttachmentCollectionViewModel :
 
     public event EventHandler<ErrorRecord>? OnError;
 
-    [ObservableProperty] string eventId = "";
-    [ObservableProperty] ObservableCollection<AttachmentViewModel> attachments = [];
-    [ObservableProperty] bool isTheater;
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "Working...";
+    [ObservableProperty] private string eventId = "";
+    [ObservableProperty] private ObservableCollection<AttachmentViewModel> attachments = [];
+    [ObservableProperty] private bool isTheater;
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "Working...";
 
     public AttachmentCollectionViewModel() { }
 

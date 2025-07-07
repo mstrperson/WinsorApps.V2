@@ -19,19 +19,19 @@ public partial class StudentPageViewModel :
     IErrorHandling,
     IBusyViewModel
 {
-    [ObservableProperty] AllMyStudentsViewModel myStudents;
-    [ObservableProperty] string searchText = "";
-    [ObservableProperty] ObservableCollection<StudentViewModel> searchResults = [];
-    [ObservableProperty] double searchResultsHeight;
+    [ObservableProperty] private AllMyStudentsViewModel myStudents;
+    [ObservableProperty] private string searchText = "";
+    [ObservableProperty] private ObservableCollection<StudentViewModel> searchResults = [];
+    [ObservableProperty] private double searchResultsHeight;
     private readonly double SEARCH_ROW_HEIGHT = 35;
     private readonly double SEARCH_HEADER_HEIGHT = 45;
 
-    [ObservableProperty] StudentViewModel selectedStudent = new();
-    [ObservableProperty] bool showStudent;
-    [ObservableProperty] bool showStudentSelection;
+    [ObservableProperty] private StudentViewModel selectedStudent = new();
+    [ObservableProperty] private bool showStudent;
+    [ObservableProperty] private bool showStudentSelection;
 
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
 
     public event EventHandler<AssessmentDetailsViewModel>? AssessmentSelected;
 
@@ -108,10 +108,10 @@ public partial class AllMyStudentsViewModel :
 
     public readonly TeacherAssessmentService _service = ServiceHelper.GetService<TeacherAssessmentService>();
 
-    [ObservableProperty] ObservableCollection<StudentViewModel> myStudents = [];
+    [ObservableProperty] private ObservableCollection<StudentViewModel> myStudents = [];
     [ObservableProperty] private int studentCount;
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
 
     public StudentViewModel? this[string id] => MyStudents.FirstOrDefault(stu => stu.Model.Reduce(UserRecord.Empty).id == id);
 
@@ -158,31 +158,31 @@ public partial class StudentViewModel :
     private readonly RegistrarService _registrar = ServiceHelper.GetService<RegistrarService>();
 
 
-    [ObservableProperty] UserViewModel userInfo = UserViewModel.Empty;
-    [ObservableProperty] string advisorName = "";
-    [ObservableProperty] string className = "";
-    [ObservableProperty] int gradYear;
+    [ObservableProperty] private UserViewModel userInfo = UserViewModel.Empty;
+    [ObservableProperty] private string advisorName = "";
+    [ObservableProperty] private string className = "";
+    [ObservableProperty] private int gradYear;
 
-    [ObservableProperty] CalendarMonthViewModel assessmentCalendar = new();
-    [ObservableProperty] bool showCalendar;
+    [ObservableProperty] private CalendarMonthViewModel assessmentCalendar = new();
+    [ObservableProperty] private bool showCalendar;
 
-    [ObservableProperty] StudentLatePassCollectionViewModel latePassCollection = new(UserViewModel.Empty);
-    [ObservableProperty] bool showLatePasses;
+    [ObservableProperty] private StudentLatePassCollectionViewModel latePassCollection = new(UserViewModel.Empty);
+    [ObservableProperty] private bool showLatePasses;
 
-    [ObservableProperty] ScheduleViewModel academicSchedule = new();
-    [ObservableProperty] bool showSchedule;
+    [ObservableProperty] private ScheduleViewModel academicSchedule = new();
+    [ObservableProperty] private bool showSchedule;
 
-    [ObservableProperty] SectionAssessmentCalendarViewModel selectedSection;
-    [ObservableProperty] bool showSelectedSection;
+    [ObservableProperty] private SectionAssessmentCalendarViewModel selectedSection;
+    [ObservableProperty] private bool showSelectedSection;
 
-    [ObservableProperty] ObservableCollection<LateWorkViewModel> lateWork = [];
-    [ObservableProperty] bool showLateWork;
-    [ObservableProperty] bool includeResolvedLateWork;
+    [ObservableProperty] private ObservableCollection<LateWorkViewModel> lateWork = [];
+    [ObservableProperty] private bool showLateWork;
+    [ObservableProperty] private bool includeResolvedLateWork;
 
-    [ObservableProperty] bool isSelected;
+    [ObservableProperty] private bool isSelected;
 
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
 
     public static implicit operator UserViewModel(StudentViewModel student) => student.UserInfo;
 

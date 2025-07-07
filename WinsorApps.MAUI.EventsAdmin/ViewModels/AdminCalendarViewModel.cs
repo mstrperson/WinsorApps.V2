@@ -23,15 +23,15 @@ public partial class AdminCalendarViewModel :
     private readonly EventsAdminService _admin = ServiceHelper.GetService<EventsAdminService>();
     private readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
 
-    [ObservableProperty] CalendarViewModel calendar;
-    [ObservableProperty] EventFilterViewModel eventFilterViewModel = new();
-    [ObservableProperty] bool showFilter;
+    [ObservableProperty] private CalendarViewModel calendar;
+    [ObservableProperty] private EventFilterViewModel eventFilterViewModel = new();
+    [ObservableProperty] private bool showFilter;
     
-    [ObservableProperty] EventFormViewModel selectedEvent = new();
-    [ObservableProperty] bool showEvent;
+    [ObservableProperty] private EventFormViewModel selectedEvent = new();
+    [ObservableProperty] private bool showEvent;
 
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
 
     public event EventHandler<ErrorRecord>? OnError;
 
@@ -92,8 +92,10 @@ public partial class AdminCalendarViewModel :
                 if (invalidChars.Contains(c))
                     summary = summary.Replace($"{c}", "");
             }
+
+            var startTime = evt.Model.Reduce(EventFormBase.Empty).start;
             
-            downloads.Add(($"({evt.StartDate+evt.StartTime:MM-dd hh-mm tt}) {summary}.pdf", pdf));
+            downloads.Add(($"({startTime:MM-dd hh-mm tt}) {summary}.pdf", pdf));
             
             BusyMessage = $"Downloading {--evtCount} events...";
         }

@@ -19,17 +19,17 @@ public partial class MyAssessmentsPageViewModel :
     private readonly TeacherAssessmentService _service;
     private readonly RegistrarService _registrar;
 
-    [ObservableProperty] MyAssessmentsCollectionViewModel assessmentCollection;
+    [ObservableProperty] private MyAssessmentsCollectionViewModel assessmentCollection;
 
-    [ObservableProperty] AssessmentDetailsViewModel selectedDetails = new();
-    [ObservableProperty] bool showDetails;
+    [ObservableProperty] private AssessmentDetailsViewModel selectedDetails = new();
+    [ObservableProperty] private bool showDetails;
 
-    [ObservableProperty] ObservableCollection<CourseViewModel> myCourses = [];
-    [ObservableProperty] CourseViewModel selectedCourse = CourseViewModel.Empty;
-    [ObservableProperty] bool courseSelected;
-    [ObservableProperty] bool showCourseSelection;
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] private ObservableCollection<CourseViewModel> myCourses = [];
+    [ObservableProperty] private CourseViewModel selectedCourse = CourseViewModel.Empty;
+    [ObservableProperty] private bool courseSelected;
+    [ObservableProperty] private bool showCourseSelection;
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
 
     public event EventHandler<ContentPage>? PageRequested;
 

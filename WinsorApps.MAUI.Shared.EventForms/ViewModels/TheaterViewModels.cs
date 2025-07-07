@@ -21,10 +21,10 @@ public partial class TheaterEventViewModel :
     private readonly EventFormsService _eventService = ServiceHelper.GetService<EventFormsService>();
     private readonly TheaterService _theater = ServiceHelper.GetService<TheaterService>();
 
-    [ObservableProperty] string id = "";
-    [ObservableProperty] string notes = "";
-    [ObservableProperty] List<DocumentViewModel> documents = [];
-    [ObservableProperty] TheaterMenuCollectionViewModel theaterMenu = new();
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private string notes = "";
+    [ObservableProperty] private List<DocumentViewModel> documents = [];
+    [ObservableProperty] private TheaterMenuCollectionViewModel theaterMenu = new();
     [ObservableProperty] private bool hasLoaded;
 
     public Optional<TheaterEvent> Model { get; private set; } = Optional<TheaterEvent>.None();
@@ -78,8 +78,8 @@ public partial class TheaterEventViewModel :
             TheaterMenu[item.categoryId][item.id].IsSelected = true;
     }
 
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "Working";
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "Working";
     public static TheaterEventViewModel Empty => new();
 
 
@@ -129,7 +129,7 @@ public partial class TheaterEventViewModel :
 public partial class TheaterMenuCollectionViewModel :
     ObservableObject
 {
-    [ObservableProperty] List<TheaterMenuViewModel> menus = [];
+    [ObservableProperty] private List<TheaterMenuViewModel> menus = [];
 
     public TheaterMenuViewModel this[string id] => Menus.First(menu => menu.Id == id);
 }
@@ -139,11 +139,11 @@ public partial class TheaterMenuViewModel :
     ICachedViewModel<TheaterMenuViewModel, TheaterMenuCategory, TheaterService>,
     ISelectable<TheaterMenuViewModel>
 {
-    [ObservableProperty] string id = "";
-    [ObservableProperty] string name = "";
-    [ObservableProperty] List<TheaterMenuItemViewModel> items = [];
-    [ObservableProperty] bool isDeleted;
-    [ObservableProperty] bool isSelected;
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private string name = "";
+    [ObservableProperty] private List<TheaterMenuItemViewModel> items = [];
+    [ObservableProperty] private bool isDeleted;
+    [ObservableProperty] private bool isSelected;
 
     public TheaterMenuItemViewModel this[string id] => Items.First(it => it.Id == id);
 
@@ -190,10 +190,10 @@ public partial class TheaterMenuItemViewModel :
     ObservableObject,
     ISelectable<TheaterMenuItemViewModel>
 {
-    [ObservableProperty] string id = "";
-    [ObservableProperty] string name = "";
-    [ObservableProperty] bool isDeleted;
-    [ObservableProperty] bool isSelected;
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private string name = "";
+    [ObservableProperty] private bool isDeleted;
+    [ObservableProperty] private bool isSelected;
 
     public event EventHandler<TheaterMenuItemViewModel>? Selected;
 

@@ -19,17 +19,17 @@ public partial class AssessmentCalendarEventViewModel :
     ISelectable<AssessmentCalendarEventViewModel>,
     IErrorHandling
 {
-    [ObservableProperty] string id = "";
-    [ObservableProperty] AssessmentType type = AssessmentType.Assessment;
-    [ObservableProperty] string summary = "";
-    [ObservableProperty] string description = "";
-    [ObservableProperty] DateTime start;
-    [ObservableProperty] DateTime end;
-    [ObservableProperty] bool allDay;
-    [ObservableProperty] ObservableCollection<StudentClassName> affectedClasses = [];
-    [ObservableProperty] bool passUsed;
-    [ObservableProperty] bool passAvailable;
-    [ObservableProperty] bool isSelected;
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private AssessmentType type = AssessmentType.Assessment;
+    [ObservableProperty] private string summary = "";
+    [ObservableProperty] private string description = "";
+    [ObservableProperty] private DateTime start;
+    [ObservableProperty] private DateTime end;
+    [ObservableProperty] private bool allDay;
+    [ObservableProperty] private ObservableCollection<StudentClassName> affectedClasses = [];
+    [ObservableProperty] private bool passUsed;
+    [ObservableProperty] private bool passAvailable;
+    [ObservableProperty] private bool isSelected;
 
     public AssessmentEntryRecord? Details { get; private set; } = null;
 
@@ -91,12 +91,12 @@ public partial class ApExamViewModel :
     ObservableObject,
     IModelCarrier<ApExamViewModel, APExamDetail>
 {
-    [ObservableProperty] string id = "";
-    [ObservableProperty] string courseName = "";
-    [ObservableProperty] DateTime start;
-    [ObservableProperty] DateTime end;
-    [ObservableProperty] ObservableCollection<SectionViewModel> sections = [];
-    [ObservableProperty] ObservableCollection<UserViewModel> students = [];
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private string courseName = "";
+    [ObservableProperty] private DateTime start;
+    [ObservableProperty] private DateTime end;
+    [ObservableProperty] private ObservableCollection<SectionViewModel> sections = [];
+    [ObservableProperty] private ObservableCollection<UserViewModel> students = [];
 
     public Optional<APExamDetail> Model { get; private set; } = Optional<APExamDetail>.None();
 
@@ -127,10 +127,10 @@ public partial class DayNoteViewModel :
     ObservableObject,
     IModelCarrier<DayNoteViewModel, DayNote>
 {
-    [ObservableProperty] string id = "";
-    [ObservableProperty] DateOnly date;
-    [ObservableProperty] string note = "";
-    [ObservableProperty] List<StudentClassName> affectedClasses = [];
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private DateOnly date;
+    [ObservableProperty] private string note = "";
+    [ObservableProperty] private List<StudentClassName> affectedClasses = [];
 
     public Optional<DayNote> Model { get; private set; } = Optional<DayNote>.None();
 

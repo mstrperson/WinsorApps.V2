@@ -14,10 +14,10 @@ public partial class CalendarViewModel :
 {
     private readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
 
-    [ObservableProperty] ObservableCollection<CalendarWeekViewModel> weeks = [];
-    [ObservableProperty] DateTime month = DateTime.Today.MonthOf();
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] private ObservableCollection<CalendarWeekViewModel> weeks = [];
+    [ObservableProperty] private DateTime month = DateTime.Today.MonthOf();
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
 
     public event EventHandler<EventFormViewModel>? EventSelected;
 
@@ -45,7 +45,7 @@ public partial class CalendarViewModel :
 
         Weeks = [];
         var firstCalendarDay = new DateTime(Month.Year, Month.Month, 1).MondayOf().AddDays(-1);
-        for (DateTime sunday = firstCalendarDay; 100 * sunday.Year + sunday.Month <= 100 * Month.Year + Month.Month; sunday = sunday.AddDays(7))
+        for (var sunday = firstCalendarDay; 100 * sunday.Year + sunday.Month <= 100 * Month.Year + Month.Month; sunday = sunday.AddDays(7))
         {
             Weeks.Add(new(sunday, events));
         }
@@ -71,12 +71,12 @@ public partial class CalendarViewModel :
 public partial class CalendarWeekViewModel :
     ObservableObject
 {
-    [ObservableProperty] ObservableCollection<CalendarDayViewModel> days = [];
+    [ObservableProperty] private ObservableCollection<CalendarDayViewModel> days = [];
 
     public CalendarWeekViewModel(DateTime sunday, List<EventFormViewModel> events)
     {
         var nextSunday = sunday.AddDays(7);
-        for (DateTime date = sunday; date < nextSunday; date = date.AddDays(1))
+        for (var date = sunday; date < nextSunday; date = date.AddDays(1))
         {
             Days.Add(new(date, events));
         }
@@ -92,9 +92,9 @@ public partial class CalendarWeekViewModel :
 public partial class CalendarDayViewModel :
     ObservableObject
 {
-    [ObservableProperty] DateTime date;
-    [ObservableProperty] ObservableCollection<EventFormViewModel> events = [];
-    [ObservableProperty] ObservableCollection<EventFormViewModel> filteredEvents = [];
+    [ObservableProperty] private DateTime date;
+    [ObservableProperty] private ObservableCollection<EventFormViewModel> events = [];
+    [ObservableProperty] private ObservableCollection<EventFormViewModel> filteredEvents = [];
 
     public CalendarDayViewModel(DateTime date, List<EventFormViewModel> events)
     {

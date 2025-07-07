@@ -17,7 +17,7 @@ ServiceCaseService serviceCaseService = new(api, logging);
 
 // Do Login Stuff
 await api.Initialize(OnError);
-int retryCount = 0;
+var retryCount = 0;
 while (!api.Ready && retryCount < 10)
 {
     await api.Login("jcox@winsor.edu", "!-8L49snDyYvcNJe29a.p!N4ka3wf", OnError);
@@ -30,7 +30,7 @@ if (!api.Ready)
 
 // Initialize Registrar Service
 
-DateTime start = DateTime.Now;
+var start = DateTime.Now;
 Console.WriteLine("Initializing");
 
 await Task.WhenAll(

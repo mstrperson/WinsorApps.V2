@@ -80,7 +80,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         {
             _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Checking In {Model.Reduce(null!).items.DelimeteredList(", ")} for {User.DisplayName}");
             Working = true;
-            bool success = true;
+            var success = true;
             await _cheqroom.CheckInItem(Id,
                 err => { success = false; OnError.DefaultBehavior(this)(err); });
             Working = false;

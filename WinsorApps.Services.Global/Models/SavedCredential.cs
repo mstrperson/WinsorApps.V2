@@ -67,7 +67,7 @@ public record SavedCredential(
     {
 
         var json = JsonSerializer.Serialize(credential);
-        byte[] credBytes = Encoding.UTF8.GetBytes(json);
+        var credBytes = Encoding.UTF8.GetBytes(json);
 
         await File.WriteAllBytesAsync(CredFilePath, credBytes);
     }
@@ -83,7 +83,7 @@ public record SavedCredential(
             File.Delete(CredFilePathOld);
         }
 
-        string json = File.ReadAllText(CredFilePath).Trim();
+        var json = File.ReadAllText(CredFilePath).Trim();
 
         if (!json.StartsWith('{') || !json.EndsWith('}'))
         {

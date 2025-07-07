@@ -7,8 +7,8 @@ namespace WinsorApps.MAUI.Shared.ViewModels
         ObservableObject, 
         ISelectable<SelectableEntryViewModel<T>>
     {
-        [ObservableProperty] T value;
-        [ObservableProperty] bool isSelected;
+        [ObservableProperty] private T value;
+        [ObservableProperty] private bool isSelected;
 
         public event EventHandler<SelectableEntryViewModel<T>>? Selected;
 

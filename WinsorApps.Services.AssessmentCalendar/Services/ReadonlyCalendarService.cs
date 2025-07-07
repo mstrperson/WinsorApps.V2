@@ -75,7 +75,7 @@ public partial class ReadonlyCalendarService(ApiService api, LocalLoggingService
 
     public async Task Initialize(ErrorAction onError)
     {
-        int retryCount = 0;
+        var retryCount = 0;
         while (!await CycleDays.Initialize(onError) && retryCount++ < 5)
         {
             await Task.Delay(250);
@@ -139,7 +139,7 @@ public partial class ReadonlyCalendarService(ApiService api, LocalLoggingService
 
     public async Task<List<AssessmentCalendarEvent>> GetAssessmentsByMonth(Month month, ErrorAction onError)
     {
-        DateRange monthRange = DateRange.MonthOf(month, CycleDays.SchoolYear.startDate);
+        var monthRange = DateRange.MonthOf(month, CycleDays.SchoolYear.startDate);
         var result = await GetAssessmentCalendarInRange(onError, monthRange.start, monthRange.end);
         AssessmentCalendar = [.. AssessmentCalendar.ToList()
             .Merge(result, (a, b) => a.id == b.id)
@@ -176,7 +176,7 @@ public partial class ReadonlyCalendarService(ApiService api, LocalLoggingService
 
     public async Task<List<AssessmentGroup>> GetAssessmentGroups(ErrorAction onError, DateOnly start = default, DateOnly end = default)
     {
-        char ch = '?';
+        var ch = '?';
         var query = "";
         if (start != default)
         {

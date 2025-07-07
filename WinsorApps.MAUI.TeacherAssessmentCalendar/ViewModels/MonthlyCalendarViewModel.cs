@@ -29,9 +29,9 @@ public partial class MonthlyCalendarViewModel :
     public event EventHandler<AssessmentCalendarEventViewModel>? EventSelected;
     public event EventHandler<CalendarDayViewModel>? DaySelected;
 
-    [ObservableProperty] CalendarMonthViewModel calendar = new();
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] private CalendarMonthViewModel calendar = new();
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
     public MonthlyCalendarViewModel(ReadonlyCalendarService service, LocalLoggingService logging)
     {
         _service = service;

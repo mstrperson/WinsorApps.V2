@@ -23,14 +23,14 @@ public partial class EventsCalendarViewModel :
     private readonly ReadonlyCalendarService _calendarService;
     private readonly LocalLoggingService _logging;
 
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
-    [ObservableProperty] CalendarViewModel calendar;
-    [ObservableProperty] EventFilterViewModel eventFilterViewModel = new();
-    [ObservableProperty] bool showFilter;
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
+    [ObservableProperty] private CalendarViewModel calendar;
+    [ObservableProperty] private EventFilterViewModel eventFilterViewModel = new();
+    [ObservableProperty] private bool showFilter;
 
-    [ObservableProperty] EventFormViewModel selectedEvent = new();
-    [ObservableProperty] bool showEvent;
+    [ObservableProperty] private EventFormViewModel selectedEvent = new();
+    [ObservableProperty] private bool showEvent;
 
     public event EventHandler<EventFormViewModel>? LoadEvent;
 

@@ -117,11 +117,11 @@ public partial class BookISBNSelectionViewModel :
     IErrorHandling
 
 {
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
-    [ObservableProperty] BookSearchViewModel search = new();
-    [ObservableProperty] bool bookSelected;
-    [ObservableProperty] BookViewModel selectedBook = BookViewModel.Empty;
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
+    [ObservableProperty] private BookSearchViewModel search = new();
+    [ObservableProperty] private bool bookSelected;
+    [ObservableProperty] private BookViewModel selectedBook = BookViewModel.Empty;
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<List<IsbnViewModel>>? IsbnsSelected;

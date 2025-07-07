@@ -210,7 +210,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
 
     private async Task CheckForStuckLogin()
     {
-        DateTime started = DateTime.Now;
+        var started = DateTime.Now;
 
         while(AutoLoginInProgress)
         {
@@ -352,7 +352,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
             if (AuthorizedUser is not null)
             {
                 var jwt = AuthorizedUser.GetJwt();
-                bool failed = false;
+                var failed = false;
                 AuthorizedUser = await SendAsync<AuthResponse>(HttpMethod.Get,
                     $"api/auth/renew?refreshToken={AuthorizedUser.refreshToken}", authorize: true, onError: err =>
                     {

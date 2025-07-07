@@ -10,8 +10,7 @@ namespace WinsorApps.MAUI.Shared.Bookstore.ViewModels;
 public partial class BookBindingViewModel : 
     ObservableObject
 {
-    [ObservableProperty]
-    string binding;
+    [ObservableProperty] private string binding;
 
     [ObservableProperty]
     private string id = "";
@@ -30,8 +29,8 @@ public partial class BookBindingViewModel :
     public BookBindingViewModel(string binding)
     {
         this.binding = binding;
-        BookService service = ServiceHelper.GetService<BookService>();
-        LocalLoggingService logging = ServiceHelper.GetService<LocalLoggingService>();
+        var service = ServiceHelper.GetService<BookService>();
+        var logging = ServiceHelper.GetService<LocalLoggingService>();
 
         var temp = service.BookBindings.FirstOrDefault(b => b.binding.Equals(binding, StringComparison.InvariantCultureIgnoreCase));
         if(temp is null)
@@ -49,9 +48,9 @@ public partial class BookOrderOptionViewModel :
     ICachedViewModel<BookOrderOptionViewModel, OrderOption, BookService>,
     IDefaultValueViewModel<BookOrderOptionViewModel>
 {
-    [ObservableProperty] string id = "";
-    [ObservableProperty] string label = "";
-    [ObservableProperty] string description = "";
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private string label = "";
+    [ObservableProperty] private string description = "";
 
     public static ConcurrentBag<BookOrderOptionViewModel> ViewModelCache { get; private set; } = [];
     private static BookService BookService => ServiceHelper.GetService<BookService>();

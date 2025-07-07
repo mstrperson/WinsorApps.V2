@@ -143,10 +143,14 @@ public partial class EventsAdminService(ApiService api, RegistrarService registr
     private async Task ComputeChangesAndUpdates(List<EventFormBase> incoming, bool suppressRefresh = false)
     {
         using DebugTimer _ = new("Computing Changes and Updates", _logging);
-        var newEvents = incoming.Where(evt => AllEvents.All(existing => existing.id != evt.id)).ToList();
+        var newEvents = incoming
+            .Where(evt => AllEvents.All(existing => existing.id != evt.id))
+            .ToList();
         Debug.WriteLine($"{newEvents.Count} are not cached events.");
 
-        var changes = incoming.Except(newEvents).Where(evt => AllEvents.All(existing => !existing.IsSameAs(evt))).ToList();
+        var changes = incoming
+            .Except(newEvents)
+            .Where(evt => AllEvents.All(existing => !existing.IsSameAs(evt))).ToList();
         Debug.WriteLine($"{changes.Count} Events that are different.");
 
         var toReplace = AllEvents.Where(evt => changes.Any(update => update.id == evt.id)).ToList();

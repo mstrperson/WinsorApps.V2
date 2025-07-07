@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Text.Json;
 using WinsorApps.Services.EventForms.Models;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.Services.EventForms.Services
@@ -46,6 +47,7 @@ namespace WinsorApps.Services.EventForms.Services
             Progress = 0;
             if (!LoadCache())
             {
+                using var _ = new DebugTimer("Load Budget Codes", _logging);
                 BudgetCodes = await _api.SendAsync<List<BudgetCode>?>(HttpMethod.Get, "api/budget-codes", onError: onError) ?? [];
                 await SaveCache();
             }

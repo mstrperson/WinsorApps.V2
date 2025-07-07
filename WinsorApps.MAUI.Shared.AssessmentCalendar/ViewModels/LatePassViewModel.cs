@@ -13,16 +13,16 @@ public partial class LatePassViewModel :
     ObservableObject,
     IModelCarrier<LatePassViewModel, AssessmentPassDetail>
 {
-    [ObservableProperty] string courseName = "";
-    [ObservableProperty] string note = "";
-    [ObservableProperty] DateTime dateAndTime;
-    [ObservableProperty] DateTime timestamp;
-    [ObservableProperty] UserViewModel student = UserViewModel.Empty;
-    [ObservableProperty] MakeupTimeViewModel makeupTime = MakeupTimeViewModel.Empty;
+    [ObservableProperty] private string courseName = "";
+    [ObservableProperty] private string note = "";
+    [ObservableProperty] private DateTime dateAndTime;
+    [ObservableProperty] private DateTime timestamp;
+    [ObservableProperty] private UserViewModel student = UserViewModel.Empty;
+    [ObservableProperty] private MakeupTimeViewModel makeupTime = MakeupTimeViewModel.Empty;
 
-    [ObservableProperty] FreeBlockCollectionViewModel freeBlockLookup = new();
-    [ObservableProperty] bool showFreeBlockLookup;
-    [ObservableProperty] bool showManualInput;
+    [ObservableProperty] private FreeBlockCollectionViewModel freeBlockLookup = new();
+    [ObservableProperty] private bool showFreeBlockLookup;
+    [ObservableProperty] private bool showManualInput;
 
     public Optional<AssessmentPassDetail> Model { get; private set; } = Optional<AssessmentPassDetail>.None();
 
@@ -154,9 +154,9 @@ public partial class MakeupTimeViewModel :
 
     public static MakeupTimeViewModel Empty => new() { Note = "Not Scheduled" };
 
-    [ObservableProperty] DateTime sheduled = DateTime.Today;
-    [ObservableProperty] string note = "";
-    [ObservableProperty] bool isScheduled;
+    [ObservableProperty] private DateTime sheduled = DateTime.Today;
+    [ObservableProperty] private string note = "";
+    [ObservableProperty] private bool isScheduled;
 
     public Optional<MakeupTime> Model { get; set; } = Optional<MakeupTime>.None();
 

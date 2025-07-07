@@ -230,7 +230,7 @@ public static partial class Extensions
     public static string GetUniqueNameWithin(this IEnumerable<UserRecord> users, UserRecord user)
     {
         Debug.WriteLine($"Looking up unique name for {user}");
-        List<string> names = users.Select(u => $"{u}").ToList();
+        var names = users.Select(u => $"{u}").ToList();
         return names.GetUniqueNameWithin(user);
 
     }

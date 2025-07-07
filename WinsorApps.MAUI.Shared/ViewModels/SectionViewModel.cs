@@ -21,15 +21,15 @@ public partial class CourseViewModel :
 
     private static readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
 
-    [ObservableProperty] string displayName = "";
-    [ObservableProperty] string department = "";
-    [ObservableProperty] string id = "";
-    [ObservableProperty] int lengthInTerms;
-    [ObservableProperty] string courseCode = "";
-    [ObservableProperty] ObservableCollection<SectionViewModel> sections = [];
-    [ObservableProperty] ObservableCollection<SectionViewModel> currentSections = [];
-    [ObservableProperty] bool mySectionsOnly;
-    [ObservableProperty] string currentTermIdentifier = "";
+    [ObservableProperty] private string displayName = "";
+    [ObservableProperty] private string department = "";
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private int lengthInTerms;
+    [ObservableProperty] private string courseCode = "";
+    [ObservableProperty] private ObservableCollection<SectionViewModel> sections = [];
+    [ObservableProperty] private ObservableCollection<SectionViewModel> currentSections = [];
+    [ObservableProperty] private bool mySectionsOnly;
+    [ObservableProperty] private string currentTermIdentifier = "";
     public Optional<CourseRecord> Model { get; init; } = Optional<CourseRecord>.None();
 
     public static ConcurrentBag<CourseViewModel> ViewModelCache { get; protected set; } = [];
@@ -58,7 +58,7 @@ public partial class CourseViewModel :
     [RelayCommand]
     public async Task LoadSections()
     {
-        bool success = true;
+        var success = true;
         var sections = await _registrar.GetSectionsOfAsync(Model.Reduce(CourseRecord.Empty), err =>
         {
             _logging.LogError(err);
@@ -259,13 +259,13 @@ public partial class SectionViewModel :
     public event EventHandler<SectionViewModel>? Selected;
     public event EventHandler<ErrorRecord>? OnError;
 
-    [ObservableProperty] string displayName = "";
-    [ObservableProperty] string room = "";
-    [ObservableProperty] string block = "";
-    [ObservableProperty] string term = "";
-    [ObservableProperty] UserViewModel primaryTeacher = UserViewModel.Empty;
-    [ObservableProperty] string id = "";
-    [ObservableProperty] bool isCurrent;
+    [ObservableProperty] private string displayName = "";
+    [ObservableProperty] private string room = "";
+    [ObservableProperty] private string block = "";
+    [ObservableProperty] private string term = "";
+    [ObservableProperty] private UserViewModel primaryTeacher = UserViewModel.Empty;
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private bool isCurrent;
 
     public static ConcurrentBag<SectionViewModel> ViewModelCache { get; private set; } = [];
 
@@ -274,7 +274,7 @@ public partial class SectionViewModel :
     [ObservableProperty] private List<UserViewModel> teachers = [];
 
     [ObservableProperty] private List<UserViewModel> students = [];
-    [ObservableProperty] bool isSelected;
+    [ObservableProperty] private bool isSelected;
 
 
     public SectionViewModel()

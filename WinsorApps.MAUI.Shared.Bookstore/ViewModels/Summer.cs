@@ -16,8 +16,8 @@ namespace WinsorApps.MAUI.Shared.Bookstore.ViewModels;
 public partial class SummerBookOrderListItemViewModel :
     ObservableObject
 {
-    [ObservableProperty] IsbnViewModel isbn;
-    [ObservableProperty] int quantity;
+    [ObservableProperty] private IsbnViewModel isbn;
+    [ObservableProperty] private int quantity;
 
     public event EventHandler? DeleteRequested;
 
@@ -47,13 +47,13 @@ public partial class SummerSectionViewModel :
 
     public event EventHandler<ErrorRecord>? OnError;
 
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
-    [ObservableProperty] UserViewModel teacher = UserViewModel.Empty;
-    [ObservableProperty] CourseViewModel course = CourseViewModel.Empty;
-    [ObservableProperty] string schoolYear = "";
-    [ObservableProperty] DateTime submitted;
-    [ObservableProperty] ObservableCollection<SummerBookOrderListItemViewModel> books = [];
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
+    [ObservableProperty] private UserViewModel teacher = UserViewModel.Empty;
+    [ObservableProperty] private CourseViewModel course = CourseViewModel.Empty;
+    [ObservableProperty] private string schoolYear = "";
+    [ObservableProperty] private DateTime submitted;
+    [ObservableProperty] private ObservableCollection<SummerBookOrderListItemViewModel> books = [];
 
     public Optional<SummerSection> Model { get; private set; } = Optional<SummerSection>.None();
 

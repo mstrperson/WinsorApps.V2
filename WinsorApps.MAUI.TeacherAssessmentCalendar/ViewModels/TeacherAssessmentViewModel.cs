@@ -17,14 +17,14 @@ public partial class StudentAssessmentRosterEntry :
     ObservableObject,
     ISelectable<StudentAssessmentRosterEntry>
 {
-    [ObservableProperty] StudentViewModel student;
-    [ObservableProperty] bool latePassUsed;
-    [ObservableProperty] DateTime latePassTimeStamp;
-    [ObservableProperty] bool hasConflicts;
-    [ObservableProperty] int conflictCount;
-    [ObservableProperty] bool redFlag;
-    [ObservableProperty] bool isSelected;
-    [ObservableProperty] bool passAvailable;
+    [ObservableProperty] private StudentViewModel student;
+    [ObservableProperty] private bool latePassUsed;
+    [ObservableProperty] private DateTime latePassTimeStamp;
+    [ObservableProperty] private bool hasConflicts;
+    [ObservableProperty] private int conflictCount;
+    [ObservableProperty] private bool redFlag;
+    [ObservableProperty] private bool isSelected;
+    [ObservableProperty] private bool passAvailable;
 
     public event EventHandler<StudentAssessmentRosterEntry>? Selected;
     
@@ -54,55 +54,46 @@ public partial class AssessmentDetailsViewModel :
     private readonly ReadonlyCalendarService _calendarService = ServiceHelper.GetService<ReadonlyCalendarService>();
     private readonly RegistrarService _registrarService = ServiceHelper.GetService<RegistrarService>();
 
-    [ObservableProperty]
-    string title = "";
+    [ObservableProperty] private string title = "";
 
-    [ObservableProperty]
-    string subtitle = "";
+    [ObservableProperty] private string subtitle = "";
 
-    [ObservableProperty]
-    string dateLabel = "";
+    [ObservableProperty] private string dateLabel = "";
 
-    [ObservableProperty]
-    DateTime date;
+    [ObservableProperty] private DateTime date;
 
-    [ObservableProperty]
-    string listLabel = "";
+    [ObservableProperty] private string listLabel = "";
 
-    [ObservableProperty]
-    ObservableCollection<string> classList = [];
+    [ObservableProperty] private ObservableCollection<string> classList = [];
 
-    [ObservableProperty]
-    ObservableCollection<StudentAssessmentRosterEntry> students = [];
+    [ObservableProperty] private ObservableCollection<StudentAssessmentRosterEntry> students = [];
 
-    [ObservableProperty] double studentHeightRequest;
+    [ObservableProperty] private double studentHeightRequest;
     
-    [ObservableProperty]
-    ObservableCollection<StudentConflictViewModel> conflicts = [];
+    [ObservableProperty] private ObservableCollection<StudentConflictViewModel> conflicts = [];
 
-    [ObservableProperty] double conflictHeightRequest;
+    [ObservableProperty] private double conflictHeightRequest;
 
-    [ObservableProperty]
-    ObservableCollection<LatePassViewModel> passess = [];
+    [ObservableProperty] private ObservableCollection<LatePassViewModel> passess = [];
 
-    [ObservableProperty] double passessHeightRequest;
+    [ObservableProperty] private double passessHeightRequest;
 
-    [ObservableProperty] bool showStudents = true;
-    [ObservableProperty] bool hasLatePasses;
-    [ObservableProperty] bool showLatePasses;
-    [ObservableProperty] bool hasConflicts;
-    [ObservableProperty] bool showConflicts;
-    [ObservableProperty] bool hasRedFlags;
-    [ObservableProperty] bool isSelected;
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] private bool showStudents = true;
+    [ObservableProperty] private bool hasLatePasses;
+    [ObservableProperty] private bool showLatePasses;
+    [ObservableProperty] private bool hasConflicts;
+    [ObservableProperty] private bool showConflicts;
+    [ObservableProperty] private bool hasRedFlags;
+    [ObservableProperty] private bool isSelected;
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
 
-    [ObservableProperty] DateTime submitted;
+    [ObservableProperty] private DateTime submitted;
 
     private static readonly double ROW_HEIGHT = 65;
     private static readonly double HEADER_HEIGHT = 80;
 
-    [ObservableProperty] StudentAssessmentRosterEntry selectedStudent = new();
+    [ObservableProperty] private StudentAssessmentRosterEntry selectedStudent = new();
 
     public AssessmentDetailsViewModel() { }
 
@@ -439,12 +430,12 @@ public partial class StudentConflictViewModel :
     private readonly RegistrarService _regsitrar = ServiceHelper.GetService<RegistrarService>();
     private readonly TeacherAssessmentService _calendar = ServiceHelper.GetService<TeacherAssessmentService>();
 
-    [ObservableProperty] UserViewModel student = UserViewModel.Empty;
-    [ObservableProperty] int conflictCount;
-    [ObservableProperty] bool latePassUsed;
-    [ObservableProperty] bool redFlag;
-    [ObservableProperty] ObservableCollection<AssessmentDetailsViewModel> conflictingAssessments = [];
-    [ObservableProperty] string conflictList = "";
+    [ObservableProperty] private UserViewModel student = UserViewModel.Empty;
+    [ObservableProperty] private int conflictCount;
+    [ObservableProperty] private bool latePassUsed;
+    [ObservableProperty] private bool redFlag;
+    [ObservableProperty] private ObservableCollection<AssessmentDetailsViewModel> conflictingAssessments = [];
+    [ObservableProperty] private string conflictList = "";
 
     public event EventHandler<ErrorRecord>? OnError;
 

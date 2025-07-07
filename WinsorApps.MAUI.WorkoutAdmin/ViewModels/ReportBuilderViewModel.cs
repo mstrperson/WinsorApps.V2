@@ -32,11 +32,11 @@ public partial class ReportBuilderViewModel :
 
     public event EventHandler<ErrorRecord>? OnError;
 
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
-    [ObservableProperty] DateTime reportStart = DateTime.Today.MonthOf();
-    [ObservableProperty] DateTime reportEnd = DateTime.Today.MonthOf().AddMonths(1);
-    [ObservableProperty] WorkoutLogViewModel log = new();
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
+    [ObservableProperty] private DateTime reportStart = DateTime.Today.MonthOf();
+    [ObservableProperty] private DateTime reportEnd = DateTime.Today.MonthOf().AddMonths(1);
+    [ObservableProperty] private WorkoutLogViewModel log = new();
 
     [RelayCommand]
     public async Task RequestLogs()

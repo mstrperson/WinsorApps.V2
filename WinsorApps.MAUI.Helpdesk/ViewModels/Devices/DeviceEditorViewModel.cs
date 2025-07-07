@@ -14,6 +14,6 @@ public partial class DeviceEditorViewModel :
 {
     private readonly DeviceService _service = ServiceHelper.GetService<DeviceService>();
 
-    [ObservableProperty] DeviceViewModel device = DeviceViewModel.Empty;
+    [ObservableProperty] private DeviceViewModel device = DeviceViewModel.Empty;
 
 }

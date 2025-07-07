@@ -27,51 +27,53 @@ public partial class EventFormViewModel :
     private readonly EventFormsService _service = ServiceHelper.GetService<EventFormsService>();
     private readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
 
-    [ObservableProperty] string id = "";
-    [ObservableProperty] string summary = "";
-    [ObservableProperty] string description = "";
-    [ObservableProperty] EventTypeSelectionViewModel typeSelection = new() { Selected = EventTypeViewModel.Get("default") };
-    [ObservableProperty] EventTypeViewModel type = EventTypeViewModel.Get("default");
-    [ObservableProperty] ApprovalStatusSelectionViewModel statusSelection = new();
-    [ObservableProperty] DateTime startDate = DateTime.Today;
-    [ObservableProperty] DateTime endDate = DateTime.Today;
-    [ObservableProperty] TimeSpan startTime;
-    [ObservableProperty] TimeSpan endTime;
-    [ObservableProperty] UserViewModel creator = new();
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private string summary = "";
+    [ObservableProperty] private string description = "";
+    [ObservableProperty] private EventTypeSelectionViewModel typeSelection = new() { Selected = EventTypeViewModel.Get("default") };
+    [ObservableProperty] private EventTypeViewModel type = EventTypeViewModel.Get("default");
+    [ObservableProperty] private ApprovalStatusSelectionViewModel statusSelection = new();
+    [ObservableProperty] private DateTime startDate = DateTime.Today;
+    [ObservableProperty] private DateTime endDate = DateTime.Today;
+    [ObservableProperty] private TimeSpan startTime;
+    [ObservableProperty] private TimeSpan endTime;
+    [ObservableProperty] private DateTime startDateTime;
+    [ObservableProperty] private DateTime endDateTime;
+    [ObservableProperty] private UserViewModel creator = new();
     [ObservableProperty] private UserViewModel leader = new();
-    [ObservableProperty] UserSearchViewModel leaderSearch = new();
-    [ObservableProperty] DateTime preapprovalDate = DateTime.Today;
-    [ObservableProperty] int attendeeCount;
-    [ObservableProperty] ObservableCollection<LocationViewModel> selectedLocations = [];
-    [ObservableProperty] LocationSearchViewModel locationSearch = new() { SelectionMode = SelectionMode.Single };
-    [ObservableProperty] ObservableCollection<LocationViewModel> selectedCustomLocations = [];
-    [ObservableProperty] LocationSearchViewModel customLocationSearch = new() { SelectionMode = SelectionMode.Single, CustomLocations=true };
+    [ObservableProperty] private UserSearchViewModel leaderSearch = new();
+    [ObservableProperty] private DateTime preapprovalDate = DateTime.Today;
+    [ObservableProperty] private int attendeeCount;
+    [ObservableProperty] private ObservableCollection<LocationViewModel> selectedLocations = [];
+    [ObservableProperty] private LocationSearchViewModel locationSearch = new() { SelectionMode = SelectionMode.Single };
+    [ObservableProperty] private ObservableCollection<LocationViewModel> selectedCustomLocations = [];
+    [ObservableProperty] private LocationSearchViewModel customLocationSearch = new() { SelectionMode = SelectionMode.Single, CustomLocations=true };
 
-    [ObservableProperty] AttachmentCollectionViewModel attachments = new();
-    [ObservableProperty] FacilitesEventViewModel facilites = new();
-    [ObservableProperty] bool hasFacilities;
-    [ObservableProperty] TechEventViewModel tech = new();
-    [ObservableProperty] bool hasTech;
-    [ObservableProperty] CateringEventViewModel catering = new();
-    [ObservableProperty] bool hasCatering;
-    [ObservableProperty] TheaterEventViewModel theater = new();
-    [ObservableProperty] bool hasTheater;
-    [ObservableProperty] FieldTripViewModel fieldTrip = new();
-    [ObservableProperty] bool isFieldTrip;
-    [ObservableProperty] MarCommEventViewModel marComm = new();
-    [ObservableProperty] bool hasMarComm;
+    [ObservableProperty] private AttachmentCollectionViewModel attachments = new();
+    [ObservableProperty] private FacilitesEventViewModel facilites = new();
+    [ObservableProperty] private bool hasFacilities;
+    [ObservableProperty] private TechEventViewModel tech = new();
+    [ObservableProperty] private bool hasTech;
+    [ObservableProperty] private CateringEventViewModel catering = new();
+    [ObservableProperty] private bool hasCatering;
+    [ObservableProperty] private TheaterEventViewModel theater = new();
+    [ObservableProperty] private bool hasTheater;
+    [ObservableProperty] private FieldTripViewModel fieldTrip = new();
+    [ObservableProperty] private bool isFieldTrip;
+    [ObservableProperty] private MarCommEventViewModel marComm = new();
+    [ObservableProperty] private bool hasMarComm;
 
-    [ObservableProperty] bool isNew = true;
-    [ObservableProperty] bool isCreating = false;
-    [ObservableProperty] bool isUpdating = false;
-    [ObservableProperty] bool canEditBase = true;
-    [ObservableProperty] bool canEditSubForms = false;
+    [ObservableProperty] private bool isNew = true;
+    [ObservableProperty] private bool isCreating = false;
+    [ObservableProperty] private bool isUpdating = false;
+    [ObservableProperty] private bool canEditBase = true;
+    [ObservableProperty] private bool canEditSubForms = false;
 
-    [ObservableProperty] bool canEditCatering = false;
+    [ObservableProperty] private bool canEditCatering = false;
 
-    [ObservableProperty] bool hasLoadedOnce = false;
+    [ObservableProperty] private bool hasLoadedOnce = false;
 
-    [ObservableProperty] bool isSelected;
+    [ObservableProperty] private bool isSelected;
     public event EventHandler<EventFormViewModel>? Selected;
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<EventFormViewModel>? TemplateRequested;
@@ -89,23 +91,19 @@ public partial class EventFormViewModel :
     public event EventHandler? DeleteRequested;
     public event EventHandler? ApproveRoomRequested;
 
-    [ObservableProperty] bool isPending;
-    [ObservableProperty] bool isDeleted;
-    [ObservableProperty] bool needsRoomApproval;
+    [ObservableProperty] private bool isPending;
+    [ObservableProperty] private bool isDeleted;
+    [ObservableProperty] private bool needsRoomApproval;
 
-    [ObservableProperty]
-    bool userIsAdmin = IsAdmin;
-    [ObservableProperty]
-    bool userIsRegistrar = IsRegistrar;
+    [ObservableProperty] private bool userIsAdmin = IsAdmin;
+    [ObservableProperty] private bool userIsRegistrar = IsRegistrar;
     private static bool IsAdmin
     {
         get
         {
             try
             {
-                var admin = ServiceHelper.GetService<EventsAdminService>();
-                if (admin is null)
-                    return false;
+                _ = ServiceHelper.GetService<EventsAdminService>();
             }
             catch
             {
@@ -120,9 +118,7 @@ public partial class EventFormViewModel :
         {
             try
             {
-                var admin = ServiceHelper.GetService<EventsAdminService>();
-                if (admin is null)
-                    return false;
+                _ = ServiceHelper.GetService<EventsAdminService>();
             }
             catch
             {
@@ -134,18 +130,30 @@ public partial class EventFormViewModel :
 
     private static readonly RegistrarService _registrar = ServiceHelper.GetService<RegistrarService>();
 
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "Working";
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "Working";
 
     public Optional<EventFormBase> Model { get; private set; } = Optional<EventFormBase>.None();
 
     public EventFormViewModel()
     {
+        PropertyChanged += (_, args) =>
+        {
+            switch (args.PropertyName)
+            {
+                case nameof(StartDate) or nameof(StartTime):
+                    StartDateTime = StartDate.Date.Add(StartTime);
+                    break;
+                case nameof(EndDate) or nameof(EndTime):
+                    EndDateTime = EndDate.Date.Add(EndTime);
+                    break;
+            }
+        };
         var registrar = ServiceHelper.GetService<RegistrarService>();
         LeaderSearch.SetAvailableUsers(registrar.EmployeeList);
-        LeaderSearch.OnSingleResult += (_, leader) =>
+        LeaderSearch.OnSingleResult += (_, ldr) =>
         {
-            Leader = leader;
+            Leader = ldr;
             Leader.IsSelected = true;
         };
         CustomLocationSearch.SetCustomLocations(true);
@@ -873,10 +881,10 @@ public partial class EventTypeSelectionViewModel :
     ObservableObject,
     IErrorHandling
 {
-    [ObservableProperty] ObservableCollection<EventTypeViewModel> types = [];
-    [ObservableProperty] EventTypeViewModel selected = EventTypeViewModel.Get("default");
-    [ObservableProperty] bool isSelected;
-    [ObservableProperty] bool showList;
+    [ObservableProperty] private ObservableCollection<EventTypeViewModel> types = [];
+    [ObservableProperty] private EventTypeViewModel selected = EventTypeViewModel.Get("default");
+    [ObservableProperty] private bool isSelected;
+    [ObservableProperty] private bool showList;
 
     public event EventHandler<ErrorRecord>? OnError;
     public EventTypeSelectionViewModel()
@@ -916,9 +924,9 @@ public partial class EventTypeViewModel :
     ICachedViewModel<EventTypeViewModel, string, EventFormsService>,
     ISelectable<EventTypeViewModel>
 {
-    public EventType Type { get; init; }
+    [ObservableProperty] private EventType type;
 
-    [ObservableProperty] bool isSelected;
+    [ObservableProperty] private bool isSelected;
     
     public static implicit operator string(EventTypeViewModel vm) => vm?.Type ?? "default";
 
@@ -964,10 +972,10 @@ public partial class ApprovalStatusSelectionViewModel :
     ObservableObject,
     IErrorHandling
 {
-    [ObservableProperty] ObservableCollection<ApprovalStatusViewModel> statusList = [];
-    [ObservableProperty] ApprovalStatusViewModel selected = new();
-    [ObservableProperty] bool isSelected;
-    [ObservableProperty] bool showList;
+    [ObservableProperty] private ObservableCollection<ApprovalStatusViewModel> statusList = [];
+    [ObservableProperty] private ApprovalStatusViewModel selected = new();
+    [ObservableProperty] private bool isSelected;
+    [ObservableProperty] private bool showList;
 
     public ApprovalStatusSelectionViewModel()
     {
@@ -1036,10 +1044,10 @@ public partial class ApprovalStatusViewModel :
     ICachedViewModel<ApprovalStatusViewModel, ApprovalStatus, EventFormsService>,
     ISelectable<ApprovalStatusViewModel>
 {
-    [ObservableProperty] string id = "";
-    [ObservableProperty] string label = "";
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private string label = "";
 
-    [ObservableProperty] bool isSelected;
+    [ObservableProperty] private bool isSelected;
 
     public static ConcurrentBag<ApprovalStatusViewModel> ViewModelCache { get; private set; } = [];
 

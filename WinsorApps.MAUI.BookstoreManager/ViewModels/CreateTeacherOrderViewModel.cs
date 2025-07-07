@@ -23,15 +23,15 @@ public partial class CreateTeacherOrderViewModel :
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<SectionViewModel>? SectionCreated;
 
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
 
-    [ObservableProperty] UserSearchViewModel teacherSearch = new();
-    [ObservableProperty] UserViewModel selectedTeacher = UserViewModel.Empty;
-    [ObservableProperty] DepartmentSearchViewModel departmentList = new(ServiceHelper.GetService<RegistrarService>());
-    [ObservableProperty] DepartmentViewModel selectedDepartment = DepartmentViewModel.Empty;
-    [ObservableProperty] CourseViewModel selectedCourse = CourseViewModel.Empty;
-    [ObservableProperty] bool fallOrFullYear = true;
+    [ObservableProperty] private UserSearchViewModel teacherSearch = new();
+    [ObservableProperty] private UserViewModel selectedTeacher = UserViewModel.Empty;
+    [ObservableProperty] private DepartmentSearchViewModel departmentList = new(ServiceHelper.GetService<RegistrarService>());
+    [ObservableProperty] private DepartmentViewModel selectedDepartment = DepartmentViewModel.Empty;
+    [ObservableProperty] private CourseViewModel selectedCourse = CourseViewModel.Empty;
+    [ObservableProperty] private bool fallOrFullYear = true;
 
 
     public CreateTeacherOrderViewModel(TeacherBookstoreService service)

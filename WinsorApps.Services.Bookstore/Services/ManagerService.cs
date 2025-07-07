@@ -120,7 +120,7 @@ public partial class BookstoreManagerService :
 
     public async Task DeleteSection(string sectionId, ErrorAction onError)
     {
-        bool error = false;
+        var error = false;
         await _api.SendAsync(HttpMethod.Delete, $"api/book-orders/sections/{sectionId}", onError: err =>
         {
             error = true;
@@ -203,7 +203,7 @@ public partial class BookstoreManagerService :
             return null;
 
 
-        if (!SectionsByTeacher.TryGetValue(teacherId, out List<ProtoSection>? value) || !value.Any(sec => sec.id == sectionId))
+        if (!SectionsByTeacher.TryGetValue(teacherId, out var value) || !value.Any(sec => sec.id == sectionId))
         {
             onError(new("Unreachable Error", "Something went wrong... you shouldn't be able to see this message...  Please submit your logs on the Help Page."));
             _logging.LogMessage(LocalLoggingService.LogLevel.Debug,

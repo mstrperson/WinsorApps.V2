@@ -25,7 +25,7 @@ public partial class AssessmentCalendarRestrictedService(ApiService api)
     public async Task<List<AssessmentConflictsByDate>> GetConflicts(ErrorAction onError, DateTime start = default, DateTime end = default)
     {
         if (start == default) { start = DateTime.Today; }
-        string param = end == default ? "" : $"&end={end:yyyy-MM-dd}";
+        var param = end == default ? "" : $"&end={end:yyyy-MM-dd}";
         return await _api.SendAsync<List<AssessmentConflictsByDate>>(HttpMethod.Get,
             $"api/assessment-calendar/assessment-conflicts?start={start:yyyy-MM-dd}{param}", onError: onError) ?? [];
     }

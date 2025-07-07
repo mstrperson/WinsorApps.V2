@@ -21,18 +21,18 @@ public partial class AdminFormViewModel :
 {
     private readonly EventsAdminService _admin = ServiceHelper.GetService<EventsAdminService>();
 
-    [ObservableProperty] EventFormViewModel form;
-    [ObservableProperty] ObservableCollection<ApprovalRecordViewModel> approvalHistory = [];
-    [ObservableProperty] ApprovalNoteEditorViewModel noteEditor = new();
-    [ObservableProperty] bool showNoteEditor;
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] private EventFormViewModel form;
+    [ObservableProperty] private ObservableCollection<ApprovalRecordViewModel> approvalHistory = [];
+    [ObservableProperty] private ApprovalNoteEditorViewModel noteEditor = new();
+    [ObservableProperty] private bool showNoteEditor;
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
 
-    [ObservableProperty] bool isAdmin;
-    [ObservableProperty] bool isRegistrar;
+    [ObservableProperty] private bool isAdmin;
+    [ObservableProperty] private bool isRegistrar;
 
-    [ObservableProperty] bool isSelected;
-    [ObservableProperty] string roomList;
+    [ObservableProperty] private bool isSelected;
+    [ObservableProperty] private string roomList;
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler? StatusChanged;
@@ -166,7 +166,7 @@ public partial class AdminFormViewModel :
 public partial class ApprovalNoteEditorViewModel :
     ObservableObject
 {
-    [ObservableProperty] ObservableCollection<string> statusChoices = 
+    [ObservableProperty] private ObservableCollection<string> statusChoices = 
     [
         ApprovalStatusLabel.Pending, 
         ApprovalStatusLabel.Approved, 
@@ -175,8 +175,8 @@ public partial class ApprovalNoteEditorViewModel :
         ApprovalStatusLabel.Withdrawn
     ];
 
-    [ObservableProperty] string status = ApprovalStatusLabel.Pending;
-    [ObservableProperty] string note = "";
+    [ObservableProperty] private string status = ApprovalStatusLabel.Pending;
+    [ObservableProperty] private string note = "";
 
     public static implicit operator CreateApprovalNote(ApprovalNoteEditorViewModel editor) => new(editor.Status, DateTime.Now, editor.Note);
 }
@@ -185,10 +185,10 @@ public partial class ApprovalRecordViewModel :
     ObservableObject,
     IModelCarrier<ApprovalRecordViewModel, EventApprovalStatusRecord>
 {
-    [ObservableProperty] string status = "";
-    [ObservableProperty] UserViewModel manager = UserViewModel.Empty;
-    [ObservableProperty] string note = "";
-    [ObservableProperty] DateTime timeStamp;
+    [ObservableProperty] private string status = "";
+    [ObservableProperty] private UserViewModel manager = UserViewModel.Empty;
+    [ObservableProperty] private string note = "";
+    [ObservableProperty] private DateTime timeStamp;
     public Optional<EventApprovalStatusRecord> Model { get; private set; }
 
     public static ApprovalRecordViewModel Get(EventApprovalStatusRecord model)

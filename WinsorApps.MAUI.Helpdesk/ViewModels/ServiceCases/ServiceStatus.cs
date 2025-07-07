@@ -13,12 +13,12 @@ public partial class ServiceStatusViewModel :
     ISelectable<ServiceStatusViewModel>,
     IDefaultValueViewModel<ServiceStatusViewModel>
 {
-    [ObservableProperty] string id = "";
-    [ObservableProperty] string status = "";
-    [ObservableProperty] string description = "";
-    [ObservableProperty] string nextId = "";
-    [ObservableProperty] ServiceStatusViewModel next = _empty;
-    [ObservableProperty] bool isSelected;
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private string status = "";
+    [ObservableProperty] private string description = "";
+    [ObservableProperty] private string nextId = "";
+    [ObservableProperty] private ServiceStatusViewModel next = _empty;
+    [ObservableProperty] private bool isSelected;
 
     private static readonly ServiceStatusViewModel _empty = new();
 

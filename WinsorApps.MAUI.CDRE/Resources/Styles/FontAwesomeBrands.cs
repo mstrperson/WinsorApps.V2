@@ -1,6 +1,6 @@
 ﻿namespace WinsorApps.MAUI.CDRE.Resources.Styles;
 
-static class FontAwesomeBrands
+internal static class FontAwesomeBrands
 {
 	public const string FirefoxBrowser = "\ue007";
 	public const string Ideal = "\ue013";

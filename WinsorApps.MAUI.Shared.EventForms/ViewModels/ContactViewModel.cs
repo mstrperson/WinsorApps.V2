@@ -23,15 +23,15 @@ public partial class ContactViewModel :
 {
     private readonly ContactService contactService = ServiceHelper.GetService<ContactService>();
 
-    [ObservableProperty] string id = "";
-    [ObservableProperty] string firstName = "";
-    [ObservableProperty] string fullName = "";
-    [ObservableProperty] string lastName = "";
-    [ObservableProperty] string email = "";
-    [ObservableProperty] string phone = "";
-    [ObservableProperty] UserViewModel associatedUser = UserViewModel.Empty;
-    [ObservableProperty] bool isPublic;
-    [ObservableProperty] bool isSelected;
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private string firstName = "";
+    [ObservableProperty] private string fullName = "";
+    [ObservableProperty] private string lastName = "";
+    [ObservableProperty] private string email = "";
+    [ObservableProperty] private string phone = "";
+    [ObservableProperty] private UserViewModel associatedUser = UserViewModel.Empty;
+    [ObservableProperty] private bool isPublic;
+    [ObservableProperty] private bool isSelected;
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<ContactViewModel>? Selected;
@@ -124,16 +124,16 @@ public partial class ContactSearchViewModel :
     private readonly ContactService _contactService = ServiceHelper.GetService<ContactService>();
     private readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
 
-    [ObservableProperty] ObservableCollection<ContactViewModel> available = [];
-    [ObservableProperty] ObservableCollection<ContactViewModel> allSelected = [];
-    [ObservableProperty] ObservableCollection<ContactViewModel> options = [];
-    [ObservableProperty] ContactViewModel selected = ContactViewModel.Empty;
-    [ObservableProperty] SelectionMode selectionMode = SelectionMode.Single;
-    [ObservableProperty] string searchText = "";
-    [ObservableProperty] bool isSelected;
-    [ObservableProperty] bool showOptions;
-    [ObservableProperty] bool showCreate;
-    [ObservableProperty] ContactViewModel newItem = ContactViewModel.Empty;
+    [ObservableProperty] private ObservableCollection<ContactViewModel> available = [];
+    [ObservableProperty] private ObservableCollection<ContactViewModel> allSelected = [];
+    [ObservableProperty] private ObservableCollection<ContactViewModel> options = [];
+    [ObservableProperty] private ContactViewModel selected = ContactViewModel.Empty;
+    [ObservableProperty] private SelectionMode selectionMode = SelectionMode.Single;
+    [ObservableProperty] private string searchText = "";
+    [ObservableProperty] private bool isSelected;
+    [ObservableProperty] private bool showOptions;
+    [ObservableProperty] private bool showCreate;
+    [ObservableProperty] private ContactViewModel newItem = ContactViewModel.Empty;
 
     public event EventHandler<ObservableCollection<ContactViewModel>>? OnMultipleResult;
     public event EventHandler<ContactViewModel>? OnSingleResult;

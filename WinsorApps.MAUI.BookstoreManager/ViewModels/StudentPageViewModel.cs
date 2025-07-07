@@ -34,17 +34,17 @@ public partial class StudentPageViewModel(BookstoreManagerService manager, Local
     private readonly LocalLoggingService _logging = logging;
     private readonly RegistrarService _registrar = registrar;
 
-    [ObservableProperty] ObservableCollection<UserViewModel> students = [];
-    [ObservableProperty] StudentCartViewModel selectedCart = new();
-    [ObservableProperty] string searchText = "";
-    [ObservableProperty] ObservableCollection<UserViewModel> searchResults = [];
-    [ObservableProperty] bool showSearchResults;
-    [ObservableProperty] bool showSelected;
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
-    [ObservableProperty] bool ready;
-    [ObservableProperty] double progress;
-    [ObservableProperty] bool started;
+    [ObservableProperty] private ObservableCollection<UserViewModel> students = [];
+    [ObservableProperty] private StudentCartViewModel selectedCart = new();
+    [ObservableProperty] private string searchText = "";
+    [ObservableProperty] private ObservableCollection<UserViewModel> searchResults = [];
+    [ObservableProperty] private bool showSearchResults;
+    [ObservableProperty] private bool showSelected;
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
+    [ObservableProperty] private bool ready;
+    [ObservableProperty] private double progress;
+    [ObservableProperty] private bool started;
 
     public string CacheFileName => throw new NotImplementedException();
 
@@ -179,10 +179,10 @@ public partial class StudentCartViewModel :
     ObservableObject,
     ISelectable<StudentCartViewModel>
 {
-    [ObservableProperty] UserViewModel student;
+    [ObservableProperty] private UserViewModel student;
 
-    [ObservableProperty] ObservableCollection<StudentSectionCartViewModel> sections = [];
-    [ObservableProperty] bool isSelected;
+    [ObservableProperty] private ObservableCollection<StudentSectionCartViewModel> sections = [];
+    [ObservableProperty] private bool isSelected;
 
     private readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
 
@@ -212,11 +212,11 @@ public partial class StudentSectionCartViewModel :
     IErrorHandling,
     IBusyViewModel
 {
-    [ObservableProperty] AcademicSectionViewModel section;
-    [ObservableProperty] ObservableCollection<StudentBookRequestViewModel> cart = [];
-    [ObservableProperty] ObservableCollection<IsbnViewModel> notSelectedIsbns = [];
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] private AcademicSectionViewModel section;
+    [ObservableProperty] private ObservableCollection<StudentBookRequestViewModel> cart = [];
+    [ObservableProperty] private ObservableCollection<IsbnViewModel> notSelectedIsbns = [];
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
 
     private readonly StudentSectionBookOrder Model;
 
@@ -297,10 +297,10 @@ public partial class StudentBookRequestViewModel :
 {
     private readonly BookService _books = ServiceHelper.GetService<BookService>();
 
-    [ObservableProperty] StudentOrderStatus status = StudentOrderStatus.Submitted;
-    [ObservableProperty] DateTime submitted;
-    [ObservableProperty] IsbnViewModel isbn = IsbnViewModel.Empty;
-    [ObservableProperty] bool isSelected;
+    [ObservableProperty] private StudentOrderStatus status = StudentOrderStatus.Submitted;
+    [ObservableProperty] private DateTime submitted;
+    [ObservableProperty] private IsbnViewModel isbn = IsbnViewModel.Empty;
+    [ObservableProperty] private bool isSelected;
 
     public event EventHandler<StudentBookRequestViewModel>? DeleteRequested;
 

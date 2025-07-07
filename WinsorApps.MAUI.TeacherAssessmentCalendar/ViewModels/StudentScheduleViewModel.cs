@@ -18,16 +18,16 @@ public partial class ScheduleViewModel :
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<SectionAssessmentCalendarViewModel>? SectionSelected;
 
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
 
-    [ObservableProperty] ObservableCollection<SectionAssessmentCalendarViewModel> sections = [];
+    [ObservableProperty] private ObservableCollection<SectionAssessmentCalendarViewModel> sections = [];
 
-    [ObservableProperty] AssessmentDetailsViewModel selectedAssessment = new();
-    [ObservableProperty] bool showAssessment;
+    [ObservableProperty] private AssessmentDetailsViewModel selectedAssessment = new();
+    [ObservableProperty] private bool showAssessment;
 
-    [ObservableProperty] bool loaded;
-    [ObservableProperty] UserViewModel student = new();
+    [ObservableProperty] private bool loaded;
+    [ObservableProperty] private UserViewModel student = new();
     public async Task GetScheduleFor(UserViewModel student)
     {
         var registrar = ServiceHelper.GetService<RegistrarService>();
@@ -71,18 +71,18 @@ public partial class SectionAssessmentCalendarViewModel :
     public event EventHandler<SectionAssessmentCalendarViewModel>? Selected;
     public event EventHandler<AssessmentDetailsViewModel>? AssessmentSelected;
 
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
 
-    [ObservableProperty] bool isSelected;
+    [ObservableProperty] private bool isSelected;
 
-    [ObservableProperty] UserViewModel student = UserViewModel.Empty;
+    [ObservableProperty] private UserViewModel student = UserViewModel.Empty;
 
-    [ObservableProperty] SectionViewModel section = SectionViewModel.Empty;
-    [ObservableProperty] ObservableCollection<AssessmentDetailsViewModel> assessments = [];
-    [ObservableProperty] ObservableCollection<AssessmentDetailsViewModel> displayedAssessments = [];
-    [ObservableProperty] bool hasAssessments;
-    [ObservableProperty] bool showPastAssessments;
+    [ObservableProperty] private SectionViewModel section = SectionViewModel.Empty;
+    [ObservableProperty] private ObservableCollection<AssessmentDetailsViewModel> assessments = [];
+    [ObservableProperty] private ObservableCollection<AssessmentDetailsViewModel> displayedAssessments = [];
+    [ObservableProperty] private bool hasAssessments;
+    [ObservableProperty] private bool showPastAssessments;
 
     public static implicit operator SectionAssessmentCalendarViewModel(SectionViewModel section) => new(section);
 

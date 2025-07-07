@@ -71,7 +71,7 @@ public class CheqroomService(ApiService api, LocalLoggingService logging) : IAsy
 
     public async Task ForceCheckIn(string deviceId, ErrorAction onError)
     {
-        bool retry = false;
+        var retry = false;
         TryAgain:
         var order = OpenOrders.FirstOrDefault(order => order.items.Contains(deviceId));
         if(order == default)

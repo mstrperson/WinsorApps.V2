@@ -19,28 +19,28 @@ public partial class EventListPageViewModel :
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<AdminFormViewModel>? FormSelected;
 
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
 
-    [ObservableProperty] ObservableCollection<AdminFormViewModel> pendingEvents = [];
-    [ObservableProperty] double pendingHeight;
-    [ObservableProperty] bool showPending = true;
-    [ObservableProperty] ObservableCollection<AdminFormViewModel> waitingEvents = [];
-    [ObservableProperty] double waitingHeight;
-    [ObservableProperty] bool showWaiting;
-    [ObservableProperty] ObservableCollection<AdminFormViewModel> otherEvents = [];
-    [ObservableProperty] double otherHeight;
-    [ObservableProperty] bool showOther;
-    [ObservableProperty] ObservableCollection<AdminFormViewModel> allEvents = [];
-    [ObservableProperty] bool showAll;
+    [ObservableProperty] private ObservableCollection<AdminFormViewModel> pendingEvents = [];
+    [ObservableProperty] private double pendingHeight;
+    [ObservableProperty] private bool showPending = true;
+    [ObservableProperty] private ObservableCollection<AdminFormViewModel> waitingEvents = [];
+    [ObservableProperty] private double waitingHeight;
+    [ObservableProperty] private bool showWaiting;
+    [ObservableProperty] private ObservableCollection<AdminFormViewModel> otherEvents = [];
+    [ObservableProperty] private double otherHeight;
+    [ObservableProperty] private bool showOther;
+    [ObservableProperty] private ObservableCollection<AdminFormViewModel> allEvents = [];
+    [ObservableProperty] private bool showAll;
 
-    [ObservableProperty] DateTime start;
-    [ObservableProperty] DateTime end;
-    [ObservableProperty] ObservableCollection<AdminFormViewModel> twoWeekList = [];
-    [ObservableProperty] double twoWeekHeight;
+    [ObservableProperty] private DateTime start;
+    [ObservableProperty] private DateTime end;
+    [ObservableProperty] private ObservableCollection<AdminFormViewModel> twoWeekList = [];
+    [ObservableProperty] private double twoWeekHeight;
 
-    [ObservableProperty] bool isAdmin;
-    [ObservableProperty] bool isRegistrar;
+    [ObservableProperty] private bool isAdmin;
+    [ObservableProperty] private bool isRegistrar;
 
     private static readonly double _headerHeight = 150;
     private static readonly double _rowHeight = 40;

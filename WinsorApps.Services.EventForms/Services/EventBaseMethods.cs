@@ -123,7 +123,7 @@ public partial class EventFormsService
     public async Task<EventFormBase?> CompleteSubmission(string id, ErrorAction onError)
     {
         var existing = EventsCache.FirstOrDefault(evt => evt.id == id);
-        bool success = true;
+        var success = true;
         var result = await _api.SendAsync<EventFormBase?>(HttpMethod.Get, $"api/events/{id}/complete-submission", onError: err =>
         {
             success = false;
@@ -148,7 +148,7 @@ public partial class EventFormsService
     public async Task<EventFormBase?> CompleteUpdate(string id, ErrorAction onError)
     {
         var existing = EventsCache.FirstOrDefault(evt => evt.id == id);
-        bool success = true;
+        var success = true;
         var result = await _api.SendAsync<EventFormBase?>(HttpMethod.Get, $"api/events/{id}/complete-update", onError: err =>
         {
             success = false;

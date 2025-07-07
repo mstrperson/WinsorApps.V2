@@ -58,12 +58,12 @@ namespace WinsorApps.MAUI.Shared.ViewModels
         [ObservableProperty] private DateTime logStart = DateTime.Today.AddDays(-14);
         [ObservableProperty] private DateTime logEnd = DateTime.Today.AddDays(1);
         [ObservableProperty] private UserViewModel loggedInUser = UserViewModel.Empty;
-        [ObservableProperty] bool canMasquerade;
-        [ObservableProperty] bool isMasqing;
-        [ObservableProperty] UserSearchViewModel masqSearch = new();
-        [ObservableProperty] UserViewModel masqSelection = UserViewModel.Empty;
-        [ObservableProperty] bool busy;
-        [ObservableProperty] string busyMessage = "";
+        [ObservableProperty] private bool canMasquerade;
+        [ObservableProperty] private bool isMasqing;
+        [ObservableProperty] private UserSearchViewModel masqSearch = new();
+        [ObservableProperty] private UserViewModel masqSelection = UserViewModel.Empty;
+        [ObservableProperty] private bool busy;
+        [ObservableProperty] private string busyMessage = "";
 
         public string StoragePath => _logging.AppStoragePath;
         public DateTime LastUpdated => _app.LastVersionUpdated;

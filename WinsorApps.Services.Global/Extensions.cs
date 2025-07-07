@@ -131,14 +131,14 @@ public class Month
 
     public static Month operator --(Month month)
     {
-        int m = ((int)month)-1;
+        var m = ((int)month)-1;
         if (m == 0)
             m = 12;
         return (Month)m;
     }
     public static Month operator ++(Month month)
     {
-        int m = ((int)month) + 1;
+        var m = ((int)month) + 1;
         if (m > 12)
             m = 1;
         return (Month)m;
@@ -216,7 +216,7 @@ public record struct DateRange(DateOnly start, DateOnly end) : IEnumerable<DateO
 
     public class DateRangeEnumerator : IEnumerator<DateOnly>
     {
-        DateRange range;
+        private DateRange range;
 
         private DateOnly? current;
         public DateRangeEnumerator(ref DateRange range)
@@ -248,18 +248,18 @@ public record struct DateRange(DateOnly start, DateOnly end) : IEnumerable<DateO
 }
 public class DebugTimer : IDisposable
 {
-    readonly Stopwatch sw;
+    private readonly Stopwatch sw;
     private readonly string _message;
-    private readonly LocalLoggingService _logging;
+    private readonly LocalLoggingService? _logging;
 
-    public DebugTimer(string message, LocalLoggingService logging)
+    public DebugTimer(string message, LocalLoggingService? logging = null)
     {
 
         _logging = logging;
 #if DEBUG
         Debug.WriteLine($"starting:  {message}");
 #endif
-        logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"starting:  {message}");
+        logging?.LogMessage(LocalLoggingService.LogLevel.Debug, $"starting:  {message}");
         sw = Stopwatch.StartNew();
         this._message = message;
     }
@@ -270,7 +270,7 @@ public class DebugTimer : IDisposable
 #if DEBUG
         Debug.WriteLine($"{_message} took {sw.ElapsedMilliseconds}ms.");
 #endif
-        _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"{_message} took {sw.ElapsedMilliseconds}ms.");
+        _logging?.LogMessage(LocalLoggingService.LogLevel.Debug, $"{_message} took {sw.ElapsedMilliseconds}ms.");
         GC.SuppressFinalize(this);
     }
 }
@@ -281,14 +281,14 @@ public class SixWeekPeriod
 
     public SixWeekPeriod Next => new() { StartDate = EndDate };
 
-    public override string ToString() => string.Format("[{0} - {1}]", StartDate.ToShortDateString(), EndDate.ToShortDateString());
+    public override string ToString() => $"[{StartDate.ToShortDateString()} - {EndDate.ToShortDateString()}]";
 
     /// <summary>
     /// Pass the format parameter to the two datetime objects, start and end of this period.
     /// </summary>
     /// <param name="format"></param>
     /// <returns></returns>
-    public string ToString(string format) => string.Format("[{0} - {1}]", StartDate.ToString(format), EndDate.ToString(format));
+    public string ToString(string format) => $"[{StartDate.ToString(format)} - {EndDate.ToString(format)}]";
 
     /// <summary>
     /// Do the given Action once per date over the full six week period.
@@ -296,7 +296,7 @@ public class SixWeekPeriod
     /// <param name="action">delegate method call which takes a DateTime as its single parameter.</param>
     public void Iterate(Action<DateOnly> action)
     {
-        for (DateOnly date = StartDate; date < EndDate; date = date.AddDays(1))
+        for (var date = StartDate; date < EndDate; date = date.AddDays(1))
         {
             action(date);
         }
@@ -309,7 +309,7 @@ public class SixWeekPeriod
     public void ParallelIterate(Action<DateOnly> action, ParallelOptions? parallelOptions = null)
     {
         List<DateOnly> dateList = [];
-        for (DateOnly date = StartDate; date < EndDate; date = date.AddDays(1))
+        for (var date = StartDate; date < EndDate; date = date.AddDays(1))
         {
             dateList.Add(date);
         }
@@ -330,7 +330,7 @@ public class SixWeekPeriod
     public T ParallelIterate<T>(Func<DateOnly, T> action, Action<T, T> iterationOperation, T output, ParallelOptions? parallelOptions = null)
     {
         List<DateOnly> dateList = [];
-        for (DateOnly date = StartDate; date < EndDate; date = date.AddDays(1))
+        for (var date = StartDate; date < EndDate; date = date.AddDays(1))
         {
             dateList.Add(date);
         }
@@ -352,7 +352,7 @@ public class SixWeekPeriod
     /// <returns></returns>
     public T Iterate<T>(Func<DateOnly, T> action, Action<T, T> iterationOperation, T output)
     {
-        for (DateOnly date = StartDate; date < EndDate; date = date.AddDays(1))
+        for (var date = StartDate; date < EndDate; date = date.AddDays(1))
         {
             iterationOperation(output, action(date));
         }
@@ -422,7 +422,7 @@ public static partial class Extensions
     {
         Dictionary<TKey, List<TValue>> output = [];
 
-        foreach(TValue value in list)
+        foreach(var value in list)
         {
             var key = keySelector(value);
             var l = output.GetOrAdd(key, []);
@@ -605,7 +605,7 @@ public static partial class Extensions
 
         input = input.Trim();
 
-        if (double.TryParse(input, out double result))
+        if (double.TryParse(input, out var result))
             return result;
 
         if (throwIfInvalid)

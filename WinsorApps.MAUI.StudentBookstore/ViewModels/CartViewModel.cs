@@ -21,9 +21,9 @@ public partial class MyCartViewModel(StudentBookstoreService bookstore, LocalLog
     private readonly StudentBookstoreService _bookstore = bookstore;
     private readonly RegistrarService _registrar = registrar;
     private readonly LocalLoggingService _logging = logging;
-    [ObservableProperty] ObservableCollection<SectionCartViewModel> myCart = [];
-    [ObservableProperty] SectionCartViewModel selectedSection = SectionCartViewModel.Empty;
-    [ObservableProperty] bool showSelected;
+    [ObservableProperty] private ObservableCollection<SectionCartViewModel> myCart = [];
+    [ObservableProperty] private SectionCartViewModel selectedSection = SectionCartViewModel.Empty;
+    [ObservableProperty] private bool showSelected;
 
     public async Task Initialize(ErrorAction onError)
     {
@@ -73,14 +73,14 @@ public partial class SectionCartViewModel :
     private readonly RegistrarService _registrar = ServiceHelper.GetService<RegistrarService>();
     private readonly StudentBookstoreService _bookstore = ServiceHelper.GetService<StudentBookstoreService>();
     
-    [ObservableProperty] SectionViewModel section = SectionViewModel.Empty;
-    [ObservableProperty] ObservableCollection<BookRequestViewModel> requestedBooks = [];
-    [ObservableProperty] ObservableCollection<OptionGroupViewModel> requiredBooks = [];
-    [ObservableProperty] bool hasNoBooks;
-    [ObservableProperty] bool hasChanges;
-    [ObservableProperty] bool isSelected;
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] private SectionViewModel section = SectionViewModel.Empty;
+    [ObservableProperty] private ObservableCollection<BookRequestViewModel> requestedBooks = [];
+    [ObservableProperty] private ObservableCollection<OptionGroupViewModel> requiredBooks = [];
+    [ObservableProperty] private bool hasNoBooks;
+    [ObservableProperty] private bool hasChanges;
+    [ObservableProperty] private bool isSelected;
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
     [ObservableProperty] private int numbooks;
 
     public static SectionCartViewModel Empty => new();
@@ -178,10 +178,10 @@ public partial class BookRequestViewModel :
     IModelCarrier<BookRequestViewModel, StudentBookRequest>,
     ISelectable<BookRequestViewModel>
 {
-    [ObservableProperty] DateTime submitted;
-    [ObservableProperty] OrderStatusViewModel status = OrderStatusViewModel.Get("");
-    [ObservableProperty] IsbnViewModel isbn = IsbnViewModel.Empty;
-    [ObservableProperty] bool isSelected;
+    [ObservableProperty] private DateTime submitted;
+    [ObservableProperty] private OrderStatusViewModel status = OrderStatusViewModel.Get("");
+    [ObservableProperty] private IsbnViewModel isbn = IsbnViewModel.Empty;
+    [ObservableProperty] private bool isSelected;
 
     public event EventHandler<BookRequestViewModel>? Selected;
 
@@ -217,9 +217,9 @@ public partial class OrderStatusViewModel :
     ObservableObject,
     ICachedViewModel<OrderStatusViewModel, OrderStatus, StudentBookstoreService>
 {
-    [ObservableProperty] string id = "";
-    [ObservableProperty] string label = "";
-    [ObservableProperty] string description = "";
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private string label = "";
+    [ObservableProperty] private string description = "";
 
     private OrderStatusViewModel() { }
 

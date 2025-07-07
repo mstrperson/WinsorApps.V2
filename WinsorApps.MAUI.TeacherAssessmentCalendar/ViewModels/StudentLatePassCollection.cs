@@ -19,11 +19,11 @@ public partial class StudentLatePassCollectionViewModel(UserViewModel student) :
 
     public event EventHandler<ErrorRecord>? OnError;
 
-    [ObservableProperty] UserViewModel student = student;
-    [ObservableProperty] ObservableCollection<TeacherLatePassViewModel> latePasses = [];
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
-    [ObservableProperty] bool showPast;
+    [ObservableProperty] private UserViewModel student = student;
+    [ObservableProperty] private ObservableCollection<TeacherLatePassViewModel> latePasses = [];
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
+    [ObservableProperty] private bool showPast;
 
     [RelayCommand]
     public async Task ToggleShowPast()
@@ -68,9 +68,9 @@ public partial class TeacherLatePassViewModel(LatePassViewModel latePass) :
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler? Withdrawn;
 
-    [ObservableProperty] LatePassViewModel latePass = latePass;
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] private LatePassViewModel latePass = latePass;
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
 
     public static implicit operator TeacherLatePassViewModel(LatePassViewModel model) => new(model);
 

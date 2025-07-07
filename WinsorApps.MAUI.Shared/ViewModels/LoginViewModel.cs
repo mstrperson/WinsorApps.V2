@@ -131,7 +131,7 @@ public partial class LoginViewModel :
 
         Busy = true;
         StatusMessage = "Submitting Forgot Password Request";
-        bool success = true;
+        var success = true;
         await _api.ForgotPassword(Email, Password ?? "", 
             str => OnForgotPassword?.Invoke(this, str),
             err => { OnError?.Invoke(this, err); success = false; });

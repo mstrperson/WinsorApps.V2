@@ -75,7 +75,7 @@ public static class Extensions
                 _resources = [];
                 foreach (var dictionary in Application.Current!.Resources.MergedDictionaries)
                 {
-                    string key = dictionary.Source.OriginalString.Split(';').First().Split('/').Last().Split('.').First(); // Alternatively If you are good in Regex you can use that as well
+                    var key = dictionary.Source.OriginalString.Split(';').First().Split('/').Last().Split('.').First(); // Alternatively If you are good in Regex you can use that as well
                     _resources.Add(key, dictionary);
                 }
             }

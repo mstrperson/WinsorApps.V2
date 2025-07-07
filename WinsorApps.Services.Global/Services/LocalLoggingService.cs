@@ -35,7 +35,7 @@ namespace WinsorApps.Services.Global.Services
 
             foreach (var logFile in logFiles)
             {
-                byte[] bytes = File.ReadAllBytes(logFile);
+                var bytes = File.ReadAllBytes(logFile);
                 result.Add(logFile.Split(separator).Last(), bytes);
             }
 
@@ -120,7 +120,7 @@ namespace WinsorApps.Services.Global.Services
             try
             {
                 using var writer = File.AppendText(LogFileName);
-                foreach (string line in messages.Where(msg => !string.IsNullOrEmpty(msg)))
+                foreach (var line in messages.Where(msg => !string.IsNullOrEmpty(msg)))
                 {
                     writer.WriteLine($"{log}:\t[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]\t{line}");
                 }
@@ -130,8 +130,8 @@ namespace WinsorApps.Services.Global.Services
             {
                 Task.Run(async () =>
                 {
-                    int retryCount = 0;
-                    bool success = false;
+                    var retryCount = 0;
+                    var success = false;
                     while (retryCount < 5 && !success)
                     {
 
@@ -139,7 +139,7 @@ namespace WinsorApps.Services.Global.Services
                         try
                         {
                             using var writer = File.AppendText(LogFileName);
-                            foreach (string line in messages.Where(msg => !string.IsNullOrEmpty(msg)))
+                            foreach (var line in messages.Where(msg => !string.IsNullOrEmpty(msg)))
                             {
                                 writer.WriteLine($"{log}:\t[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]\t{line}");
                             }

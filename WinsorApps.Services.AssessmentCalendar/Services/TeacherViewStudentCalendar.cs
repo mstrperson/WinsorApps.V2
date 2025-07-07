@@ -12,7 +12,7 @@ public partial class TeacherAssessmentService
     public async Task<List<AssessmentCalendarEvent>> GetAdviseeCalendarInRange(ErrorAction onError, string studentId, DateTime start = default, DateTime end = default)
     {
         if (start == default) { start = DateTime.Today; }
-        string param = end == default ? "" : $"&end={end:yyyy-MM-dd}";
+        var param = end == default ? "" : $"&end={end:yyyy-MM-dd}";
         return await _api.GetPagedResult<AssessmentCalendarEvent>(HttpMethod.Get,
             $"api/assessment-calendar/advisee/{studentId}?start={start:yyyy-MM-dd}{param}",
             onError: onError);
@@ -26,7 +26,7 @@ public partial class TeacherAssessmentService
     public async Task<List<AssessmentCalendarEvent>> GetStudentCalendar(ErrorAction onError, string studentId, DateOnly start = default, DateOnly end = default)
     {
         if (start == default) { start = DateOnly.FromDateTime(DateTime.Today); }
-        string param = end == default ? "" : $"&toDate={end:yyyy-MM-dd}";
+        var param = end == default ? "" : $"&toDate={end:yyyy-MM-dd}";
         return await _api.SendAsync<List<AssessmentCalendarEvent>>(HttpMethod.Get,
             $"api/assessment-calendar/teachers/student-calendars/{studentId}?fromDate={start:yyyy-MM-dd}{param}",
             onError: onError) ?? [];

@@ -7,7 +7,7 @@ namespace WinsorApps.MAUI.EventForms.Pages;
 
 public partial class MonthlyCalendar : ContentPage
 {
-	EventsCalendarViewModel ViewModel => (EventsCalendarViewModel)BindingContext;
+	private EventsCalendarViewModel ViewModel => (EventsCalendarViewModel)BindingContext;
 	public MonthlyCalendar(EventsCalendarViewModel vm)
 	{
 		BindingContext = vm;

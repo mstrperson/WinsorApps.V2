@@ -22,17 +22,17 @@ public partial class TechEventViewModel :
 {
     private readonly EventFormsService _eventsService = ServiceHelper.GetService<EventFormsService>();
 
-    [ObservableProperty] string id = "";
-    [ObservableProperty] bool presenceRequested;
-    [ObservableProperty] bool equipmentNeeded;
-    [ObservableProperty] bool helpRequested;
-    [ObservableProperty] string details = "";
-    [ObservableProperty] bool isVirtual;
-    [ObservableProperty] VirtualEventViewModel virtualEvent = VirtualEventViewModel.Empty;
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private bool presenceRequested;
+    [ObservableProperty] private bool equipmentNeeded;
+    [ObservableProperty] private bool helpRequested;
+    [ObservableProperty] private string details = "";
+    [ObservableProperty] private bool isVirtual;
+    [ObservableProperty] private VirtualEventViewModel virtualEvent = VirtualEventViewModel.Empty;
     [ObservableProperty] private bool hasLoaded;
 
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "Working";
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "Working";
 
     public Optional<TechEvent> Model { get; private set; } = Optional<TechEvent>.None();
 
@@ -146,23 +146,23 @@ public partial class VirtualEventViewModel :
 {
     private readonly EventFormsService _eventService = ServiceHelper.GetService<EventFormsService>();
 
-    [ObservableProperty] string id = "";
-    [ObservableProperty] bool isWebinar;
-    [ObservableProperty] string webinarLabel = "Regular Zoom Meeting";
-    [ObservableProperty] bool registrationRequired;
-    [ObservableProperty] bool chatEnabled;
-    [ObservableProperty] bool qaEnabled;
-    [ObservableProperty] bool recordingEnabled;
-    [ObservableProperty] bool sendReminder;
-    [ObservableProperty] bool recordTranscript;
-    [ObservableProperty] bool getRegistrantList;
-    [ObservableProperty] bool getZoomLink;
-    [ObservableProperty] bool qaSupport;
-    [ObservableProperty] string qASupportPerson = "";
-    [ObservableProperty] ContactViewModel hostContact = ContactViewModel.Empty;
-    [ObservableProperty] bool showPanelits;
-    [ObservableProperty] ContactSearchViewModel panelistSearch = new() { SelectionMode = SelectionMode.Single };
-    [ObservableProperty] ObservableCollection<ContactViewModel> panelists = [];
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private bool isWebinar;
+    [ObservableProperty] private string webinarLabel = "Regular Zoom Meeting";
+    [ObservableProperty] private bool registrationRequired;
+    [ObservableProperty] private bool chatEnabled;
+    [ObservableProperty] private bool qaEnabled;
+    [ObservableProperty] private bool recordingEnabled;
+    [ObservableProperty] private bool sendReminder;
+    [ObservableProperty] private bool recordTranscript;
+    [ObservableProperty] private bool getRegistrantList;
+    [ObservableProperty] private bool getZoomLink;
+    [ObservableProperty] private bool qaSupport;
+    [ObservableProperty] private string qASupportPerson = "";
+    [ObservableProperty] private ContactViewModel hostContact = ContactViewModel.Empty;
+    [ObservableProperty] private bool showPanelits;
+    [ObservableProperty] private ContactSearchViewModel panelistSearch = new() { SelectionMode = SelectionMode.Single };
+    [ObservableProperty] private ObservableCollection<ContactViewModel> panelists = [];
     [ObservableProperty] private bool hasLoaded;
 
     public event EventHandler? ReadyToContinue;

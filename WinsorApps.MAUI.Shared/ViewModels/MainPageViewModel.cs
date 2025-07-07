@@ -157,7 +157,7 @@ public partial class MainPageViewModel : ObservableObject, IBusyViewModel, IErro
             _ => "pkg"
         };
 
-        string fileName = $"{_appService.Group.appName}.{type}";
+        var fileName = $"{_appService.Group.appName}.{type}";
 
         using MemoryStream ms = new(data);
         var result = await FileSaver.Default.SaveAsync(_logging.DownloadsDirectory, fileName, ms);

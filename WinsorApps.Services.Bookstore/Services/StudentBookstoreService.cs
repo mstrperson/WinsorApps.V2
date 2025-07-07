@@ -94,7 +94,7 @@ public class StudentBookstoreService(ApiService api, LocalLoggingService logging
     /// <returns></returns>
     public async Task<StudentSemesterBookList> GetSemesterBookList(bool fall, ErrorAction onError)
     {
-        string param = fall ? "fall" : "spring";
+        var param = fall ? "fall" : "spring";
         var result = await _api.SendAsync<StudentSemesterBookList?>(HttpMethod.Get,
             $"api/book-orders/students/book-list?term={param}",
             onError: onError);

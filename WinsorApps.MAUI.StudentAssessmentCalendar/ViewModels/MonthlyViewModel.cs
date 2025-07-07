@@ -18,7 +18,7 @@ public partial class MonthlyViewModel :
     private readonly LocalLoggingService _logging;
     private readonly CycleDayCollection _cycleDays;
 
-    [ObservableProperty] CalendarMonthViewModel calendar;
+    [ObservableProperty] private CalendarMonthViewModel calendar;
 
     public event EventHandler<AssessmentCalendarEventViewModel>? EventSelected;
 

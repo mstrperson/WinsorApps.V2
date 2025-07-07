@@ -31,19 +31,19 @@ public partial class DeviceCollectionViewModel :
     public event EventHandler<DeviceCollectionViewModel>? Selected;
     public event EventHandler? Submitted;
 
-    [ObservableProperty] string id = "";
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
-    [ObservableProperty] string assetTag = "";
-    [ObservableProperty] string chargerAssetTag = "";
-    [ObservableProperty] bool hasCord = true;
-    [ObservableProperty] bool parentalLockEnabled = false;
-    [ObservableProperty] string notes = "";
-    [ObservableProperty] bool isSelected;
-    [ObservableProperty] UserViewModel user = UserViewModel.Empty;
-    [ObservableProperty] DateTime timestamp = DateTime.Now;
-    [ObservableProperty] bool hasUser;
-    [ObservableProperty] bool showCancel;
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
+    [ObservableProperty] private string assetTag = "";
+    [ObservableProperty] private string chargerAssetTag = "";
+    [ObservableProperty] private bool hasCord = true;
+    [ObservableProperty] private bool parentalLockEnabled = false;
+    [ObservableProperty] private string notes = "";
+    [ObservableProperty] private bool isSelected;
+    [ObservableProperty] private UserViewModel user = UserViewModel.Empty;
+    [ObservableProperty] private DateTime timestamp = DateTime.Now;
+    [ObservableProperty] private bool hasUser;
+    [ObservableProperty] private bool showCancel;
 
     public Optional<CollectionEntry> Model { get; private set; } = Optional<CollectionEntry>.None();
 
@@ -143,16 +143,16 @@ public partial class DeviceCollectionPageViewModel :
     IBusyViewModel
 {
     private readonly DeviceCollectionService service = ServiceHelper.GetService<DeviceCollectionService>();
-    [ObservableProperty] ObservableCollection<DeviceCollectionViewModel> collectionEntries = [];
-    [ObservableProperty] DeviceCollectionViewModel openEntry;
-    [ObservableProperty] DeviceCollectionViewModel prevEntry;
-    [ObservableProperty] bool showPrev;
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] private ObservableCollection<DeviceCollectionViewModel> collectionEntries = [];
+    [ObservableProperty] private DeviceCollectionViewModel openEntry;
+    [ObservableProperty] private DeviceCollectionViewModel prevEntry;
+    [ObservableProperty] private bool showPrev;
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
 
     private static readonly double _headerHeight = 40;
     private static readonly double _rowHeight = 25;
-    [ObservableProperty] double collectionHeight = 500;
+    [ObservableProperty] private double collectionHeight = 500;
 
     private async Task BackgroundTask()
     {

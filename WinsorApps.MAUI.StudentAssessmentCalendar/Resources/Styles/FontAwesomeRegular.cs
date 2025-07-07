@@ -1,6 +1,6 @@
 ﻿namespace WinsorApps.MAUI.StudentBookstore.Resources.Styles;
 
-static class FontAwesomeRegular
+internal static class FontAwesomeRegular
 {
 	public const string Heart = "\uf004";
 	public const string Star = "\uf005";

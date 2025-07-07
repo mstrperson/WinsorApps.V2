@@ -23,15 +23,15 @@ public partial class SectionViewModel :
     private static readonly RegistrarService _registrar = ServiceHelper.GetService<RegistrarService>();
     private static readonly BookstoreManagerService _managerService = ServiceHelper.GetService<BookstoreManagerService>();
 
-    [ObservableProperty] string id = "";
-    [ObservableProperty] string schoolYearId = "";
-    [ObservableProperty] CourseViewModel course = CourseViewModel.Empty;
-    [ObservableProperty] UserViewModel teacher = UserViewModel.Empty;
-    [ObservableProperty] DateTime created;
-    [ObservableProperty] List<BookRequestOptionGroupViewModel> requestGroups = [];
+    [ObservableProperty] private string id = "";
+    [ObservableProperty] private string schoolYearId = "";
+    [ObservableProperty] private CourseViewModel course = CourseViewModel.Empty;
+    [ObservableProperty] private UserViewModel teacher = UserViewModel.Empty;
+    [ObservableProperty] private DateTime created;
+    [ObservableProperty] private List<BookRequestOptionGroupViewModel> requestGroups = [];
 
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
 
     public event EventHandler<ErrorRecord>? OnError;
 
@@ -141,7 +141,7 @@ public partial class SectionByTeacherCollectionViewModel :
 
     public SectionByTeacherCollectionViewModel()
     {
-        RegistrarService registrar = ServiceHelper.GetService<RegistrarService>();
+        var registrar = ServiceHelper.GetService<RegistrarService>();
         _managerService.OnCacheRefreshed += (_, _) =>
         {
             ViewModelCache = [];
@@ -149,8 +149,8 @@ public partial class SectionByTeacherCollectionViewModel :
         };
     }
 
-    [ObservableProperty] UserViewModel teacher = UserViewModel.Empty;
-    [ObservableProperty] List<SectionViewModel> sections = [];
+    [ObservableProperty] private UserViewModel teacher = UserViewModel.Empty;
+    [ObservableProperty] private List<SectionViewModel> sections = [];
 
     public static ConcurrentBag<SectionByTeacherCollectionViewModel> ViewModelCache { get; private set; } = [];
 
@@ -193,8 +193,8 @@ public partial class SectionByDepartmentCollectionViewModel :
     private static readonly RegistrarService _registrar = ServiceHelper.GetService<RegistrarService>();
     private static readonly BookstoreManagerService _managerService = ServiceHelper.GetService<BookstoreManagerService>();
 
-    [ObservableProperty] string department = "";
-    [ObservableProperty] List<SectionViewModel> sections = [];
+    [ObservableProperty] private string department = "";
+    [ObservableProperty] private List<SectionViewModel> sections = [];
 
     public static ConcurrentBag<SectionByDepartmentCollectionViewModel> ViewModelCache { get; private set; } = [];
 
@@ -266,10 +266,10 @@ public partial class SectionSearchViewModel :
         }
     }
 
-    [ObservableProperty] List<SectionByDepartmentCollectionViewModel> departmentSearch = [];
-    [ObservableProperty] List<SectionByTeacherCollectionViewModel> teacherSearch = [];
-    [ObservableProperty] SectionSearchMode searchMode = SectionSearchMode.ByTeacher;
-    [ObservableProperty] UserSearchViewModel userSearch = new();
+    [ObservableProperty] private List<SectionByDepartmentCollectionViewModel> departmentSearch = [];
+    [ObservableProperty] private List<SectionByTeacherCollectionViewModel> teacherSearch = [];
+    [ObservableProperty] private SectionSearchMode searchMode = SectionSearchMode.ByTeacher;
+    [ObservableProperty] private UserSearchViewModel userSearch = new();
 
 
 }

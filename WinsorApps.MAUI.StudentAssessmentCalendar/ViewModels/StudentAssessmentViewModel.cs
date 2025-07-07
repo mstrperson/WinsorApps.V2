@@ -27,17 +27,17 @@ public partial class StudentAssessmentViewModel :
     public event EventHandler<StudentAssessmentViewModel>? LatePassRequested;
     public event EventHandler<StudentAssessmentViewModel>? LatePassSubmitted;
 
-    [ObservableProperty] AssessmentCalendarEventViewModel @event;
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "";
-    [ObservableProperty] string className = "";
-    [ObservableProperty] string teacherName = "";
-    [ObservableProperty] bool cannotLatePass;
-    [ObservableProperty] string latePassMessage = "";
-    [ObservableProperty] bool isAssessment;
-    [ObservableProperty] bool isSelected;
+    [ObservableProperty] private AssessmentCalendarEventViewModel @event;
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "";
+    [ObservableProperty] private string className = "";
+    [ObservableProperty] private string teacherName = "";
+    [ObservableProperty] private bool cannotLatePass;
+    [ObservableProperty] private string latePassMessage = "";
+    [ObservableProperty] private bool isAssessment;
+    [ObservableProperty] private bool isSelected;
 
-    [ObservableProperty] LatePassViewModel latePass;
+    [ObservableProperty] private LatePassViewModel latePass;
 
     public static implicit operator StudentAssessmentViewModel(AssessmentCalendarEventViewModel evt) => new(evt);
 
@@ -185,10 +185,10 @@ public partial class LatePassCollectionViewModel :
         }
     }
 
-    [ObservableProperty] ObservableCollection<LatePassViewModel> myLatePasses = [];
-    [ObservableProperty] ObservableCollection<SectionViewModel> availablePasses = [];
-    [ObservableProperty] bool busy;
-    [ObservableProperty] string busyMessage = "Loading...";
+    [ObservableProperty] private ObservableCollection<LatePassViewModel> myLatePasses = [];
+    [ObservableProperty] private ObservableCollection<SectionViewModel> availablePasses = [];
+    [ObservableProperty] private bool busy;
+    [ObservableProperty] private string busyMessage = "Loading...";
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<StudentAssessmentViewModel>? LoadAssessmentRequested;
