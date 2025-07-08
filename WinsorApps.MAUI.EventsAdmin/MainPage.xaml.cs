@@ -30,30 +30,32 @@ public partial class MainPage : ContentPage
         EventsAdminService adminService,
         EventListPageViewModel listpagevm)
     {
-        MainPageViewModel vm = new(
+        MainPageViewModel vm = new MainPageViewModel(
         [
-            new(registrar, "Registrar Data"),
-            new(adminService, "Admin Service"),
-            new(eventForms, "Event Forms"),
-            new(calendarService, "Calendar"),
-            new(budgetCodes, "Budget Codes"),
-            new(contactService, "Contacts"),
-            new(locationService, "Locations"),
-            new(cateringMenuService, "Catering Services"),
-            new(theaterService, "Theater Services"),
-            new(app, "Checking for Updates")
-
-        ], app, api, logging)
+            new ServiceAwaiterViewModel(registrar, "Registrar Data"), 
+            new ServiceAwaiterViewModel(adminService, "Admin Service"),
+            new ServiceAwaiterViewModel(eventForms, "Event Forms"),
+            new ServiceAwaiterViewModel(calendarService, "Calendar"), 
+            new ServiceAwaiterViewModel(budgetCodes, "Budget Codes"), 
+            new ServiceAwaiterViewModel(contactService, "Contacts"),
+            new ServiceAwaiterViewModel(locationService, "Locations"),
+            new ServiceAwaiterViewModel(cateringMenuService, "Catering Services"),
+            new ServiceAwaiterViewModel(theaterService, "Theater Services"),
+            new ServiceAwaiterViewModel(app, "Checking for Updates")
+        ], 
+        app, 
+        api, 
+        logging)
         {
             Completion = 
             [
-                new(LocationViewModel.Initialize(locationService, this.DefaultOnErrorAction()), "Locations Cache"),
-                new(BudgetCodeViewModel.Initialize(budgetCodes, this.DefaultOnErrorAction()), "Budget Codes Cache"),
-                new(ContactViewModel.Initialize(contactService, this.DefaultOnErrorAction()), "My Contacts"),
-                new(ApprovalStatusViewModel.Initialize(eventForms, this.DefaultOnErrorAction()), "Approval Status Cache"),
-                new(CateringMenuCategoryViewModel.Initialize(cateringMenuService, this.DefaultOnErrorAction()), "Catering Menus"),
-                new(EventTypeViewModel.Initialize(eventForms, this.DefaultOnErrorAction()), "Event Types"),
-                new(listpagevm.Initialize(this.DefaultOnErrorAction()), "Event List")
+                new TaskAwaiterViewModel(LocationViewModel.Initialize(locationService, this.DefaultOnErrorAction()), "Locations Cache"),
+                new TaskAwaiterViewModel(BudgetCodeViewModel.Initialize(budgetCodes, this.DefaultOnErrorAction()), "Budget Codes Cache"),
+                new TaskAwaiterViewModel(ContactViewModel.Initialize(contactService, this.DefaultOnErrorAction()), "My Contacts"),
+                new TaskAwaiterViewModel(ApprovalStatusViewModel.Initialize(eventForms, this.DefaultOnErrorAction()), "Approval Status Cache"),
+                new TaskAwaiterViewModel(CateringMenuCategoryViewModel.Initialize(cateringMenuService, this.DefaultOnErrorAction()), "Catering Menus"),
+                new TaskAwaiterViewModel(EventTypeViewModel.Initialize(eventForms, this.DefaultOnErrorAction()), "Event Types"),
+               // new TaskAwaiterViewModel(listpagevm.Initialize(this.DefaultOnErrorAction()), "Event List")
             ],
             AppId = "yBDj8LA61lpR"
         };
@@ -61,7 +63,7 @@ public partial class MainPage : ContentPage
         BindingContext = vm;
         vm.OnError += this.DefaultOnErrorHandler();
         vm.OnCompleted += Vm_OnCompleted;
-        LoginPage loginPage = new(logging, vm.LoginVM);
+        LoginPage loginPage = new LoginPage(logging, vm.LoginVM);
         loginPage.OnLoginComplete += (_, _) =>
         {
             Navigation.PopAsync();
@@ -77,7 +79,7 @@ public partial class MainPage : ContentPage
     {
         if (!ViewModel.UpdateAvailable)
         {
-           var page = ServiceHelper.GetService<EventListPage>();
+           var page = ServiceHelper.GetService<MonthlyCalendar>();
            Navigation.PushAsync(page);
         }
     }

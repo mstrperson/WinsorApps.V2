@@ -18,6 +18,8 @@ public partial class CalendarViewModel :
     [ObservableProperty] private DateTime month = DateTime.Today.MonthOf();
     [ObservableProperty] private bool busy;
     [ObservableProperty] private string busyMessage = "";
+    
+    [ObservableProperty] private bool hasLoaded;
 
     public event EventHandler<EventFormViewModel>? EventSelected;
 
@@ -33,7 +35,7 @@ public partial class CalendarViewModel :
     }
 
     [RelayCommand]
-    public async Task LoadEvents() => await Task.Run(() =>
+    public async Task LoadEvents() => await MainThread.InvokeOnMainThreadAsync(() =>
     {
         Busy = true;
         BusyMessage = $"Loading Calendar Events for {Month:MMMM yyyy}";

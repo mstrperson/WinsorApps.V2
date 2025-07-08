@@ -25,7 +25,7 @@ public partial class AdminCalendarViewModel :
 
     [ObservableProperty] private CalendarViewModel calendar;
     [ObservableProperty] private EventFilterViewModel eventFilterViewModel = new();
-    [ObservableProperty] private bool showFilter;
+    [ObservableProperty] private bool showFilter = true;
     
     [ObservableProperty] private EventFormViewModel selectedEvent = new();
     [ObservableProperty] private bool showEvent;
@@ -33,6 +33,7 @@ public partial class AdminCalendarViewModel :
     [ObservableProperty] private bool busy;
     [ObservableProperty] private string busyMessage = "";
 
+    [ObservableProperty] private bool hasLoaded;
     public event EventHandler<ErrorRecord>? OnError;
 
     public AdminCalendarViewModel()
@@ -143,6 +144,7 @@ public partial class AdminCalendarViewModel :
         await Calendar.LoadEvents();
         ApplyFilter();
         Busy = false;
+        HasLoaded = true;
     }
 
     [RelayCommand]

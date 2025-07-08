@@ -91,7 +91,7 @@ public partial class MainPageViewModel : ObservableObject, IBusyViewModel, IErro
         var api = ServiceHelper.GetService<ApiService>();
         UserVM = UserViewModel.Get(api.UserInfo!);
         foreach (var serv in PostLoginServices.Where(serv => !serv.Started))
-            serv.Initialize();
+            serv.Initialize().SafeFireAndForget(ex => ex.LogException());
     }
 
     private async Task BackgroundAwaiter()

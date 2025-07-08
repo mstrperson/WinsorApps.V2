@@ -41,34 +41,34 @@ public partial class ServiceAwaiterViewModel : ObservableObject
     [ObservableProperty] private string serviceName;
     [ObservableProperty] private double progress;
     [ObservableProperty] private bool started;
+    [ObservableProperty] private bool runInBackground;
 
     public event EventHandler? OnCompletion;
     public event EventHandler<ErrorRecord>? OnError;
 
-    public ServiceAwaiterViewModel(IAsyncInitService service, string name)
+    public ServiceAwaiterViewModel(IAsyncInitService service, string name, bool runInBackground = false)
     {
         _service = service;
         serviceName = name;
         ready = false;
+        RunInBackground = runInBackground;  
         BackgroundAwaiter().SafeFireAndForget(e => e.LogException());
     }
 
     [RelayCommand]
     public void ClearCache()
     {
-
+        _service.ClearCache();
     }
 
     [RelayCommand]
-    public void Initialize()
+    public async Task Initialize()
     {
         if (_service.Started) return;
         
-        _service
+        await _service
             .Initialize(err => 
-                OnError?.Invoke(this, err))
-            .SafeFireAndForget(e => 
-                OnError?.Invoke(this, new("Intialization Exception", e.Message)));
+                OnError?.Invoke(this, err));
     }
     private async Task BackgroundAwaiter()
     {

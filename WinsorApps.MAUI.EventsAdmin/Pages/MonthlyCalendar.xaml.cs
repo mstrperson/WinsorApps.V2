@@ -18,11 +18,19 @@ public partial class MonthlyCalendar : ContentPage
 			FormView page = new(vm);
 			Navigation.PushAsync(page);
 		};
+
 		InitializeComponent();
+		this.NavigatedTo += (_, _) =>
+		{
+			if (ViewModel.HasLoaded) return;
+			
+			ViewModel.Busy = true;
+			ViewModel.BusyMessage = "Loading...";
+			ViewModel.Refresh().SafeFireAndForget(e => e.LogException());
+		};
 	}
 
     private void ContentPage_Appearing(object sender, EventArgs e)
     {
-		ViewModel.Refresh().SafeFireAndForget(e => e.LogException());
     }
 }

@@ -52,16 +52,22 @@ public partial class EventFormViewModel :
     [ObservableProperty] private AttachmentCollectionViewModel attachments = new();
     [ObservableProperty] private FacilitesEventViewModel facilites = new();
     [ObservableProperty] private bool hasFacilities;
+    [ObservableProperty] private bool showFacilities = true;
     [ObservableProperty] private TechEventViewModel tech = new();
     [ObservableProperty] private bool hasTech;
+    [ObservableProperty] private bool showTech = true;
     [ObservableProperty] private CateringEventViewModel catering = new();
     [ObservableProperty] private bool hasCatering;
+    [ObservableProperty] private bool showCatering = true;
     [ObservableProperty] private TheaterEventViewModel theater = new();
     [ObservableProperty] private bool hasTheater;
+    [ObservableProperty] private bool showTheater = true;
     [ObservableProperty] private FieldTripViewModel fieldTrip = new();
     [ObservableProperty] private bool isFieldTrip;
+    [ObservableProperty] private bool showFieldTrip = true;
     [ObservableProperty] private MarCommEventViewModel marComm = new();
     [ObservableProperty] private bool hasMarComm;
+    [ObservableProperty] private bool showMarComm = true;
 
     [ObservableProperty] private bool isNew = true;
     [ObservableProperty] private bool isCreating = false;
@@ -241,6 +247,19 @@ public partial class EventFormViewModel :
     }
 
     public async Task<byte[]> GetPdfData() => await _service.DownloadPdf(Id, OnError.DefaultBehavior(this));
+
+    [RelayCommand]
+    public void ToggleShowFacilities() => ShowFacilities = !ShowFacilities;
+    [RelayCommand]
+    public void ToggleShowCatering() => ShowCatering = !ShowCatering;
+    [RelayCommand]
+    public void ToggleShowTech() => ShowTech = !ShowTech;
+    [RelayCommand]
+    public void ToggleShowTheater() => ShowTheater = !ShowTheater;
+    [RelayCommand]
+    public void ToggleShowMarComm() => ShowMarComm = !ShowMarComm;
+    [RelayCommand]
+    public void ToggleShowFieldTrip() => ShowFieldTrip = !ShowFieldTrip;
     
     [RelayCommand]
     public async Task Print()
@@ -784,6 +803,7 @@ public partial class EventFormViewModel :
 
     public static EventFormViewModel Get(EventFormBase model)
     {
+        using DebugTimer _ = new($"Loading Event Form View Model for {model.id}", ServiceHelper.GetService<LocalLoggingService>());
         var vm = ViewModelCache.FirstOrDefault(evt => evt.Model.MapStruct(e => e.id == evt.Id).Reduce(false));
         if (vm is not null)
             return vm.Clone();

@@ -11,13 +11,13 @@ public partial class EventFilterViewModel :
     IEventFormFilter
 {
     [ObservableProperty] private StatusFilterViewModel byStatus = new();
-    [ObservableProperty] private bool showStatus;
+    [ObservableProperty] private bool showStatus = true;
     [ObservableProperty] private TypeFilterViewModel byType = new();
-    [ObservableProperty] private bool showType;
+    [ObservableProperty] private bool showType = true;
     [ObservableProperty] private PersonSearchFilterViewModel byPerson = new();
-    [ObservableProperty] private bool showPeople;
+    [ObservableProperty] private bool showPeople = true;
     [ObservableProperty] private EventNeedsFilterViewModel byNeed = new();
-    [ObservableProperty] private bool showNeeds;
+    [ObservableProperty] private bool showNeeds = true;
 
     public Func<EventFormViewModel, bool> Filter =>
         (evt) => ByStatus.Filter(evt)

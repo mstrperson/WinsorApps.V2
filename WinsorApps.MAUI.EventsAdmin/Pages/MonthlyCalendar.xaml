@@ -8,7 +8,7 @@
              x:DataType="vm:AdminCalendarViewModel"
              x:Class="WinsorApps.MAUI.EventsAdmin.Pages.MonthlyCalendar"
              Appearing="ContentPage_Appearing"
-             Title="{Binding Calendar.Month, StringFormat='Month of {0:MMMM yyyy}'}">
+             Title="Events Master Calendar">
     <ContentPage.Resources>
         <ResourceDictionary>
             <conv:BoolInverter x:Key="Invert" />
@@ -45,63 +45,54 @@
                         HorizontalOptions="Center"
                         Spacing="15">
                         <Label
-                            StyleClass="H3"
+                            StyleClass="SubHeader"
                             Text="Filter By:" />
+                        <CheckBox
+                            IsChecked="{Binding EventFilterViewModel.ShowStatus}">
+                            <CheckBox.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ToggleShowStatusCommand}"/>
+                            </CheckBox.GestureRecognizers>
+                        </CheckBox>
                         <Label
+                            TranslationX="-15"
                             StyleClass="H3"
-                            TextDecorations="Underline"
-                            Text="Status"
-                            IsVisible="{Binding EventFilterViewModel.ShowStatus}">
+                            FontAttributes="None"
+                            Text="Approval Status">
                             <Label.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding EventFilterViewModel.ToggleShowStatusCommand}" />
                             </Label.GestureRecognizers>
                         </Label>
+                        <CheckBox
+                            IsChecked="{Binding EventFilterViewModel.ShowType}">
+                            <CheckBox.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ToggleShowTypeCommand}" />
+                            </CheckBox.GestureRecognizers>
+                        </CheckBox>
                         <Label
+                            TranslationX="-15"
                             StyleClass="H3"
                             FontAttributes="None"
-                            Text="Status"
-                            IsVisible="{Binding EventFilterViewModel.ShowStatus, Converter={StaticResource Invert}}">
-                            <Label.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ToggleShowStatusCommand}" />
-                            </Label.GestureRecognizers>
-                        </Label>
-                        <Label
-                            StyleClass="H3"
-                            TextDecorations="Underline"
-                            Text="Event Type"
-                            IsVisible="{Binding EventFilterViewModel.ShowType}">
+                            Text="Event Type">
                             <Label.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding EventFilterViewModel.ToggleShowTypeCommand}" />
                             </Label.GestureRecognizers>
                         </Label>
-                        <Label
-                            StyleClass="H3"
-                            FontAttributes="None"
-                            Text="Event Type"
-                            IsVisible="{Binding EventFilterViewModel.ShowType, Converter={StaticResource Invert}}">
-                            <Label.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ToggleShowTypeCommand}" />
-                            </Label.GestureRecognizers>
-                        </Label>
-                        <Label
-                            StyleClass="H3"
-                            TextDecorations="Underline"
-                            Text="Dept Needs"
-                            IsVisible="{Binding EventFilterViewModel.ShowNeeds}">
-                            <Label.GestureRecognizers>
+                        <CheckBox
+                            IsChecked="{Binding EventFilterViewModel.ShowNeeds}">
+                            <CheckBox.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding EventFilterViewModel.ToggleShowNeedsCommand}" />
-                            </Label.GestureRecognizers>
-                        </Label>
+                            </CheckBox.GestureRecognizers>
+                        </CheckBox>
                         <Label
-                            StyleClass="H3"
-                            Text="Dept Needs"
-                            IsVisible="{Binding EventFilterViewModel.ShowNeeds, Converter={StaticResource Invert}}">
+                            TranslationX="-15"
+                            Text="Departments">
                             <Label.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding EventFilterViewModel.ToggleShowNeedsCommand}" />
                             </Label.GestureRecognizers>
                         </Label>
                         <Image
-                            StyleClass="RefreshButton">
+                            StyleClass="RefreshButton"
+                            HeightRequest="50">
                             <Image.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding ApplyFilterCommand}" />
                             </Image.GestureRecognizers>
@@ -185,7 +176,9 @@
                                         Padding="0"
                                         WidthRequest="180">
                                         <CheckBox IsChecked="{Binding IsSelected}" />
-                                        <Label Text="{Binding Label}">
+                                        <Label 
+                                            Text="{Binding Label}"
+                                            TranslationX="-15">
                                             <Label.GestureRecognizers>
                                                 <TapGestureRecognizer Command="{Binding SelectCommand}" />
                                             </Label.GestureRecognizers>
@@ -217,105 +210,92 @@
                     <HorizontalStackLayout
                         WidthRequest="1670"
                         HorizontalOptions="Center"
-                        Spacing="50"
+                        Spacing="15"
                         IsVisible="{Binding EventFilterViewModel.ShowNeeds}">
+                        <Border
+                            StrokeThickness="1">
+                            <HorizontalStackLayout
+                                Margin="0"
+                                    Padding="0">
+                                <HorizontalStackLayout.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding EventFilterViewModel.ByNeed.ToggleExclusiveCommand}"/>
+                                </HorizontalStackLayout.GestureRecognizers>
+                                <Label
+                                    StyleClass="H3"
+                                    Text="All Selected Departments"
+                                    IsVisible="{Binding EventFilterViewModel.ByNeed.Exclusive}"/>
+                                <Label
+                                    StyleClass="H3"
+                                    Text="Any Of Selected Departments"
+                                    IsVisible="{Binding EventFilterViewModel.ByNeed.Exclusive, Converter={StaticResource Invert}}"/>
+                            </HorizontalStackLayout>
+                        </Border>
+                        <CheckBox
+                            IsChecked="{Binding EventFilterViewModel.ByNeed.Facilities.IsSelected}">
+                            <CheckBox.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ByNeed.Facilities.SelectCommand}"/>
+                            </CheckBox.GestureRecognizers>
+                        </CheckBox>
                         <Label
                             StyleClass="H3"
-                            Text="All Of"
-                            IsVisible="{Binding EventFilterViewModel.ByNeed.Exclusive}">
-                            <Label.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ByNeed.ToggleExclusiveCommand}"/>
-                            </Label.GestureRecognizers>
-                        </Label>
-                        <Label
-                            StyleClass="H3"
-                            Text="Any Of"
-                            IsVisible="{Binding EventFilterViewModel.ByNeed.Exclusive, Converter={StaticResource Invert}}">
-                            <Label.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ByNeed.ToggleExclusiveCommand}"/>
-                            </Label.GestureRecognizers>
-                        </Label>
-                        <Label
-                            StyleClass="H3"
-                            TextDecorations="Underline"
                             Text="{Binding EventFilterViewModel.ByNeed.Facilities.Label}"
-                            IsVisible="{Binding EventFilterViewModel.ByNeed.Facilities.IsSelected}">
+                            TranslationX="-15">
                             <Label.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding EventFilterViewModel.ByNeed.Facilities.SelectCommand}"/>
                             </Label.GestureRecognizers>
                         </Label>
+                        <CheckBox
+                            IsChecked="{Binding EventFilterViewModel.ByNeed.Technology.IsSelected}">
+                            <CheckBox.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ByNeed.Technology.SelectCommand}"/>
+                            </CheckBox.GestureRecognizers>
+                        </CheckBox>
                         <Label
                             StyleClass="H3"
-                            Text="{Binding EventFilterViewModel.ByNeed.Facilities.Label}"
-                            IsVisible="{Binding EventFilterViewModel.ByNeed.Facilities.IsSelected, Converter={StaticResource Invert}}">
-                            <Label.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ByNeed.Facilities.SelectCommand}"/>
-                            </Label.GestureRecognizers>
-                        </Label>
-                        <Label
-                            StyleClass="H3"
-                            TextDecorations="Underline"
                             Text="{Binding EventFilterViewModel.ByNeed.Technology.Label}"
-                            IsVisible="{Binding EventFilterViewModel.ByNeed.Technology.IsSelected}">
+                            TranslationX="-15">
                             <Label.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding EventFilterViewModel.ByNeed.Technology.SelectCommand}"/>
                             </Label.GestureRecognizers>
                         </Label>
+                        <CheckBox
+                            IsChecked="{Binding EventFilterViewModel.ByNeed.Theater.IsSelected}">
+                            <CheckBox.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ByNeed.Theater.SelectCommand}"/>
+                            </CheckBox.GestureRecognizers>
+                        </CheckBox>
                         <Label
                             StyleClass="H3"
-                            Text="{Binding EventFilterViewModel.ByNeed.Technology.Label}"
-                            IsVisible="{Binding EventFilterViewModel.ByNeed.Technology.IsSelected, Converter={StaticResource Invert}}">
-                            <Label.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ByNeed.Technology.SelectCommand}"/>
-                            </Label.GestureRecognizers>
-                        </Label>
-                        <Label
-                            StyleClass="H3"
-                            TextDecorations="Underline"
                             Text="{Binding EventFilterViewModel.ByNeed.Theater.Label}"
-                            IsVisible="{Binding EventFilterViewModel.ByNeed.Theater.IsSelected}">
+                            TranslationX="-15">
                             <Label.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding EventFilterViewModel.ByNeed.Theater.SelectCommand}"/>
                             </Label.GestureRecognizers>
                         </Label>
+                        <CheckBox
+                            IsChecked="{Binding EventFilterViewModel.ByNeed.Comms.IsSelected}">
+                            <CheckBox.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ByNeed.Comms.SelectCommand}"/>
+                            </CheckBox.GestureRecognizers>
+                        </CheckBox>
                         <Label
                             StyleClass="H3"
-                            Text="{Binding EventFilterViewModel.ByNeed.Theater.Label}"
-                            IsVisible="{Binding EventFilterViewModel.ByNeed.Theater.IsSelected, Converter={StaticResource Invert}}">
-                            <Label.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ByNeed.Theater.SelectCommand}"/>
-                            </Label.GestureRecognizers>
-                        </Label>
-                        <Label
-                            StyleClass="H3"
-                            TextDecorations="Underline"
                             Text="{Binding EventFilterViewModel.ByNeed.Comms.Label}"
-                            IsVisible="{Binding EventFilterViewModel.ByNeed.Comms.IsSelected}">
+                            TranslationX="-15">
                             <Label.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding EventFilterViewModel.ByNeed.Comms.SelectCommand}"/>
                             </Label.GestureRecognizers>
                         </Label>
-                        <Label
-                            StyleClass="H3"
-                            Text="{Binding EventFilterViewModel.ByNeed.Comms.Label}"
-                            IsVisible="{Binding EventFilterViewModel.ByNeed.Comms.IsSelected, Converter={StaticResource Invert}}">
-                            <Label.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding EventFilterViewModel.ByNeed.Comms.SelectCommand}"/>
-                            </Label.GestureRecognizers>
-                        </Label>
-                        <Label
-                            StyleClass="H3"
-                            TextDecorations="Underline"
-                            Text="{Binding EventFilterViewModel.ByNeed.Catering.Label}"
-                            IsVisible="{Binding EventFilterViewModel.ByNeed.Catering.IsSelected}">
-                            <Label.GestureRecognizers>
+                        <CheckBox
+                            IsChecked="{Binding EventFilterViewModel.ByNeed.Catering.IsSelected}">
+                            <CheckBox.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding EventFilterViewModel.ByNeed.Catering.SelectCommand}"/>
-                            </Label.GestureRecognizers>
-                        </Label>
+                            </CheckBox.GestureRecognizers>
+                        </CheckBox>
                         <Label
                             StyleClass="H3"
                             Text="{Binding EventFilterViewModel.ByNeed.Catering.Label}"
-                            IsVisible="{Binding EventFilterViewModel.ByNeed.Catering.IsSelected, Converter={StaticResource Invert}}">
+                            TranslationX="-15">
                             <Label.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding EventFilterViewModel.ByNeed.Catering.SelectCommand}"/>
                             </Label.GestureRecognizers>
@@ -326,6 +306,7 @@
                 </VerticalStackLayout>
                 <HorizontalStackLayout
                     HeightRequest="80"
+                    WidthRequest="1670"
                     VerticalOptions="Center"
                     IsVisible="{Binding Busy}">
                     <Label 

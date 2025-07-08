@@ -36,9 +36,12 @@
                 Margin="0"
                 Padding="0"
                 WidthRequest="1170"
+                HeightRequest="1000"
                 HorizontalOptions="Center">
                 <HorizontalStackLayout
-                        IsVisible="{Binding Busy}">
+                    WidthRequest="1170"
+                    HeightRequest="100"
+                    IsVisible="{Binding Busy}">
                     <Label
                             StyleClass="Header"
                             Text="{Binding BusyMessage}" />

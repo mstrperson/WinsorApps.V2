@@ -42,6 +42,8 @@ public partial class EventListPageViewModel :
     [ObservableProperty] private bool isAdmin;
     [ObservableProperty] private bool isRegistrar;
 
+    [ObservableProperty] private bool hasLoaded;
+    
     private static readonly double _headerHeight = 150;
     private static readonly double _rowHeight = 40;
     public EventListPageViewModel()
@@ -54,8 +56,12 @@ public partial class EventListPageViewModel :
     }
 
     private readonly EventsAdminService _admin = ServiceHelper.GetService<EventsAdminService>();
-    public async Task Initialize(ErrorAction onError)
+    public async Task Initialize(ErrorAction onError, bool reload = false)
     {
+        if (!reload && HasLoaded)
+            return;
+        Busy = true;
+        BusyMessage= "Initializing...";
         await _admin.WaitForInit(onError);
 
         LoadEvents([.. _admin.AllEvents]);
@@ -112,6 +118,7 @@ public partial class EventListPageViewModel :
         }
 
         Busy = false;
+        HasLoaded = true;
     }
 
     private static readonly string[] SpecificStates = [ApprovalStatusLabel.Pending, ApprovalStatusLabel.Approved, ApprovalStatusLabel.RoomNotCleared];

@@ -230,10 +230,15 @@
                         StyleClass="SubHeader"
                         HorizontalTextAlignment="Center"
                         WidthRequest="1600"
-                        Text="Facilities Details"/>
+                        Text="Facilities Details">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ToggleShowFacilitiesCommand}"/>
+                        </Label.GestureRecognizers>
+                    </Label>
                     <Grid
                         Width="1600"
                         RowDefinitions="*,*,*"
+                        IsVisible="{Binding ShowFacilities}"
                         ColumnDefinitions="400,400,400,400">
                         <!-- Row 0 -->
                         <Label
@@ -370,6 +375,7 @@
                     <CollectionView
                         BackgroundColor="Transparent"
                         WidthRequest="1600"
+                        IsVisible="{Binding ShowFacilities}"
                         ItemsSource="{Binding Facilites.Locations.Setups}">
                         <CollectionView.Header>
                             <HorizontalStackLayout
@@ -428,7 +434,13 @@
                         StyleClass="SubHeader"
                         HorizontalTextAlignment="Center"
                         WidthRequest="1600"
-                        Text="Catering Details"/>
+                        Text="Catering Details">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ToggleShowCateringCommand}"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+                    <VerticalStackLayout
+                        Margin="0"></VerticalStackLayout>
                     <CollectionView
                         WidthRequest="1600"
                         ItemsSource="{Binding Catering.Menu.SelectedMenu}">
