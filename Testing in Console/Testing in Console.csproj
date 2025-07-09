@@ -9,6 +9,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.12.1" />
+    </ItemGroup>
+
+    <ItemGroup>
       <ProjectReference Include="..\WinsorApps.Services.Global\WinsorApps.Services.Global.csproj" />
       <ProjectReference Include="..\WinsorApps.Services.Helpdesk\WinsorApps.Services.Helpdesk.csproj" />
     </ItemGroup>

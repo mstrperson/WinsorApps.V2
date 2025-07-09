@@ -62,7 +62,8 @@
                 <Entry 
                     Text="{Binding Password}" 
                     IsPassword="True" 
-                    WidthRequest="400"/>
+                    WidthRequest="400"
+                    ReturnCommand="{Binding LoginCommand}"/>
             </StackLayout>
             <Button 
                 Text="Login" 

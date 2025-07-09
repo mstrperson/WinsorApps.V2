@@ -44,4 +44,9 @@
         ContentTemplate="{DataTemplate pages:APExams}"
         Route="APExams" />
 
+    <ShellContent
+        Title="Day Notes"
+        ContentTemplate="{DataTemplate pages:CalendarNotes}"
+        Route="CalendarNotes" />
+
 </Shell>

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Immutable;
-using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.JsonWebTokens;
 using System.Text.Json;
 using WinsorApps.Services.Global.Services;
 
@@ -41,27 +41,28 @@ public sealed class ApiException : Exception
     /// <param name="password"></param>
     public record Login(string email, string password);
 
-    public sealed record AuthResponse(
-        string userId = "", 
-        string jwt = "", 
-        DateTime expires = default, 
-        string refreshToken = "")
+public sealed record AuthResponse(
+    string userId = "",
+    string jwt = "",
+    DateTime expires = default,
+    string refreshToken = "")
+{
+    public JsonWebToken? GetJwt()
     {
-        public JwtSecurityToken? GetJwt()
-        {
-            if (string.IsNullOrEmpty(jwt))
-                return null;
+        if (string.IsNullOrEmpty(jwt))
+            return null;
 
-            try
-            {
-                return (JwtSecurityToken)new JwtSecurityTokenHandler().ReadToken(jwt);
-            }
-            catch
-            {
-                return null;
-            }
+        try
+        {
+            var token = (JsonWebToken)new JsonWebTokenHandler().ReadToken(jwt);
+            return token;
+        }
+        catch
+        {
+            return null;
         }
     }
+}
 public sealed record UserInfo(string firstName, string lastName, string email, int blackbaudId)
 {
     private List<string> _roles = [];

@@ -27,6 +27,9 @@
     <MauiXaml Update="Pages\CalendarDayPage.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
+    <MauiXaml Update="Pages\CalendarNotes.xaml">
+      <SubType>Designer</SubType>
+    </MauiXaml>
     <MauiXaml Update="Pages\LateWorkPage.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
