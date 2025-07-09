@@ -11,7 +11,7 @@ public interface ICachedViewModel<TViewModel, TModel, TService>
     where TService : IAsyncInitService
 {
 
-    public abstract static ConcurrentBag<TViewModel> ViewModelCache { get; }
+    public abstract static List<TViewModel> ViewModelCache { get; }
 
     public abstract static List<TViewModel> GetClonedViewModels(IEnumerable<TModel> models);
 

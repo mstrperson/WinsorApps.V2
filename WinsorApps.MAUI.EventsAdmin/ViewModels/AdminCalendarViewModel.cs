@@ -30,8 +30,8 @@ public partial class AdminCalendarViewModel :
     [ObservableProperty] private EventFormViewModel selectedEvent = new();
     [ObservableProperty] private bool showEvent;
 
-    [ObservableProperty] private bool busy;
-    [ObservableProperty] private string busyMessage = "";
+    [ObservableProperty] private bool busy = true;
+    [ObservableProperty] private string busyMessage = "Initializing...";
 
     [ObservableProperty] private bool hasLoaded;
     public event EventHandler<ErrorRecord>? OnError;

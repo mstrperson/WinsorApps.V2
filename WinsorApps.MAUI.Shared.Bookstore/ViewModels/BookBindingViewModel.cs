@@ -52,7 +52,7 @@ public partial class BookOrderOptionViewModel :
     [ObservableProperty] private string label = "";
     [ObservableProperty] private string description = "";
 
-    public static ConcurrentBag<BookOrderOptionViewModel> ViewModelCache { get; private set; } = [];
+    public static List<BookOrderOptionViewModel> ViewModelCache { get; private set; } = [];
     private static BookService BookService => ServiceHelper.GetService<BookService>();
     public static BookOrderOptionViewModel Empty => Get(BookService.OrderOptions.First());
 

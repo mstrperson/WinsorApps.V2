@@ -5,6 +5,7 @@
              xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
              x:DataType="vm:EventListPageViewModel"
              x:Class="WinsorApps.MAUI.EventsAdmin.Pages.EventListPage"
+             Focused="EventListPage_OnNavigatedTo"
              Title="Events Admin">
     <ContentPage.Resources>
         <conv:BoolInverter x:Key="Invert" />
@@ -35,16 +36,17 @@
             <VerticalStackLayout
                 Margin="0"
                 Padding="0"
-                WidthRequest="1170"
+                WidthRequest="1600"
                 HeightRequest="1000"
                 HorizontalOptions="Center">
                 <HorizontalStackLayout
-                    WidthRequest="1170"
+                    WidthRequest="1600"
                     HeightRequest="100"
                     IsVisible="{Binding Busy}">
                     <Label
-                            StyleClass="Header"
-                            Text="{Binding BusyMessage}" />
+                        Loaded="VisualElement_OnLoaded"
+                        StyleClass="Header"
+                        Text="{Binding BusyMessage}" />
                     <Image StyleClass="loading_image" />
                 </HorizontalStackLayout>
                 <!-- Pending Events -->
@@ -64,7 +66,7 @@
                             <BoxView StyleClass="Bar" />
                             <Grid
                                 RowDefinitions="*"
-                                ColumnDefinitions="120,400,200,150,300"
+                                ColumnDefinitions="120,400,200,150,600"
                                 BackgroundColor="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource SlateDark}}">
                                 <Label
                                     Grid.Column="0"
@@ -106,9 +108,9 @@
                                 Padding="0"
                                 HorizontalOptions="Center">
                                 <Grid
-                                    WidthRequest="1170"
+                                    WidthRequest="1600"
                                     RowDefinitions="*"
-                                    ColumnDefinitions="120,400,200,150,300">
+                                    ColumnDefinitions="120,400,200,150,600">
                                     <Label
                                         Grid.Column="0"
                                         Text="{Binding Form.Type.Type}" />
@@ -131,26 +133,17 @@
                                         Grid.Column="4"
                                         Spacing="15"
                                         HorizontalOptions="Center">
-                                        <Label
+                                        <Button
                                             Text="Approve"
-                                            IsVisible="{Binding IsAdmin}">
-                                            <Label.GestureRecognizers>
-                                                <TapGestureRecognizer Command="{Binding ApproveCommand}" />
-                                            </Label.GestureRecognizers>
-                                        </Label>
-                                        <Label
+                                            IsVisible="{Binding IsAdmin}"
+                                            Command="{Binding ApproveCommand}" />
+                                        <Button
                                             Text="Decline"
-                                            IsVisible="{Binding IsAdmin}">
-                                            <Label.GestureRecognizers>
-                                                <TapGestureRecognizer Command="{Binding RejectCommand}" />
-                                            </Label.GestureRecognizers>
-                                        </Label>
-                                        <Label
-                                                Text="Add Note">
-                                            <Label.GestureRecognizers>
-                                                <TapGestureRecognizer Command="{Binding ToggleShowNoteEditorCommand}" />
-                                            </Label.GestureRecognizers>
-                                        </Label>
+                                            IsVisible="{Binding IsAdmin}"
+                                            Command="{Binding RejectCommand}" />
+                                        <Button
+                                            Text="Add Note"
+                                            Command="{Binding ToggleShowNoteEditorCommand}" />
                                     </HorizontalStackLayout>
                                 </Grid>
                                 <HorizontalStackLayout
@@ -192,7 +185,7 @@
                                     </Border>
                                 </HorizontalStackLayout>
                                 <BoxView 
-                                    WidthRequest="1170"
+                                    WidthRequest="1600"
                                     Margin="0"
                                     HeightRequest="1"
                                     StyleClass="Bar" />
@@ -204,9 +197,10 @@
                 <!-- Room Use Events -->
                 <CollectionView
                     HeightRequest="{Binding WaitingHeight}"
-                        BackgroundColor="Transparent"
-                        IsVisible="{Binding ShowWaiting}"
-                        ItemsSource="{Binding WaitingEvents}">
+                    WidthRequest="1600"
+                    BackgroundColor="Transparent"
+                    IsVisible="{Binding ShowWaiting}"
+                    ItemsSource="{Binding WaitingEvents}">
                     <CollectionView.Header>
                         <VerticalStackLayout
                                 Margin="0"
@@ -217,8 +211,9 @@
                                     Text="Events Pending Room Approval" />
                             <BoxView StyleClass="Bar" />
                             <Grid
+                                WidthRequest="1600"
                                 RowDefinitions="*"
-                                ColumnDefinitions="120,400,200,150,300"
+                                ColumnDefinitions="120,400,200,150,600"
                                 BackgroundColor="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource SlateDark}}">
                                 <Label
                                         Grid.Column="0"
@@ -259,9 +254,9 @@
                                     Margin="0"
                                     Padding="0">
                                 <Grid
-                                    WidthRequest="1170"
+                                    WidthRequest="1600"
                                     RowDefinitions="*"
-                                    ColumnDefinitions="120,400,200,150,300">
+                                    ColumnDefinitions="120,400,200,150,600">
                                     <Label
                                             Grid.Column="0"
                                             Text="{Binding Form.Type.Type}" />
@@ -354,9 +349,10 @@
                 <!-- Other Events -->
                 <CollectionView
                     HeightRequest="{Binding OtherHeight}"
-                        BackgroundColor="Transparent"
-                        IsVisible="{Binding ShowOther}"
-                        ItemsSource="{Binding OtherEvents}">
+                    WidthRequest="1600"
+                    BackgroundColor="Transparent"
+                    IsVisible="{Binding ShowOther}"
+                    ItemsSource="{Binding OtherEvents}">
                     <CollectionView.Header>
                         <VerticalStackLayout
                                 Margin="0"
@@ -386,9 +382,10 @@
                             </HorizontalStackLayout>
                             <BoxView StyleClass="Bar" />
                             <Grid
-                                    RowDefinitions="*"
-                                    ColumnDefinitions="120,400,200,150,300"
-                                    BackgroundColor="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource SlateDark}}">
+                                WidthRequest="1600"
+                                RowDefinitions="*"
+                                ColumnDefinitions="120,400,200,150,600"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource SlateDark}}">
                                 <Label
                                         Grid.Column="0"
                                         StyleClass="SubHeader"
@@ -428,9 +425,9 @@
                                     Margin="0"
                                     Padding="0">
                                 <Grid
-                                    WidthRequest="1170"
+                                    WidthRequest="1600"
                                     RowDefinitions="*"
-                                    ColumnDefinitions="120,400,200,150,300">
+                                    ColumnDefinitions="120,400,200,150,600">
                                     <Label
                                             Grid.Column="0"
                                             Text="{Binding Form.Type.Type}" />
@@ -448,28 +445,25 @@
                                             Text="{Binding Form.Summary}"/>
                                     </HorizontalStackLayout>
                                     <HorizontalStackLayout
-                                            Margin="0"
-                                            Padding="0"
-                                            Grid.Column="2"
-                                            Spacing="15">
+                                        Margin="0"
+                                        Padding="0"
+                                        Grid.Column="2"
+                                        Spacing="15">
                                         <Label
-                                                Text="{Binding Form.StartDate, StringFormat='{0:ddd d MMM, hh:mm tt}'}" />
+                                            Text="{Binding Form.StartDate, StringFormat='{0:ddd d MMM, hh:mm tt}'}" />
                                     </HorizontalStackLayout>
                                     <Label
-                                            Grid.Column="3"
-                                            Text="{Binding Form.Leader.DisplayName}" />
+                                        Grid.Column="3"
+                                        Text="{Binding Form.Leader.DisplayName}" />
                                     <HorizontalStackLayout
-                                            Margin="0"
-                                            Padding="0"
-                                            Grid.Column="4"
-                                            Spacing="15"
+                                        Margin="0"
+                                        Padding="0"
+                                        Grid.Column="4"
+                                        Spacing="15"
                                         HorizontalOptions="Center">
-                                        <Label
-                                                Text="Add Note">
-                                            <Label.GestureRecognizers>
-                                                <TapGestureRecognizer Command="{Binding ToggleShowNoteEditorCommand}" />
-                                            </Label.GestureRecognizers>
-                                        </Label>
+                                        <Button
+                                            Text="Add Note"
+                                            Command="{Binding ToggleShowNoteEditorCommand}" />
                                     </HorizontalStackLayout>
                                 </Grid>
 

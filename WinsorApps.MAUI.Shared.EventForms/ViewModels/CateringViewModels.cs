@@ -403,7 +403,7 @@ public partial class CateringMenuItemViewModel :
     [ObservableProperty] private bool fieldTripItem;
     [ObservableProperty] private int ordinal = -1;
 
-    public static ConcurrentBag<CateringMenuItemViewModel> ViewModelCache { get; protected set; } = [];
+    public static List<CateringMenuItemViewModel> ViewModelCache { get; protected set; } = [];
 
     public static CateringMenuItemViewModel Empty => new();
 
@@ -469,7 +469,7 @@ public partial class CateringMenuCategoryViewModel :
         _menuService.OnCacheRefreshed += (_, _) => Initialize(_menuService, _logging.LogError).SafeFireAndForget(e => e.LogException(_logging));
     }
 
-    public static ConcurrentBag<CateringMenuCategoryViewModel> ViewModelCache { get; protected set; } = [];
+    public static List<CateringMenuCategoryViewModel> ViewModelCache { get; protected set; } = [];
 
     public static CateringMenuCategoryViewModel Empty => new();
 

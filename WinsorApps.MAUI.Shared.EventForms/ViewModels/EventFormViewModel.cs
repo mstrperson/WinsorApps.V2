@@ -793,7 +793,7 @@ public partial class EventFormViewModel :
         Busy = false;
         MarCommRequested?.Invoke(this, MarComm);
     }
-    public static ConcurrentBag<EventFormViewModel> ViewModelCache { get; private set; } = [];
+    public static List<EventFormViewModel> ViewModelCache { get; private set; } = [];
 
     public static void ResetCache(IEnumerable<EventFormBase> newCache)
     {
@@ -804,7 +804,7 @@ public partial class EventFormViewModel :
     public static EventFormViewModel Get(EventFormBase model)
     {
         using DebugTimer _ = new($"Loading Event Form View Model for {model.id}", ServiceHelper.GetService<LocalLoggingService>());
-        var vm = ViewModelCache.FirstOrDefault(evt => evt.Model.MapStruct(e => e.id == evt.Id).Reduce(false));
+        var vm = ViewModelCache.FirstOrDefault(evt =>  model.id == evt.Id);
         if (vm is not null)
             return vm.Clone();
 
@@ -871,6 +871,7 @@ public partial class EventFormViewModel :
             vm.Attachments.OnError += (sender, e) => vm.OnError?.Invoke(sender, e);
         }
 
+        ViewModelCache.Add(vm);
         return vm.Clone();
     }
 
@@ -954,7 +955,7 @@ public partial class EventTypeViewModel :
 
     private EventTypeViewModel() { }
 
-    public static ConcurrentBag<EventTypeViewModel> ViewModelCache { get; private set; } = [];
+    public static List<EventTypeViewModel> ViewModelCache { get; private set; } = [];
 
     public event EventHandler<EventTypeViewModel>? Selected;
 
@@ -1069,7 +1070,7 @@ public partial class ApprovalStatusViewModel :
 
     [ObservableProperty] private bool isSelected;
 
-    public static ConcurrentBag<ApprovalStatusViewModel> ViewModelCache { get; private set; } = [];
+    public static List<ApprovalStatusViewModel> ViewModelCache { get; private set; } = [];
 
     public event EventHandler<ApprovalStatusViewModel>? Selected;
 

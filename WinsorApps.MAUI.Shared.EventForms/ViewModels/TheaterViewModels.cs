@@ -147,7 +147,7 @@ public partial class TheaterMenuViewModel :
 
     public TheaterMenuItemViewModel this[string id] => Items.First(it => it.Id == id);
 
-    public static ConcurrentBag<TheaterMenuViewModel> ViewModelCache { get; private set; } = [];
+    public static List<TheaterMenuViewModel> ViewModelCache { get; private set; } = [];
 
     public event EventHandler<TheaterMenuViewModel>? Selected;
 

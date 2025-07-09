@@ -20,17 +20,18 @@ public partial class MonthlyCalendar : ContentPage
 		};
 
 		InitializeComponent();
-		this.NavigatedTo += (_, _) =>
-		{
-			if (ViewModel.HasLoaded) return;
-			
-			ViewModel.Busy = true;
-			ViewModel.BusyMessage = "Loading...";
-			ViewModel.Refresh().SafeFireAndForget(e => e.LogException());
-		};
 	}
 
     private void ContentPage_Appearing(object sender, EventArgs e)
     {
+    }
+
+    private void VisualElement_OnLoaded(object? sender, EventArgs e)
+    {
+	    if (ViewModel.HasLoaded) return;
+			
+	    ViewModel.Busy = true;
+	    ViewModel.BusyMessage = "Loading...";
+	    ViewModel.Refresh().SafeFireAndForget(ex => ex.LogException());
     }
 }

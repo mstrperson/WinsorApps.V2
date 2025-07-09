@@ -40,7 +40,6 @@
                     </Border.GestureRecognizers>
                     <Label
                         Text="Download Updated App!"
-                        FontSize="Small"
                         IsVisible="{Binding UpdateAvailable}"
                         HorizontalOptions="Center"
                         VerticalOptions="Center" />

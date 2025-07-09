@@ -38,7 +38,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
 
         [ObservableProperty] private string[] style;
 
-        public static ConcurrentBag<CheckoutSearchResultViewModel> ViewModelCache { get; private set; } = [];
+        public static List<CheckoutSearchResultViewModel> ViewModelCache { get; private set; } = [];
 
         public static CheckoutSearchResultViewModel Empty => new();
 

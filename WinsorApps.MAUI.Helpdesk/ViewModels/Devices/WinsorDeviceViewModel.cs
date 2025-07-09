@@ -57,7 +57,7 @@ public partial class WinsorDeviceViewModel :
         set => CategorySearch.Select(value);
     }
 
-    public static ConcurrentBag<WinsorDeviceViewModel> ViewModelCache { get; private set; } = [];
+    public static List<WinsorDeviceViewModel> ViewModelCache { get; private set; } = [];
 
     public static WinsorDeviceViewModel Empty => new();
 

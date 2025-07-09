@@ -18,11 +18,6 @@ public partial class EventListPage : ContentPage
 		InitializeComponent();
 		this.NavigatedTo += (_, _) =>
 		{
-			if (vm.HasLoaded) return;
-			
-			vm.Busy = true;
-			vm.BusyMessage = "Loading..."; 
-			vm.Initialize(this.DefaultOnErrorAction()).SafeFireAndForget(e => e.LogException());
 		};
 	}
 
@@ -30,5 +25,20 @@ public partial class EventListPage : ContentPage
     {
 		var page = new FormEditor(e.Form);
 		Navigation.PushAsync(page);
+    }
+
+    private void EventListPage_OnNavigatedTo(object? sender, EventArgs e)
+    {
+	    
+    }
+
+    private void VisualElement_OnLoaded(object? sender, EventArgs e)
+    {
+	    if (ViewModel is null || ViewModel.HasLoaded) 
+		    return;
+			
+	    ViewModel.Busy = true;
+	    ViewModel.BusyMessage = "Loading..."; 
+	    ViewModel.Initialize(this.DefaultOnErrorAction()).SafeFireAndForget(e => e.LogException());
     }
 }

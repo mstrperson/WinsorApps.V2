@@ -32,12 +32,12 @@ public class RegistrarService(ApiService api, LocalLoggingService logging) :
     public UserRecord Me => _api.UserInfo!;
     public List<string> MyRoles { get; private set; } = [];
 
-    private Dictionary<string, ConcurrentBag<SectionDetailRecord>> _sectionsByCourse = [];
+    private Dictionary<string, List<SectionDetailRecord>> _sectionsByCourse = [];
 
     /// <summary>
     /// School Year data cache
     /// </summary>
-    public ConcurrentBag<SchoolYear> SchoolYears { get; private set; } = [];
+    public List<SchoolYear> SchoolYears { get; private set; } = [];
 
     public string CacheFileName => ".registrar.cache";
     public void ClearCache() { if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}"); }
@@ -171,21 +171,21 @@ public class RegistrarService(ApiService api, LocalLoggingService logging) :
     /// <summary>
     /// My Schedule Cache.
     /// </summary>
-    private ConcurrentBag<ScheduleEntry> _mySchedule { get; set; } = [];
+    private List<ScheduleEntry> _mySchedule { get; set; } = [];
 
     /// <summary>
     /// Access the MySchedule cache.
     /// </summary>
-    public ConcurrentBag<ScheduleEntry> MySchedule => _mySchedule ?? [];
+    public List<ScheduleEntry> MySchedule => _mySchedule ?? [];
     /// <summary>
     /// Get My Schedule from the API.  Stores it in Cache.
     /// </summary>
     /// <returns></returns>
-    public async Task<ConcurrentBag<ScheduleEntry>> GetMyScheduleAsync(bool force = false)
+    public async Task<List<ScheduleEntry>> GetMyScheduleAsync(bool force = false)
     {
         try
         {
-            if (_mySchedule.IsEmpty || force)
+            if (_mySchedule.Count == 0 || force)
             {
                 _mySchedule = [..await _api.SendAsync<List<ScheduleEntry>>(HttpMethod.Get, "api/schedule")];
             }
@@ -201,18 +201,18 @@ public class RegistrarService(ApiService api, LocalLoggingService logging) :
     /// <summary>
     /// My Academic Schedule Cache.
     /// </summary>
-    private ConcurrentBag<SectionRecord> _myAcademicSchedule = [];
+    private List<SectionRecord> _myAcademicSchedule = [];
 
     /// <summary>
     /// Access My Academic Schedule cache.
     /// </summary>
-    public ConcurrentBag<SectionRecord> MyAcademicSchedule => _myAcademicSchedule ?? [];
+    public List<SectionRecord> MyAcademicSchedule => _myAcademicSchedule ?? [];
     
-    public async Task<ConcurrentBag<SectionRecord>> GetMyAcademicScheduleAsync(bool force = false)
+    public async Task<List<SectionRecord>> GetMyAcademicScheduleAsync(bool force = false)
     {
         try
         {
-            if (_myAcademicSchedule.IsEmpty || force)
+            if (_myAcademicSchedule.Count == 0 || force)
             {
                 _myAcademicSchedule = [..await _api.SendAsync<List<SectionRecord>>(HttpMethod.Get, "api/schedule/academics?detailed=true")];
                 foreach (var section in _myAcademicSchedule)
@@ -234,12 +234,12 @@ public class RegistrarService(ApiService api, LocalLoggingService logging) :
     /// <summary>
     /// Course Data Cache.
     /// </summary>
-    private ConcurrentBag<CourseRecord> _courses = [];
+    private List<CourseRecord> _courses = [];
 
     /// <summary>
     /// Access the Course Data Cache.  Throws an exception if the service is not yet initalized.
     /// </summary>
-    public ConcurrentBag<CourseRecord> CourseList => _courses ?? [];
+    public List<CourseRecord> CourseList => _courses ?? [];
 
     /// <summary>
     /// Get Sections of a given Course uses Cache if available, otherwise, asks the API to fill in the data.
@@ -248,7 +248,7 @@ public class RegistrarService(ApiService api, LocalLoggingService logging) :
     /// <param name="onError"></param>
     /// <param name="noCache"></param>
     /// <returns></returns>
-    public async Task<ConcurrentBag<SectionDetailRecord>> GetSectionsOfAsync(CourseRecord course, ErrorAction onError, bool noCache = false)
+    public async Task<List<SectionDetailRecord>> GetSectionsOfAsync(CourseRecord course, ErrorAction onError, bool noCache = false)
     {
         if (!noCache && _sectionsByCourse.TryGetValue(course.courseId, out var async))
             return async;
@@ -265,7 +265,7 @@ public class RegistrarService(ApiService api, LocalLoggingService logging) :
     /// <param name="courseId"></param>
     /// <param name="onError"></param>
     /// <returns></returns>
-    private async Task<ConcurrentBag<SectionDetailRecord>> GetSectionsOfFromAPIAsync(string courseId, ErrorAction onError) =>
+    private async Task<List<SectionDetailRecord>> GetSectionsOfFromAPIAsync(string courseId, ErrorAction onError) =>
         [.. await _api.SendAsync<List<SectionDetailRecord>>(
             HttpMethod.Get, $"api/registrar/course/{courseId}/sections", 
             onError: onError) ?? []];
@@ -274,11 +274,11 @@ public class RegistrarService(ApiService api, LocalLoggingService logging) :
     /// Get Course Data from the API.  Only used during init.
     /// </summary>
     /// <returns></returns>
-    private async Task<ConcurrentBag<CourseRecord>> GetCoursesAsync()
+    private async Task<List<CourseRecord>> GetCoursesAsync()
     {
         try
         {
-            if (_courses.IsEmpty)
+            if (_courses.Count == 0)
             {
                 _courses = [..await _api.SendAsync<List<CourseRecord>>(HttpMethod.Get, "api/registrar/course?getsBooks=true")];
             }
@@ -321,13 +321,13 @@ public class RegistrarService(ApiService api, LocalLoggingService logging) :
     /// <summary>
     /// Teacher Data Cache
     /// </summary>
-    private ConcurrentBag<UserRecord> _teachers = [];
+    private List<UserRecord> _teachers = [];
 
     /// <summary>
     /// get Teacher user data Cache.  Throws an exception if accessed before init has completed.
     /// </summary>
     /// <exception cref="ServiceNotReadyException"></exception>
-    public ConcurrentBag<UserRecord> TeacherList
+    public List<UserRecord> TeacherList
     {
         get
         {
@@ -342,11 +342,11 @@ public class RegistrarService(ApiService api, LocalLoggingService logging) :
     /// Get all Teacher data from API.  Only used during Init.
     /// </summary>
     /// <returns></returns>
-    private async Task<ConcurrentBag<UserRecord>> GetTeachersAsync()
+    private async Task<List<UserRecord>> GetTeachersAsync()
     {
         try
         {
-            if (_teachers.IsEmpty)
+            if (_teachers.Count == 0)
             {
                 _teachers = [..await _api.SendAsync<List<UserRecord>>(HttpMethod.Get, "api/users/teachers")];
             }
@@ -386,13 +386,13 @@ public class RegistrarService(ApiService api, LocalLoggingService logging) :
     /// <summary>
     /// Employee Data Cache.
     /// </summary>
-    private ConcurrentBag<UserRecord> _employees = [];
+    private List<UserRecord> _employees = [];
     
     /// <summary>
     /// Access the Employee Data cache.  throws an exception if initialization has not completed.
     /// </summary>
     /// <exception cref="ServiceNotReadyException"></exception>
-    public ConcurrentBag<UserRecord> EmployeeList
+    public List<UserRecord> EmployeeList
     {
         get
         {
@@ -411,7 +411,7 @@ public class RegistrarService(ApiService api, LocalLoggingService logging) :
     {
         try
         {
-            if (_employees.IsEmpty)
+            if (_employees.Count == 0)
             {
                 _employees = [..await _api.SendAsync<List<UserRecord>>(HttpMethod.Get, "api/users/employees")];
             }
@@ -428,13 +428,13 @@ public class RegistrarService(ApiService api, LocalLoggingService logging) :
     /// <summary>
     /// Student data cache.
     /// </summary>
-    private ConcurrentBag<UserRecord> _students = [];
+    private List<UserRecord> _students = [];
     
     /// <summary>
     /// Get the Student list Cache, throws an exception if the service is not ready yet.
     /// </summary>
     /// <exception cref="ServiceNotReadyException"></exception>
-    public ConcurrentBag<UserRecord> StudentList
+    public List<UserRecord> StudentList
     {
         get
         {
@@ -453,7 +453,7 @@ public class RegistrarService(ApiService api, LocalLoggingService logging) :
     {
         try
         {
-            if (_students.IsEmpty)
+            if (_students.Count == 0)
             {
                 var result = await _api.SendAsync<List<UserRecord>>(HttpMethod.Get, "api/users/students");
                 _students = [..
@@ -487,7 +487,7 @@ public class RegistrarService(ApiService api, LocalLoggingService logging) :
     /// <summary>
     /// Get All Users from the Application Cache by means of appending all different lists together.
     /// </summary>
-    public ConcurrentBag<UserRecord> AllUsers =>
+    public List<UserRecord> AllUsers =>
         [..StudentList
         .Union(TeacherList)
         .Union(EmployeeList)

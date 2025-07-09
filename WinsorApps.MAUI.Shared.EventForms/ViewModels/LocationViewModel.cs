@@ -75,7 +75,7 @@ public partial class LocationViewModel :
 
     public static LocationViewModel Empty => new();
 
-    public static ConcurrentBag<LocationViewModel> ViewModelCache { get; private set; } = [];
+    public static List<LocationViewModel> ViewModelCache { get; private set; } = [];
 
     public static LocationViewModel? Get(string locationId, bool custom = false)
     {

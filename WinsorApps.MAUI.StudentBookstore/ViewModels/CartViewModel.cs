@@ -223,7 +223,7 @@ public partial class OrderStatusViewModel :
 
     private OrderStatusViewModel() { }
 
-    public static ConcurrentBag<OrderStatusViewModel> ViewModelCache { get; private set; } = [];
+    public static List<OrderStatusViewModel> ViewModelCache { get; private set; } = [];
 
     public static OrderStatusViewModel Get(string status) => ViewModelCache.FirstOrDefault(st => st.label.Equals(status, StringComparison.InvariantCultureIgnoreCase))?.Clone() ?? new();
 

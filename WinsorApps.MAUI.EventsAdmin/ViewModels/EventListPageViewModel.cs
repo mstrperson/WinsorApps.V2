@@ -19,8 +19,8 @@ public partial class EventListPageViewModel :
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<AdminFormViewModel>? FormSelected;
 
-    [ObservableProperty] private bool busy;
-    [ObservableProperty] private string busyMessage = "";
+    [ObservableProperty] private bool busy = true;
+    [ObservableProperty] private string busyMessage = "Initializing...";
 
     [ObservableProperty] private ObservableCollection<AdminFormViewModel> pendingEvents = [];
     [ObservableProperty] private double pendingHeight;
@@ -45,7 +45,7 @@ public partial class EventListPageViewModel :
     [ObservableProperty] private bool hasLoaded;
     
     private static readonly double _headerHeight = 150;
-    private static readonly double _rowHeight = 40;
+    private static readonly double _rowHeight = 80;
     public EventListPageViewModel()
     {
         var registrar = ServiceHelper.GetService<RegistrarService>();

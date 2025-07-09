@@ -119,7 +119,7 @@ public partial class ServiceCaseViewModel :
         set => CommonIssues.Select([..value]);
     }
 
-    public static ConcurrentBag<ServiceCaseViewModel> ViewModelCache { get; private set; } = [];
+    public static List<ServiceCaseViewModel> ViewModelCache { get; private set; } = [];
 
     public static ServiceCaseViewModel Empty => new();
 

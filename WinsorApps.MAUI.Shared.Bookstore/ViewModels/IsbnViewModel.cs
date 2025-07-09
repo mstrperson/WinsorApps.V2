@@ -31,7 +31,7 @@ public partial class IsbnViewModel :
 
     public string AvailableString => Available ? "Available" : "Not Available";
 
-    public static ConcurrentBag<IsbnViewModel> ViewModelCache { get; private set; } = [];
+    public static List<IsbnViewModel> ViewModelCache { get; private set; } = [];
 
     public static IsbnViewModel Empty => new();
 

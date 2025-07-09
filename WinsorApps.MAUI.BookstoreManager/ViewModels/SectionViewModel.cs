@@ -72,7 +72,7 @@ public partial class SectionViewModel :
         Busy = false;
     }
 
-    public static ConcurrentBag<SectionViewModel> ViewModelCache { get; private set; } = [];
+    public static List<SectionViewModel> ViewModelCache { get; private set; } = [];
 
     public static SectionViewModel Empty => new();
 
@@ -152,7 +152,7 @@ public partial class SectionByTeacherCollectionViewModel :
     [ObservableProperty] private UserViewModel teacher = UserViewModel.Empty;
     [ObservableProperty] private List<SectionViewModel> sections = [];
 
-    public static ConcurrentBag<SectionByTeacherCollectionViewModel> ViewModelCache { get; private set; } = [];
+    public static List<SectionByTeacherCollectionViewModel> ViewModelCache { get; private set; } = [];
 
     public static SectionByTeacherCollectionViewModel Get(UserRecord model)
     {
@@ -196,7 +196,7 @@ public partial class SectionByDepartmentCollectionViewModel :
     [ObservableProperty] private string department = "";
     [ObservableProperty] private List<SectionViewModel> sections = [];
 
-    public static ConcurrentBag<SectionByDepartmentCollectionViewModel> ViewModelCache { get; private set; } = [];
+    public static List<SectionByDepartmentCollectionViewModel> ViewModelCache { get; private set; } = [];
 
     public static SectionByDepartmentCollectionViewModel Get(string dept)
     {

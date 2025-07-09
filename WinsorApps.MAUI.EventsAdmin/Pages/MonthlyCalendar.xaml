@@ -7,7 +7,7 @@
              xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
              x:DataType="vm:AdminCalendarViewModel"
              x:Class="WinsorApps.MAUI.EventsAdmin.Pages.MonthlyCalendar"
-             Appearing="ContentPage_Appearing"
+             Focused="ContentPage_Appearing"
              Title="Events Master Calendar">
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -331,6 +331,7 @@
                     </Label>
 
                     <Label
+                        Loaded="VisualElement_OnLoaded"
                         Text="{Binding Calendar.Month, StringFormat='{0:MMMM yyyy}'}"
                         StyleClass="Header"
                         WidthRequest="500"

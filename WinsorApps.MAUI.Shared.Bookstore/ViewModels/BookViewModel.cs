@@ -57,7 +57,7 @@ public partial class BookViewModel :
 
     public Optional<BookDetail> Model { get; private set; } = Optional<BookDetail>.None();
 
-    public static ConcurrentBag<BookViewModel> ViewModelCache { get; private set; } = [];
+    public static List<BookViewModel> ViewModelCache { get; private set; } = [];
 
     public static BookViewModel Empty => new();
 

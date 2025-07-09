@@ -32,7 +32,7 @@ public partial class CourseViewModel :
     [ObservableProperty] private string currentTermIdentifier = "";
     public Optional<CourseRecord> Model { get; init; } = Optional<CourseRecord>.None();
 
-    public static ConcurrentBag<CourseViewModel> ViewModelCache { get; protected set; } = [];
+    public static List<CourseViewModel> ViewModelCache { get; protected set; } = [];
 
     public static CourseViewModel Empty => new();
 
@@ -267,7 +267,7 @@ public partial class SectionViewModel :
     [ObservableProperty] private string id = "";
     [ObservableProperty] private bool isCurrent;
 
-    public static ConcurrentBag<SectionViewModel> ViewModelCache { get; private set; } = [];
+    public static List<SectionViewModel> ViewModelCache { get; private set; } = [];
 
     public static SectionViewModel Empty => new();
 

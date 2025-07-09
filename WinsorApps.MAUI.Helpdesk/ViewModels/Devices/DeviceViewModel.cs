@@ -22,7 +22,7 @@ public partial class DeviceViewModel :
     public static implicit operator DeviceRecord(DeviceViewModel vm) => vm.Model.Reduce(DeviceRecord.Empty);
 
     public override string ToString() => DisplayName;
-    public static ConcurrentBag<DeviceViewModel> ViewModelCache { get; private set; } = [];
+    public static List<DeviceViewModel> ViewModelCache { get; private set; } = [];
 
     public static DeviceViewModel Empty => new();
 

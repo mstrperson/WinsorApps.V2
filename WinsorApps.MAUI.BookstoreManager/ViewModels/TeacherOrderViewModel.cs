@@ -46,7 +46,7 @@ public partial class TeacherOrderViewModel :
         Busy = false;
     }
 
-    public static ConcurrentBag<TeacherOrderViewModel> ViewModelCache { get; private set; } = [];
+    public static List<TeacherOrderViewModel> ViewModelCache { get; private set; } = [];
 
     public static TeacherOrderViewModel Empty => new();
 
@@ -94,7 +94,7 @@ public partial class BookRequestOptionGroupViewModel :
     [ObservableProperty] private BookOrderOptionViewModel option = BookOrderOptionViewModel.Empty;
     [ObservableProperty] private List<BookRequestViewModel> requests = [];
 
-    public static ConcurrentBag<BookRequestOptionGroupViewModel> ViewModelCache { get; private set; } = [];
+    public static List<BookRequestOptionGroupViewModel> ViewModelCache { get; private set; } = [];
 
     public static BookRequestOptionGroupViewModel Get(TeacherBookOrderGroup model)
     {

@@ -27,7 +27,7 @@ public partial class BudgetCodeViewModel :
     [ObservableProperty] private string commonName = "";
     [ObservableProperty] private bool isSelected;
 
-    public static ConcurrentBag<BudgetCodeViewModel> ViewModelCache { get; protected set; } = [];
+    public static List<BudgetCodeViewModel> ViewModelCache { get; protected set; } = [];
 
     public TimeSpan RefreshInterval => TimeSpan.MaxValue;
 

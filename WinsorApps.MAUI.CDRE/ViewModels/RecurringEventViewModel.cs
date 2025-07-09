@@ -202,7 +202,7 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         #endregion // ISelectable
 
         #region ICachedViewModel stuff
-        public static ConcurrentBag<RecurringEventViewModel> ViewModelCache { get; private set; } = [];
+        public static List<RecurringEventViewModel> ViewModelCache { get; private set; } = [];
 
         public static RecurringEventViewModel Empty => new();
 

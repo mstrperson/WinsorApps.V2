@@ -81,7 +81,7 @@ public partial class EventsAdminService(ApiService api, RegistrarService registr
     public async Task Initialize(ErrorAction onError)
     {
         await _api.WaitForInit(onError);
-        while (_registrar.SchoolYears.IsEmpty)
+        while (_registrar.SchoolYears.Count == 0)
             await Task.Delay(100);
         Started = true;
 

@@ -41,7 +41,7 @@ public partial class CheqroomItemViewModel :
         LoadItem(item);
     }
 
-    public static ConcurrentBag<CheqroomItemViewModel> ViewModelCache { get; private set; } = [];
+    public static List<CheqroomItemViewModel> ViewModelCache { get; private set; } = [];
 
     public static CheqroomItemViewModel Empty => new();
 

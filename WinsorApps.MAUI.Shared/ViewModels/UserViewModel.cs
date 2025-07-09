@@ -26,7 +26,7 @@ public partial class UserViewModel :
         foreach (var vm in ViewModelCache)
             vm.GetUniqueDisplayName();
     }
-    public static ConcurrentBag<UserViewModel> ViewModelCache { get; private set; } = [];
+    public static List<UserViewModel> ViewModelCache { get; private set; } = [];
 
     public static List<UserViewModel> GetClonedViewModels(IEnumerable<UserRecord> models)
     {

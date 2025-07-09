@@ -49,7 +49,7 @@ public partial class ContactViewModel :
         }
     }
     
-    public static ConcurrentBag<ContactViewModel> ViewModelCache { get; private set; } = [];
+    public static List<ContactViewModel> ViewModelCache { get; private set; } = [];
 
     public static ContactViewModel Empty => new();
 
