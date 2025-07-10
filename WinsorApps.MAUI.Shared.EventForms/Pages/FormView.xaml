@@ -898,6 +898,7 @@
                                         Text="{Binding Name}"
                                         Margin="0,10,0,0"/>
                                     <CollectionView
+                                        BackgroundColor="Transparent"
                                         ItemsSource="{Binding Items}">
                                         <CollectionView.ItemTemplate>
                                             <DataTemplate>
