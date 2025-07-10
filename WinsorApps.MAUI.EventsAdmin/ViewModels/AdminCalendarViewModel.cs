@@ -58,6 +58,9 @@ public partial class AdminCalendarViewModel :
             SelectedEvent = evt;
             ShowEvent = true;
         };
+
+        Calendar.PropertyChanged += ((IBusyViewModel)this).BusyChangedCascade;
+        
         _admin.OnCacheRefreshed += async (_, _) =>
         {
             Busy = true;
@@ -177,13 +180,12 @@ public partial class AdminCalendarViewModel :
     public async Task IncrementMonth()
     {
         Busy = true;
+        BusyMessage = $"Downloading Event Data for {Calendar.Month.AddMonths(1):MMMM yyyy}";
+        _ = await _admin.GetAllEvents(OnError.DefaultBehavior(this), Calendar.Month.AddMonths(1), Calendar.Month.AddMonths(2));
+        
         BusyMessage = "Loading Next Month";
         await Calendar.IncrementMonth();
-        if (Calendar.Month < _admin.CacheStartDate || Calendar.Month.AddMonths(1).AddDays(-1) > _admin.CacheEndDate)
-        {
-            BusyMessage = $"Downloading Event Data for {Calendar.Month:MMMM yyyy}";
-            _ = await _admin.GetAllEvents(OnError.DefaultBehavior(this), Calendar.Month, Calendar.Month.AddMonths(1));
-        }
+        
         Busy = false;
     }
 
@@ -192,13 +194,13 @@ public partial class AdminCalendarViewModel :
     public async Task DecrementMonth()
     {
         Busy = true;
+        BusyMessage = $"Downloading Event Data for {Calendar.Month.AddMonths(-1):MMMM yyyy}";
+        _ = await _admin.GetAllEvents(OnError.DefaultBehavior(this), Calendar.Month.AddMonths(-1), Calendar.Month); 
+        
         BusyMessage = "Loading Previous Month";
         await Calendar.DecrementMonth();
-        if (Calendar.Month < _admin.CacheStartDate || Calendar.Month.AddMonths(1).AddDays(-1) > _admin.CacheEndDate)
-        {
-            BusyMessage = $"Downloading Event Data for {Calendar.Month:MMMM yyyy}";
-            _ = await _admin.GetAllEvents(OnError.DefaultBehavior(this), Calendar.Month, Calendar.Month.AddMonths(1)); 
-        }
+        
+    
         Busy = false;
     }
 }

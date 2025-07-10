@@ -14,9 +14,9 @@
         </ResourceDictionary>
     </ContentPage.Resources>
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Add Note"
-                      IconImageSource="plus.png"
-                      Command="{Binding NewCommand}" />
+        <ToolbarItem 
+            Text="Add Note"
+            Command="{Binding NewCommand}" />
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <ScrollView>
@@ -33,7 +33,9 @@
                         StyleClass="loading_symbol"/>
                 </HorizontalStackLayout>
                 <Border
-                    StrokeThickness="1">
+                    StrokeThickness="1"
+                    IsVisible="{Binding ShowEditor}"
+                    HeightRequest="200">
                     <Grid
                         IsVisible="{Binding ShowEditor}"
                         WidthRequest="1600"
@@ -50,6 +52,8 @@
                             Date="{Binding SelectedNote.Date}" 
                             WidthRequest="500"
                             HeightRequest="50"
+                            TranslationX="{OnPlatform MacCatalyst=50}"
+                            TranslationY="{OnPlatform MacCatalyst=15}"
                             Grid.Row="0"
                             Grid.Column="1"/>
                         <Label
