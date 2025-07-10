@@ -92,7 +92,7 @@
                         </Label>
                         <Image
                             StyleClass="RefreshButton"
-                            HeightRequest="50">
+                            HeightRequest="{OnPlatform MacCatalyst=50}">
                             <Image.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding ApplyFilterCommand}" />
                             </Image.GestureRecognizers>

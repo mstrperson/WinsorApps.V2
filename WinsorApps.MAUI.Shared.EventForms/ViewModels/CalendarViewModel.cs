@@ -35,7 +35,7 @@ public partial class CalendarViewModel :
     }
 
     [RelayCommand]
-    public async Task LoadEvents() => await MainThread.InvokeOnMainThreadAsync(() =>
+    public async Task LoadEvents() => await Task.Run(() =>
     {
         Busy = true;
         BusyMessage = $"Loading Calendar Events for {Month:MMMM yyyy}";

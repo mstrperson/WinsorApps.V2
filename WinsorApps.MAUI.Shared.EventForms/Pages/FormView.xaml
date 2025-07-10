@@ -439,12 +439,115 @@
                             <TapGestureRecognizer Command="{Binding ToggleShowCateringCommand}"/>
                         </Label.GestureRecognizers>
                     </Label>
-                    <VerticalStackLayout
-                        Margin="0"></VerticalStackLayout>
                     <CollectionView
                         WidthRequest="1600"
-                        ItemsSource="{Binding Catering.Menu.SelectedMenu}">
-                        
+                        HorizontalOptions="Center"
+                        BackgroundColor="Transparent"
+                        IsVisible="{Binding ShowCatering}"
+                        ItemsSource="{Binding Catering.Menu.SelectedMenu.Items}">
+                        <CollectionView.Header>
+                            <Grid
+                                RowDefinitions="Auto,Auto"
+                                ColumnDefinitions="200,200,200,200">
+                                <VerticalStackLayout
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    Grid.ColumnSpan="4"
+                                    WidthRequest="800">
+                                    <Border StrokeThickness="2">
+                                        <HorizontalStackLayout
+                                            Margin="0"
+                                            Padding="0"
+                                            Spacing="15">
+                                            <HorizontalStackLayout.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Catering.Menu.ToggleShowMenusCommand}" />
+                                            </HorizontalStackLayout.GestureRecognizers>
+                                            <Label
+                                                StyleClass="H3"
+                                                Text="{Binding Catering.Menu.SelectedMenu.Title}"
+                                                WidthRequest="700"/>
+                                            <Image
+                                                HorizontalOptions="End"
+                                                StyleClass="DownArrow"
+                                                WidthRequest="50"/>
+                                        </HorizontalStackLayout>
+                                    </Border>
+                                    <CollectionView
+                                        BackgroundColor="Transparent"
+                                        IsVisible="{Binding Catering.Menu.ShowMenus}"
+                                        ItemsSource="{Binding Catering.Menu.Menus}">
+                                        <CollectionView.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:CateringMenuViewModel">
+                                                <HorizontalStackLayout
+                                                    Margin="0"
+                                                    Padding="0"
+                                                    IsVisible="{Binding HasSelections}">
+                                                    <HorizontalStackLayout.GestureRecognizers>
+                                                        <TapGestureRecognizer Command="{Binding SelectCommand}"/>
+                                                    </HorizontalStackLayout.GestureRecognizers>
+                                                    <Label
+                                                        StyleClass="H3"
+                                                        Text="{Binding Title}" />
+                                                </HorizontalStackLayout>
+                                            </DataTemplate>
+                                        </CollectionView.ItemTemplate>
+                                    </CollectionView>
+                                </VerticalStackLayout>
+                                <Label
+                                    StyleClass="H3"
+                                    Text="Menu"
+                                    HorizontalOptions="Center"
+                                    Grid.Row="1"
+                                    Grid.Column="0"/>
+                                <Label
+                                    StyleClass="H3"
+                                    Text="Item"
+                                    HorizontalOptions="Center"
+                                    Grid.Row="1"
+                                    Grid.Column="1"/>
+                                <Label
+                                    StyleClass="H3"
+                                    Text="Quantity"
+                                    HorizontalOptions="Center"
+                                    Grid.Row="1"
+                                    Grid.Column="2"/>
+                                <Label
+                                    StyleClass="H3"
+                                    Text="Cost"
+                                    HorizontalOptions="Center"
+                                    Grid.Row="1"
+                                    Grid.Column="3"/>
+                            </Grid>
+                        </CollectionView.Header>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:CateringMenuSelectionViewModel">
+                                <Grid
+                                    RowDefinitions="Auto,Auto"
+                                    ColumnDefinitions="200,200,200,200"
+                                    IsVisible="{Binding IsSelected}">
+                                    <Label
+                                        Grid.Row="0"
+                                        Grid.Column="0"
+                                        Text="{Binding Item.Category}" />
+                                    <Label
+                                        Grid.Row="0"
+                                        Grid.Column="1"
+                                        Text="{Binding Item.Name}" />
+                                    <Label
+                                        Grid.Row="0"
+                                        Grid.Column="2"
+                                        Text="{Binding Quantity}" />
+                                    <Label
+                                        Grid.Row="0"
+                                        Grid.Column="3"
+                                        Text="{Binding Cost, StringFormat='${0:C}'}" />
+                                    <BoxView
+                                        StyleClass="Bar"
+                                        Grid.Row="1"
+                                        Grid.ColumnSpan="4"/>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
                     </CollectionView>
                 </VerticalStackLayout>
                 <!-- End Catering Details -->
@@ -453,13 +556,267 @@
                     WidthRequest="1600"
                     Margin="0"
                     Padding="0"
-                    IsVisible="{Binding HasCatering}">
+                    IsVisible="{Binding HasTech}">
                     <BoxView StyleClass="Bar" />
                     <Label
                         StyleClass="SubHeader"
                         HorizontalTextAlignment="Center"
                         WidthRequest="1600"
                         Text="Technology Details"/>
+                    <Grid
+                        WidthRequest="1600"
+                        ColumnDefinitions="400,400,400,400"
+                        RowDefinitions="*,*,*"
+                        IsVisible="{Binding ShowTech}">
+                        <!-- Row 0: Presence Requested & Equipment Needed -->
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="End"
+                            Text="Presence Requested"/>
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="Start"
+                            Text="{Binding Tech.PresenceRequested, StringFormat='{}{0:Yes;No}'}"/>
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="2"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="End"
+                            Text="Equipment Needed"/>
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="3"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="Start"
+                            Text="{Binding Tech.EquipmentNeeded, StringFormat='{}{0:Yes;No}'}"/>
+                        <!-- Row 1: Help Requested -->
+                        <Label
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="End"
+                            Text="Help Requested"/>
+                        <Label
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="Start"
+                            Text="{Binding Tech.HelpRequested, StringFormat='{}{0:Yes;No}'}"/>
+                        <!-- Row 2: Details -->
+                        <Label
+                            Grid.Row="2"
+                            Grid.Column="0"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="End"
+                            Text="Details"/>
+                        <Editor
+                            Grid.Row="2"
+                            Grid.Column="1"
+                            Grid.ColumnSpan="3"
+                            WidthRequest="1200"
+                            HeightRequest="80"
+                            IsReadOnly="True"
+                            Text="{Binding Tech.Details}"/>
+                    </Grid>
+                    <!-- Optionally, show virtual event details if relevant -->
+                    <VerticalStackLayout
+                        Margin="0,10,0,0"
+                        IsVisible="{Binding Tech.IsVirtual}">
+                        <Label
+                            StyleClass="H3"
+                            Text="Virtual Event Details"/>
+                        <Grid
+                            WidthRequest="1600"
+                            ColumnDefinitions="400,400,400,400"
+                            RowDefinitions="*,*,*,*,*">
+                            <!-- Row 0: Webinar & Registration Required -->
+                            <Label
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                WidthRequest="400"
+                                StyleClass="H3"
+                                HorizontalTextAlignment="End"
+                                Text="Webinar"/>
+                            <Label
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                WidthRequest="400"
+                                StyleClass="H3"
+                                HorizontalTextAlignment="Start"
+                                Text="{Binding Tech.VirtualEvent.IsWebinar, StringFormat='{}{0:Yes;No}'}"/>
+                            <Label
+                                Grid.Row="0"
+                                Grid.Column="2"
+                                WidthRequest="400"
+                                StyleClass="H3"
+                                HorizontalTextAlignment="End"
+                                Text="Registration Required"/>
+                            <Label
+                                Grid.Row="0"
+                                Grid.Column="3"
+                                WidthRequest="400"
+                                StyleClass="H3"
+                                HorizontalTextAlignment="Start"
+                                Text="{Binding Tech.VirtualEvent.RegistrationRequired, StringFormat='{}{0:Yes;No}'}"/>
+                            <!-- Row 1: Chat Enabled & Q&A Enabled -->
+                            <Label
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                WidthRequest="400"
+                                StyleClass="H3"
+                                HorizontalTextAlignment="End"
+                                Text="Chat Enabled"/>
+                            <Label
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                WidthRequest="400"
+                                StyleClass="H3"
+                                HorizontalTextAlignment="Start"
+                                Text="{Binding Tech.VirtualEvent.ChatEnabled, StringFormat='{}{0:Yes;No}'}"/>
+                            <Label
+                                Grid.Row="1"
+                                Grid.Column="2"
+                                WidthRequest="400"
+                                StyleClass="H3"
+                                HorizontalTextAlignment="End"
+                                Text="Q&amp;A Enabled"/>
+                            <Label
+                                Grid.Row="1"
+                                Grid.Column="3"
+                                WidthRequest="400"
+                                StyleClass="H3"
+                                HorizontalTextAlignment="Start"
+                                Text="{Binding Tech.VirtualEvent.QaEnabled, StringFormat='{}{0:Yes;No}'}"/>
+                            <!-- Row 2: Recording Enabled & Send Reminder -->
+                            <Label
+                                Grid.Row="2"
+                                Grid.Column="0"
+                                WidthRequest="400"
+                                StyleClass="H3"
+                                HorizontalTextAlignment="End"
+                                Text="Recording Enabled"/>
+                            <Label
+                                Grid.Row="2"
+                                Grid.Column="1"
+                                WidthRequest="400"
+                                StyleClass="H3"
+                                HorizontalTextAlignment="Start"
+                                Text="{Binding Tech.VirtualEvent.RecordingEnabled, StringFormat='{}{0:Yes;No}'}"/>
+                            <Label
+                                Grid.Row="2"
+                                Grid.Column="2"
+                                WidthRequest="400"
+                                StyleClass="H3"
+                                HorizontalTextAlignment="End"
+                                Text="Send Reminder"/>
+                            <Label
+                                Grid.Row="2"
+                                Grid.Column="3"
+                                WidthRequest="400"
+                                StyleClass="H3"
+                                HorizontalTextAlignment="Start"
+                                Text="{Binding Tech.VirtualEvent.SendReminder, StringFormat='{}{0:Yes;No}'}"/>
+                            <!-- Row 3: Record Transcript & Get Registrant List -->
+                            <Label
+                                Grid.Row="3"
+                                Grid.Column="0"
+                                WidthRequest="400"
+                                StyleClass="H3"
+                                HorizontalTextAlignment="End"
+                                Text="Record Transcript"/>
+                            <Label
+                                Grid.Row="3"
+                                Grid.Column="1"
+                                WidthRequest="400"
+                                StyleClass="H3"
+                                HorizontalTextAlignment="Start"
+                                Text="{Binding Tech.VirtualEvent.RecordTranscript, StringFormat='{}{0:Yes;No}'}"/>
+                            <Label
+                                Grid.Row="3"
+                                Grid.Column="2"
+                                WidthRequest="400"
+                                StyleClass="H3"
+                                HorizontalTextAlignment="End"
+                                Text="Get Registrant List"/>
+                            <Label
+                                Grid.Row="3"
+                                Grid.Column="3"
+                                WidthRequest="400"
+                                StyleClass="H3"
+                                HorizontalTextAlignment="Start"
+                                Text="{Binding Tech.VirtualEvent.GetRegistrantList, StringFormat='{}{0:Yes;No}'}"/>
+                            <!-- Row 4: Get Zoom Link & Q&A Support -->
+                            <Label
+                                Grid.Row="4"
+                                Grid.Column="0"
+                                WidthRequest="400"
+                                StyleClass="H3"
+                                HorizontalTextAlignment="End"
+                                Text="Get Zoom Link"/>
+                            <Label
+                                Grid.Row="4"
+                                Grid.Column="1"
+                                WidthRequest="400"
+                                StyleClass="H3"
+                                HorizontalTextAlignment="Start"
+                                Text="{Binding Tech.VirtualEvent.GetZoomLink, StringFormat='{}{0:Yes;No}'}"/>
+                            <Label
+                                Grid.Row="4"
+                                Grid.Column="2"
+                                WidthRequest="400"
+                                StyleClass="H3"
+                                HorizontalTextAlignment="End"
+                                Text="Q&amp;A Support"/>
+                            <Label
+                                Grid.Row="4"
+                                Grid.Column="3"
+                                WidthRequest="400"
+                                StyleClass="H3"
+                                HorizontalTextAlignment="Start"
+                                Text="{Binding Tech.VirtualEvent.QaSupport, StringFormat='{}{0:Yes;No}'}"/>
+                        </Grid>
+                        <CollectionView
+                            Margin="0,20,0,0"
+                            WidthRequest="1600"
+                            BackgroundColor="Transparent"
+                            ItemsSource="{Binding Tech.VirtualEvent.Panelists}"
+                            IsVisible="{Binding Tech.IsVirtual}">
+                            <CollectionView.Header>
+                                <Label
+                                    StyleClass="H3"
+                                    Text="Panelists"
+                                    HorizontalTextAlignment="Center"
+                                    WidthRequest="1600"/>
+                            </CollectionView.Header>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="vm:ContactViewModel">
+                                    <Border
+                                        Margin="0,2,0,2"
+                                        Padding="8"
+                                        StrokeThickness="1">
+                                        <HorizontalStackLayout>
+                                            <Label
+                                                Text="{Binding FullName}" />
+                                            <Label
+                                                Margin="20,0,0,0"
+                                                Text="{Binding Email}" />
+                                        </HorizontalStackLayout>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
                 </VerticalStackLayout>
                 <!-- End Technology Details -->
                 <!-- Theater Details -->
@@ -467,13 +824,94 @@
                     WidthRequest="1600"
                     Margin="0"
                     Padding="0"
-                    IsVisible="{Binding HasCatering}">
+                    IsVisible="{Binding HasTheater}">
                     <BoxView StyleClass="Bar" />
                     <Label
                         StyleClass="SubHeader"
                         HorizontalTextAlignment="Center"
                         WidthRequest="1600"
                         Text="Theater Details"/>
+                    <!-- Notes -->
+                    <Grid
+                        WidthRequest="1600"
+                        ColumnDefinitions="400,1200"
+                        RowDefinitions="*">
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="End"
+                            Text="Notes"/>
+                        <Editor
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            WidthRequest="1200"
+                            HeightRequest="80"
+                            IsReadOnly="True"
+                            Text="{Binding Theater.Notes}"/>
+                    </Grid>
+                    <!-- Attachments -->
+                    <CollectionView
+                        Margin="0,20,0,0"
+                        WidthRequest="1600"
+                        BackgroundColor="Transparent"
+                        ItemsSource="{Binding Theater.Documents}">
+                        <CollectionView.Header>
+                            <Label
+                                StyleClass="H3"
+                                Text="Documents"
+                                HorizontalTextAlignment="Center"
+                                WidthRequest="1600"/>
+                        </CollectionView.Header>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:AttachmentViewModel">
+                                <HorizontalStackLayout>
+                                    <Label
+                                        Text="{Binding FileName}"
+                                        VerticalOptions="Center"/>
+                                    <Button
+                                        Text="Download"
+                                        Command="{Binding DownloadCommand}"/>
+                                </HorizontalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <!-- Theater Menu Selections -->
+                    <CollectionView
+                        Margin="0,20,0,0"
+                        WidthRequest="1600"
+                        BackgroundColor="Transparent"
+                        ItemsSource="{Binding Theater.TheaterMenu.Menus}">
+                        <CollectionView.Header>
+                            <Label
+                                StyleClass="H3"
+                                Text="Selected Theater Items"
+                                HorizontalTextAlignment="Center"
+                                WidthRequest="1600"/>
+                        </CollectionView.Header>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:TheaterMenuViewModel">
+                                <VerticalStackLayout>
+                                    <Label
+                                        StyleClass="H3"
+                                        Text="{Binding Name}"
+                                        Margin="0,10,0,0"/>
+                                    <CollectionView
+                                        ItemsSource="{Binding Items}">
+                                        <CollectionView.ItemTemplate>
+                                            <DataTemplate>
+                                                <Label
+                                                    IsVisible="{Binding IsSelected}"
+                                                    Text="{Binding Name}"
+                                                    Margin="20,0,0,0"/>
+                                            </DataTemplate>
+                                        </CollectionView.ItemTemplate>
+                                    </CollectionView>
+                                </VerticalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
                 </VerticalStackLayout>
                 <!-- End Theater Details -->
                 <!-- MarComm Details -->
@@ -481,13 +919,180 @@
                     WidthRequest="1600"
                     Margin="0"
                     Padding="0"
-                    IsVisible="{Binding HasCatering}">
+                    IsVisible="{Binding HasMarComm}">
                     <BoxView StyleClass="Bar" />
                     <Label
                         StyleClass="SubHeader"
                         HorizontalTextAlignment="Center"
                         WidthRequest="1600"
                         Text="Communications Details"/>
+                    <Grid
+                        WidthRequest="1600"
+                        ColumnDefinitions="400,400,400,400"
+                        RowDefinitions="*,*,*,*,*"
+                        IsVisible="{Binding ShowMarComm}">
+                        <!-- Row 0: Print Invite & Digital Invite -->
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="End"
+                            Text="Print Invite"/>
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="Start"
+                            Text="{Binding MarComm.PrintInvite, StringFormat='{}{0:Yes;No}'}"/>
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="2"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="End"
+                            Text="Digital Invite"/>
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="3"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="Start"
+                            Text="{Binding MarComm.DigitalInvite, StringFormat='{}{0:Yes;No}'}"/>
+                        <!-- Row 1: Newsletter Reminder & Email Reminder -->
+                        <Label
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="End"
+                            Text="Newsletter Reminder"/>
+                        <Label
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="Start"
+                            Text="{Binding MarComm.NewsletterReminder, StringFormat='{}{0:Yes;No}'}"/>
+                        <Label
+                            Grid.Row="1"
+                            Grid.Column="2"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="End"
+                            Text="Email Reminder"/>
+                        <Label
+                            Grid.Row="1"
+                            Grid.Column="3"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="Start"
+                            Text="{Binding MarComm.EmailReminder, StringFormat='{}{0:Yes;No}'}"/>
+                        <!-- Row 2: Script Help & Printed Program -->
+                        <Label
+                            Grid.Row="2"
+                            Grid.Column="0"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="End"
+                            Text="Script Help"/>
+                        <Label
+                            Grid.Row="2"
+                            Grid.Column="1"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="Start"
+                            Text="{Binding MarComm.ScriptHelp, StringFormat='{}{0:Yes;No}'}"/>
+                        <Label
+                            Grid.Row="2"
+                            Grid.Column="2"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="End"
+                            Text="Printed Program"/>
+                        <Label
+                            Grid.Row="2"
+                            Grid.Column="3"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="Start"
+                            Text="{Binding MarComm.PrintedProgram, StringFormat='{}{0:Yes;No}'}"/>
+                        <!-- Row 3: Digital Program & Needs Media -->
+                        <Label
+                            Grid.Row="3"
+                            Grid.Column="0"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="End"
+                            Text="Digital Program"/>
+                        <Label
+                            Grid.Row="3"
+                            Grid.Column="1"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="Start"
+                            Text="{Binding MarComm.DigitalProgram, StringFormat='{}{0:Yes;No}'}"/>
+                        <Label
+                            Grid.Row="3"
+                            Grid.Column="2"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="End"
+                            Text="Needs Media"/>
+                        <Label
+                            Grid.Row="3"
+                            Grid.Column="3"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="Start"
+                            Text="{Binding MarComm.NeedsMedia, StringFormat='{}{0:Yes;No}'}"/>
+                        <!-- Row 4: Need Photographer -->
+                        <Label
+                            Grid.Row="4"
+                            Grid.Column="0"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="End"
+                            Text="Need Photographer"/>
+                        <Label
+                            Grid.Row="4"
+                            Grid.Column="1"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="Start"
+                            Text="{Binding MarComm.NeedPhotographer, StringFormat='{}{0:Yes;No}'}"/>
+                    </Grid>
+                    <!-- Invite List -->
+                    <CollectionView
+                        Margin="0,20,0,0"
+                        WidthRequest="1600"
+                        BackgroundColor="Transparent"
+                        ItemsSource="{Binding MarComm.InviteList}">
+                        <CollectionView.Header>
+                            <Label
+                                StyleClass="H3"
+                                Text="Invite List"
+                                HorizontalTextAlignment="Center"
+                                WidthRequest="1600"/>
+                        </CollectionView.Header>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ContactViewModel">
+                                <Border
+                                    Margin="0,2,0,2"
+                                    Padding="8"
+                                    StrokeThickness="1">
+                                    <HorizontalStackLayout>
+                                        <Label
+                                            Text="{Binding AssociatedUser.DisplayName}" />
+                                        <Label
+                                            Margin="20,0,0,0"
+                                            Text="{Binding Email}" />
+                                    </HorizontalStackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
                 </VerticalStackLayout>
                 <!-- End MarComm Details -->
             </VerticalStackLayout>

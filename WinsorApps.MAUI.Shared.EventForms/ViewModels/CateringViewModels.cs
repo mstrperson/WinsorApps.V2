@@ -192,6 +192,7 @@ public partial class CateringMenuViewModel :
     [ObservableProperty] private bool isDeleted;
     [ObservableProperty] private bool isSelected;
     [ObservableProperty] private double menuHeightRequest;
+    [ObservableProperty] private bool hasSelections;
 
     private static readonly double MenuRowHeight = 100;
 
@@ -232,6 +233,7 @@ public partial class CateringMenuViewModel :
             };
         }
 
+        vm.HasSelections = vm.Items.Any(it => it.IsSelected);
         return vm;
     }
 
@@ -257,6 +259,8 @@ public partial class CateringMenuViewModel :
             vm.Quantity = sel.quantity;
             vm.Cost = sel.quantity * vm.Item.PricePerPerson;
         }
+
+        HasSelections = Items.Any(it => it.IsSelected);
     }
 
     public void LoadSelections(IEnumerable<DetailedCateringMenuSelection> selections)
@@ -270,6 +274,8 @@ public partial class CateringMenuViewModel :
             vm.Quantity = sel.quantity;
             vm.Cost = sel.quantity * vm.Item.PricePerPerson;
         }
+
+        HasSelections = Items.Any(it => it.IsSelected);
     }
 
     [RelayCommand]
