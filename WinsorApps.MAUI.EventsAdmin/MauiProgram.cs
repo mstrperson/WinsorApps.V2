@@ -38,7 +38,7 @@ namespace WinsorApps.MAUI.EventsAdmin
 
             builder.Services.AddSingleton<EventsAdminService>();
             builder.Services.AddSingleton<MainPage>();
-
+            builder.Services.AddSingleton<EventFormViewModelCacheService>();
             builder.Services.AddSingleton<EventListPageViewModel>();
             builder.Services.AddSingleton<EventListPage>();
             builder.Services.AddSingleton<AdminCalendarViewModel>();

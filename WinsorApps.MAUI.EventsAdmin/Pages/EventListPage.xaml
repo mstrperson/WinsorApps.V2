@@ -12,6 +12,11 @@
     </ContentPage.Resources>
     <ContentPage.ToolbarItems>
         <ToolbarItem
+            StyleClass="RefreshButton"
+            Command="{Binding RefreshCommand}"/>
+        <ToolbarItem
+            StyleClass="Separator" />
+        <ToolbarItem
             Text="Pending Events"
             Command="{Binding ToggleShowPendingCommand}" />
         <ToolbarItem
@@ -54,7 +59,8 @@
                     HeightRequest="{Binding PendingHeight}"
                     BackgroundColor="Transparent"
                     IsVisible="{Binding ShowPending}"
-                    ItemsSource="{Binding PendingEvents}">
+                    ItemsSource="{Binding PendingEvents}"
+                    VerticalScrollBarVisibility="Always">
                     <CollectionView.Header>
                         <VerticalStackLayout
                             Margin="0"
@@ -200,7 +206,8 @@
                     WidthRequest="1600"
                     BackgroundColor="Transparent"
                     IsVisible="{Binding ShowWaiting}"
-                    ItemsSource="{Binding WaitingEvents}">
+                    ItemsSource="{Binding WaitingEvents}"
+                    VerticalScrollBarVisibility="Always">
                     <CollectionView.Header>
                         <VerticalStackLayout
                                 Margin="0"
@@ -352,7 +359,8 @@
                     WidthRequest="1600"
                     BackgroundColor="Transparent"
                     IsVisible="{Binding ShowOther}"
-                    ItemsSource="{Binding OtherEvents}">
+                    ItemsSource="{Binding OtherEvents}"
+                    VerticalScrollBarVisibility="Always">
                     <CollectionView.Header>
                         <VerticalStackLayout
                                 Margin="0"
@@ -520,7 +528,8 @@
                     HeightRequest="{Binding TwoWeekHeight}"
                     BackgroundColor="Transparent"
                     IsVisible="{Binding ShowAll}"
-                    ItemsSource="{Binding TwoWeekList}">
+                    ItemsSource="{Binding TwoWeekList}"
+                    VerticalScrollBarVisibility="Always">
                     <CollectionView.Header>
                         <VerticalStackLayout
                             Margin="0"

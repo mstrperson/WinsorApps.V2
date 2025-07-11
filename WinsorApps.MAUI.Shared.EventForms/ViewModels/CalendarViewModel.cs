@@ -28,6 +28,8 @@ public partial class CalendarViewModel :
     /// </summary>
     public required Func<DateTime, IEnumerable<EventFormBase>> MonthlyEventSource;
 
+    public required Func<IEnumerable<EventFormBase>, List<EventFormViewModel>> ViewModelFactory { get; set; } = EventFormViewModel.GetClonedViewModels;
+    
     public void ApplyFilter(Func<EventFormViewModel, bool> filter)
     {
         foreach(var week in Weeks)
@@ -40,7 +42,7 @@ public partial class CalendarViewModel :
         Busy = true;
         BusyMessage = $"Loading Calendar Events for {Month:MMMM yyyy}";
         using DebugTimer _ = new(BusyMessage, _logging);
-        var events = EventFormViewModel.GetClonedViewModels(MonthlyEventSource(Month));
+        var events = ViewModelFactory(MonthlyEventSource(Month));
         foreach (var evt in events)
             evt.Selected += (_, _) => 
                 EventSelected?.Invoke(this, evt);

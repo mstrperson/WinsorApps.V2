@@ -39,6 +39,7 @@ public partial class EventListPage : ContentPage
 			
 	    ViewModel.Busy = true;
 	    ViewModel.BusyMessage = "Loading..."; 
-	    ViewModel.Initialize(this.DefaultOnErrorAction()).SafeFireAndForget(e => e.LogException());
+	    ViewModel.Initialize(this.DefaultOnErrorAction()).SafeFireAndForget(ex => 
+		    ex.LogException());
     }
 }

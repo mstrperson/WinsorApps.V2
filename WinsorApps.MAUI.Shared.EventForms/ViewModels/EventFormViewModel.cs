@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.EventForms.Services;
@@ -139,7 +140,7 @@ public partial class EventFormViewModel :
     [ObservableProperty] private bool busy;
     [ObservableProperty] private string busyMessage = "Working";
 
-    public Optional<EventFormBase> Model { get; private set; } = Optional<EventFormBase>.None();
+    public Optional<EventFormBase> Model { get; set; } = Optional<EventFormBase>.None();
 
     public EventFormViewModel()
     {
@@ -805,8 +806,16 @@ public partial class EventFormViewModel :
     {
         using DebugTimer _ = new($"Loading Event Form View Model for {model.id}", ServiceHelper.GetService<LocalLoggingService>());
         var vm = ViewModelCache.FirstOrDefault(evt =>  model.id == evt.Id);
-        if (vm is not null)
+        if (vm is not null && vm.Model.Reduce(EventFormBase.Empty).IsSameAs(model))
+        {
             return vm.Clone();
+        }
+
+        if (vm is not null)
+        {
+            Debug.WriteLine($"{vm.Id} has been updated, creating new view model instance.");
+            ViewModelCache.Remove(vm);
+        }
 
         var registrar = ServiceHelper.GetService<RegistrarService>();
         var eventForms = ServiceHelper.GetService<EventFormsService>();
@@ -821,7 +830,7 @@ public partial class EventFormViewModel :
             StartTime = TimeOnly.FromDateTime(model.start).ToTimeSpan(),
             EndDate = model.end,
             EndTime = TimeOnly.FromDateTime(model.end).ToTimeSpan(),
-            Creator = UserViewModel.Get(registrar.AllUsers.First(u => u.id == model.creatorId)),
+            Creator = UserViewModel.Get(registrar.AllUsers.FirstOrDefault(u => u.id == model.creatorId) ?? UserRecord.Empty),
             AttendeeCount = model.attendeeCount,
             HasFacilities = model.hasFacilitiesInfo,
             HasTech = model.hasTechRequest,
@@ -845,7 +854,7 @@ public partial class EventFormViewModel :
         vm.CanEditSubForms = vm.IsCreating || vm.IsUpdating;
 
         vm.StatusSelection.Select(eventForms.StatusLabels.First(status => status.label.Equals(model.status, StringComparison.InvariantCultureIgnoreCase)));
-        vm.LeaderSearch.Select(UserViewModel.Get(registrar.AllUsers.First(u => u.id == model.leaderId)));
+        vm.LeaderSearch.Select(UserViewModel.Get(registrar.AllUsers.FirstOrDefault(u => u.id == model.leaderId) ?? UserRecord.Empty));
 
         vm.Leader = vm.LeaderSearch.Selected;
         
@@ -887,6 +896,19 @@ public partial class EventFormViewModel :
         ViewModelCache = [.. ViewModelCache.Distinct()];
     }
 
+    public static async Task Initialize(EventsAdminService service, ErrorAction onError)
+    {
+        await service.WaitForInit(onError);
+
+        service.OnCacheRefreshed += (_, _) =>
+        {
+            _ = service.AllEvents.Select(Get);
+        };
+        
+        _ = service.AllEvents.Select(Get);
+        
+    }
+    
     public EventFormViewModel Clone() => 
         (EventFormViewModel)MemberwiseClone();
 
