@@ -28,7 +28,7 @@ public partial class MainPage : ContentPage
         CateringMenuService cateringMenuService,
         TheaterService theaterService,
         EventsAdminService adminService,
-        EventListPageViewModel listpagevm)
+        EventFormViewModelCacheService cacheService)
     {
         MainPageViewModel vm = new MainPageViewModel(
         [
@@ -41,7 +41,8 @@ public partial class MainPage : ContentPage
             new ServiceAwaiterViewModel(locationService, "Locations"),
             new ServiceAwaiterViewModel(cateringMenuService, "Catering Services"),
             new ServiceAwaiterViewModel(theaterService, "Theater Services"),
-            new ServiceAwaiterViewModel(app, "Checking for Updates")
+            new ServiceAwaiterViewModel(app, "Checking for Updates"),
+            new ServiceAwaiterViewModel(cacheService, "Cache Service"),
         ], 
         app, 
         api, 
@@ -55,7 +56,7 @@ public partial class MainPage : ContentPage
                 new TaskAwaiterViewModel(ApprovalStatusViewModel.Initialize(eventForms, this.DefaultOnErrorAction()), "Approval Status Cache"),
                 new TaskAwaiterViewModel(CateringMenuCategoryViewModel.Initialize(cateringMenuService, this.DefaultOnErrorAction()), "Catering Menus"),
                 new TaskAwaiterViewModel(EventTypeViewModel.Initialize(eventForms, this.DefaultOnErrorAction()), "Event Types"),
-               // new TaskAwaiterViewModel(listpagevm.Initialize(this.DefaultOnErrorAction()), "Event List")
+                new TaskAwaiterViewModel(EventFormViewModel.Initialize(adminService, this.DefaultOnErrorAction()), "Event List")
             ],
             AppId = "yBDj8LA61lpR"
         };

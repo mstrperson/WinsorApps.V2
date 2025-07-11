@@ -90,13 +90,9 @@
                                 <TapGestureRecognizer Command="{Binding EventFilterViewModel.ToggleShowNeedsCommand}" />
                             </Label.GestureRecognizers>
                         </Label>
-                        <Image
-                            StyleClass="RefreshButton"
-                            HeightRequest="{OnPlatform MacCatalyst=50}">
-                            <Image.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding ApplyFilterCommand}" />
-                            </Image.GestureRecognizers>
-                        </Image>
+                        <Button
+                            Text="Apply Filters"
+                            Command="{Binding ApplyFilterCommand}" />
                     </HorizontalStackLayout>
                     <!--End Filter Selection-->
                     <!--Status Filter-->

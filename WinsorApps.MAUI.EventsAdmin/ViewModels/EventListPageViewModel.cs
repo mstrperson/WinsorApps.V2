@@ -8,6 +8,9 @@ using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 using WinsorApps.Services.EventForms.Services.Admin;
 using System.Collections.Immutable;
+using CoreImage;
+using WinsorApps.MAUI.Shared.EventForms.ViewModels;
+using WinsorApps.Services.Global;
 
 namespace WinsorApps.MAUI.EventsAdmin.ViewModels;
 
@@ -56,6 +59,7 @@ public partial class EventListPageViewModel :
     }
 
     private readonly EventsAdminService _admin = ServiceHelper.GetService<EventsAdminService>();
+    private readonly EventFormViewModelCacheService _cacheService = ServiceHelper.GetService<EventFormViewModelCacheService>();
     public async Task Initialize(ErrorAction onError, bool reload = false)
     {
         if (!reload && HasLoaded)
@@ -64,22 +68,29 @@ public partial class EventListPageViewModel :
         BusyMessage= "Initializing...";
         await _admin.WaitForInit(onError);
 
-        LoadEvents([.. _admin.AllEvents]);
+        LoadEvents([.. _admin.AllEvents.Where(evt =>
+            evt.status == ApprovalStatusLabel.Pending || evt.status == ApprovalStatusLabel.RoomNotCleared ||
+            evt.start.MonthOf() == DateTime.Today.MonthOf())]);
         _admin.OnCacheRefreshed += (_, _) => 
             LoadEvents([.. _admin.AllEvents]);
     }
 
+    [RelayCommand]
+    public async Task Refresh()
+    {
+        Busy = true;
+        BusyMessage = "Refreshing Events...";
+        await _admin.GetAllEvents(OnError.DefaultBehavior(this), Start, End);
+        LoadEvents([.. _admin.AllEvents]);
+        Busy = false;
+    }
+    
     public void LoadEvents(List<EventFormBase> events)
     {
         Busy = true;
         BusyMessage = "Loading Events.";
 
-        var diff = events.Where(evt => AllEvents.All(af => !af.Form.Model.MapStruct(e => e.IsSameAs(evt)).Reduce(true))).ToList();
-        var updates = AllEvents.Where(af => diff.Any(evt => af.Form.Model.MapStruct(e => e.id == evt.id).Reduce(false))).ToList();
-
-
-        AllEvents = [..  AllEvents.Except(updates), .. diff]; 
-        AllEvents = [.. AllEvents.OrderBy(evt => evt.Form.StartDate) ];
+        AllEvents = [..  events.OrderBy(evt => evt.start).Select(_cacheService.Get)]; 
         TwoWeekList = [.. AllEvents.Where(evt => 
                evt.Form.StartDate >= Start 
             && evt.Form.EndDate <= End
@@ -132,26 +143,30 @@ public partial class EventListPageViewModel :
         End = Start.AddDays(14);
         if (End > _admin.CacheEndDate)
             _ = await _admin.GetAllEvents(OnError.DefaultBehavior(this), Start, End);
-        else
-            ReloadLists();
+        
+        await ReloadLists();
 
         Busy = false;
     }
 
-    private void ReloadLists()
+    private async Task ReloadLists() => await Task.Run(() =>
     {
         Busy = true;
         BusyMessage = "Loading Events...";
-        TwoWeekList = [.. AllEvents.Where(evt =>
-               evt.Form.StartDate >= Start
-            && evt.Form.EndDate <= End
-            && evt.Form.StatusSelection.Selected.Label != ApprovalStatusLabel.Withdrawn
-            && evt.Form.StatusSelection.Selected.Label != ApprovalStatusLabel.Declined)];
+        AllEvents = [.. _admin.AllEvents.OrderBy(evt => evt.start).Select(_cacheService.Get)];
+        TwoWeekList =
+        [
+            .. AllEvents.Where(evt =>
+                evt.Form.StartDate >= Start
+                && evt.Form.EndDate <= End
+                && evt.Form.StatusSelection.Selected.Label != ApprovalStatusLabel.Withdrawn
+                && evt.Form.StatusSelection.Selected.Label != ApprovalStatusLabel.Declined)
+        ];
         TwoWeekHeight = _headerHeight + (_rowHeight * TwoWeekList.Count);
         OtherEvents = [.. TwoWeekList.Where(evt => !SpecificStates.Contains(evt.Form.StatusSelection.Selected.Label))];
         OtherHeight = _headerHeight + (_rowHeight * OtherEvents.Count);
         Busy = false;
-    }
+    });
 
     [RelayCommand]
     public async Task PreviousPage()
@@ -162,8 +177,8 @@ public partial class EventListPageViewModel :
         End = Start.AddDays(14);
         if (Start < _admin.CacheStartDate)
             _ = await _admin.GetAllEvents(OnError.DefaultBehavior(this), Start, End);
-        else
-            ReloadLists();
+        
+        await ReloadLists();
         Busy = false;
     }
 

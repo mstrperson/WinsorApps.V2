@@ -22,6 +22,7 @@ public partial class AdminCalendarViewModel :
 {
     private readonly EventsAdminService _admin = ServiceHelper.GetService<EventsAdminService>();
     private readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
+    private readonly EventFormViewModelCacheService _cacheService = ServiceHelper.GetService<EventFormViewModelCacheService>();
 
     [ObservableProperty] private CalendarViewModel calendar;
     [ObservableProperty] private EventFilterViewModel eventFilterViewModel = new();
@@ -51,7 +52,8 @@ public partial class AdminCalendarViewModel :
                         && evt.status != ApprovalStatusLabel.Withdrawn
                         && evt.status != ApprovalStatusLabel.Declined)
                     .ToList();
-            }
+            },
+            ViewModelFactory = list => list.Select(_cacheService.Get).ToList()
         };
         Calendar.EventSelected += (_, evt) =>
         {
@@ -185,7 +187,8 @@ public partial class AdminCalendarViewModel :
         
         BusyMessage = "Loading Next Month";
         await Calendar.IncrementMonth();
-        
+        if(ShowFilter)
+            ApplyFilter();
         Busy = false;
     }
 
@@ -199,8 +202,9 @@ public partial class AdminCalendarViewModel :
         
         BusyMessage = "Loading Previous Month";
         await Calendar.DecrementMonth();
-        
     
+        if(ShowFilter)
+            ApplyFilter();
         Busy = false;
     }
 }
