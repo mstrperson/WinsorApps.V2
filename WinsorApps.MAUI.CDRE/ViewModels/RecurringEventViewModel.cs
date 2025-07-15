@@ -34,7 +34,8 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
                 new() {Label = "Day 3"},
                 new() {Label = "Day 4"},
                 new() {Label = "Day 5"},
-                new() {Label = "Day 6"}
+                new() {Label = "Day 6"},
+                new() {Label = "Day 7"},
             ];
         }
     }

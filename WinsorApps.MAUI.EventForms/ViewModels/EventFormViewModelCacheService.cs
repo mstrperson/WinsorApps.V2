@@ -56,12 +56,14 @@ public class EventFormViewModelCacheService : IAsyncInitService
         
         ViewModelCache = 
         [ .. 
-            _calendar.EventForms.Select(model =>
-            {
-                var vm = Get(model.details);
-                Progress += 1.0/(_calendar.EventForms.Count);
-                return vm;
-            })
+            _calendar.EventForms
+                .Where(evt => evt.start.MonthOf() == DateTime.Today.MonthOf())
+                .Select(model =>
+                {
+                    var vm = Get(model.details);
+                    Progress += 1.0/(_calendar.EventForms.Count);
+                    return vm;
+                })
         ];
             
 
