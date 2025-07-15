@@ -22,9 +22,9 @@ public partial class ServiceCaseViewModel :
     IDefaultValueViewModel<ServiceCaseViewModel>, 
     ISelectable<ServiceCaseViewModel>,
     IErrorHandling,
-    IAsyncSubmit,
     ICachedViewModel<ServiceCaseViewModel, ServiceCase, ServiceCaseService>,
-    IModelCarrier<ServiceCaseViewModel, ServiceCase>
+    IModelCarrier<ServiceCaseViewModel, ServiceCase>,
+    IBusyViewModel
 {
     private readonly ServiceCaseService _caseService = ServiceHelper.GetService<ServiceCaseService>();
     private readonly DeviceService _deviceService = ServiceHelper.GetService<DeviceService>();
@@ -36,8 +36,10 @@ public partial class ServiceCaseViewModel :
     public event EventHandler<ServiceCaseViewModel>? OnClose;
     public event EventHandler<ServiceCaseViewModel>? OnUpdate;
     public event EventHandler<ServiceCaseViewModel>? OnCreate;
+    public event EventHandler<ServiceCaseViewModel>? RequiredConfirmationRequested;
 
-    public ServiceCaseViewModel Self => this;
+    [ObservableProperty] bool busy;
+    [ObservableProperty] string busyMessage = "";
 
     [ObservableProperty] private string summaryText = "New Service Case";
 
@@ -83,9 +85,21 @@ public partial class ServiceCaseViewModel :
         StatusSearch.Select(serviceCase.status);
         AttachedDocuments = [..serviceCase.attachedDocuments.Select(doc => new DocumentViewModel(doc))];
         RepairCost = serviceCase.repairCost;
+        WaitingForFMM = serviceCase.waitingForFMM;
+        DisabledFMM = serviceCase.disabledFMM;
+        BackupNeeded = serviceCase.backupNeeded;
+        BackupCompleted = serviceCase.backupCompleted;
+        RequiredConfirmation = true;
 
         ShowNotifyButton = Status.Status.Contains("Ready");
         SummaryText = $"[{Status.Status}] {Device.DisplayName} - {Opened:dd MMM yyyy}";
+
+        StatusSearch.OnSingleResult += async (_, st) =>
+        {
+            if (Model.Map(sc => sc.status).Reduce("").Equals(st.Status, StringComparison.InvariantCultureIgnoreCase))
+                return;
+            await this.Submit();
+        };
     }
 
     [ObservableProperty] private string id = "";
@@ -105,8 +119,12 @@ public partial class ServiceCaseViewModel :
     [ObservableProperty] private DeviceViewModel loaner = DeviceViewModel.Empty;
     [ObservableProperty] private bool loanerSelected;
     [ObservableProperty] private bool isSelected;
-    [ObservableProperty] private bool working;
     [ObservableProperty] private bool showNotifyButton;
+    [ObservableProperty] bool waitingForFMM;
+    [ObservableProperty] bool disabledFMM;
+    [ObservableProperty] bool backupNeeded;
+    [ObservableProperty] bool backupCompleted;
+    [ObservableProperty] bool requiredConfirmation;
 
     public ServiceStatusViewModel Status
     {
@@ -132,14 +150,17 @@ public partial class ServiceCaseViewModel :
     }
 
     [RelayCommand]
+    public void ConfirmNoneRequired() => RequiredConfirmation = true;
+
+    [RelayCommand]
     public async Task Submit()
     {
-        Working = true;
+        Busy = true;
         if (!string.IsNullOrEmpty(Id))
         {
             _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Updating Service Case {Id} for {Device.DisplayName}");
             var result = await _caseService.UpdateServiceCase(new(Id, Status.Id, IntakeNotes, [..CommonIssueList.Select(issue => issue.Id)]), OnError.DefaultBehavior(this));
-            Working = result is not null;
+            Busy = result is not null;
             if (result is null)
                 return;
 
@@ -155,16 +176,36 @@ public partial class ServiceCaseViewModel :
             }
 
             LoadServiceCase(result);
-            Working = false;
+            Busy = false;
             OnUpdate?.Invoke(this, this);
             return;
         }
+
+        if(!RequiredConfirmation && !WaitingForFMM && !DisabledFMM)
+        {
+            RequiredConfirmationRequested?.Invoke(this, this);
+            return;
+        }
+
         _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Creating new Service Case for {Device.DisplayName}");
-        var newResult = await _caseService.OpenNewServiceCaseAsync(new(Device.Id, [..CommonIssueList.Select(issue => issue.Id)], IntakeNotes, Status.Id), OnError.DefaultBehavior(this));
-        Working = newResult is not null;
+        var newResult = await _caseService.OpenNewServiceCaseAsync(
+            new(
+                Device.Id, 
+                [..CommonIssueList.Select(issue => issue.Id)], 
+                IntakeNotes, 
+                Status.Id,
+                WaitingForFMM,
+                DisabledFMM,
+                BackupNeeded,
+                BackupCompleted),
+            OnError.DefaultBehavior(this));
+
+        Busy = newResult is not null;
         
         if(newResult is null) 
             return;
+
+
 
         if(!string.IsNullOrEmpty(Loaner.Id))
         {
@@ -175,11 +216,11 @@ public partial class ServiceCaseViewModel :
             {
                 newResult = newResult with { loaner = Loaner.WinsorDevice.AssetTag };
             }
-
         }
 
+
         LoadServiceCase(newResult);
-        Working = false;
+        Busy = false;
         OnCreate?.Invoke(this, this);
         ShowNotifyButton = Status.Status.Contains("Ready");
     }
@@ -191,7 +232,7 @@ public partial class ServiceCaseViewModel :
             return;
 
         _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Incrementing Status for Service Case {Id} [{Device.DisplayName}]");
-        Working = true;
+        Busy = true;
         var success = await _caseService.IncrementCaseStatus(Id, OnError.DefaultBehavior(this));
         if (success)
         {
@@ -199,36 +240,36 @@ public partial class ServiceCaseViewModel :
             ShowNotifyButton = Status.Status.Contains("Ready");
             OnUpdate?.Invoke(this, this);
         }
-        Working = false;
+        Busy = false;
     }
 
     [RelayCommand]
     public async Task SendNotification()
     {
         _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Sending Pickup Notification to {Device.Owner.DisplayName} for service case {Id} {Device.DisplayName}");
-        Working = true;
+        Busy = true;
         await _caseService.SendPickupNotification(Id, OnError.DefaultBehavior(this));
-        Working = false;
+        Busy = false;
     }
 
     [RelayCommand]
     public async Task Close()
     {
         _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Closing service case {Id} for {Device.DisplayName}");
-        Working = true;
+        Busy = true;
         var result = await _caseService.CloseServiceCase(Id, OnError.DefaultBehavior(this));
         if (result)
             OnClose?.Invoke(this, this);
-        Working = false;
+        Busy = false;
     }
 
     [RelayCommand]
     public async Task PrintSticker()
     {
         _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Printing Sticker for {Id} {Device.DisplayName}");
-        Working = true;
+        Busy = true;
         var data = await _caseService.PrintSticker(Id, OnError.DefaultBehavior(this));
-        Working = false;
+        Busy = false;
         var resultTask = FileSaver.SaveAsync($"{Id}_{Device.SerialNumber}.pdf", new MemoryStream(data));
         resultTask.WhenCompleted(() =>
         {

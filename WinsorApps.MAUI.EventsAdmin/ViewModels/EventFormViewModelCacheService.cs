@@ -120,7 +120,7 @@ public class EventFormViewModelCacheService : IAsyncInitService
         vm.CanEditBase = vm.IsCreating || vm.IsUpdating;
         vm.CanEditSubForms = vm.IsCreating || vm.IsUpdating;
 
-        vm.StatusSelection.Select(eventForms.StatusLabels.First(status => status.label.Equals(model.status, StringComparison.InvariantCultureIgnoreCase)));
+        vm.StatusSelection.Select(eventForms.StatusLabels.FirstOrDefault(status => status.label.Equals(model.status, StringComparison.InvariantCultureIgnoreCase)) ?? new ApprovalStatus("", "Unknown"));
         vm.LeaderSearch.Select(UserViewModel.Get(registrar.AllUsers.FirstOrDefault(u => u.id == model.leaderId) ?? UserRecord.Empty));
 
         vm.Leader = vm.LeaderSearch.Selected;

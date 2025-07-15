@@ -3,11 +3,18 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:WinsorApps.MAUI.Helpdesk.ViewModels"
              xmlns:cvm="clr-namespace:WinsorApps.MAUI.Helpdesk.ViewModels.ServiceCases"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
              xmlns:views="clr-namespace:WinsorApps.MAUI.Helpdesk.Views"
              x:DataType="vm:HudViewModel"
              
              x:Class="WinsorApps.MAUI.Helpdesk.Pages.HUD"
              Title="Quick Actions">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
     <ScrollView>
         <VerticalStackLayout
             HorizontalOptions="Center">
@@ -44,12 +51,146 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate 
                         x:DataType="cvm:ServiceCaseViewModel">
-                        <VerticalStackLayout
-                            BackgroundColor="{StaticResource SlateDark}"
-                            Margin="0"
+                        <Border
+                            StrokeThickness="1"
                             Padding="0">
-                            <views:ServiceCaseHUD BindingContext="{Binding Self}" />
-                        </VerticalStackLayout>
+                            <VerticalStackLayout
+                                IsEnabled="{Binding Busy, Converter={StaticResource Invert}}"
+                                BackgroundColor="{StaticResource SlateDark}"
+                                Margin="0"
+                                Padding="0"
+                                HeightRequest="250"
+                                WidthRequest="565">
+                                <AbsoluteLayout>
+                                    <CollectionView
+                                        Margin="0"
+                                        IsVisible="{Binding StatusSearch.ShowAll}"
+                                        ItemsSource="{Binding StatusSearch.Available}"
+                                        ZIndex="100"
+                                        TranslationX="155"
+                                        TranslationY="100"
+                                        WidthRequest="200"
+                                        HeightRequest="100"
+                                        MaximumHeightRequest="400"
+                                        BackgroundColor="{AppThemeBinding Dark={StaticResource SlateLight}, Light={StaticResource LightBlue}}"
+                                        VerticalScrollBarVisibility="Always">
+                                        <CollectionView.Header>
+                                            <HorizontalStackLayout
+                                                Margin="0"
+                                                Padding="0">
+                                                <HorizontalStackLayout.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding StatusSearch.ToggleShowAllCommand}" />
+                                                </HorizontalStackLayout.GestureRecognizers>
+                                                <Label
+                                                    TextDecorations="Underline"
+                                                    Text="{Binding StatusSearch.Selected.Status}" />
+                                            </HorizontalStackLayout>
+                                        </CollectionView.Header>
+                                        <CollectionView.ItemTemplate>
+                                            <DataTemplate x:DataType="cvm:ServiceStatusViewModel">
+                                                <HorizontalStackLayout
+                                                    Margin="0"
+                                                    Padding="0">
+                                                    <HorizontalStackLayout.GestureRecognizers>
+                                                        <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                                    </HorizontalStackLayout.GestureRecognizers>
+                                                    <Label Text="{Binding Status}"/>
+                                                </HorizontalStackLayout>
+                                            </DataTemplate>
+                                        </CollectionView.ItemTemplate>
+                                    </CollectionView>
+                                    <Grid
+                                        RowDefinitions="75,40,40,40,40"
+                                        ColumnDefinitions="*,*,*"
+                                        WidthRequest="500"
+                                        HeightRequest="250"
+                                        Padding="5">
+                                        <HorizontalStackLayout
+                                            Grid.Row="0"
+                                            Grid.ColumnSpan="3"
+                                            HorizontalOptions="Center"
+                                            BackgroundColor="{AppThemeBinding Light={DynamicResource WinsorRed}, Dark={DynamicResource SlateDark}}">
+                                            <Label 
+                                                StyleClass="H3"
+                                                Text="{Binding Device.DisplayName}">
+                                                <Label.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                                </Label.GestureRecognizers>
+                                            </Label>
+                                            <Button
+                                                FontSize="Large"
+                                                StyleClass="PrintButton"
+                                                Command="{Binding PrintStickerCommand}" />
+                                            <Button
+                                                IsVisible="{Binding ShowNotifyButton}"
+                                                Text="Send Notification"
+                                                Command="{Binding SendNotificationCommand}" />
+                                        </HorizontalStackLayout>
+                                        <Image
+                                            Grid.Row="1"
+                                            Grid.RowSpan="4"
+                                            Grid.Column="2"
+                                            Source="{Binding Owner.ImageSource}" />
+                                        <Label
+                                            Grid.Row="1"
+                                            Grid.Column="0"
+                                            Text="Owner" />
+                                        <Label
+                                            Grid.Row="1"
+                                            Grid.Column="1"
+                                            Text="{Binding Owner.DisplayName}">
+                                        </Label>
+                                        <Label
+                                            Grid.Row="2"
+                                            Grid.Column="0"
+                                            Text="Status" />
+                                        <Border
+                                            Grid.Row="2"
+                                            Grid.Column="1"
+                                            Padding="0"
+                                            StrokeThickness="1">
+                                            <HorizontalStackLayout
+                                                Margin="0"
+                                                Padding="0"
+                                                Spacing="10"
+                                                IsVisible="{Binding StatusSearch.ShowAll, Converter={StaticResource Invert}}">
+                                                <HorizontalStackLayout.GestureRecognizers>
+                                                    <TapGestureRecognizer 
+                                                            Command="{Binding StatusSearch.ToggleShowAllCommand}" />
+                                                </HorizontalStackLayout.GestureRecognizers>
+                                                <Label
+                                                    Text="{Binding StatusSearch.Selected.Status}"
+                                                    FontAttributes="Bold"
+                                                    TextDecorations="Underline"
+                                                    WidthRequest="125"
+                                                    ToolTipProperties.Text="{Binding StatusSearch.Selected.Description}">
+                                                </Label>
+                                                <Image
+                                                    StyleClass="DownArrow"
+                                                    WidthRequest="20"
+                                                    HorizontalOptions="End"/>
+                                            </HorizontalStackLayout>
+                                        </Border>
+                                        <Label
+                                            Grid.Row="3"
+                                            Grid.Column="0"
+                                            Text="Date" />
+                                        <Label
+                                            Grid.Row="3"
+                                            Grid.Column="1"
+                                            Text="{Binding Opened, StringFormat='{0:ddd dd MMM}'}" />
+                                        <Label
+                                            Grid.Row="4"
+                                            Grid.Column="0"
+                                            Text="Loaner" />
+                                        <Label
+                                            Grid.Row="4"
+                                            Grid.Column="1"
+                                            Text="{Binding Loaner}" />
+                                    </Grid>
+                                </AbsoluteLayout>
+                            </VerticalStackLayout>
+                        </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>

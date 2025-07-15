@@ -2,10 +2,16 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:WinsorApps.MAUI.Helpdesk.ViewModels.ServiceCases"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
              xmlns:views="clr-namespace:WinsorApps.MAUI.Helpdesk.Views"
              x:DataType="vm:ServiceCaseViewModel"
              x:Class="WinsorApps.MAUI.Helpdesk.Pages.ServiceCase.ServiceCaseEditor"
              Title="Service Case Editor">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
     <VerticalStackLayout>
         <HorizontalStackLayout>
             <Label 
@@ -29,6 +35,72 @@
                 Text="Close"
                 Command="{Binding CloseCommand}" />
         </HorizontalStackLayout>
+        <Grid
+            RowDefinitions="auto,auto, auto"
+            ColumnDefinitions="200,300,200,300">
+            <CheckBox
+                Grid.Row="0"
+                Grid.Column="0"
+                IsChecked="{Binding RequiredConfirmation}"
+                IsEnabled="False"
+                HorizontalOptions="End" />
+            <Label
+                Grid.Row="0"
+                Grid.Column="1"
+                Grid.ColumnSpan="3"
+                StyleClass="H3"
+                Text="Click Here to Confirm none are required."
+                IsVisible="{Binding RequiredConfirmation, Converter={StaticResource Invert}}">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ConfirmNoneRequiredCommand}" />
+                </Label.GestureRecognizers>
+            </Label>
+            <Label
+                Grid.Row="0"
+                Grid.Column="1"
+                Grid.ColumnSpan="3"
+                StyleClass="H3"
+                Text="Confirmed"
+                IsVisible="{Binding RequiredConfirmation}"/>
+            <CheckBox
+                Grid.Row="1"
+                Grid.Column="0"
+                IsChecked="{Binding WaitingForFMM}"
+                HorizontalOptions="End" />
+            <Label
+                Grid.Row="1"
+                Grid.Column="1"
+                Text="Waiting on Find My Mac" />
+            <CheckBox
+                Grid.Row="1"
+                Grid.Column="2"
+                IsChecked="{Binding DisabledFMM}"
+                HorizontalOptions="End" />
+            <Label
+                Grid.Row="1"
+                Grid.Column="3"
+                Text="Disabled Find My Mac" />
+            <CheckBox
+                Grid.Row="2"
+                Grid.Column="0"
+                IsChecked="{Binding BackupNeeded}"
+                HorizontalOptions="End" />
+            <Label
+                Grid.Row="2"
+                Grid.Column="1"
+                Text="Backup Needed" />
+            <CheckBox
+                Grid.Row="2"
+                Grid.Column="2"
+                IsVisible="{Binding BackupNeeded}"
+                IsChecked="{Binding BackupCompleted}"
+                HorizontalOptions="End" />
+            <Label
+                Grid.Row="2"
+                Grid.Column="3"
+                IsVisible="{Binding BackupNeeded}"
+                Text="Backup Completed" />
+        </Grid>
         <views:CommonIssueCheckListView 
             BindingContext="{Binding CommonIssues}" />
         <Label

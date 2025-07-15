@@ -8,7 +8,6 @@ using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 using WinsorApps.Services.EventForms.Services.Admin;
 using System.Collections.Immutable;
-using CoreImage;
 using WinsorApps.MAUI.Shared.EventForms.ViewModels;
 using WinsorApps.Services.Global;
 

@@ -19,6 +19,7 @@ public partial class ServiceStatusViewModel :
     [ObservableProperty] private string nextId = "";
     [ObservableProperty] private ServiceStatusViewModel next = _empty;
     [ObservableProperty] private bool isSelected;
+    [ObservableProperty] bool closed;
 
     private static readonly ServiceStatusViewModel _empty = new();
 
@@ -26,6 +27,7 @@ public partial class ServiceStatusViewModel :
 
     public event EventHandler<ServiceStatusViewModel>? Selected;
 
+    [RelayCommand]
     public void Select() => Selected?.Invoke(this, this);
 
     public ServiceStatusViewModel() 
@@ -48,6 +50,8 @@ public partial class ServiceStatusSearchViewModel : ObservableObject, ICachedSea
     [ObservableProperty] private bool isSelected;
     [ObservableProperty]
     private bool showOptions;
+    [ObservableProperty] bool showAll;
+
     [ObservableProperty]
     private string searchText = "";
     [ObservableProperty]
@@ -66,7 +70,8 @@ public partial class ServiceStatusSearchViewModel : ObservableObject, ICachedSea
                 Description = status.description,
                 IsSelected = false,
                 Status = status.text,
-                NextId = status.defaultNextId
+                NextId = status.defaultNextId,
+                Closed = status.isClosed
             })];
 
         foreach(var status in Available)
@@ -75,6 +80,9 @@ public partial class ServiceStatusSearchViewModel : ObservableObject, ICachedSea
             status.Selected += (_, st) => Select(st);
         }
     }
+
+    [RelayCommand]
+    public void ToggleShowAll() => ShowAll = !ShowAll;
 
     [RelayCommand]
     public void Search()
@@ -128,6 +136,7 @@ public partial class ServiceStatusSearchViewModel : ObservableObject, ICachedSea
     [RelayCommand]
     public void Select(ServiceStatusViewModel status)
     {
+        ShowAll = false;
         switch (SelectionMode)
         {
             case SelectionMode.Single:

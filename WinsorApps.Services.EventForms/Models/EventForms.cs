@@ -19,6 +19,7 @@ public record ApprovalStatusLabel
     public static readonly ApprovalStatusLabel Draft = new("Draft");
     public static readonly ApprovalStatusLabel Creating = new("Creating");
     public static readonly ApprovalStatusLabel Updating = new("Updating");
+    public static readonly ApprovalStatusLabel Empty = new("Unknown");
 
     public static implicit operator string(ApprovalStatusLabel label) => label._label;
     public static implicit operator ApprovalStatusLabel(string label) => label.ToLowerInvariant() switch
@@ -31,6 +32,7 @@ public record ApprovalStatusLabel
         "draft" => Draft,
         "creating" => Creating,
         "updating" => Updating,
+        "unknown" or "" => Empty,
         _ => throw new InvalidCastException($"{label} is not a valid Approval Status Label.")
     };
 

@@ -16,7 +16,21 @@ public partial class ServiceCaseEditor : ContentPage
         ViewModel.OnCreate += Rebind;
 		ViewModel.OnUpdate += Rebind;
 		ViewModel.OnClose += Rebind;
-		InitializeComponent();
+		ViewModel.RequiredConfirmationRequested += async (_, vm) =>
+		{
+			vm.WaitingForFMM = 
+				await DisplayAlert("Required Confirmation", $"Does {vm.Owner.Model.Map(u => u.firstName).Reduce("")} still need to disable Find My Mac?", "Yes", "No");
+			
+			if (!vm.WaitingForFMM)
+				vm.DisabledFMM = await DisplayAlert("Required Confirmation", "Was Find My Mac Disabled? (Say `Yes` if no iCloud account is signed in)", "Yes", "No");
+
+			vm.BackupNeeded = await DisplayAlert("Required Confirmation", "Is a backup needed before we send it out?", "Yes", "No");
+
+            vm.RequiredConfirmation = true;
+			await vm.Submit();
+		};
+
+        InitializeComponent();
 
 		LoanerSearch.ViewModel.OnSingleResult += (sender, dev) =>
 		{
@@ -36,5 +50,7 @@ public partial class ServiceCaseEditor : ContentPage
     private void Rebind(object? sender, ServiceCaseViewModel e)
     {
 		BindingContext = e;
+		if (!e.Status.Closed)
+			MainThread.BeginInvokeOnMainThread(async () => await e.PrintSticker());
     }
 }

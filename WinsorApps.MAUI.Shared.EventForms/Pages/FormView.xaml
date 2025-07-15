@@ -1096,6 +1096,202 @@
                     </CollectionView>
                 </VerticalStackLayout>
                 <!-- End MarComm Details -->
+                <!-- Field Trip Details Section -->
+                <VerticalStackLayout
+                    WidthRequest="1600"
+                    Margin="0"
+                    Padding="0"
+                    IsVisible="{Binding IsFieldTrip}">
+                    <BoxView StyleClass="Bar" />
+                    <Label
+                        StyleClass="SubHeader"
+                        HorizontalTextAlignment="Center"
+                        WidthRequest="1600"
+                        Text="Field Trip Details"/>
+                    <!-- Primary Contact -->
+                    <Grid
+                        WidthRequest="1600"
+                        ColumnDefinitions="400,1200"
+                        RowDefinitions="*">
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            WidthRequest="400"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="End"
+                            Text="Primary Contact"/>
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            WidthRequest="1200"
+                            StyleClass="H3"
+                            HorizontalTextAlignment="Start"
+                            Text="{Binding FieldTrip.PrimaryContactSearch.Selected.FullName}"/>
+                    </Grid>
+                    <!-- Chaperones -->
+                    <CollectionView
+                        Margin="0,10,0,0"
+                        WidthRequest="1600"
+                        BackgroundColor="Transparent"
+                        ItemsSource="{Binding FieldTrip.Chaperones}">
+                        <CollectionView.Header>
+                            <Label
+                                StyleClass="H3"
+                                Text="Chaperones"
+                                HorizontalTextAlignment="Center"
+                                WidthRequest="1600"/>
+                        </CollectionView.Header>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ContactViewModel">
+                                <Border
+                                    Margin="0,2,0,2"
+                                    Padding="8"
+                                    StrokeThickness="1">
+                                    <HorizontalStackLayout>
+                                        <Label
+                                            Text="{Binding FullName}" />
+                                        <Label
+                                            Margin="20,0,0,0"
+                                            Text="{Binding Email}" />
+                                    </HorizontalStackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <!-- Students By Class -->
+                    <Grid
+                        Margin="0,10,0,0"
+                        WidthRequest="1600"
+                        ColumnDefinitions="200,200,200,200,200,200,200,200"
+                        RowDefinitions="Auto,Auto">
+                        <Label Grid.Row="0" Grid.Column="0" StyleClass="H3" Text="Class I" HorizontalTextAlignment="Center"/>
+                        <Label Grid.Row="0" Grid.Column="1" StyleClass="H3" Text="Class II" HorizontalTextAlignment="Center"/>
+                        <Label Grid.Row="0" Grid.Column="2" StyleClass="H3" Text="Class III" HorizontalTextAlignment="Center"/>
+                        <Label Grid.Row="0" Grid.Column="3" StyleClass="H3" Text="Class IV" HorizontalTextAlignment="Center"/>
+                        <Label Grid.Row="0" Grid.Column="4" StyleClass="H3" Text="Class V" HorizontalTextAlignment="Center"/>
+                        <Label Grid.Row="0" Grid.Column="5" StyleClass="H3" Text="Class VI" HorizontalTextAlignment="Center"/>
+                        <Label Grid.Row="0" Grid.Column="6" StyleClass="H3" Text="Class VII" HorizontalTextAlignment="Center"/>
+                        <Label Grid.Row="0" Grid.Column="7" StyleClass="H3" Text="Class VIII" HorizontalTextAlignment="Center"/>
+                        <Label Grid.Row="1" Grid.Column="0" Text="{Binding FieldTrip.StudentsByClass.ClassI}" HorizontalTextAlignment="Center"/>
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding FieldTrip.StudentsByClass.ClassII}" HorizontalTextAlignment="Center"/>
+                        <Label Grid.Row="1" Grid.Column="2" Text="{Binding FieldTrip.StudentsByClass.ClassIII}" HorizontalTextAlignment="Center"/>
+                        <Label Grid.Row="1" Grid.Column="3" Text="{Binding FieldTrip.StudentsByClass.ClassIV}" HorizontalTextAlignment="Center"/>
+                        <Label Grid.Row="1" Grid.Column="4" Text="{Binding FieldTrip.StudentsByClass.ClassV}" HorizontalTextAlignment="Center"/>
+                        <Label Grid.Row="1" Grid.Column="5" Text="{Binding FieldTrip.StudentsByClass.ClassVI}" HorizontalTextAlignment="Center"/>
+                        <Label Grid.Row="1" Grid.Column="6" Text="{Binding FieldTrip.StudentsByClass.ClassVII}" HorizontalTextAlignment="Center"/>
+                        <Label Grid.Row="1" Grid.Column="7" Text="{Binding FieldTrip.StudentsByClass.ClassVIII}" HorizontalTextAlignment="Center"/>
+                    </Grid>
+                    <!-- Transportation -->
+                    <VerticalStackLayout
+                        Margin="0,10,0,0"
+                        Padding="0">
+                        <Label
+                            StyleClass="H3"
+                            Text="Transportation"
+                            HorizontalTextAlignment="Center"
+                            WidthRequest="1600"/>
+                        <Grid
+                            WidthRequest="1600"
+                            ColumnDefinitions="400,400,400,400"
+                            RowDefinitions="Auto,Auto">
+                            <Label Grid.Row="0" Grid.Column="0" StyleClass="H3" Text="Public Transit" HorizontalTextAlignment="End"/>
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding FieldTrip.Transportation.PublicTransit, StringFormat='{}{0:Yes;No}'}" HorizontalTextAlignment="Start"/>
+                            <Label Grid.Row="0" Grid.Column="2" StyleClass="H3" Text="No Organized Transit" HorizontalTextAlignment="End"/>
+                            <Label Grid.Row="0" Grid.Column="3" Text="{Binding FieldTrip.Transportation.NoOrganizedTransit, StringFormat='{}{0:Yes;No}'}" HorizontalTextAlignment="Start"/>
+                        </Grid>
+                        <!-- Vehicle Requests -->
+                        <CollectionView
+                            Margin="0,10,0,0"
+                            WidthRequest="1600"
+                            BackgroundColor="Transparent"
+                            IsVisible="{Binding FieldTrip.Transportation.ShowVehicleRequest}"
+                            ItemsSource="{Binding FieldTrip.Transportation.VehicleRequestCollection.Requests}">
+                            <CollectionView.Header>
+                                <Label
+                                    StyleClass="H3"
+                                    Text="Vehicle Requests"
+                                    HorizontalTextAlignment="Center"
+                                    WidthRequest="1600"/>
+                            </CollectionView.Header>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid
+                                        ColumnDefinitions="400,400,400,400"
+                                        RowDefinitions="Auto">
+                                        <Label Grid.Column="0" Text="{Binding Category}" HorizontalTextAlignment="End"/>
+                                        <Label Grid.Column="1" Text="{Binding NumberNeeded}" HorizontalTextAlignment="Start"/>
+                                        <Label Grid.Column="2" Text="{Binding Passengers}" HorizontalTextAlignment="Start"/>
+                                        <Label Grid.Column="3" Text="{Binding Notes}" HorizontalTextAlignment="Start"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                        <!-- Hired Busses -->
+                        <Grid
+                            Margin="0,10,0,0"
+                            WidthRequest="1600"
+                            IsVisible="{Binding FieldTrip.Transportation.ShowHiredBusses}"
+                            ColumnDefinitions="400,400,400,400"
+                            RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+                            <Label Grid.Row="0" Grid.Column="0" StyleClass="H3" Text="Bus Count" HorizontalTextAlignment="End"/>
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding FieldTrip.Transportation.HiredBusses.Count}" HorizontalTextAlignment="Start"/>
+                            <Label Grid.Row="1" Grid.Column="0" StyleClass="H3" Text="Departure Time" HorizontalTextAlignment="End"/>
+                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding FieldTrip.Transportation.HiredBusses.DepartureTime}" HorizontalTextAlignment="Start"/>
+                            <Label Grid.Row="2" Grid.Column="0" StyleClass="H3" Text="Pickup Time" HorizontalTextAlignment="End"/>
+                            <Label Grid.Row="2" Grid.Column="1" Text="{Binding FieldTrip.Transportation.HiredBusses.PickupTime}" HorizontalTextAlignment="Start"/>
+                            <Label Grid.Row="3" Grid.Column="0" StyleClass="H3" Text="Return Time" HorizontalTextAlignment="End"/>
+                            <Label Grid.Row="3" Grid.Column="1" Text="{Binding FieldTrip.Transportation.HiredBusses.ReturnArrivalTime}" HorizontalTextAlignment="Start"/>
+                            <Label Grid.Row="4" Grid.Column="0" StyleClass="H3" Text="Instructions" HorizontalTextAlignment="End"/>
+                            <Label Grid.Row="4" Grid.Column="1" Text="{Binding FieldTrip.Transportation.HiredBusses.Instructions}" HorizontalTextAlignment="Start"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                    <!-- Catering (Lunch) -->
+                    <VerticalStackLayout
+                        Margin="0,10,0,0"
+                        Padding="0"
+                        IsVisible="{Binding FieldTrip.ShowFood}">
+                        <Label
+                            StyleClass="H3"
+                            Text="Field Trip Lunch"
+                            HorizontalTextAlignment="Center"
+                            WidthRequest="1600"/>
+                        <Grid
+                            WidthRequest="1600"
+                            ColumnDefinitions="400,400,400,400"
+                            RowDefinitions="Auto,Auto">
+                            <Label Grid.Row="0" Grid.Column="0" StyleClass="H3" Text="Number of Lunches" HorizontalTextAlignment="End"/>
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding FieldTrip.FieldTripCateringRequest.NumberOfLunches}" HorizontalTextAlignment="Start"/>
+                            <Label Grid.Row="0" Grid.Column="2" StyleClass="H3" Text="Dining In Count" HorizontalTextAlignment="End"/>
+                            <Label Grid.Row="0" Grid.Column="3" Text="{Binding FieldTrip.FieldTripCateringRequest.DiningInCount}" HorizontalTextAlignment="Start"/>
+                            <Label Grid.Row="1" Grid.Column="0" StyleClass="H3" Text="Eating Away" HorizontalTextAlignment="End"/>
+                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding FieldTrip.FieldTripCateringRequest.EatingAway, StringFormat='{}{0:Yes;No}'}" HorizontalTextAlignment="Start"/>
+                            <Label Grid.Row="1" Grid.Column="2" StyleClass="H3" Text="Pickup Time" HorizontalTextAlignment="End"/>
+                            <Label Grid.Row="1" Grid.Column="3" Text="{Binding FieldTrip.FieldTripCateringRequest.PickupTime}" HorizontalTextAlignment="Start"/>
+                        </Grid>
+                        <!-- Menu Items -->
+                        <CollectionView
+                            Margin="0,10,0,0"
+                            WidthRequest="1600"
+                            BackgroundColor="Transparent"
+                            ItemsSource="{Binding FieldTrip.FieldTripCateringRequest.MenuCollection.SelectedMenu.Items}">
+                            <CollectionView.Header>
+                                <Label
+                                    StyleClass="H3"
+                                    Text="Selected Menu Items"
+                                    HorizontalTextAlignment="Center"
+                                    WidthRequest="1600"/>
+                            </CollectionView.Header>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Label
+                                        Text="{Binding Item.Name}"
+                                        Margin="20,0,0,0"/>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+                <!-- End Field Trip Details Section -->
             </VerticalStackLayout>
         </ScrollView>
     </ContentPage.Content>
