@@ -240,7 +240,7 @@
                                             <StackLayout.GestureRecognizers>
                                                 <TapGestureRecognizer Command="{Binding SelectCommand}" />
                                             </StackLayout.GestureRecognizers>
-                                            <Label Text="{Binding Label}" />
+                                            <Label Text="{Binding Label}" StyleClass="Clickable" />
                                             <Label Text="❌" />
                                         </StackLayout>
                                     </DataTemplate>
@@ -270,7 +270,7 @@
                                             <StackLayout.GestureRecognizers>
                                                 <TapGestureRecognizer Command="{Binding SelectCommand}" />
                                             </StackLayout.GestureRecognizers>
-                                            <Label Text="{Binding Label}" />
+                                        <Label Text="{Binding Label}" StyleClass="Clickable" />
                                             <Label Text="❌" />
                                         </StackLayout>
                                     </DataTemplate>

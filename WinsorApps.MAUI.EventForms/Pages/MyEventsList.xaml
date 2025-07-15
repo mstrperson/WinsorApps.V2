@@ -103,10 +103,10 @@
                                     <HorizontalStackLayout.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding SelectCommand}" />
                                     </HorizontalStackLayout.GestureRecognizers>
-                                    <Label Text="{Binding StatusSelection.Selected.Label}"/>
-                                    <Label Text="-" />
-                                    <Label Text="{Binding Summary}" />
-                                    <Label Text="{Binding StartDate,StringFormat='{0:dddd dd MMMM, yyyy}'}"/>
+                                    <Label Text="{Binding StatusSelection.Selected.Label}" StyleClass="Clickable"/>
+                                    <Label Text="-" StyleClass="Clickable" />
+                                    <Label Text="{Binding Summary}" StyleClass="Clickable" />
+                                    <Label Text="{Binding StartDate,StringFormat='{0:dddd dd MMMM, yyyy}'}" StyleClass="Clickable"/>
                                 </HorizontalStackLayout>
                                 <HorizontalStackLayout
                                     Grid.Row="0"

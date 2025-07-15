@@ -434,6 +434,11 @@ public partial class EventFormViewModel :
         foreach (var location in SelectedLocations)
             clone.SelectedLocations.Add(location.Clone());
 
+        foreach(var loc in clone.SelectedLocations)
+            loc.Selected += (_, _) => clone.SelectedLocations.Remove(loc);
+        foreach (var loc in clone.SelectedCustomLocations)
+            loc.Selected += (_, _) => clone.SelectedCustomLocations.Remove(loc);
+
         await clone.StartNewForm();
         if (string.IsNullOrEmpty(clone.Id))
         {
@@ -507,8 +512,6 @@ public partial class EventFormViewModel :
                 await clone.FieldTrip.Continue(true);
             }
         }
-
-        
 
         var eventList = ServiceHelper.GetService<EventListViewModel>();
         eventList.AddEvents([clone]);
