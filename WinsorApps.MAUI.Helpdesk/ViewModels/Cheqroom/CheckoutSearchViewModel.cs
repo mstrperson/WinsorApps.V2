@@ -152,14 +152,13 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         {
             CSV output = 
                 new(
-                Options.Select(ord => new Row
+                [.. Options.Select(ord => new Row
                 {
                     { "User", ord.User.DisplayName },
                     { "Item(s)", ord.Items.DelimeteredList() },
                     { "Due", $"{ord.Due:dd MMMM yyyy}" },
                     { "Overdue", ord.IsOverdue ? "X" : "" }
-                })
-                .ToList());
+                })]);
 
             using MemoryStream ms = new();
             output.Save(ms);

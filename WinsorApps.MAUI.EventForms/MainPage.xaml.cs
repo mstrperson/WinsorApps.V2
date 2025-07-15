@@ -1,4 +1,5 @@
 ﻿using WinsorApps.MAUI.EventForms.Pages;
+using WinsorApps.MAUI.EventsAdmin.ViewModels;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.EventForms.ViewModels;
 using WinsorApps.MAUI.Shared.Pages;
@@ -24,7 +25,8 @@ public partial class MainPage : ContentPage
         ContactService contactService,
         LocationService locationService,
         CateringMenuService cateringMenuService,
-        TheaterService theaterService)
+        TheaterService theaterService,
+        EventFormViewModelCacheService efvmcs)
     {
         MainPageViewModel vm = new(
         [
@@ -36,12 +38,12 @@ public partial class MainPage : ContentPage
             new(locationService, "Locations"),
             new(cateringMenuService, "Catering Services"),
             new(theaterService, "Theater Services"),
-            new(app, "Checking for Updates")
+            new(app, "Checking for Updates"),
+            new(efvmcs, "Event Form View Model Cache")
 
         ], app, api, logging)
         {
             Completion = [
-                new(new Task(async () => await EventFormViewModel.Initialize(eventForms, this.DefaultOnErrorAction())), "Event Forms Cache"),
                 new(new Task(async () => await LocationViewModel.Initialize(locationService, this.DefaultOnErrorAction())), "Locations Cache"),
                 new(new Task(async () => await BudgetCodeViewModel.Initialize(budgetCodes, this.DefaultOnErrorAction())), "Budget Codes Cache"),
                 new(new Task(async () => await ContactViewModel.Initialize(contactService, this.DefaultOnErrorAction())), "My Contacts"),

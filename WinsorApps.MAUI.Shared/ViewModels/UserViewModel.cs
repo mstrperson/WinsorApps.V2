@@ -57,6 +57,8 @@ public partial class UserViewModel :
         ImageSource = ImageSource,
         IsSelected = false,
         DisplayName = DisplayName,
+        FirstName = FirstName,
+        LastName = LastName,
         Model = Model,
         AcademicSchedule = [.. AcademicSchedule.Select(sec => sec.Clone())],
         ShowButton = ShowButton
@@ -69,6 +71,8 @@ public partial class UserViewModel :
     public string Id => Model.Reduce(UserRecord.Empty).id ?? "";
     
     [ObservableProperty] private string displayName = "";
+    [ObservableProperty] string firstName = "";
+    [ObservableProperty] string lastName = "";
     public string Email => Model.Reduce(UserRecord.Empty).email;
 
     public static UserViewModel Empty => new();
@@ -93,7 +97,9 @@ public partial class UserViewModel :
     private UserViewModel(UserRecord user)
     {
         Model = Optional<UserRecord>.Some(user);
-        displayName = $"{user.firstName} {user.lastName}";
+        firstName = string.IsNullOrEmpty(user.nickname) ? user.firstName : user.nickname;
+        lastName = user.lastName;
+        displayName = $"{firstName} {lastName}";
         _registrar = ServiceHelper.GetService<RegistrarService>();
         ImageSource = ImageSource.FromUri(new("https://bbk12e1-cdn.myschoolcdn.com/ftpimages/1082/logo/2019-masterlogo-white.png"));
     }
@@ -129,9 +135,7 @@ public partial class UserViewModel :
     public void LoadMySchedule()
     {
         var schedule = _registrar.MyAcademicSchedule;
-        AcademicSchedule = schedule
-            .Select(SectionViewModel.Get)
-            .ToList();
+        AcademicSchedule = [.. schedule.Select(SectionViewModel.Get)];
         foreach (var section in AcademicSchedule)
             section.Selected += (sender, sec) => SectionSelected?.Invoke(sender, sec); 
         ShowButton = false;

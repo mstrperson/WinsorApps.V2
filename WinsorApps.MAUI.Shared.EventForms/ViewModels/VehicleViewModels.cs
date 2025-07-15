@@ -18,7 +18,7 @@ public partial class VehicleRequestCollectionViewModel :
     [ObservableProperty] private ObservableCollection<VehicleRequestViewModel> requests = [];
 
     public static implicit operator List<NewVehicleRequest>(VehicleRequestCollectionViewModel vm) =>
-        vm.Requests.Select(req => (NewVehicleRequest)req).ToList();
+        [.. vm.Requests.Select(req => (NewVehicleRequest)req)];
 
     public event EventHandler? Cleared;
 
@@ -101,7 +101,7 @@ public partial class VehicleCategoryCollectionViewModel :
 
     public VehicleCategoryCollectionViewModel(EventFormsService service)
     {
-        Categories = service.VehicleCategories.Select(VehicleCategoryViewModel.Get).ToList();
+        Categories = [.. service.VehicleCategories.Select(VehicleCategoryViewModel.Get)];
         foreach (var cat in Categories)
             cat.CreateVehicleRequest += (sender, e) => CreateRequested?.Invoke(sender, e);
     }

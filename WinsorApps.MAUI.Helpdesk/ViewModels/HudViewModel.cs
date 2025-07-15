@@ -48,6 +48,8 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels
                 serviceCase.OnError += (sender, e) => OnError?.Invoke(sender, e);
                 serviceCase.Selected += (sender, serviceCase) => OnCaseSelected?.Invoke(sender, serviceCase);
                 serviceCase.OnUpdate += async (_, _) => await Refresh();
+                serviceCase.OnClose += (_, _) => 
+                    OpenCases.Remove(serviceCase);
             }
 
             this.checkoutSearch = checkoutSearch;
@@ -111,6 +113,8 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels
                 serviceCase.Selected += (sender, serviceCase) => OnCaseSelected?.Invoke(sender, serviceCase);
                 serviceCase.OnUpdate += async (_, _) => await Refresh();
                 serviceCase.ShowNotifyButton = serviceCase.Status.Status.Contains("Ready");
+                serviceCase.OnClose += (_, _) => 
+                    OpenCases.Remove(serviceCase);
             }
 
            await _cheqroom.Refresh(OnError.DefaultBehavior(this));

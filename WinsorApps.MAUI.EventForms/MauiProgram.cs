@@ -1,8 +1,11 @@
-﻿using AsyncAwaitBestPractices;
+﻿global using ErrorAction = System.Action<WinsorApps.Services.Global.Models.ErrorRecord>;
+
+using AsyncAwaitBestPractices;
 using CommunityToolkit.Maui.Core;
 using Microsoft.Extensions.Logging;
 using WinsorApps.MAUI.EventForms.Pages;
 using WinsorApps.MAUI.EventForms.ViewModels;
+using WinsorApps.MAUI.EventsAdmin.ViewModels;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.EventForms;
 using WinsorApps.MAUI.Shared.EventForms.ViewModels;
@@ -39,6 +42,7 @@ namespace WinsorApps.MAUI.EventForms
             builder.Services.AddSingleton<MyEventsList>();
             builder.Services.AddSingleton<EventsCalendarViewModel>();
             builder.Services.AddSingleton<MonthlyCalendar>();
+            builder.Services.AddSingleton<EventFormViewModelCacheService>();
 
 #if DEBUG
             builder.Logging.AddDebug();

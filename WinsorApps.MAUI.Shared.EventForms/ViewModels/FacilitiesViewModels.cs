@@ -119,7 +119,7 @@ public partial class LocationSetupCollectionViewModel :
     [ObservableProperty] private bool showSelected;
 
     public static implicit operator List<NewLocationSetup>(LocationSetupCollectionViewModel vm) =>
-        vm.Setups.Where(setup => setup.LocationSearch.IsSelected).Select(setup => (NewLocationSetup)setup).ToList();
+        [.. vm.Setups.Where(setup => setup.LocationSearch.IsSelected).Select(setup => (NewLocationSetup)setup)];
 
     public void LoadSetupInformation(IEnumerable<LocationSetupInstructions> setups)
     {

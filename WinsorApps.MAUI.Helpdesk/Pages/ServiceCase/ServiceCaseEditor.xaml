@@ -18,6 +18,10 @@
                 StyleClass="Header"
                 HorizontalTextAlignment="Center"
                 Text="{Binding SummaryText}"/>
+            <Label
+                StyleClass="Header"
+                HorizontalTextAlignment="Center"
+                Text="{Binding Device.Owner.DisplayName}" />
             <Button
                 StyleClass="SaveButton"
                 Command="{Binding SubmitCommand}" />

@@ -174,9 +174,7 @@ public partial class BookOrderViewModel :
             if (string.IsNullOrEmpty(groupId))
                 result.Add(
                     new(new TeacherBookRequestGroup("", "Not Grouped",
-                    Books.Where(bk => bk.GroupId == groupId)
-                         .Select(vm => (TeacherBookRequest)vm)
-                         .ToList())));
+                    [.. Books.Where(bk => bk.GroupId == groupId).Select(vm => (TeacherBookRequest)vm)])));
 
             else
             {

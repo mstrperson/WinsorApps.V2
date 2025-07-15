@@ -6,6 +6,8 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WinsorApps.MAUI.EventsAdmin.ViewModels;
+using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.EventForms.ViewModels;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Services;
@@ -20,6 +22,7 @@ public partial class EventsCalendarViewModel :
     IErrorHandling,
     IBusyViewModel
 {
+    private readonly EventFormViewModelCacheService _eventFormViewModelCacheService;
     private readonly ReadonlyCalendarService _calendarService;
     private readonly LocalLoggingService _logging;
 
@@ -34,21 +37,43 @@ public partial class EventsCalendarViewModel :
 
     public event EventHandler<EventFormViewModel>? LoadEvent;
 
-    public EventsCalendarViewModel(ReadonlyCalendarService calendarService, LocalLoggingService logging)
+    public EventsCalendarViewModel(ReadonlyCalendarService calendarService, LocalLoggingService logging, EventFormViewModelCacheService eventFormViewModelCacheService)
     {
         _calendarService = calendarService;
         _logging = logging;
 
         _calendarService.OnCacheRefreshed += async (_, _) => await Refresh();
 
+        _eventFormViewModelCacheService = eventFormViewModelCacheService;
         Calendar = new()
         {
+            ViewModelFactory = (evtlist) => 
+            [.. 
+                evtlist.Select(evt =>
+                {
+                    var vm = _eventFormViewModelCacheService.Get(evt);
+                    vm.OnError += (sender, err) => OnError?.Invoke(sender, err);
+                    vm.Selected += (sender, evt) => LoadEvent?.Invoke(this, evt);
+                    vm.Deleted += async (_, _) => await Calendar.LoadEvents();
+                    return vm;
+                })
+            ],
             Month = DateTime.Today.MonthOf(),
             MonthlyEventSource = (date) =>
-                _calendarService.EventForms
+            {
+                Busy = true;
+                BusyMessage = $"Loading Events for {date:MMMM yyyy}";
+                if (date < _calendarService.EventForms.Select(evt => evt.start).OrderBy(dt => dt).FirstOrDefault())
+                    _calendarService.ManualLoadData(OnError.DefaultBehavior(this), date.Month switch
+                    {
+                        < 6 => date.Year - 1,
+                        _ => date.Year
+                    }).Wait();
+                Busy = false;
+                return [.._calendarService.EventForms
                     .Where(evt => evt.start.Month == date.Month)
-                    .Select(evt => evt.details)
-                    .ToList()
+                    .Select(evt => evt.details)];
+            }
         };
         Calendar.EventSelected += (_, evt) => LoadEvent?.Invoke(this, evt);
         Calendar.PropertyChanged += ((IBusyViewModel)this).BusyChangedCascade;

@@ -17,7 +17,7 @@ public partial class EventFormsService
             await UpdateCache(startDate, endDate, onError);
         }
 
-        return EventsCache.Where(evt => evt.start >= startDate && evt.end <= endDate && evt.creatorId == _api.AuthUserId).ToList();
+        return [.. EventsCache.Where(evt => evt.start >= startDate && evt.end <= endDate && evt.creatorId == _api.AuthUserId)];
     }
 
     private static void CheckDefaults(ref DateTime startDate, ref DateTime endDate)
@@ -43,7 +43,7 @@ public partial class EventFormsService
             await UpdateCache(startDate, endDate, onError);
         }
 
-        return EventsCache.Where(evt => evt.start >= startDate && evt.end <= endDate && evt.leaderId == _api.AuthUserId).ToList();
+        return [.. EventsCache.Where(evt => evt.start >= startDate && evt.end <= endDate && evt.leaderId == _api.AuthUserId)];
     }
 
     public async Task UpdateCache(DateTime startDate, DateTime endDate, ErrorAction onError)
@@ -51,11 +51,10 @@ public partial class EventFormsService
         var result = await _api.SendAsync<List<EventFormBase>?>(HttpMethod.Get,
                 $"api/events/created?start={startDate:yyyy-MM-dd}&end={endDate:yyyy-MM-dd}", onError: onError) ?? [];
 
-        result = result
+        result = [.. result
             .Union(await _api.SendAsync<List<EventFormBase>?>(HttpMethod.Get,
                 $"api/events/lead?start={startDate:yyyy-MM-dd}&end={endDate:yyyy-MM-dd}", onError: onError) ?? [])
-            .Distinct()
-            .ToList();
+            .Distinct()];
 
         foreach (var evt in result)
         {

@@ -61,8 +61,8 @@ public partial class MainPageViewModel : ObservableObject, IBusyViewModel, IErro
             serv.OnError += (sender, e) => OnError?.Invoke(sender, e);
         }
         splashPageVM = new("Getting your Data",
-            postLoginServices.Select(serv => 
-                $"Waiting for {serv.ServiceName}").ToList());
+            [.. postLoginServices.Select(serv => 
+                $"Waiting for {serv.ServiceName}")]);
         
         BackgroundAwaiter().SafeFireAndForget(e => OnError?.Invoke(this, new("Initialization Error", e.Message)));
     }

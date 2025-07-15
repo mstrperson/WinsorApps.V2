@@ -171,7 +171,7 @@ namespace WinsorApps.Services.EventForms.Services
             Refreshing = true;
             var updated = 
                 await _api.SendAsync<string[], List<EventFormBase>>(HttpMethod.Get, "api/events/list",
-                    EventsCache.Select(evt => evt.id).ToArray(), onError: onError) ?? [];
+                    [.. EventsCache.Select(evt => evt.id)], onError: onError) ?? [];
             EventsCache = updated;
             Refreshing = false;
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);

@@ -303,10 +303,9 @@ public class CycleDayCollection(ApiService api, LocalLoggingService logging) :
         {
             if (!Ready) throw new ServiceNotReadyException(_logging);
 
-            return _cycleDays
+            return [.. _cycleDays
                 .Where(cd => cd.cycleDay == cycleDay)
-                .Select(cd => cd.date)
-                .ToList();
+                .Select(cd => cd.date)];
         }
     }
 

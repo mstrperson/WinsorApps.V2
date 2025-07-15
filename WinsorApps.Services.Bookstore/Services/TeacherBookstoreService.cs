@@ -53,7 +53,7 @@ public partial class TeacherBookstoreService(LocalLoggingService logging, ApiSer
 
     public List<TeacherBookOrder> MyOrders { get; private set; } = [];
 
-    public List<TeacherBookOrder> CurrentYearOrders => MyOrders.Where(ord => ord.schoolYearId == CurrentBookOrderYear.id).ToList();
+    public List<TeacherBookOrder> CurrentYearOrders => [.. MyOrders.Where(ord => ord.schoolYearId == CurrentBookOrderYear.id)];
 
     public string CacheFileName => "teacher-bookstore.cache";
 
@@ -155,7 +155,7 @@ public partial class TeacherBookstoreService(LocalLoggingService logging, ApiSer
     public async Task<TeacherBookOrder?> DeleteBookOrder(string sectionId, IEnumerable<string> isbns, ErrorAction onError)
     {
         var result = await _api.SendAsync<List<string>, TeacherBookOrder?>(HttpMethod.Delete,
-            $"api/book-orders/teachers/{sectionId}/orders", isbns.ToList(), onError: onError);
+            $"api/book-orders/teachers/{sectionId}/orders", [.. isbns], onError: onError);
 
         return await HandleBookOrderResult(sectionId, result);
     }

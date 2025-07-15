@@ -45,15 +45,14 @@ public partial class AdminCalendarViewModel :
             MonthlyEventSource = (month) =>
             {
                 using DebugTimer _ = new($"Filtering Events from {month:MMMM yyyy}", _logging);
-                return _admin.AllEvents.Where(evt =>
+                return [.. _admin.AllEvents.Where(evt =>
                         evt.start.Month == month.Month
                         && evt.status != ApprovalStatusLabel.Creating
                         && evt.status != ApprovalStatusLabel.Updating
                         && evt.status != ApprovalStatusLabel.Withdrawn
-                        && evt.status != ApprovalStatusLabel.Declined)
-                    .ToList();
+                        && evt.status != ApprovalStatusLabel.Declined)];
             },
-            ViewModelFactory = list => list.Select(_cacheService.Get).ToList()
+            ViewModelFactory = list => [.. list.Select(_cacheService.Get)]
         };
         Calendar.EventSelected += (_, evt) =>
         {

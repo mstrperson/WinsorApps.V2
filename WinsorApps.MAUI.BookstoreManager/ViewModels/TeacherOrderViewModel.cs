@@ -41,8 +41,8 @@ public partial class TeacherOrderViewModel :
         }
 
         await _managerService.CreateOrUpdateBookOrder(Section.Teacher.Id, Section.Id,
-            new CreateTeacherBookOrderGroup(BookRequests.Select(req => 
-                new CreateTeacherBookRequest(req.Isbn.Isbn, req.Quantity, req.FallOrFullYear, req.SpringOnly)).ToList()), OnError.DefaultBehavior(this));
+            new CreateTeacherBookOrderGroup([.. BookRequests.Select(req => 
+                new CreateTeacherBookRequest(req.Isbn.Isbn, req.Quantity, req.FallOrFullYear, req.SpringOnly))]), OnError.DefaultBehavior(this));
         Busy = false;
     }
 
@@ -58,7 +58,7 @@ public partial class TeacherOrderViewModel :
             vm = new()
             {
                 Section = SectionViewModel.Get(model.section),
-                BookRequests = model.books.Select(book => new BookRequestViewModel(book)).ToList()
+                BookRequests = [.. model.books.Select(book => new BookRequestViewModel(book))]
             };
             ViewModelCache.Add(vm);
         }
@@ -106,7 +106,7 @@ public partial class BookRequestOptionGroupViewModel :
             {
                 GroupId = model.id,
                 Option = BookOrderOptionViewModel.Get(model.option),
-                Requests = model.isbns.Select(req => new BookRequestViewModel(req)).ToList()
+                Requests = [.. model.isbns.Select(req => new BookRequestViewModel(req))]
             };
             ViewModelCache.Add(vm);
         }

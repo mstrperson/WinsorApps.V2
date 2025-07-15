@@ -58,28 +58,24 @@ public partial class BookSearchViewModel :
     {
         var books = _bookService.BooksCache;
         if (SearchByAuthor)
-            books = books
+            books = [.. books
                 .Where(book =>
-                    book.authors.Any(auth => auth.Contains(AuthorSearch, StringComparison.InvariantCultureIgnoreCase)))
-                .ToList();
+                    book.authors.Any(auth => auth.Contains(AuthorSearch, StringComparison.InvariantCultureIgnoreCase)))];
 
         if (SearchByIsbn)
-            books = books
+            books = [.. books
                 .Where(book =>
-                    book.isbns.Any(isbn => isbn.isbn.Contains(IsbnSearch)))
-                .ToList();
+                    book.isbns.Any(isbn => isbn.isbn.Contains(IsbnSearch)))];
 
         if (SearchByPublisher)
-            books = books
+            books = [.. books
                 .Where(book =>
-                    book.publisher.Contains(PublisherSearch, StringComparison.InvariantCultureIgnoreCase))
-                .ToList();
+                    book.publisher.Contains(PublisherSearch, StringComparison.InvariantCultureIgnoreCase))];
 
         if (SearchByTitle)
-            books = books
+            books = [.. books
                 .Where(book =>
-                    book.title.Contains(TitleSearch, StringComparison.InvariantCultureIgnoreCase))
-                .ToList();
+                    book.title.Contains(TitleSearch, StringComparison.InvariantCultureIgnoreCase))];
 
         Options = [..BookViewModel.GetClonedViewModels(books)];
         foreach (var vm in Options)

@@ -16,6 +16,13 @@
         </ResourceDictionary>
     </ContentPage.Resources>
     <ContentPage.ToolbarItems>
+        <ToolbarItem
+            Text="Go To Current Month"
+            Command="{Binding GoToThisMonthCommand}" />
+        <ToolbarItem
+            Text="Refresh"
+            Command="{Binding ReloadCommand}" 
+            StyleClass="RefreshButton" />
         <ToolbarItem 
             Text="Create New" 
             Command="{Binding CreateNewCommand}" 
@@ -37,9 +44,19 @@
                     </Label>
                     <Label
                         StyleClass="Header"
-                        Text="{Binding PageLabel}" 
+                        Text="{Binding Start, StringFormat='{0:MMMM yyyy}'}" 
                         WidthRequest="400"
-                        HorizontalTextAlignment="Center"/>
+                        HorizontalTextAlignment="Center"
+                        IsVisible="{Binding ShowDatePicker, Converter={StaticResource Invert}}">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ToggleShowDatePickerCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                    <DatePicker
+                        Date="{Binding Start}"
+                        IsVisible="{Binding ShowDatePicker}"
+                        FontSize="Large"
+                        DateSelected="DatePicker_DateSelected" />
                     <Label
                         StyleClass="RightArrow"
                         FontSize="Large">
@@ -63,18 +80,15 @@
                     ItemsSource="{Binding Events}"
                     BackgroundColor="Transparent">
                     <CollectionView.Header>
-                        <HorizontalStackLayout
-                            HorizontalOptions="Center">
-                            <Label
-                                StyleClass="SubHeader"
-                                Text="My Events" />
-                            <Image
-                                StyleClass="RefreshButton">
-                                <Image.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding ReloadCommand}" />
-                                </Image.GestureRecognizers>
-                            </Image>
-                        </HorizontalStackLayout>
+                        <Border
+                            StrokeThickness="1">
+                            <HorizontalStackLayout
+                                HorizontalOptions="Center">
+                                <Label
+                                    StyleClass="SubHeader"
+                                    Text="My Events" />
+                            </HorizontalStackLayout>
+                        </Border>
                     </CollectionView.Header>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="vm:EventFormViewModel">

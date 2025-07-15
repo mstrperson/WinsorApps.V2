@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.EventForms.Services;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.MAUI.Shared.EventForms.ViewModels;
@@ -20,7 +21,10 @@ public partial class EventListViewModel :
 
     public void AddEvents(IEnumerable<EventFormViewModel> events)
     {
-        Events = [ .. Events, .. events];
+
+        List<EventFormViewModel> temp = [ .. Events, .. events];
+        temp = [.. temp.DistinctBy(e => e.Id)];
+        Events = [.. temp.OrderBy(evt => evt.StartDateTime)];
     }
 
     public static async Task<EventListViewModel> MyCreatedEvents(DateTime start, DateTime end, ErrorAction onError)
@@ -52,6 +56,13 @@ public partial class EventListViewModel :
         return lvm;
     }
 
+    public EventListViewModel()
+    {
+        Start = DateTime.Today.MonthOf();
+        End = Start.AddMonths(1).AddDays(-1);
+        PageLabel = $"{Start:MMMM yyyy}";
+    }
+
     private readonly EventFormsService _service = ServiceHelper.GetService<EventFormsService>();
 
     [ObservableProperty] private DateTime start;
@@ -59,6 +70,7 @@ public partial class EventListViewModel :
     [ObservableProperty] private bool busy;
     [ObservableProperty] private string busyMessage = "Working...";
     [ObservableProperty] private string pageLabel = "My Events List";
+    [ObservableProperty] bool showDatePicker;
 
     private Func<EventFormBase, bool> EventFilter { get; set; } = evt => true;
 
@@ -82,9 +94,22 @@ public partial class EventListViewModel :
         vm.Selected += (_, e) => OnEventSelected?.Invoke(this, e);
         
         Events.Add(vm);
+        Events = [.. Events.OrderBy(evt => evt.StartDateTime)];
         OnEventSelected?.Invoke(this, vm);
         Busy = false;
     }
+
+    [RelayCommand]
+    public async Task GoToThisMonth()
+    {
+        Start = DateTime.Today.MonthOf();
+        End = Start.AddMonths(1);
+        await Reload();
+    }
+
+
+    [RelayCommand]
+    public void ToggleShowDatePicker() => ShowDatePicker = !ShowDatePicker;
 
     [RelayCommand]
     public async Task IncrementMonth()
@@ -132,7 +157,8 @@ public partial class EventListViewModel :
 
         Events = [.. EventFormViewModel.GetClonedViewModels(
             _service.EventsCache
-            .Where(evt => EventFilter(evt) && evt.start >= Start && evt.end <= End))];
+            .Where(evt => EventFilter(evt) && evt.start >= Start && evt.end <= End))
+            .OrderBy(evt => evt.StartDateTime)];
 
         foreach(var vm in Events)
         {

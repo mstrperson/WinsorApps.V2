@@ -120,9 +120,10 @@ namespace WinsorApps.Services.EventForms.Services
             RefreshInBackground(CancellationToken.None, onError).SafeFireAndForget(e => e.LogException(_logging));
         }
 
-        private async Task ManualLoadData(ErrorAction onError)
+        public async Task ManualLoadData(ErrorAction onError, int year = default)
         {
-            var year = DateTime.Today.Month > 6 ? DateTime.Today.Year : DateTime.Today.Year - 1;
+            if(year == default)
+                year = DateTime.Today.Month > 6 ? DateTime.Today.Year : DateTime.Today.Year - 1;
 
             var allEventsTask = _api.SendAsync<List<CalendarEvent<EventFormBase>>?>(HttpMethod.Get, $"api/events/calendar?start={year}-07-01&end={year + 1}-06-30", onError: onError);
             var cateringTask = _api.SendAsync<List<CalendarEvent<CateringEvent>>?>(HttpMethod.Get, $"api/events/calendar/catering?start={year}-07-01&end={year + 1}-06-30", onError: onError);
@@ -134,92 +135,92 @@ namespace WinsorApps.Services.EventForms.Services
 
             allEventsTask.WhenCompleted(() =>
             {
-                EventForms = allEventsTask.Result ?? [];
+                EventForms = [.. EventForms, .. allEventsTask.Result ?? []];
                 Progress += 1.0 / 7;
 
             },
             () =>
             {
                 _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Downloading `allEventsTask` ended with a Canceled state...");
-                EventForms = [];
+                //EventForms = [];
                 Progress += 1.0 / 7;
             });
             allEventsTask.SafeFireAndForget(e => e.LogException(_logging));
 
             cateringTask.WhenCompleted(() =>
             {
-                CateringEvents = cateringTask.Result ?? [];
+                CateringEvents = [.. CateringEvents, .. cateringTask.Result ?? []];
                 Progress += 1.0 / 7;
             },
             () =>
             {
                 _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Downloading `cateringTask` ended with a Canceled state...");
-                EventForms = [];
+                //EventForms = [];
                 Progress += 1.0 / 7;
             });
             cateringTask.SafeFireAndForget(e => e.LogException(_logging));
 
             facilitiesTask.WhenCompleted(() =>
             {
-                FacilitiesEvents = facilitiesTask.Result ?? [];
+                FacilitiesEvents = [.. FacilitiesEvents, .. facilitiesTask.Result ?? []];
                 Progress += 1.0 / 7;
             },
             () =>
             {
                 _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Downloading `facilitiesTask` ended with a Canceled state...");
-                EventForms = [];
+                //EventForms = [];
                 Progress += 1.0 / 7;
             });
             facilitiesTask.SafeFireAndForget(e => e.LogException(_logging));
 
             technologyTask.WhenCompleted(() =>
             {
-                TechEvents = technologyTask.Result ?? [];
+                TechEvents = [ .. TechEvents, .. technologyTask.Result ?? []];
                 Progress += 1.0 / 7;
             },
             () =>
             {
                 _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Downloading `technologyTask` ended with a Canceled state...");
-                EventForms = [];
+                //EventForms = [];
                 Progress += 1.0 / 7;
             });
             technologyTask.SafeFireAndForget(e => e.LogException(_logging));
 
             theaterTask.WhenCompleted(() =>
             {
-                TheaterEvents = theaterTask.Result ?? [];
+                TheaterEvents = [ .. TheaterEvents, .. theaterTask.Result ?? []];
                 Progress += 1.0 / 7;
             },
             () =>
             {
                 _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Downloading `theaterTask` ended with a Canceled state...");
-                EventForms = [];
+                //EventForms = [];
                 Progress += 1.0 / 7;
             });
             theaterTask.SafeFireAndForget(e => e.LogException(_logging));
 
             marcomTask.WhenCompleted(() =>
             {
-                MarCommEvents = marcomTask.Result ?? [];
+                MarCommEvents = [ .. MarCommEvents, .. marcomTask.Result ?? []];
                 Progress += 1.0 / 7;
             },
             () =>
             {
                 _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Downloading `marcomTask` ended with a Canceled state...");
-                EventForms = [];
+                //EventForms = [];
                 Progress += 1.0 / 7;
             });
             marcomTask.SafeFireAndForget(e => e.LogException(_logging));
 
             fieldTripTask.WhenCompleted(() =>
             {
-                FieldTripEvents = fieldTripTask.Result ?? [];
+                FieldTripEvents = [.. FieldTripEvents, .. fieldTripTask.Result ?? []];
                 Progress += 1.0 / 7;
             },
             () =>
             {
                 _logging.LogMessage(LocalLoggingService.LogLevel.Debug, $"Downloading `fieldTripTask` ended with a Canceled state...");
-                EventForms = [];
+               // EventForms = [];
                 Progress += 1.0 / 7;
             });
             fieldTripTask.SafeFireAndForget(e => e.LogException(_logging));

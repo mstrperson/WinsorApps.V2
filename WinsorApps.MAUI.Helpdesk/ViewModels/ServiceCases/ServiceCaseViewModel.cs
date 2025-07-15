@@ -156,6 +156,7 @@ public partial class ServiceCaseViewModel :
     public async Task Submit()
     {
         Busy = true;
+        BusyMessage = $"Submitting Service Case {SummaryText}";
         if (!string.IsNullOrEmpty(Id))
         {
             _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"Updating Service Case {Id} for {Device.DisplayName}");
@@ -177,7 +178,10 @@ public partial class ServiceCaseViewModel :
 
             LoadServiceCase(result);
             Busy = false;
-            OnUpdate?.Invoke(this, this);
+            if (Status.Closed)
+                OnClose?.Invoke(this, this);
+            else
+                OnUpdate?.Invoke(this, this);
             return;
         }
 
@@ -238,7 +242,10 @@ public partial class ServiceCaseViewModel :
         {
             Status = Status.Next;
             ShowNotifyButton = Status.Status.Contains("Ready");
-            OnUpdate?.Invoke(this, this);
+            if(Status.Closed)
+                OnClose?.Invoke(this, this);
+            else
+                OnUpdate?.Invoke(this, this);
         }
         Busy = false;
     }

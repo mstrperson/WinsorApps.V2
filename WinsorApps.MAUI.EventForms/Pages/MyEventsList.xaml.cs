@@ -2,6 +2,7 @@ using AsyncAwaitBestPractices;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.EventForms.Pages;
 using WinsorApps.MAUI.Shared.EventForms.ViewModels;
+using WinsorApps.Services.Global;
 
 namespace WinsorApps.MAUI.EventForms.Pages;
 
@@ -10,7 +11,7 @@ public partial class MyEventsList : ContentPage
 	public EventListViewModel ViewModel => (EventListViewModel) BindingContext;
 	public MyEventsList(EventListViewModel vm)
 	{
-		vm.Start = new(DateTime.Today.Year, DateTime.Today.Month, 1);
+		vm.Start = DateTime.Today.MonthOf();
         vm.End = vm.Start.AddMonths(1);
         vm.PageLabel=$"{DateTime.Today:MMMM yyyy}";
 		vm.OnError += this.DefaultOnErrorHandler();
@@ -41,5 +42,13 @@ public partial class MyEventsList : ContentPage
     private void MyEventsList_OnNavigatedTo(object? sender, NavigatedToEventArgs e)
     {
 	    ViewModel.Reload().SafeFireAndForget(x=> x.LogException());
+    }
+
+    private void DatePicker_DateSelected(object sender, DateChangedEventArgs e)
+    {
+        ViewModel.Start = ViewModel.Start.MonthOf();
+        ViewModel.End = ViewModel.Start.AddMonths(1);
+        ViewModel.ShowDatePicker = false;
+        ViewModel.Reload().SafeFireAndForget(x => x.LogException());
     }
 }

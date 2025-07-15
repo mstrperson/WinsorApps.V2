@@ -295,8 +295,8 @@ public partial class EventFormViewModel :
             DateOnly.FromDateTime(vm.PreapprovalDate),
             vm.AttendeeCount,
             null,
-            vm.SelectedLocations.Select(loc => loc.Id).ToList(),
-            vm.SelectedCustomLocations.Select(loc => loc.Id).ToList()
+            [.. vm.SelectedLocations.Select(loc => loc.Id)],
+            [.. vm.SelectedCustomLocations.Select(loc => loc.Id)]
         );
 
     [RelayCommand]
@@ -403,7 +403,7 @@ public partial class EventFormViewModel :
             Creator = Creator.Clone(),
             StartTime = StartTime,
             EndTime = EndTime,
-
+            Type = Type.Clone(),
             IsSelected = false,
             Id = "",
             IsNew = true,
@@ -884,8 +884,8 @@ public partial class EventFormViewModel :
         return vm.Clone();
     }
 
-    public static List<EventFormViewModel> GetClonedViewModels(IEnumerable<EventFormBase> models) => 
-        models.Select(Get).ToList();
+    public static List<EventFormViewModel> GetClonedViewModels(IEnumerable<EventFormBase> models) =>
+        [.. models.Select(Get)];
 
     public static async Task Initialize(EventFormsService service, ErrorAction onError)
     {
@@ -993,7 +993,7 @@ public partial class EventTypeViewModel :
         return vm.Clone();
     }
 
-    public static List<EventTypeViewModel> GetClonedViewModels(IEnumerable<string> models) => models.Select(Get).ToList();
+    public static List<EventTypeViewModel> GetClonedViewModels(IEnumerable<string> models) => [.. models.Select(Get)];
 
     public static async Task Initialize(EventFormsService service, ErrorAction onError)
     {
@@ -1112,7 +1112,7 @@ public partial class ApprovalStatusViewModel :
         return vm.Clone();
     }
 
-    public static List<ApprovalStatusViewModel> GetClonedViewModels(IEnumerable<ApprovalStatus> models) => models.Select(Get).ToList();
+    public static List<ApprovalStatusViewModel> GetClonedViewModels(IEnumerable<ApprovalStatus> models) => [.. models.Select(Get)];
 
     public static async Task Initialize(EventFormsService service, ErrorAction onError)
     {

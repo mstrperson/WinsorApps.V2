@@ -90,12 +90,11 @@ public partial class CateringEventViewModel :
         var details = new NewCateringEvent(
             ServersNeeded, 
             CleanupRequired,
-            Menu.Menus.SelectMany(menu =>
+            [.. Menu.Menus.SelectMany(menu =>
                 menu.Items
                     .Where(sel => sel.IsSelected)
                     .Select(selection =>
-                        new CateringMenuSelection(selection.Item.Id, selection.Quantity)))
-            .ToList(),
+                        new CateringMenuSelection(selection.Item.Id, selection.Quantity)))],
             BudgetCodeSearch.Selected.CodeId);
         var updated = await _eventsService.PostCateringDetails(Id, details, OnError.DefaultBehavior(this));
         if(updated is not null)
@@ -339,7 +338,7 @@ public partial class CateringMenuCollectionViewModel :
         var task = _service.WaitForInit(OnError.DefaultBehavior(this));
         task.WhenCompleted(() =>
         {
-            Menus = _service.AvailableCategories.Select(cat => CateringMenuViewModel.Create(cat)).ToList();
+            Menus = [.. _service.AvailableCategories.Select(cat => CateringMenuViewModel.Create(cat))];
             foreach (var menu in Menus)
             {
                 menu.OnError += (sender, e) => OnError?.Invoke(sender, e);
@@ -489,7 +488,7 @@ public partial class CateringMenuCategoryViewModel :
             FieldTripCategory = model.fieldTripCategory, 
             IsDeleted = model.isDeleted, 
             Name = model.name, 
-            Items = model.AvailableItems.Select(CateringMenuItemViewModel.Get).ToList() 
+            Items = [.. model.AvailableItems.Select(CateringMenuItemViewModel.Get)]
         };
 
         ViewModelCache.Add(vm);

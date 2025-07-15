@@ -176,7 +176,7 @@ public partial class NoteViewModel :
         BusyMessage = "Saving Note";
 
         var dto = new CreateAssessmentCalendarNote(Note,
-            AffectedClasses.Where(lbl => lbl.IsSelected).Select(lbl => lbl.Label).ToList(),
+            [.. AffectedClasses.Where(lbl => lbl.IsSelected).Select(lbl => lbl.Label)],
             DateOnly.FromDateTime(Date));
 
         var result = string.IsNullOrEmpty(Id) 

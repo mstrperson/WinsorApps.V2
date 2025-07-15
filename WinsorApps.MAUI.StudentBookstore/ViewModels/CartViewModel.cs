@@ -245,7 +245,7 @@ public partial class OrderStatusViewModel :
     }
 
     public static List<OrderStatusViewModel> GetClonedViewModels(IEnumerable<OrderStatus> models) =>
-        models.Select(Get).ToList();
+        [.. models.Select(Get)];
 
     public static async Task Initialize(StudentBookstoreService service, ErrorAction onError)
     {

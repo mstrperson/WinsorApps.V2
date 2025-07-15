@@ -16,19 +16,19 @@ public record NewLateWork(string details, string[] studentIds);
 public record StudentLateWorkCollection(StudentRecordShort student, List<LateWorkDetails> lateWork)
 {
     public static implicit operator StudentLateWorkCollection(KeyValuePair<UserRecord, IEnumerable<LateWorkDetails>> kvp)
-        => new(kvp.Key, kvp.Value.ToList());
+        => new(kvp.Key, [.. kvp.Value]);
 
     public void Split(out StudentLateWorkCollection assessments, out StudentLateWorkCollection patterns)
     {
-        assessments = new(student, lateWork.Where(lw => lw.isAssessment).ToList());
-        patterns = new(student, lateWork.Where(lw => !lw.isAssessment).ToList());
+        assessments = new(student, [.. lateWork.Where(lw => lw.isAssessment)]);
+        patterns = new(student, [.. lateWork.Where(lw => !lw.isAssessment)]);
     }
 }
 
     public record LateWorkByStudentCollection(List<StudentLateWorkCollection> lateWorkByStudent)
     {
         public static implicit operator LateWorkByStudentCollection(List<KeyValuePair<UserRecord, IEnumerable<LateWorkDetails>>> dictionary)
-            => new(dictionary.Select(kvp => (StudentLateWorkCollection)kvp).ToList());
+            => new([.. dictionary.Select(kvp => (StudentLateWorkCollection)kvp)]);
     }
 
 public static partial class Extensions
@@ -47,10 +47,9 @@ public static partial class Extensions
             {
                 var asmt = output.GetOrAdd(id, []);
                 asmt.Add(new(col.student,
-                    col.lateWork.Where(lw => 
+                    [.. col.lateWork.Where(lw => 
                         !string.IsNullOrEmpty(lw.assessment!.assessmentId) && 
-                        lw.assessment!.assessmentId == id)
-                    .ToList()));
+                        lw.assessment!.assessmentId == id)]));
             }
         }
 

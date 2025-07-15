@@ -154,7 +154,7 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
                 Busy = false;
                 return;
             }
-            CreateRecurringEvent create = new                (DateOnly.FromDateTime(Beginning), DateOnly.FromDateTime(Ending), Summary, Description, Attendees.Emails.Select(x => x.Label).ToList(), CycleDays.Items.Where(item => item.IsSelected).Select(item => item.Label).ToList(), Frequency, IsPublic, AllDay, TimeOnly.FromTimeSpan(StartTime), Duration);
+            CreateRecurringEvent create = new                (DateOnly.FromDateTime(Beginning), DateOnly.FromDateTime(Ending), Summary, Description, [.. Attendees.Emails.Select(x => x.Label)], [.. CycleDays.Items.Where(item => item.IsSelected).Select(item => item.Label)], Frequency, IsPublic, AllDay, TimeOnly.FromTimeSpan(StartTime), Duration);
             if (string.IsNullOrEmpty(Id))
             {
                 var result = await _eventService.CreateNewEvent(create, OnError.DefaultBehavior(this));

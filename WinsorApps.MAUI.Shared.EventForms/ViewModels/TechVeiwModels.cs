@@ -283,7 +283,7 @@ public partial class VirtualEventViewModel :
             vm.GetRegistrantList,
             vm.GetZoomLink,
             vm.HostContact.Id,
-            vm.Panelists.Select(pan => pan.Id).ToList()
+            [.. vm.Panelists.Select(pan => pan.Id)]
         );
     public static VirtualEventViewModel Empty => new();
 }

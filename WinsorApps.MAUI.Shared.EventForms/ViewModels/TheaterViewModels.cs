@@ -48,7 +48,7 @@ public partial class TheaterEventViewModel :
         Id = model.eventId;
         Notes = model.notes;
         Model = Optional < TheaterEvent > .Some(model);
-        Documents = model.attachments.Select(doc => new DocumentViewModel(doc)).ToList();
+        Documents = [.. model.attachments.Select(doc => new DocumentViewModel(doc))];
         
         LoadSelections(model.items);
         HasLoaded = true;
@@ -59,7 +59,7 @@ public partial class TheaterEventViewModel :
         var task = _theater.WaitForInit(OnError.DefaultBehavior(this));
         task.WhenCompleted(() =>
         {
-            TheaterMenu = new() { Menus = _theater.AvailableMenus.Select(TheaterMenuViewModel.Get).ToList() };
+            TheaterMenu = new() { Menus = [.. _theater.AvailableMenus.Select(TheaterMenuViewModel.Get)] };
         });
     }
 
@@ -90,13 +90,12 @@ public partial class TheaterEventViewModel :
     public static implicit operator NewTheaterEvent(TheaterEventViewModel vm) =>
         new(
             vm.Notes,
-            vm.TheaterMenu
+            [.. vm.TheaterMenu
               .Menus
               .SelectMany(
                   menu => menu.Items
                       .Where(it => it.IsSelected)
-                      .Select(it => it.Id))
-              .ToList()
+                      .Select(it => it.Id))]
         );
 
     [RelayCommand]
@@ -162,13 +161,13 @@ public partial class TheaterMenuViewModel :
             Id = model.id,
             Name = model.name,
             IsDeleted = model.deleted,
-            Items = model.items.Select(TheaterMenuItemViewModel.Get).ToList()
+            Items = [.. model.items.Select(TheaterMenuItemViewModel.Get)]
         };
         ViewModelCache.Add(vm);
         return vm.Clone(); 
     }
 
-    public static List<TheaterMenuViewModel> GetClonedViewModels(IEnumerable<TheaterMenuCategory> models) => models.Select(Get).ToList();
+    public static List<TheaterMenuViewModel> GetClonedViewModels(IEnumerable<TheaterMenuCategory> models) => [.. models.Select(Get)];
 
     public static async Task Initialize(TheaterService service, ErrorAction onError)
     {

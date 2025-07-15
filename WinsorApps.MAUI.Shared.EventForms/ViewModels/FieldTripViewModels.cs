@@ -41,7 +41,7 @@ public partial class FieldTripViewModel :
               vm.PrimaryContactSearch.Selected.Id,
               vm.Transportation,
               vm.StudentsByClass,
-              vm.ChaperoneSearch.AllSelected.Select(con => con.Id).ToList(),
+              [.. vm.ChaperoneSearch.AllSelected.Select(con => con.Id)],
               vm.ShowFood ? (NewFieldTripCateringRequest)vm.FieldTripCateringRequest : null
         );
 
@@ -157,7 +157,7 @@ public partial class TransportationViewModel :
     public static implicit operator NewTransportationRequest(TransportationViewModel vm) =>
         new(vm.PublicTransit, vm.NoOrganizedTransit,
             vm.VehicleRequestCollection.Requests.Any() ?
-                vm.VehicleRequestCollection.Requests.Select(req => (NewVehicleRequest)req).ToList() : null,
+                [.. vm.VehicleRequestCollection.Requests.Select(req => (NewVehicleRequest)req)] : null,
             vm.HiredBusses.Count > 0 ?
                 (FieldTripHiredBusRequest)vm.HiredBusses : null);
 
@@ -244,17 +244,16 @@ public partial class FieldTripCateringRequestViewModel :
     public FieldTripCateringRequestViewModel()
     {
         MenuCollection = new(_service);
-        MenuCollection.Menus = MenuCollection.Menus.Where(menu => menu.IsFieldTrip).ToList();
+        MenuCollection.Menus = [.. MenuCollection.Menus.Where(menu => menu.IsFieldTrip)];
         foreach (var menu in MenuCollection.Menus)
             menu.Items = [..menu.Items.Where(it => it.Item.FieldTripItem)];
     }
 
     public static implicit operator NewFieldTripCateringRequest(FieldTripCateringRequestViewModel vm) =>
         new(vm.NumberOfLunches,
-            vm.MenuCollection.Menus.SelectMany(
+            [.. vm.MenuCollection.Menus.SelectMany(
                 menu => menu.Items.Where(item => item.IsSelected))
-            .Select(item => item.Item.Id)
-            .ToList(),
+            .Select(item => item.Item.Id)],
             vm.DiningInCount,
             vm.EatingAway,
             TimeOnly.FromTimeSpan(vm.PickupTime));

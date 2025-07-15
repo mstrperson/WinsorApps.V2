@@ -62,7 +62,7 @@ public partial class IsbnViewModel :
         if (hasOdinData)
             FetchOdinData().SafeFireAndForget();
         var bookService = ServiceHelper.GetService<BookService>();
-        bindingOptions = bookService.BookBindings.Select(b => $"{b}").ToList();
+        bindingOptions = [.. bookService.BookBindings.Select(b => $"{b}")];
         LoadBookDetails();
     }
 

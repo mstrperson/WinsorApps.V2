@@ -63,7 +63,7 @@ public partial class MarCommEventViewModel :
             vm.DigitalProgram,
             vm.NeedsMedia,
             vm.NeedPhotographer,
-            vm.InviteList.Select(con => con.Id).ToList()
+            [.. vm.InviteList.Select(con => con.Id)]
         );
 
 

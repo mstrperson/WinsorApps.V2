@@ -8,7 +8,7 @@ public record AssessmentConflictRecord(string studentId, List<string> assessment
     public record AssessmentConflictsByDate(DateTime date, List<AssessmentConflictRecord> conflicts)
     {
         public static AssessmentConflictsByDate FromKVP(KeyValuePair<DateTime, IEnumerable<AssessmentConflictRecord>> pair)
-            => new(pair.Key, pair.Value.ToList());
+            => new(pair.Key, [.. pair.Value]);
     }
 
     /// <summary>
@@ -50,11 +50,11 @@ public record AssessmentEntryRecord(string groupId, string assessmentId, Section
         public static implicit operator AssessmentEntryShort(AssessmentEntryRecord assessment) =>
             new(assessment.assessmentId, assessment.section.displayName, assessment.section.block,
                 assessment.assessmentDateTime, assessment.section.teachers.First(),
-                assessment.section.students.Select(student =>
+                [.. assessment.section.students.Select(student =>
                     new StudentAssessmentRosterEntry(student,
                         assessment.studentsUsingPasses.Any(pass => pass.student.id == student.id),
                         assessment.studentConflicts.FirstOrDefault(conflict => conflict.student.id == student.id)?.count ?? 0)
-                ).ToList());
+                )]);
     }
 
     public record StudentConflictCount(StudentRecordShort student, int count, bool latePass, bool redFlag, List<string> assessmentIds)

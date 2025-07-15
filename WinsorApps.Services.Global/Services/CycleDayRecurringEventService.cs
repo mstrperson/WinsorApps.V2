@@ -44,7 +44,7 @@ namespace WinsorApps.Services.Global.Services
         public List<CycleDayRecurringEvent> RecurringEvents { get; private set; } = [];
 
         public List<CycleDayRecurringEvent> OpenEventList =>
-            RecurringEvents.Where(evt => evt.ending > DateOnly.FromDateTime(DateTime.Today)).ToList();
+            [.. RecurringEvents.Where(evt => evt.ending > DateOnly.FromDateTime(DateTime.Today))];
 
         public CycleDayRecurringEventService(ApiService api, LocalLoggingService logging)
         {

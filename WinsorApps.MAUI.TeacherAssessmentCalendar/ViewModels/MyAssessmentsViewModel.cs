@@ -135,10 +135,9 @@ public partial class AssessmentGroupViewModel :
         Busy = true;
         BusyMessage = $"Creating new Assessment in {Course.DisplayName}";
         var update = new CreateAssessmentRecord(
-            Assessments
+            [.. Assessments
             .Where(ent => ent.IsSelected)
-            .Select(ent => new AssessmentDateRecord(ent.Section.Id, ent.Date))
-            .ToList(), Note);
+            .Select(ent => new AssessmentDateRecord(ent.Section.Id, ent.Date))], Note);
 
         var result = await _assessmentService.CreateNewAssessment(update, OnError.DefaultBehavior(this));
 
@@ -179,10 +178,9 @@ public partial class AssessmentGroupViewModel :
         BusyMessage = $"Updating {Note} in {Course.DisplayName}";
 
         var update = new CreateAssessmentRecord(
-            Assessments
+            [.. Assessments
             .Where(ent => ent.IsSelected)
-            .Select(ent => new AssessmentDateRecord(ent.Model.Reduce(AssessmentEntryRecord.Empty).section.sectionId, ent.Date))
-            .ToList(), Note);
+            .Select(ent => new AssessmentDateRecord(ent.Model.Reduce(AssessmentEntryRecord.Empty).section.sectionId, ent.Date))], Note);
 
         var result = await _assessmentService.UpdateAssessment(_group.id, update, OnError.DefaultBehavior(this));
 

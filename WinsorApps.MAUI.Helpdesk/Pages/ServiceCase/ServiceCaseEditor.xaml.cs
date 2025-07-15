@@ -15,11 +15,11 @@ public partial class ServiceCaseEditor : ContentPage
 		ViewModel.OnError += this.DefaultOnErrorHandler();
         ViewModel.OnCreate += Rebind;
 		ViewModel.OnUpdate += Rebind;
-		ViewModel.OnClose += Rebind;
+		//ViewModel.OnClose += Rebind;
 		ViewModel.RequiredConfirmationRequested += async (_, vm) =>
 		{
 			vm.WaitingForFMM = 
-				await DisplayAlert("Required Confirmation", $"Does {vm.Owner.Model.Map(u => u.firstName).Reduce("")} still need to disable Find My Mac?", "Yes", "No");
+				await DisplayAlert("Required Confirmation", $"Does {vm.Device.Owner.FirstName} still need to disable Find My Mac?", "Yes", "No");
 			
 			if (!vm.WaitingForFMM)
 				vm.DisabledFMM = await DisplayAlert("Required Confirmation", "Was Find My Mac Disabled? (Say `Yes` if no iCloud account is signed in)", "Yes", "No");
