@@ -36,7 +36,10 @@ public record StudentsByClassCount(int classI = 0, int classII = 0, int classIII
 public record NewFieldTrip(string primaryContactId, NewTransportationRequest? transportationDetails,
     StudentsByClassCount? studentCount, List<string>? chaparoneIds, NewFieldTripCateringRequest? lunch = null);
 
-public record FieldTrip(Contact primaryContact, StudentsByClassCount studentCount,
+public record FieldTrip(
+    string id,
+    Contact primaryContact, 
+    StudentsByClassCount studentCount,
     List<Contact> chaperones,
     List<string> chaparoneIds, bool hasLunch);
 

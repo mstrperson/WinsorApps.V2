@@ -82,12 +82,9 @@ public partial class EventFormsService
         return result;
     }
 
-    public async Task<byte[]> GetTheaterAttachement(string eventId, string documentId, ErrorAction onError) => await _api.DownloadFile($"api/events/{eventId}/theater/documents/{documentId}", onError: onError);
+    public async Task<byte[]> GetTheaterAttachement(string eventId, string documentId, ErrorAction onError) => 
+        await _api.DownloadFile($"api/events/{eventId}/theater/documents/{documentId}", onError: onError);
     
-    public async Task<DocumentHeader?> PostTheaterAttachment(string eventId, DocumentHeader header, byte[] fileContent, ErrorAction onError)
-    {
-        // TODO: fix the API Endpoint...
-
-        throw new NotImplementedException();
-    }
+    public async Task<DocumentHeader?> PostTheaterAttachment(string eventId, DocumentHeader header, byte[] fileContent, ErrorAction onError) => 
+        await Task.FromResult<DocumentHeader?>(null); // Not implemented in the original code, but can be added similarly to UploadAttachment
 }

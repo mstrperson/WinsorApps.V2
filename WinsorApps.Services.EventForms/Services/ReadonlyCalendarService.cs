@@ -60,15 +60,13 @@ namespace WinsorApps.Services.EventForms.Services
                 var json = File.ReadAllText($"{_logging.AppStoragePath}{CacheFileName}");
                 var cache = JsonSerializer.Deserialize<CacheStructure>(json);
                 if (cache is null) return false;
-                EventForms = cache.eventForms;
-                CateringEvents = cache.catering;
-                FacilitiesEvents = cache.facilities;
-                TechEvents = cache.tech;
-                MarCommEvents = cache.marcom;
-                FieldTripEvents = cache.fieldTrips;
-                TheaterEvents = cache.theater;
-
-
+                EventForms = [.. cache.eventForms.DistinctBy(evt => evt.details.id)];
+                CateringEvents = [.. cache.catering.DistinctBy(evt => evt.details.id)];
+                FacilitiesEvents = [.. cache.facilities.DistinctBy(evt => evt.details.id)];
+                TechEvents = [.. cache.tech.DistinctBy(evt => evt.details.id)];
+                MarCommEvents = [.. cache.marcom.DistinctBy(evt => evt.details.eventId)];
+                FieldTripEvents = [.. cache.fieldTrips.DistinctBy(evt => evt.details.id)];
+                TheaterEvents = [.. cache.theater.DistinctBy(evt => evt.details.eventId)];
                 return true;
             }
             catch
@@ -135,7 +133,9 @@ namespace WinsorApps.Services.EventForms.Services
 
             allEventsTask.WhenCompleted(() =>
             {
-                EventForms = [.. EventForms, .. allEventsTask.Result ?? []];
+                var temp = allEventsTask.Result ?? [];
+                var other = EventForms.Where(c => temp.All(t => t.details.id != c.details.id)).ToList();
+                EventForms = [.. other, .. temp];
                 Progress += 1.0 / 7;
 
             },
@@ -149,7 +149,9 @@ namespace WinsorApps.Services.EventForms.Services
 
             cateringTask.WhenCompleted(() =>
             {
-                CateringEvents = [.. CateringEvents, .. cateringTask.Result ?? []];
+                var temp = cateringTask.Result ?? [];
+                var other = CateringEvents.Where(c => temp.All(t => t.details.id != c.details.id)).ToList();
+                CateringEvents = [.. other, .. temp];
                 Progress += 1.0 / 7;
             },
             () =>
@@ -162,7 +164,9 @@ namespace WinsorApps.Services.EventForms.Services
 
             facilitiesTask.WhenCompleted(() =>
             {
-                FacilitiesEvents = [.. FacilitiesEvents, .. facilitiesTask.Result ?? []];
+                var temp = facilitiesTask.Result ?? [];
+                var other = FacilitiesEvents.Where(c => temp.All(t => t.details.id != c.details.id)).ToList();
+                FacilitiesEvents = [.. other, .. temp];
                 Progress += 1.0 / 7;
             },
             () =>
@@ -175,7 +179,9 @@ namespace WinsorApps.Services.EventForms.Services
 
             technologyTask.WhenCompleted(() =>
             {
-                TechEvents = [ .. TechEvents, .. technologyTask.Result ?? []];
+                var temp = technologyTask.Result ?? [];
+                var other = TechEvents.Where(c => temp.All(t => t.details.id != c.details.id)).ToList();
+                TechEvents = [ .. other, .. temp];
                 Progress += 1.0 / 7;
             },
             () =>
@@ -188,7 +194,9 @@ namespace WinsorApps.Services.EventForms.Services
 
             theaterTask.WhenCompleted(() =>
             {
-                TheaterEvents = [ .. TheaterEvents, .. theaterTask.Result ?? []];
+                var temp = theaterTask.Result ?? [];
+                var other = TheaterEvents.Where(c => temp.All(t => t.details.eventId != c.details.eventId)).ToList();
+                TheaterEvents = [ .. other, .. temp];
                 Progress += 1.0 / 7;
             },
             () =>
@@ -201,7 +209,9 @@ namespace WinsorApps.Services.EventForms.Services
 
             marcomTask.WhenCompleted(() =>
             {
-                MarCommEvents = [ .. MarCommEvents, .. marcomTask.Result ?? []];
+                var temp = marcomTask.Result ?? [];
+                var other = MarCommEvents.Where(c => temp.All(t => t.details.eventId != c.details.eventId)).ToList();
+                MarCommEvents = [ .. other, .. temp];
                 Progress += 1.0 / 7;
             },
             () =>
@@ -214,7 +224,9 @@ namespace WinsorApps.Services.EventForms.Services
 
             fieldTripTask.WhenCompleted(() =>
             {
-                FieldTripEvents = [.. FieldTripEvents, .. fieldTripTask.Result ?? []];
+                var temp = fieldTripTask.Result ?? [];
+                var other = FieldTripEvents.Where(c => temp.All(t => t.details.id != c.details.id)).ToList();
+                FieldTripEvents = [.. other, .. temp];
                 Progress += 1.0 / 7;
             },
             () =>

@@ -27,7 +27,7 @@
                 Margin="50,0">
                 <Label
                     StyleClass="H3"
-                    Text="{Binding StatusMessage}"
+                    Text="{Binding BusyMessage}"
                     IsVisible="{Binding Busy}" />
                 <Image 
                     StyleClass="loading_symbol"

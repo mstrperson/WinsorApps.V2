@@ -47,17 +47,22 @@ public partial class EventsCalendarViewModel :
         _eventFormViewModelCacheService = eventFormViewModelCacheService;
         Calendar = new()
         {
-            ViewModelFactory = (evtlist) => 
-            [.. 
-                evtlist.Select(evt =>
-                {
-                    var vm = _eventFormViewModelCacheService.Get(evt);
-                    vm.OnError += (sender, err) => OnError?.Invoke(sender, err);
-                    vm.Selected += (sender, evt) => LoadEvent?.Invoke(this, evt);
-                    vm.Deleted += async (_, _) => await Calendar.LoadEvents();
-                    return vm;
-                })
-            ],
+            ViewModelFactory = (evtlist) =>
+            {
+                Busy = true;
+                BusyMessage = "Populating Calendar";
+                var evts = evtlist.Select(evt =>
+                    {
+                        var vm = _eventFormViewModelCacheService.Get(evt);
+                        vm.OnError += (sender, err) => OnError?.Invoke(sender, err);
+                        vm.Selected += (sender, evt) => LoadEvent?.Invoke(this, evt);
+                        vm.Deleted += async (_, _) => await Calendar.LoadEvents();
+                        return vm;
+                    })
+                    .ToList();
+                Busy = false;
+                return [.. evts];
+            },
             Month = DateTime.Today.MonthOf(),
             MonthlyEventSource = (date) =>
             {
