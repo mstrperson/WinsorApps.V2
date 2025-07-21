@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using WinsorApps.MAUI.Shared;
+using WinsorApps.MAUI.Shared.Converters;
 using WinsorApps.MAUI.Shared.EventForms.ViewModels;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Models;
@@ -56,10 +57,12 @@ public class EventFormViewModelCacheService : IAsyncInitService
         
         ViewModelCache = 
         [ .. 
-            _adminService.AllEvents.Select(model =>
+            _adminService.AllEvents
+                .Where(model => model.start.MonthOf() == DateTime.Today.MonthOf())
+                .Select(model =>
             {
                 var vm = Get(model);
-                Progress += 1.0/(_adminService.AllEvents.Count);
+                Progress += 1.0/_adminService.AllEvents.Count;
                 return vm;
             })
         ];

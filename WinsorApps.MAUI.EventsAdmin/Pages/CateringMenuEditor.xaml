@@ -93,7 +93,7 @@
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="vm:AdminCateringMenuViewModel">
                                 <Grid
-                                    WidthRequest="800"
+                                    WidthRequest="600"
                                     RowDefinitions="10,50"
                                     ColumnDefinitions="500,95">
                                     <BoxView
@@ -236,6 +236,7 @@
                                         <Entry
                                             Text="{Binding Item.Name}"
                                             IsVisible="{Binding ShowNameEdit}"
+                                            ReturnCommand="{Binding SaveCommand}"
                                             Grid.Row="1"
                                             Grid.Column="1"/>
                                         <Label
@@ -252,6 +253,7 @@
                                             Placeholder="Cost Per Unit"
                                             Text="{Binding Item.PricePerPerson, Converter={StaticResource Currency}}"
                                             IsVisible="{Binding ShowCostEdit}"
+                                            ReturnCommand="{Binding SaveCommand}"
                                             Grid.Row="1"
                                             Grid.Column="2" />
                                         <Label
