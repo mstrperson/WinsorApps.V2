@@ -85,6 +85,8 @@
                 Text="Forgot Password"
                 Command="{Binding ForgotPasswordCommand}"
                 IsVisible="{Binding ShowPasswordField}" />
+            <Label
+                Text="{Binding InformationText}" />
             </VerticalStackLayout>
         </StackLayout>
     </ContentPage.Content>

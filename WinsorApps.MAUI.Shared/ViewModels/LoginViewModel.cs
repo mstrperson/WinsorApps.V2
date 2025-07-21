@@ -20,7 +20,16 @@ public partial class LoginViewModel :
      * that bind to this data whenever the
      * variables are changed.
      ***************************************/
-    
+
+    [ObservableProperty]
+    string informationText =
+        """
+        If you need to reset your password:
+            1) Enter your Email and desired password.
+            2) Click "Forgot Password"
+            3) Check your email for a link to confirm your new password.
+            4) Click Login here on this page~
+        """;
     [ObservableProperty] private string email = "";
     [ObservableProperty] private string password = "";
     [ObservableProperty] private bool isLoggedIn = false;
