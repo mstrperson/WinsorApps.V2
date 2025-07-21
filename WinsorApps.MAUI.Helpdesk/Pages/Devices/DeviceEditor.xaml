@@ -54,6 +54,7 @@
                 Grid.Row="2"
                 Grid.Column="1"
                 Grid.ColumnSpan="3"
+                WidthRequest="400"
                 BindingContext="{Binding OwnerSearch}" />
             <Label
                 Grid.Row="3"
