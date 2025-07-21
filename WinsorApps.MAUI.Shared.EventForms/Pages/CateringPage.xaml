@@ -152,8 +152,14 @@
                         Margin="10,0" />
                 </StackLayout>
                 <Label
-                    Text="Evenings and Weekends will require an additional personnel charge to defray the cost of overtime labor. This will include time for setup, service, and breakdown of the event. Charges may run from $25 to $32 per hour." />
+                    Text="Evenings and Weekends will require an additional personnel charge to defray the cost of overtime labor.  This will include time for setup, service, and breakdown of the event. Charges may run from $25 to $32 per hour." />
                 <BoxView StyleClass="Bar" />
+                <Label
+                    Text="Click on a Menu to View Options - Your selections for each menu will be saved as you navigate through other menus."
+                    IsVisible="{Binding Menu.ShowMenus}" />
+                <Label
+                    Text="Add Quantities of Items you would like to order for this event.  If you want to add items from other menus, click the menu title to return to the menu selection."
+                    IsVisible="{Binding Menu.ShowMenus, Converter={StaticResource Invert}}"/>
                 <!-- Menu Selection -->
                 <CollectionView
                     ItemsSource="{Binding Menu.Menus}"

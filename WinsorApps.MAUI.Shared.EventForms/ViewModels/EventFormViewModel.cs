@@ -368,6 +368,7 @@ public partial class EventFormViewModel :
             Model = Optional<EventFormBase>.Some(result);
             CanEditBase = true;
             CanEditSubForms = true;
+            CanEditCatering = true;
             IsCreating = true;
             IsNew = false;
             Id = result.id;
@@ -410,7 +411,8 @@ public partial class EventFormViewModel :
             IsCreating = false,
             IsUpdating = false,
             CanEditBase = true,
-            CanEditSubForms = false
+            CanEditSubForms = false,
+            CanEditCatering = false
         };
         clone.Catering.Id = "";
         clone.Theater.Id = "";
@@ -532,6 +534,7 @@ public partial class EventFormViewModel :
             StatusSelection.Select(result.status);
             CanEditBase = true;
             CanEditSubForms = true;
+            CanEditCatering = true;
             IsUpdating = true;
         }
 
