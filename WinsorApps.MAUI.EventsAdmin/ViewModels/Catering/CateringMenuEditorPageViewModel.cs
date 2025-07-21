@@ -73,7 +73,8 @@ public partial class CateringMenuEditorPageViewModel :
                 SelectedMenu = menu;
                 ShowSelectedMenu = true;
             };
-            
+            AllMenus.OnError += (sender, error) => OnError?.Invoke(sender, error);
+            AllMenus.PropertyChanged += ((IBusyViewModel)this).BusyChangedCascade;
         };
     }
 

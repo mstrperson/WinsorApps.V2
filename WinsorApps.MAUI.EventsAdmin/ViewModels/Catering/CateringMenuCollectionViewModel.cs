@@ -48,6 +48,8 @@ public partial class CateringMenuCollectionViewModel :
                     ? [.. AllMenus]
                     : [.. AllMenus.Where(m => !m.IsDeleted) ];
             };
+            menu.OnError += (sender, error) => OnError?.Invoke(sender, error);
+            menu.PropertyChanged += ((IBusyViewModel)this).BusyChangedCascade;
         }
         VisibleMenus = [.. AllMenus.Where(menu => !menu.IsDeleted)];
     }
@@ -152,6 +154,9 @@ public partial class AdminCateringMenuViewModel :
             NewItem = new AdminCateringMenuItemViewModel(model.id),
             IsNew = false,
         };
+
+        vm.Items.OnError += (sender, error) => vm.OnError?.Invoke(sender, error);
+        vm.Items.PropertyChanged += ((IBusyViewModel)vm).BusyChangedCascade;
 
         vm.Items.ItemDeleted += async (_, item) =>
         {

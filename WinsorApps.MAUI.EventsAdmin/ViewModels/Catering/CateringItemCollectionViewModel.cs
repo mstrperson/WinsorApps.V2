@@ -57,6 +57,7 @@ public partial class CateringItemCollectionViewModel :
                     : [.. AllItems.Where(i => !i.Item.Deleted).OrderBy(i => i.Item.Ordinal)];
                 ItemDeleted?.Invoke(this, it);
             };
+            item.OnError += (sender, error) => OnError?.Invoke(sender, error);
 
             item.PropertyChanged += ((IBusyViewModel)this).BusyChangedCascade;
         }
