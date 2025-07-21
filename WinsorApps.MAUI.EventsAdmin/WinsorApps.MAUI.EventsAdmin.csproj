@@ -115,6 +115,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="Pages\CateringMenuEditor.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Pages\EventListPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

@@ -5,6 +5,7 @@ using CommunityToolkit.Maui.Core;
 using Microsoft.Extensions.Logging;
 using WinsorApps.MAUI.EventsAdmin.Pages;
 using WinsorApps.MAUI.EventsAdmin.ViewModels;
+using WinsorApps.MAUI.EventsAdmin.ViewModels.Catering;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.EventForms;
 using WinsorApps.MAUI.Shared.ViewModels;
@@ -43,6 +44,8 @@ namespace WinsorApps.MAUI.EventsAdmin
             builder.Services.AddSingleton<EventListPage>();
             builder.Services.AddSingleton<AdminCalendarViewModel>();
             builder.Services.AddSingleton<MonthlyCalendar>();
+            builder.Services.AddSingleton<CateringMenuEditorPageViewModel>();
+            builder.Services.AddSingleton<CateringMenuEditor>();
 
 #if DEBUG
             builder.Logging.AddDebug();

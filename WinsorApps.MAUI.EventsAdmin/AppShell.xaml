@@ -22,7 +22,12 @@
         Title="Master Calendar"
         ContentTemplate="{DataTemplate pages:MonthlyCalendar}"
         Route="MonthlyCalendar" />
-    
+
+    <ShellContent
+        Title="Catering Menu Editor"
+        ContentTemplate="{DataTemplate pages:CateringMenuEditor}"
+        Route="CateringMenuEditor" />
+
     <ShellContent
         Title="Help"
         ContentTemplate="{DataTemplate shared:HelpPage}"

@@ -1,6 +1,7 @@
 ﻿
 using WinsorApps.MAUI.EventsAdmin.Pages;
 using WinsorApps.MAUI.EventsAdmin.ViewModels;
+using WinsorApps.MAUI.EventsAdmin.ViewModels.Catering;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.EventForms.ViewModels;
 using WinsorApps.MAUI.Shared.Pages;
@@ -28,7 +29,8 @@ public partial class MainPage : ContentPage
         CateringMenuService cateringMenuService,
         TheaterService theaterService,
         EventsAdminService adminService,
-        EventFormViewModelCacheService cacheService)
+        EventFormViewModelCacheService cacheService,
+        CateringMenuEditorPageViewModel cateringEditor)
     {
         MainPageViewModel vm = new MainPageViewModel(
         [
@@ -56,7 +58,8 @@ public partial class MainPage : ContentPage
                 new TaskAwaiterViewModel(ApprovalStatusViewModel.Initialize(eventForms, this.DefaultOnErrorAction()), "Approval Status Cache"),
                 new TaskAwaiterViewModel(CateringMenuCategoryViewModel.Initialize(cateringMenuService, this.DefaultOnErrorAction()), "Catering Menus"),
                 new TaskAwaiterViewModel(EventTypeViewModel.Initialize(eventForms, this.DefaultOnErrorAction()), "Event Types"),
-                new TaskAwaiterViewModel(EventFormViewModel.Initialize(adminService, this.DefaultOnErrorAction()), "Event List")
+                new TaskAwaiterViewModel(EventFormViewModel.Initialize(adminService, this.DefaultOnErrorAction()), "Event List"),
+                new TaskAwaiterViewModel(cateringEditor.Initialize(this.DefaultOnErrorAction()), "Catering Menu Editor"),
             ],
             AppId = "yBDj8LA61lpR"
         };

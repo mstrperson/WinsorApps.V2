@@ -26,6 +26,26 @@
         </Setter>
     </Style>
 
+
+    <Style TargetType="Label" Class="Clickable">
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="PointerOver">
+                        <VisualState.Setters>
+                            <Setter Property="TextDecorations" Value="Underline" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Normal">
+                        <VisualState.Setters>
+                            <Setter Property="TextDecorations" Value="None" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
     <Style TargetType="Label" Class="Warning">
         <Setter Property="TextColor" Value="DarkGoldenrod"/>
         <Setter Property="FontFamily" Value="SansSerif"/>

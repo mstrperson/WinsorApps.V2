@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.EventsAdmin.ViewModels.Catering"
+             xmlns:svm="clr-namespace:WinsorApps.MAUI.Shared.EventForms.ViewModels;assembly=WinsorApps.MAUI.Shared.EventForms"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             xmlns:msconv="clr-namespace:Microsoft.Maui.Converters;assembly=Microsoft.Maui"
+             x:Class="WinsorApps.MAUI.EventsAdmin.Pages.CateringMenuEditor"
+             x:DataType="vm:CateringMenuEditorPageViewModel"
+             Title="Catering Menu Editor">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert" />
+            <conv:CurrencyToStringConverter x:Key="Currency" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem
+            Text="New Menu Category"
+            Command="{Binding ShowNewMenuCommand}" />
+        <ToolbarItem
+            StyleClass="RefreshButton"
+            Command="{Binding RefreshCommand}" />
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <ScrollView>
+            <VerticalStackLayout
+                WidthRequest="1237"
+                HorizontalOptions="Center">
+                <HorizontalStackLayout
+                    HorizontalOptions="Center"
+                    IsVisible="{Binding Busy}">
+                    <Label
+                        Text="{Binding BusyMessage}"
+                        StyleClass="SubHeader" />
+                    <Image
+                        StyleClass="loading_symbol" />
+                </HorizontalStackLayout>
+                <Grid
+                    ColumnDefinitions="600,37,600"
+                    RowDefinitions="auto,50,auto">
+                    <Label
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Grid.ColumnSpan="3"
+                        HorizontalOptions="Center"
+                        Text="Catering Menu Editor"
+                        HorizontalTextAlignment="Center"
+                        StyleClass="Header" />
+                    <Label
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        HorizontalTextAlignment="End"
+                        Text="Price Change Effective Date:" />
+                    <DatePicker
+                        Grid.Row="1"
+                        Grid.Column="2"
+                        Date="{Binding PriceChangeEffectiveDate}" />
+                    <BoxView
+                        Grid.Row="2"
+                        Grid.Column="1"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource WinsorRed}, Dark=White}"
+                        WidthRequest="2"/>
+                    <!-- Left Collumn - Menus Categories -->
+                    <CollectionView
+                        Grid.Row="2"
+                        Grid.Column="0"
+                        BackgroundColor="Transparent"
+                        WidthRequest="600"
+                        ItemsSource="{Binding AllMenus.VisibleMenus}">
+                        <CollectionView.Header>
+                            <HorizontalStackLayout
+                                HorizontalOptions="Center">
+                                <Label
+                                    StyleClass="H3"
+                                    Text="Menu Categories" />
+                                <!--
+                                <Button
+                                    WidthRequest="175"
+                                    VerticalOptions="Center"
+                                    Text="Show Deleted Items"
+                                    IsVisible="{Binding AllMenus.ShowDeleted, Converter={StaticResource Invert}}"
+                                    Command="{Binding AllMenus.ToggleShowDeletedCommand}" />
+                                <Button
+                                    WidthRequest="175"
+                                    VerticalOptions="Center"
+                                    Text="Hide Deleted Items"
+                                    IsVisible="{Binding AllMenus.ShowDeleted}"
+                                    Command="{Binding AllMenus.ToggleShowDeletedCommand}" />
+                                -->
+                            </HorizontalStackLayout>
+                        </CollectionView.Header>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:AdminCateringMenuViewModel">
+                                <Grid
+                                    WidthRequest="800"
+                                    RowDefinitions="10,50"
+                                    ColumnDefinitions="500,95">
+                                    <BoxView
+                                        StyleClass="Bar"
+                                        Grid.Row="0"
+                                        Grid.Column="0"
+                                        Grid.ColumnSpan="2"
+                                        Margin="0"
+                                        WidthRequest="600"/>
+                                    <HorizontalStackLayout
+                                        Grid.Row="1"
+                                        Grid.Column="0"
+                                        WidthRequest="500"
+                                        Margin="0"
+                                        HeightRequest="50"
+                                        Padding="25,0">
+                                        <HorizontalStackLayout.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                        </HorizontalStackLayout.GestureRecognizers>
+                                        <Label
+                                            HorizontalTextAlignment="Start"
+                                            StyleClass="H3,Clickable"
+                                            Text="{Binding Name}"
+                                            IsVisible="{Binding IsDeleted, Converter={StaticResource Invert}}"/>
+                                        <Label
+                                            HorizontalTextAlignment="Start"
+                                            StyleClass="H3,Clickable"
+                                            Text="{Binding Name}"
+                                            TextDecorations="Strikethrough"
+                                            IsVisible="{Binding IsDeleted}"/>
+                                    </HorizontalStackLayout>
+                                    <Button
+                                        Grid.Row="1"
+                                        Grid.Column="1"
+                                        IsVisible="{Binding IsDeleted, Converter={StaticResource Invert}}"
+                                        HorizontalOptions="End"
+                                        StyleClass="DeleteButton"
+                                        Command="{Binding DeleteCommand}" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <VerticalStackLayout
+                        Grid.Row="2"
+                        Grid.Column="2"
+                        Margin="0"
+                        Padding="0"
+                        IsVisible="{Binding ShowSelectedMenu}">
+                        <HorizontalStackLayout
+                            IsVisible="{Binding SelectedMenu.IsNew}"
+                            Margin="0"
+                            Padding="0">
+                            <Label
+                                StyleClass="H3"
+                                Text="New Menu:" />
+                            <Entry
+                                WidthRequest="300"
+                                HeightRequest="50"
+                                Text="{Binding SelectedMenu.Name}" />
+                            <Button
+                                HorizontalOptions="End"
+                                StyleClass="SaveButton"
+                                Command="{Binding SelectedMenu.SaveCommand}" />
+                        </HorizontalStackLayout>
+                        <CollectionView
+                            BackgroundColor="Transparent" 
+                            WidthRequest="600"
+                            ItemsSource="{Binding SelectedMenu.Items.VisibleItems}"
+                            IsVisible="{Binding SelectedMenu.IsNew, Converter={StaticResource Invert}}">
+                            <CollectionView.Header>
+                                <VerticalStackLayout
+                                    WidthRequest="600">
+                                    <Grid
+                                        RowDefinitions="*"
+                                        ColumnDefinitions="*,auto"
+                                        Margin="0"
+                                        Padding="0"
+                                        IsVisible="{Binding SelectedMenu.IsNew, Converter={StaticResource Invert}}">
+                                        <Label
+                                            Grid.Column="0"
+                                            StyleClass="SubHeader"
+                                            WidthRequest="400"
+                                            HorizontalTextAlignment="Center"
+                                            Text="{Binding SelectedMenu.Name}" />
+                                        <Button 
+                                            StyleClass="AddButton"
+                                            Grid.Column="1"
+                                            HeightRequest="44"
+                                            IsVisible="{Binding SelectedMenu.ShowNewItem, Converter={StaticResource Invert}}"
+                                            Command="{Binding SelectedMenu.AddNewItemCommand}"
+                                            CommandParameter="{Binding PriceChangeEffectiveDate}"/>
+                                        <!--
+                                        <Button
+                                            Grid.Column="2"
+                                            Text="Hide Deleted"
+                                            IsVisible="{Binding SelectedMenu.Items.ShowDeleted}"
+                                            Command="{Binding SelectedMenu.Items.ToggleShowDeletedCommand}" />
+                                        <Button
+                                            Grid.Column="2"
+                                            Text="Show Deleted"
+                                            IsVisible="{Binding SelectedMenu.Items.ShowDeleted, Converter={StaticResource Invert}}"
+                                            Command="{Binding SelectedMenu.Items.ToggleShowDeletedCommand}" />
+                                        -->
+                                    </Grid>
+                                </VerticalStackLayout>                            
+                            </CollectionView.Header>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="vm:AdminCateringMenuItemViewModel">
+                                    <Grid
+                                        WidthRequest="600"
+                                        RowDefinitions="10,auto"
+                                        ColumnDefinitions="20,*,150,auto">
+
+                                        <Grid.GestureRecognizers>
+                                            <DropGestureRecognizer
+                                                BindingContext="{Binding Item}"
+                                                AllowDrop="True"
+                                                Drop="OnDrop"/>
+                                        </Grid.GestureRecognizers>
+                                        <BoxView
+                                            StyleClass="Bar"
+                                            Grid.Row="0"
+                                            Grid.Column="0"
+                                            Grid.ColumnSpan="4"
+                                            Margin="0"
+                                            WidthRequest="600"/>
+                                        <Label 
+                                            StyleClass="UpDownArrow,H3"
+                                            Text="↕"
+                                            ToolTipProperties.Text="{Binding Item.Ordinal}"
+                                            Grid.Row="1"
+                                            Grid.Column="0">
+                                            <Label.GestureRecognizers>
+                                                <DragGestureRecognizer
+                                                    BindingContext="{Binding Item}"
+                                                    DragStarting="OnDragStarting"/>
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                        <Entry
+                                            Text="{Binding Item.Name}"
+                                            IsVisible="{Binding ShowNameEdit}"
+                                            Grid.Row="1"
+                                            Grid.Column="1"/>
+                                        <Label
+                                            Text="{Binding Item.Name}"
+                                            IsVisible="{Binding ShowNameEdit, Converter={StaticResource Invert}}"
+                                            StyleClass="Clickable"
+                                            Grid.Row="1"
+                                            Grid.Column="1">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding ToggleShowNameEditCommand}" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                        <Entry
+                                            Placeholder="Cost Per Unit"
+                                            Text="{Binding Item.PricePerPerson, Converter={StaticResource Currency}}"
+                                            IsVisible="{Binding ShowCostEdit}"
+                                            Grid.Row="1"
+                                            Grid.Column="2" />
+                                        <Label
+                                            Text="{Binding Item.PricePerPerson, Converter={StaticResource Currency}}"
+                                            IsVisible="{Binding ShowCostEdit, Converter={StaticResource Invert}}"
+                                            StyleClass="Clickable"
+                                            Grid.Row="1"
+                                            Grid.Column="2">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding ToggleShowCostEditCommand}" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                        <HorizontalStackLayout
+                                            Grid.Row="1"
+                                            Grid.Column="3"
+                                            Margin="0"
+                                            Padding="0">
+                                            <Button
+                                                StyleClass="SaveButton"
+                                                Command="{Binding SaveCommand}"
+                                                Margin="2.5"/>
+                                            <Button
+                                                StyleClass="DeleteButton"
+                                                Margin="2.5"
+                                                Command="{Binding DeleteCommand}" />
+                                        </HorizontalStackLayout>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                        <Grid
+                            WidthRequest="600"
+                            RowDefinitions="10,50"
+                            ColumnDefinitions="20,*,150,auto"
+                            IsVisible="{Binding SelectedMenu.ShowNewItem}">
+                            <BoxView
+                                StyleClass="Bar"
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Grid.ColumnSpan="4"
+                                Margin="0"
+                                WidthRequest="600"
+                                HeightRequest="4"/>
+                            <Label
+                                Text="+"
+                                Grid.Row="1"
+                                Grid.Column="0" />
+                            <Entry
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Text="{Binding SelectedMenu.NewItem.Item.Name}" />
+                            <Entry
+                                Grid.Row="1"
+                                Grid.Column="2"
+                                Text="{Binding SelectedMenu.NewItem.Item.PricePerPerson, Converter={StaticResource Currency}}" />
+                            <Button
+                                Grid.Row="1"
+                                Grid.Column="3"
+                                StyleClass="SaveButton"
+                                Command="{Binding SelectedMenu.NewItem.SaveCommand}" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Grid>
+            </VerticalStackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>
