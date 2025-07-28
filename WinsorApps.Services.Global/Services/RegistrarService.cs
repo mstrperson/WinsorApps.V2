@@ -187,7 +187,7 @@ public class RegistrarService(ApiService api, LocalLoggingService logging) :
         {
             if (_mySchedule.Count == 0 || force)
             {
-                _mySchedule = [..await _api.SendAsync<List<ScheduleEntry>>(HttpMethod.Get, "api/schedule")];
+                _mySchedule = [..(await _api.SendAsync<List<ScheduleEntry>>(HttpMethod.Get, "api/schedule")) ?? []];
             }
         }
         catch (Exception ex)
@@ -214,7 +214,7 @@ public class RegistrarService(ApiService api, LocalLoggingService logging) :
         {
             if (_myAcademicSchedule.Count == 0 || force)
             {
-                _myAcademicSchedule = [..await _api.SendAsync<List<SectionRecord>>(HttpMethod.Get, "api/schedule/academics?detailed=true")];
+                _myAcademicSchedule = [..(await _api.SendAsync<List<SectionRecord>>(HttpMethod.Get, "api/schedule/academics?detailed=true")) ?? []];
                 foreach (var section in _myAcademicSchedule)
                     _ = await GetSectionDetailsAsync(section.sectionId, _logging.LogError);
             }
@@ -280,7 +280,7 @@ public class RegistrarService(ApiService api, LocalLoggingService logging) :
         {
             if (_courses.Count == 0)
             {
-                _courses = [..await _api.SendAsync<List<CourseRecord>>(HttpMethod.Get, "api/registrar/course?getsBooks=true")];
+                _courses = [..(await _api.SendAsync<List<CourseRecord>>(HttpMethod.Get, "api/registrar/course?getsBooks=true")) ?? []];
             }
         }
         catch (Exception ex)
@@ -348,7 +348,7 @@ public class RegistrarService(ApiService api, LocalLoggingService logging) :
         {
             if (_teachers.Count == 0)
             {
-                _teachers = [..await _api.SendAsync<List<UserRecord>>(HttpMethod.Get, "api/users/teachers")];
+                _teachers = [..(await _api.SendAsync<List<UserRecord>>(HttpMethod.Get, "api/users/teachers")) ?? []];
             }
         }
         catch (Exception ex)
@@ -413,7 +413,7 @@ public class RegistrarService(ApiService api, LocalLoggingService logging) :
         {
             if (_employees.Count == 0)
             {
-                _employees = [..await _api.SendAsync<List<UserRecord>>(HttpMethod.Get, "api/users/employees")];
+                _employees = [..(await _api.SendAsync<List<UserRecord>>(HttpMethod.Get, "api/users/employees")) ?? []];
             }
         }
         catch (Exception ex)
@@ -457,7 +457,7 @@ public class RegistrarService(ApiService api, LocalLoggingService logging) :
             {
                 var result = await _api.SendAsync<List<UserRecord>>(HttpMethod.Get, "api/users/students");
                 _students = [..
-                    result
+                    result ?? []
                     ];
             }
         }
@@ -562,7 +562,7 @@ public class RegistrarService(ApiService api, LocalLoggingService logging) :
 
         getSchoolYearTask.WhenCompleted(() =>
         {
-            SchoolYears = [.. getSchoolYearTask.Result];
+            SchoolYears = [.. getSchoolYearTask.Result ?? []];
         });
         var sbc = DownloadSectionsByCourseAsync(onError);
         var mySched = GetMyScheduleAsync();

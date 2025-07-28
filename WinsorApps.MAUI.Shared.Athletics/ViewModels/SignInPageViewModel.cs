@@ -65,8 +65,8 @@ public partial class SignInPageViewModel :
 
         if (!_registrar.Started)
             await _registrar.Initialize(OnError.DefaultBehavior(this));
-        else
-            await _registrar.WaitForUniqueNames();
+        
+        await _registrar.WaitForUniqueNames();
 
         OpenWorkouts = [.. _service.OpenWorkouts.Select(WorkoutViewModel.Get)];
         foreach (var workout in OpenWorkouts)
