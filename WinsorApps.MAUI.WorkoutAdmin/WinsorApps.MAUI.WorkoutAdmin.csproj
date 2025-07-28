@@ -105,6 +105,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <AndroidResource Remove="Resources\Resources\**" />
+	  <Compile Remove="Resources\Resources\**" />
+	  <EmbeddedResource Remove="Resources\Resources\**" />
+	  <MauiCss Remove="Resources\Resources\**" />
+	  <MauiXaml Remove="Resources\Resources\**" />
+	  <None Remove="Resources\Resources\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <Compile Remove="Resources\Fonts\FluentUI.cs" />
 	</ItemGroup>
 
@@ -133,7 +142,6 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Resources\Styles\ButtonStyles.xaml">
-	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Resources\Styles\ImageStyles.xaml">

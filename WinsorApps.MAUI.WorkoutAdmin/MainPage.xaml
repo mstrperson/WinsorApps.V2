@@ -232,7 +232,7 @@
                                         Grid.Column="3"/>
                                     <!--Column 4-->
                                     <Label
-                                        StyleClass="Header"
+                                        StyleClass="Header,Clickable"
                                         Text="For Credit"
                                         HorizontalTextAlignment="Center"
                                         Grid.Column="4"
@@ -242,7 +242,7 @@
                                         </Label.GestureRecognizers>
                                     </Label>
                                     <Label
-                                        StyleClass="SubHeader"
+                                        StyleClass="SubHeader,Clickable"
                                         Text="For Credit Only"
                                         HorizontalTextAlignment="Center"
                                         Grid.Column="4"

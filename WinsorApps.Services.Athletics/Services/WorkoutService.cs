@@ -39,7 +39,7 @@ public class WorkoutService(ApiService api, LocalLoggingService logging) :
 
         OpenWorkouts = await GetOpenWorkouts(onError);
 
-        Tags = await _api.SendAsync<List<string>>(HttpMethod.Get, "api/athletics/tags/list", onError: onError) ?? [];
+        Tags = (await _api.SendAsync<List<string>>(HttpMethod.Get, "api/athletics/tags/list", onError: onError)) ?? [];
 
         Progress = 1;
         Ready = true;
@@ -47,7 +47,7 @@ public class WorkoutService(ApiService api, LocalLoggingService logging) :
 
     public async Task<List<Workout>> GetOpenWorkouts(ErrorAction onError)
     {
-        var result = await _api.SendAsync<List<Workout>?>(HttpMethod.Get, "api/athletics/open-workouts", onError: onError);
+        var result = await _api.SendAsync<List<Workout>>(HttpMethod.Get, "api/athletics/open-workouts", onError: onError);
         if (result is null)
             return [];
 
@@ -117,14 +117,14 @@ public class WorkoutService(ApiService api, LocalLoggingService logging) :
 
     public async Task<WorkoutLog> GetAllWorkoutLogs(DateOnly start, DateOnly end, ErrorAction onError)
     {
-        var result = await _api.SendAsync<WorkoutLog?>(HttpMethod.Get, $"api/athletics/logs?start={start:yyyy-MM-dd}&end={end:yyyy-MM-dd}", onError: onError);
+        var result = await _api.SendAsync<WorkoutLog>(HttpMethod.Get, $"api/athletics/logs?start={start:yyyy-MM-dd}&end={end:yyyy-MM-dd}", onError: onError);
 
         return result ?? new([], new(start, end));
     }
 
     public async Task<WorkoutLog> GetForCreditWorkouts(DateOnly start, DateOnly end, ErrorAction onError)
     {
-        var result = await _api.SendAsync<WorkoutLog?>(HttpMethod.Get, $"api/athletics/logs?start={start:yyyy-MM-dd}&end={end:yyyy-MM-dd}&forCreditOnly=true", onError: onError);
+        var result = await _api.SendAsync<WorkoutLog>(HttpMethod.Get, $"api/athletics/logs?start={start:yyyy-MM-dd}&end={end:yyyy-MM-dd}&forCreditOnly=true", onError: onError);
 
         return result ?? new([], new(start, end));
     }

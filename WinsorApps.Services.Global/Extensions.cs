@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using AsyncAwaitBestPractices;
 using WinsorApps.Services.Global.Models;
@@ -150,12 +151,27 @@ public class Month
     public override string ToString() => $"{MonthNames[_month - 1]}";
 }
 
+[JsonConverter(typeof(DateRangeWrapperJsonConverter))]
 public record DateRangeWrapper(DateOnly start, DateOnly end)
 {
     public static implicit operator DateRange(DateRangeWrapper wrapper) => new(wrapper.start, wrapper.end);
     public static implicit operator DateRangeWrapper(DateRange range) => new(range.start, range.end);
 
     public DateRangeWrapper(DateTime start, DateTime end) : this(DateOnly.FromDateTime(start), DateOnly.FromDateTime(end)) { }
+}
+
+public class DateRangeWrapperJsonConverter : JsonConverter<DateRangeWrapper>
+{
+    private record DR(DateOnly start, DateOnly end);
+
+    public override DateRangeWrapper? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        var obj = JsonSerializer.Deserialize<DR>(ref reader, options) ?? throw new InvalidDataException("Failed to Deserialize DateRangeWrapper");
+        return new DateRangeWrapper(obj.start, obj.end);
+    }
+
+    public override void Write(Utf8JsonWriter writer, DateRangeWrapper value, JsonSerializerOptions options) =>
+        JsonSerializer.Serialize(new DR(value.start, value.end));
 }
 
 
