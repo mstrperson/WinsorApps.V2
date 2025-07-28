@@ -123,6 +123,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="Pages\CateringAdminEventListPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Pages\CateringMenuEditor.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

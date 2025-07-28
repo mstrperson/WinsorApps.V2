@@ -29,6 +29,11 @@
         Route="CateringMenuEditor" />
 
     <ShellContent
+        Title="Catering Admin Event List"
+        ContentTemplate="{DataTemplate pages:CateringAdminEventListPage}"
+        Route="CateringAdminEventListPage" />
+
+    <ShellContent
         Title="Help"
         ContentTemplate="{DataTemplate shared:HelpPage}"
         Route="HelpPage" />

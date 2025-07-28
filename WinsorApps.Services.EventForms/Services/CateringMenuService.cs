@@ -26,9 +26,6 @@ namespace WinsorApps.Services.EventForms.Services
         {
             _logging = logging;
             _api = api;
-
-            _api.OnLoginSuccess += (_, _) => Initialize(_logging.LogError).SafeFireAndForget(e => e.LogException(_logging));
-
         }
 
         public bool Started { get; private set; }

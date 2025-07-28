@@ -34,6 +34,7 @@ public partial class CateringEventViewModel :
     [ObservableProperty] private bool busy;
     [ObservableProperty] private string busyMessage = "Working";
     [ObservableProperty] private bool hasLoaded;
+    [ObservableProperty] string budgetCode = "";
 
     public static CateringEventViewModel Empty => new();
 
@@ -76,7 +77,7 @@ public partial class CateringEventViewModel :
         CleanupRequired = model.cleanup;
         LaborCost = model.laborCost;
         Model = Optional<CateringEvent>.Some(model);
-
+        BudgetCode = model.budgetCode.accountNumber;
         BudgetCodeSearch.Select(BudgetCodeViewModel.Get(model.budgetCode));
         Menu.ClearSelections();
         Menu.LoadMenuSelections(model.menuSelections);
@@ -192,6 +193,7 @@ public partial class CateringMenuViewModel :
     [ObservableProperty] private bool isSelected;
     [ObservableProperty] private double menuHeightRequest;
     [ObservableProperty] private bool hasSelections;
+    [ObservableProperty] int selectionCount;
 
     private static readonly double MenuRowHeight = 100;
 
@@ -214,6 +216,8 @@ public partial class CateringMenuViewModel :
             IsDeleted = category.isDeleted
         };
 
+        vm.SelectionCount = vm.Items.Count(item => item.Quantity > 0);
+
         vm.MenuHeightRequest = MenuRowHeight * vm.Items.Count;
         foreach(var item in vm.Items)
         {
@@ -227,6 +231,7 @@ public partial class CateringMenuViewModel :
 
                     item.IsSelected = item.Quantity != 0;
 
+                    vm.SelectionCount = vm.Items.Count(item => item.Quantity > 0);
                     item.Cost = item.Quantity * item.Item.PricePerPerson;
                 }
             };
@@ -258,7 +263,7 @@ public partial class CateringMenuViewModel :
             vm.Quantity = sel.quantity;
             vm.Cost = sel.quantity * vm.Item.PricePerPerson;
         }
-
+        SelectionCount = Items.Count(item => item.Quantity > 0);
         HasSelections = Items.Any(it => it.IsSelected);
     }
 

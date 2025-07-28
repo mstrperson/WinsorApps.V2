@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.EventsAdmin.ViewModels.Catering"
+             xmlns:svm="clr-namespace:WinsorApps.MAUI.Shared.EventForms.ViewModels;assembly=WinsorApps.MAUI.Shared.EventForms"
+             xmlns:gvm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels;assembly=WinsorApps.MAUI.Shared"
+             x:DataType="vm:CateringManagementEventListPageViewModel"
+             x:Class="WinsorApps.MAUI.EventsAdmin.Pages.CateringAdminEventListPage"
+             Title="Catering Admin Event List">
+    
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert" />
+            <conv:CurrencyToStringConverter x:Key="Currency" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem
+            Text="Download Monthly Report"
+            Command="{Binding DownloadMonthlyReportCommand}"
+            IsEnabled="{Binding ShowSelectedEvent, Converter={StaticResource Invert}}"/>
+        <ToolbarItem
+            Text="Download Month Invoices"
+            Command="{Binding DownloadMonthlyInvoicesCommand}"
+            IsEnabled="{Binding ShowSelectedEvent, Converter={StaticResource Invert}}" />
+        <ToolbarItem
+            Text="Back to List"
+            Command="{Binding SelectedEvent.CloseCommand}"
+            IsEnabled="{Binding ShowSelectedEvent}" />
+        <ToolbarItem
+            Text="{Binding SelectedEvent.SubmitText}"
+            IsEnabled="{Binding ShowSelectedEvent}"
+            Command="{Binding SelectedEvent.ToggleEditableCommand}" />
+
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <ScrollView>
+            <VerticalStackLayout 
+                WidthRequest="1200"
+                HorizontalOptions="Center">
+                <!-- Event List -->
+                <HorizontalStackLayout
+                    IsVisible="{Binding Busy}">
+                    <Label
+                        StyleClass="Header"
+                        Text="{Binding BusyMessage}" />
+                    <Image
+                        StyleClass="loading_symbol" />
+                </HorizontalStackLayout>
+                    
+                <Grid
+                    WidthRequest="1200"
+                    ColumnDefinitions="450,300,450"
+                    HorizontalOptions="Center"
+                    IsVisible="{Binding ShowSelectedEvent, Converter={StaticResource Invert}}">
+                    <Label
+                        Grid.Column="0"
+                        WidthRequest="450"
+                        StyleClass="Header,LeftArrow"
+                        HorizontalTextAlignment="End">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding DecrementMonthCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                    <Label
+                        Grid.Column="1"
+                        StyleClass="Header"
+                        HorizontalTextAlignment="Center"
+                        Text="{Binding Month, StringFormat='{0:MMMM yyyy}'}" />
+                    <Label
+                        Grid.Column="2"
+                        WidthRequest="450"
+                        StyleClass="Header,RightArrow"
+                        HorizontalTextAlignment="Start">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding IncrementMonthCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </Grid>
+                <CollectionView
+                    WidthRequest="1200"
+                    ItemsSource="{Binding Events}"
+                    BackgroundColor="Transparent"
+                    IsVisible="{Binding ShowSelectedEvent, Converter={StaticResource Invert}}">
+                    <CollectionView.Header>
+                        <Grid
+                            ColumnDefinitions="200,*,250,150"
+                            WidthRequest="1200">
+                            <Label
+                                Grid.Column="0"
+                                StyleClass="H3"
+                                Text="Date/Time" 
+                                HorizontalTextAlignment="Center"/>
+                            <Label 
+                                Grid.Column="1"
+                                StyleClass="H3"
+                                Text="Event"
+                                HorizontalTextAlignment="Center" />
+                            <Label
+                                Grid.Column="2"
+                                StyleClass="H3"
+                                Text="Leader"
+                                HorizontalTextAlignment="Center" />
+                            <Label
+                                Grid.Column="3"
+                                StyleClass="H3"
+                                Text="Budget Code"
+                                HorizontalTextAlignment="Center" />
+                        </Grid>
+                    </CollectionView.Header>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:EventCateringAdminViewModel">
+                            <Grid
+                                ColumnDefinitions="250,*,250,150"
+                                RowDefinitions="*,50"
+                                WidthRequest="1200">
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Event.SelectCommand}" />
+                                </Grid.GestureRecognizers>
+                                <BoxView 
+                                    Grid.Row="0"
+                                    Grid.ColumnSpan="4"
+                                    WidthRequest="1200"
+                                    Margin="0"
+                                    StyleClass="Bar"/>
+                                <Label
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    Text="{Binding Event.StartDateTime, StringFormat='{0: dddd dd, hh:mm tt}'}" />
+                                <Label
+                                    Grid.Row="1"
+                                    Grid.Column="1"
+                                    Text="{Binding Event.Summary}"
+                                    ToolTipProperties.Text="{Binding Event.Description}" />
+                                <Label
+                                    Grid.Row="1"
+                                    Grid.Column="2"
+                                    Text="{Binding Event.Leader.DisplayName}"
+                                    ToolTipProperties.Text="{Binding Event.Creator.DisplayName, StringFormat='Creator: {0}'}"/>
+                                <Label
+                                    Grid.Row="1"
+                                    Grid.Column="3"
+                                    Text="{Binding Event.Catering.BudgetCode}" />
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                <!-- Selected Event -->
+                <!-- Selected Event Details -->
+                <VerticalStackLayout
+                    Margin="0"
+                    Padding="0"
+                    IsVisible="{Binding ShowSelectedEvent}">
+                    <Grid
+                     WidthRequest="1200"
+                     Padding="24,16"
+                     Margin="0,24,0,24"
+                     RowDefinitions="Auto,Auto,Auto,Auto,Auto"
+                     ColumnDefinitions="200,400,200,400">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Event Name:" StyleClass="H3"/>
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding SelectedEvent.Event.Summary}" />
+                        <Label Grid.Row="0" Grid.Column="2" Text="Status:" StyleClass="H3"/>
+                        <Label Grid.Row="0" Grid.Column="3" Text="{Binding SelectedEvent.Event.StatusSelection.Selected.Label}" />
+
+                        <Label Grid.Row="1" Grid.Column="0" Text="Start:" StyleClass="H3"/>
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding SelectedEvent.Event.StartDateTime, StringFormat='{0:dddd, MMM d, yyyy h:mm tt}'}" />
+                        <Label Grid.Row="1" Grid.Column="2" Text="End:" StyleClass="H3"/>
+                        <Label Grid.Row="1" Grid.Column="3" Text="{Binding SelectedEvent.Event.EndDateTime, StringFormat='{0:dddd, MMM d, yyyy h:mm tt}'}" />
+
+                        <Label Grid.Row="2" Grid.Column="0" Text="Leader:" StyleClass="H3"/>
+                        <Label Grid.Row="2" Grid.Column="1" Text="{Binding SelectedEvent.Event.Leader.DisplayName}" />
+                        <Label Grid.Row="2" Grid.Column="2" Text="Creator:" StyleClass="H3"/>
+                        <Label Grid.Row="2" Grid.Column="3" Text="{Binding SelectedEvent.Event.Creator.DisplayName}" />
+
+                        <Label Grid.Row="3" Grid.Column="0" Text="Type:" StyleClass="H3"/>
+                        <Label Grid.Row="3" Grid.Column="1" Text="{Binding SelectedEvent.Event.TypeSelection.Selected.Type}" />
+                        <Label Grid.Row="3" Grid.Column="2" Text="Attendees:" StyleClass="H3"/>
+                        <Label Grid.Row="3" Grid.Column="3" Text="{Binding SelectedEvent.Event.AttendeeCount}" />
+
+                        <Label Grid.Row="4" Grid.Column="0" Text="Description:" StyleClass="H3"/>
+                        <Label Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Text="{Binding SelectedEvent.Event.Description}" LineBreakMode="WordWrap" />
+                    </Grid>
+                    <!-- Budget Code Entry-->
+                    <Grid
+                        WidthRequest="1200"
+                        ColumnDefinitions="200,400,200,400"
+                        RowDefinitions="Auto,Auto"
+                        Margin="0,0,0,12">
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Text="Budget Code:"
+                            StyleClass="H3" />
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            Text="{Binding SelectedEvent.Event.Catering.BudgetCode}" />
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="2"
+                            Text="Labor Cost:"
+                            StyleClass="H3" />
+                        <Entry
+                            Grid.Row="0"
+                            Grid.Column="3"
+                            Text="{Binding SelectedEvent.Event.Catering.LaborCost, Mode=TwoWay, Converter={StaticResource Currency}}"
+                            Keyboard="Numeric"
+                            ReturnCommand="{Binding SelectedEvent.UpdateLaborCostCommand}" 
+                            Placeholder="Enter labor cost"
+                            WidthRequest="200" />
+
+                        <Label
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            Text="Servers Needed:"
+                            StyleClass="H3" />
+                        <CheckBox
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            IsChecked="{Binding SelectedEvent.Event.Catering.ServersNeeded}"
+                            IsEnabled="{Binding SelectedEvent.Editable}" />
+                        <Label
+                            Grid.Row="1"
+                            Grid.Column="2"
+                            Text="Cleanup Needed:"
+                            StyleClass="H3" />
+                        <CheckBox
+                            Grid.Row="1"
+                            Grid.Column="3"
+                            IsChecked="{Binding SelectedEvent.Event.Catering.CleanupRequired}" 
+                            IsEnabled="{Binding SelectedEvent.Editable}"/>
+                    </Grid>
+                    <Label
+                        Text="Evenings and Weekends will require an additional personnel charge to defray the cost of overtime labor.  This will include time for setup, service, and breakdown of the event. Charges may run from $25 to $32 per hour." />
+                    <BoxView StyleClass="Bar" />
+                    <Label
+                        Text="Click on a Menu to View Options - Your selections for each menu will be saved as you navigate through other menus."
+                        IsVisible="{Binding SelectedEvent.Event.Catering.Menu.ShowMenus}" />
+                    <Label
+                        Text="Add Quantities of Items you would like to order for this event.  If you want to add items from other menus, click the menu title to return to the menu selection."
+                        IsVisible="{Binding SelectedEvent.Event.Catering.Menu.ShowMenus, Converter={StaticResource Invert}}"/>
+                    <!-- Menu Selection -->
+                    <CollectionView
+                        ItemsSource="{Binding SelectedEvent.Event.Catering.Menu.Menus}"
+                        ItemsLayout="HorizontalGrid, 5"
+                        HeightRequest="{OnPlatform MacCatalyst=250}"
+                        BackgroundColor="Transparent"
+                        IsVisible="{Binding SelectedEvent.Event.Catering.Menu.ShowMenus}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="svm:CateringMenuViewModel">
+                                <Border 
+                                    StrokeThickness="1">
+                                    <HorizontalStackLayout
+                                        WidthRequest="350">
+                                        <HorizontalStackLayout.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                        </HorizontalStackLayout.GestureRecognizers>
+                                        <Label
+                                            Text="{Binding Title}"
+                                            StyleClass="H3"
+                                            WidthRequest="300"
+                                            IsVisible="{Binding IsSelected, Converter={StaticResource Invert}}"/>
+                                        <Label
+                                            Text="{Binding Title}"
+                                            StyleClass="SubHeader"
+                                            FontAttributes="Bold"
+                                            TextColor="{AppThemeBinding Light={DynamicResource WinsorRed}, Dark=White}"
+                                            IsVisible="{Binding IsSelected}"/>
+                                        <Label
+                                            StyleClass="H3"
+                                            Text="{Binding SelectionCount}" />
+                                    </HorizontalStackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <!-- End Menu Selection-->
+                    <!-- Display Selected Menu -->
+                    <VerticalStackLayout
+                        Margin="0"
+                        Padding="0"
+                        IsVisible="{Binding SelectedEvent.Event.Catering.Menu.ShowMenus, Converter={StaticResource Invert}}">
+                        <Label
+                            Text="{Binding SelectedEvent.Event.Catering.Menu.SelectedMenu.Title}"
+                            StyleClass="SubHeader">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectedEvent.Event.Catering.Menu.ToggleShowMenusCommand}" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <CollectionView
+                            ItemsSource="{Binding SelectedEvent.Event.Catering.Menu.SelectedMenu.Items}"
+                            HeightRequest="{Binding SelectedEvent.Event.Catering.Menu.SelectedMenu.MenuHeightRequest}"
+                            BackgroundColor="Transparent"
+                            IsEnabled="{Binding SelectedEvent.Editable}"
+                            Margin="0">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="svm:CateringMenuSelectionViewModel">
+                                    <StackLayout>
+                                        <StackLayout Orientation="Horizontal">
+                                            <Label
+                                                Text="{Binding Item.Name}" 
+                                                WidthRequest="300"
+                                                IsVisible="{Binding IsSelected,Converter={StaticResource Invert}}"/>
+                                            <Label
+                                                Text="{Binding Item.Name}" 
+                                                FontAttributes="Bold"
+                                                WidthRequest="300"
+                                                IsVisible="{Binding IsSelected}"/>
+                                            <Entry
+                                                Placeholder="# Needed"
+                                                WidthRequest="50"
+                                                HeightRequest="40"
+                                                Keyboard="Numeric"
+                                                Text="{Binding Quantity}"
+                                                Margin="75,0" />
+                                            <Label
+                                                Text="{Binding Cost, Converter={StaticResource Currency}}"/>
+                                            <Label
+                                                Text="{Binding Item.PricePerPerson, Converter={StaticResource Currency}}"
+                                                Margin="75, 0, 0, 0"/>
+                                            <Label
+                                                Text="per ea." />
+                                        </StackLayout>
+                                        <BoxView StyleClass="Bar" />
+                                    </StackLayout>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

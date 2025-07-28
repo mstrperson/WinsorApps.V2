@@ -1,6 +1,7 @@
 global using ErrorAction = System.Action<WinsorApps.Services.Global.Models.ErrorRecord>;
 
 using AsyncAwaitBestPractices;
+using System.Threading.Tasks;
 using WinsorApps.MAUI.Shared.Pages;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Global;
@@ -32,7 +33,7 @@ public static class Extensions
         parent.Navigation.PushAsync(page);
     }
 
-    public static void PushErrorPage(this ContentPage parent, ErrorRecord err, Action? onConfirmAction = null)
+    public static async Task PushErrorPage(this ContentPage parent, ErrorRecord err, Action? onConfirmAction = null)
     {
         if (err.type.Contains("Unauthorized"))
             return;
@@ -42,6 +43,27 @@ public static class Extensions
             .LogMessage(LocalLoggingService.LogLevel.Error,
                         err.type, err.error);
 
+        if (onConfirmAction is null)
+        {
+            await (Application.Current?.Windows[0].Page?.DisplayAlert(
+                err.type,
+                err.error, 
+                "Ok") 
+                ?? Task.CompletedTask);
+            return;
+        }
+
+        var confirm = await (Application.Current?.Windows[0].Page?.DisplayAlert(
+            err.type,
+            err.error,
+            "Ok",
+            "Cancel") 
+            ?? Task.FromResult(false));
+
+        if(confirm)
+            onConfirmAction.Invoke();
+
+        /*
         SplashPageViewModel spvm = new(err.type, [err.error], TimeSpan.FromSeconds(30)) { IsCaptive = false };
         spvm.OnClose += (_, _) =>
         {
@@ -51,6 +73,7 @@ public static class Extensions
 
         SplashPage page = new() { BindingContext = spvm };
         parent.Navigation.PushAsync(page);
+        */
     }
 
     public static ErrorAction DefaultOnErrorAction(this ContentPage parent, Action? onConfirmAction = null) => 

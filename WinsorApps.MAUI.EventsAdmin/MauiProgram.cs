@@ -46,6 +46,8 @@ namespace WinsorApps.MAUI.EventsAdmin
             builder.Services.AddSingleton<MonthlyCalendar>();
             builder.Services.AddSingleton<CateringMenuEditorPageViewModel>();
             builder.Services.AddSingleton<CateringMenuEditor>();
+            builder.Services.AddSingleton<CateringManagementEventListPageViewModel>();
+            builder.Services.AddSingleton<CateringAdminEventListPage>();
 
 #if DEBUG
             builder.Logging.AddDebug();

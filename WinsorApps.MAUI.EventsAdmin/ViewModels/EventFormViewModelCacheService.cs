@@ -50,6 +50,7 @@ public class EventFormViewModelCacheService : IAsyncInitService
 
     public async Task Initialize(ErrorAction onError)
     {
+        await _registrar.WaitForInit(onError);
         await _adminService.Initialize(onError);
 
         Started = true;
