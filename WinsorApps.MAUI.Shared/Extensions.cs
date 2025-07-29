@@ -36,7 +36,9 @@ public static class Extensions
 
     public static async Task PushErrorPage(this ContentPage parent, ErrorRecord err, Action? onConfirmAction = null)
     {
-        if (err.type.Contains("Unauthorized"))
+        if (err.type.Contains("Unauthorized") 
+            || err.error.Contains("find student", StringComparison.InvariantCultureIgnoreCase)
+            || err.type.Contains("find student", StringComparison.InvariantCultureIgnoreCase))
             return;
 
         ServiceHelper
