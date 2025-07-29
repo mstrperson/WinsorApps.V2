@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.AssessmentCalendar.ViewModels;
 using WinsorApps.MAUI.Shared.ViewModels;
+using WinsorApps.MAUI.StudentAssessmentCalendar.Pages;
 using WinsorApps.Services.AssessmentCalendar.Models;
 using WinsorApps.Services.AssessmentCalendar.Services;
 using WinsorApps.Services.Global;
@@ -57,8 +58,13 @@ public partial class WeeklyViewModel(StudentAssessmentService service, LocalLogg
             // Reset all other assessment selections.
             foreach (var asmt in Calendar.Days.SelectMany(day => day.Assessments))
             {
-                asmt.IsSelected = assessment.Event.Model.Reduce(AssessmentCalendarEvent.Empty).id == asmt.Event.Model.Reduce(AssessmentCalendarEvent.Empty).id && assessment.IsSelected;
+                asmt.IsSelected = assessment.CalendarEvent.Model.Reduce(AssessmentCalendarEvent.Empty).id == asmt.CalendarEvent.Model.Reduce(AssessmentCalendarEvent.Empty).id && assessment.IsSelected;
             }
+        };
+        Calendar.LatePassRequested += async (_, assessment) =>
+        {
+            LatePassRequest page = new(assessment);
+            await page.TryPushAsync();
         };
     }
 
@@ -96,6 +102,7 @@ public partial class StudentDayViewModel :
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<StudentAssessmentViewModel>? AssessmentSelected;
+    public event EventHandler<StudentAssessmentViewModel>? LatePassRequested;
 
     public static implicit operator StudentDayViewModel(CalendarDayViewModel day)
     {
@@ -110,6 +117,7 @@ public partial class StudentDayViewModel :
             assessment.OnError += (sender, e) => vm.OnError?.Invoke(sender, e);
             assessment.Selected += (_, _) => vm.AssessmentSelected?.Invoke(vm, assessment);
             assessment.PropertyChanged += ((IBusyViewModel)vm).BusyChangedCascade;
+            assessment.LatePassRequested += (_, _) => vm.LatePassRequested?.Invoke(vm, assessment);
         }
 
         return vm;
@@ -128,6 +136,7 @@ public partial class StudentWeekViewModel :
 
     public event EventHandler<ErrorRecord>? OnError;
     public event EventHandler<StudentAssessmentViewModel>? AssessmentSelected;
+    public event EventHandler<StudentAssessmentViewModel>? LatePassRequested;
 
 
     public static implicit operator StudentWeekViewModel(CalendarWeekViewModel week)
@@ -143,6 +152,7 @@ public partial class StudentWeekViewModel :
             day.OnError += (sender, e) => vm.OnError?.Invoke(sender, e);
             day.AssessmentSelected += (_, assessment) => vm.AssessmentSelected?.Invoke(vm, assessment);
             day.PropertyChanged += ((IBusyViewModel)vm).BusyChangedCascade;
+            day.LatePassRequested += (_, assessment) => vm.LatePassRequested?.Invoke(vm, assessment);
         }
 
         return vm;

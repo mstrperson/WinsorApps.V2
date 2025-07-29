@@ -6,14 +6,16 @@
              xmlns:svm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels;assembly=WinsorApps.MAUI.Shared"
              xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
              x:DataType="vm:StudentAssessmentViewModel"
-             Title="{Binding Event.Description, StringFormat='Late Pass for {0}'}">
+             Title="{Binding CalendarEvent.Description, StringFormat='Late Pass for {0}'}">
     <ContentPage.Resources>
         <ResourceDictionary>
             <conv:BoolInverter x:Key="Invert" />
         </ResourceDictionary>
     </ContentPage.Resources>
     <ContentPage.Content>
-        <VerticalStackLayout>
+        <VerticalStackLayout
+            WidthRequest="1200"
+            HorizontalOptions="Center">
             <HorizontalStackLayout
                 HorizontalOptions="Center"
                 Spacing="30">
@@ -28,35 +30,36 @@
                 HorizontalOptions="Center">
                 <Label
                     StyleClass="SubHeader"
-                    Text="{Binding Event.Description}" />
+                    Text="{Binding CalendarEvent.Description}" />
             </HorizontalStackLayout>
             <HorizontalStackLayout
                 HorizontalOptions="Center">
                 <Label
-                    Text="{Binding Event.Start, StringFormat='{0:dddd dd MMMM - hh:mm tt}'}" 
-                    IsVisible="{Binding Event.AllDay,Converter={StaticResource Invert}}"/>
+                    Text="{Binding CalendarEvent.Start, StringFormat='{0:dddd dd MMMM - hh:mm tt}'}" 
+                    IsVisible="{Binding CalendarEvent.AllDay,Converter={StaticResource Invert}}"/>
                 <Label
-                    Text="{Binding Event.Start, StringFormat='{0:dddd dd MMMM}'}" 
-                    IsVisible="{Binding Event.AllDay}"/>
+                    Text="{Binding CalendarEvent.Start, StringFormat='{0:dddd dd MMMM}'}" 
+                    IsVisible="{Binding CalendarEvent.AllDay}"/>
             </HorizontalStackLayout>
             <!--Manual Input or Load FreeBlocks-->
             <VerticalStackLayout
                 Margin="0"
                 Padding="0"
+                HorizontalOptions="Center"
                 IsVisible="{Binding LatePass.ShowFreeBlockLookup, Converter={StaticResource Invert}}">
                 <HorizontalStackLayout
                     HorizontalOptions="Center"
                     Spacing="30"
                     IsVisible="{Binding LatePass.MakeupTime.IsScheduled, Converter={StaticResource Invert}}">
                     <Label
-                        StyleClass="H3"
+                        StyleClass="H3,Clickable"
                         Text="Schedule Makeup Time">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding LatePass.ToggleShowFreeBlockLookupCommand}" />
                         </Label.GestureRecognizers>
                     </Label>
                     <Label
-                        StyleClass="H3"
+                        StyleClass="H3,Clickable"
                         Text="Manually Enter a Makeup Time"
                         IsVisible="{Binding LatePass.ShowManualInput, Converter={StaticResource Invert}}">
                         <Label.GestureRecognizers>
@@ -75,9 +78,9 @@
                             StyleClass="H3"
                             Text="Makeup Time" />
                         <DatePicker
-                            Date="{Binding LatePass.MakeupTime.Sheduled}" />
+                            Date="{Binding LatePass.MakeupTime.Date}" />
                         <TimePicker
-                            Time="{Binding LatePass.MakeupTime.Sheduled}" />
+                            Time="{Binding LatePass.MakeupTime.Time}" />
                         <Image
                             StyleClass="SaveButton">
                             <Image.GestureRecognizers>

@@ -43,22 +43,28 @@ namespace WinsorApps.Services.AssessmentCalendar.Models;
     /// <param name="affectedClasses">which classes are affected</param>
     public record DayNote(string id, DateOnly date, string note, List<string> affectedClasses);
 
-    /// <summary>
-    /// Response to an assessment pass request.
-    /// </summary>
-    /// <param name="assessmentId">Assessment for which you are using a pass.</param>
-    /// <param name="studentId">your id</param>
-    /// <param name="timeStamp">when you submitted this pass</param>
-    public record AssessmentPass(string assessmentId, string studentId, DateTime timeStamp, MakeupTime makeupTime)
+/// <summary>
+/// Response to an assessment pass request.
+/// </summary>
+/// <param name="assessmentId">Assessment for which you are using a pass.</param>
+/// <param name="studentId">your id</param>
+/// <param name="timeStamp">when you submitted this pass</param>
+public record AssessmentPass(string assessmentId, string studentId, DateTime timeStamp, MakeupTime makeupTime)
 {
-
     public AssessmentPass(string assessmentId, string studentId, DateTime timeStamp) :
         this(assessmentId, studentId, timeStamp, MakeupTime.Default)
     { }
+
+    public AssessmentPass() : this("", "", default) { }
 }
-public record MakeupTime(DateTime? makeupTime = null, string? note = null)
+public record MakeupTime(DateTime? makeupTime, string note)
 {
     public static readonly MakeupTime Default = new(note: "Not Scheduled");
+
+    public MakeupTime(string note) : this(null, note) { }
+    public MakeupTime(DateTime makeupTime) : this(makeupTime, "") { }
+
+    public MakeupTime() : this(null, "Not Scheduled") { }
 }
 
 public record AssessmentPassDetail(AssessmentCalendarEvent assessment, UserRecord student, DateTime timeStamp, MakeupTime makeupTime)

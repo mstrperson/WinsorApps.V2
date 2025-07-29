@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xaml-comp compile="true" ?>
 <ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-                    xmlns:styles="clr-namespace:WinsorApps.MAUI.StudentBookstore.Resources.Styles">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
     <Style
         TargetType="ToolbarItem"
         Class="AddButton">
@@ -88,15 +87,10 @@
         Class="DeleteButton">
         <Setter 
             Property="IconImageSource"
-            Value="{AppThemeBinding 
-                    Dark={  FontImage FontFamily=FontAwesomeSolid,
-                            Glyph={x:Static styles:FontAwesomeSolid.TrashAlt},
-                            Size=18,
-                            Color=DarkBlue}, 
-                    Light={ FontImage FontFamily=FontAwesomeSolid,
-                            Glyph={x:Static styles:FontAwesomeSolid.TrashAlt},
-                            Size=18,
-                            Color=White}}"/>
+            Value="{FontImage 
+                FontFamily=Serif, 
+                Color=White,
+                Glyph=🗑}" />
     </Style>
     
     <Style
@@ -104,15 +98,10 @@
         Class="PrintButton">
         <Setter 
             Property="IconImageSource"
-            Value="{AppThemeBinding 
-                    Dark={  FontImage FontFamily=FontAwesomeSolid,
-                            Glyph={x:Static styles:FontAwesomeSolid.Print},
-                            Size=18,
-                            Color=DarkBlue}, 
-                    Light={ FontImage FontFamily=FontAwesomeSolid,
-                            Glyph={x:Static styles:FontAwesomeSolid.Print},
-                            Size=18,
-                            Color=White}}"/>
+            Value="{FontImage 
+            FontFamily=Serif,
+            Color=White,
+            Glyph=🖨}" />
     </Style>
     
     <Style
@@ -120,14 +109,9 @@
         Class="RefreshButton">
         <Setter
             Property="IconImageSource"
-            Value="{AppThemeBinding 
-                    Dark={  FontImage FontFamily=FontAwesomeSolid,
-                            Glyph={x:Static styles:FontAwesomeSolid.UndoAlt},
-                            Size=18,
-                            Color=DarkBlue}, 
-                    Light={ FontImage FontFamily=FontAwesomeSolid,
-                            Glyph={x:Static styles:FontAwesomeSolid.UndoAlt},
-                            Size=18,
-                            Color=White}}"/>
+            Value="{FontImage 
+            FontFamily=Serif,
+            Color=White,
+            Glyph=🔄}" />
     </Style>
 </ResourceDictionary>

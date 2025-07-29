@@ -63,7 +63,7 @@ public partial class CourseViewModel :
         {
             _logging.LogError(err);
             success = false;
-        });
+        }, true);
         if (!success)
             return;
 

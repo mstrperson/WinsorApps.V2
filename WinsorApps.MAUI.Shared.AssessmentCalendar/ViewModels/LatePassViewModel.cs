@@ -28,6 +28,8 @@ public partial class LatePassViewModel :
 
     public event EventHandler<AssessmentPassDetail>? LoadAssessmentRequested;
 
+    public static LatePassViewModel Empty = new();
+
     public static LatePassViewModel CreateEmpty(UserViewModel student, AssessmentCalendarEventViewModel assessment)
     {
         var vm = new LatePassViewModel
@@ -55,9 +57,21 @@ public partial class LatePassViewModel :
             vm.ShowFreeBlockLookup = false;
         };
 
+        vm.MakeupTime.PropertyChanged += MakeupTime_PropertyChanged;
+
         return vm;
     }
 
+    private static void MakeupTime_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (sender is not MakeupTimeViewModel makeupTime)
+            return;
+        if(e.PropertyName == "Date" || e.PropertyName == "Time")
+        {
+            makeupTime.Scheduled = makeupTime.Date.Date.Add(makeupTime.Time);
+            makeupTime.IsScheduled = true;
+        }
+    }
 
     protected LatePassViewModel() { }
 
@@ -115,8 +129,11 @@ public partial class LatePassViewModel :
             vm.ShowFreeBlockLookup = false;
         };
 
+        vm.MakeupTime.PropertyChanged += MakeupTime_PropertyChanged;
+
         return vm;
     }
+
 
     [RelayCommand]
     public async Task ToggleShowFreeBlockLookup()
@@ -132,6 +149,11 @@ public partial class LatePassViewModel :
         ShowManualInput = !ShowManualInput;
         if (ShowManualInput)
             ShowFreeBlockLookup = false;
+        if(ShowManualInput)
+        {
+            MakeupTime.Date = DateAndTime.Date;
+            MakeupTime.Time = new TimeSpan(DateAndTime.Hour, DateAndTime.Minute, 0);
+        }
     }
 
     [RelayCommand]
@@ -147,16 +169,19 @@ public partial class MakeupTimeViewModel :
 {
     public static implicit operator MakeupTime(MakeupTimeViewModel model) => model switch
     {
-        { IsScheduled: true } => new(model.Sheduled, model.Note),
-        { Note: "" } => new(null, "Not Scheduled"),
+        { IsScheduled: true } => new(model.Scheduled, model.Note ?? ""),
+        { Note: null or "" } => new(null, "Not Scheduled"),
         _ => new(null, model.Note)
     };
 
     public static MakeupTimeViewModel Empty => new() { Note = "Not Scheduled" };
 
-    [ObservableProperty] private DateTime sheduled = DateTime.Today;
+    [ObservableProperty] private DateTime scheduled = DateTime.Today;
     [ObservableProperty] private string note = "";
     [ObservableProperty] private bool isScheduled;
+    [ObservableProperty] private DateTime date = DateTime.Today;
+    [ObservableProperty] private TimeSpan time = new(8, 0, 0);
+    [ObservableProperty] private bool editable = true;
 
     public Optional<MakeupTime> Model { get; set; } = Optional<MakeupTime>.None();
 
@@ -164,10 +189,15 @@ public partial class MakeupTimeViewModel :
 
     public static MakeupTimeViewModel Get(MakeupTime model) => new()
     {
-        Sheduled = model.makeupTime ?? DateTime.MaxValue,
+        Scheduled = model.makeupTime ?? DateTime.MaxValue,
+        Date = model.makeupTime?.Date ?? DateTime.MaxValue,
+        Time = model.makeupTime.HasValue 
+            ? new TimeSpan(model.makeupTime.Value.Hour, model.makeupTime.Value.Minute, 0)
+            : default,
         Note = model.note ?? string.Empty,
         IsScheduled = model.makeupTime is not null,
-        Model = Optional<MakeupTime>.Some(model)
+        Model = Optional<MakeupTime>.Some(model),
+        Editable = false
     };
 
 }

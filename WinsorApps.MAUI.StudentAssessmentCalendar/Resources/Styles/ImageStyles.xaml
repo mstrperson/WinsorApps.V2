@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xaml-comp compile="true" ?>
 <ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-                    xmlns:styles="clr-namespace:WinsorApps.MAUI.StudentBookstore.Resources.Styles">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
     <Style
     TargetType="Image"
     Class="AddButton">
@@ -21,15 +20,10 @@
         Class="RefreshButton">
         <Setter 
             Property="Source"
-            Value="{AppThemeBinding 
-                    Dark={  FontImage FontFamily=FontAwesomeSolid,
-                            Glyph={x:Static styles:FontAwesomeSolid.UndoAlt},
-                            Size=18,
-                            Color=White}, 
-                    Light={ FontImage FontFamily=FontAwesomeSolid,
-                            Glyph={x:Static styles:FontAwesomeSolid.UndoAlt},
-                            Size=18,
-                            Color=DarkRed}}"/>
+            Value="{FontImage 
+                FontFamily=Serif,
+                Glyph=🔄,
+                Size=18}" />
         <Setter
             Property="HeightRequest"
             Value="{OnPlatform MacCatalyst=40}" />
@@ -39,15 +33,10 @@
         Class="PositiveSignifier">
         <Setter 
             Property="Source"
-            Value="{AppThemeBinding 
-                    Dark={  FontImage FontFamily=FontAwesomeSolid,
-                            Glyph={x:Static styles:FontAwesomeSolid.Check},
-                            Size=18,
-                            Color=White}, 
-                    Light={ FontImage FontFamily=FontAwesomeSolid,
-                            Glyph={x:Static styles:FontAwesomeSolid.Check},
-                            Size=18,
-                            Color=DarkRed}}"/>
+            Value="{FontImage 
+                FontFamily=Serif,
+                Glyph=✅,
+                Size=18}" />
         <Setter
             Property="HeightRequest"
             Value="{OnPlatform MacCatalyst=40}" />
@@ -75,6 +64,9 @@
                 Glyph=🚫,
                 Size=18}" />
         <Setter
+            Property="ToolTipProperties.Text"
+            Value="Cancel" />
+        <Setter
             Property="HeightRequest"
             Value="{OnPlatform MacCatalyst=40}" />
     </Style>
@@ -97,15 +89,10 @@
         Class="DeleteButton">
         <Setter 
             Property="Source"
-            Value="{AppThemeBinding 
-                    Dark={  FontImage FontFamily=FontAwesomeSolid,
-                            Glyph={x:Static styles:FontAwesomeSolid.TrashAlt},
-                            Size=18,
-                            Color=White}, 
-                    Light={ FontImage FontFamily=FontAwesomeSolid,
-                            Glyph={x:Static styles:FontAwesomeSolid.TrashAlt},
-                            Size=18,
-                            Color=DarkRed}}"/>
+            Value="{FontImage 
+                FontFamily=Serif,
+                Glyph=🗑,
+                Size=18}" />
         <Setter
             Property="HeightRequest"
             Value="{OnPlatform MacCatalyst=40}" />
@@ -129,15 +116,10 @@
         Class="EditButton">
         <Setter 
             Property="Source"
-            Value="{AppThemeBinding 
-                    Dark={  FontImage FontFamily=FontAwesomeSolid,
-                            Glyph={x:Static styles:FontAwesomeSolid.Edit},
-                            Size=18,
-                            Color=White}, 
-                    Light={ FontImage FontFamily=FontAwesomeSolid,
-                            Glyph={x:Static styles:FontAwesomeSolid.Edit},
-                            Size=18,
-                            Color=DarkRed}}"/>
+            Value="{FontImage
+                FontFamily=Serif,
+                Glyph=✏️,
+                Size=18}" />
         <Setter
             Property="HeightRequest"
             Value="{OnPlatform MacCatalyst=40}" />

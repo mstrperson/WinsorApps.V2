@@ -24,8 +24,8 @@ public partial class MyAssessmentsPageViewModel :
     [ObservableProperty] private AssessmentDetailsViewModel selectedDetails = new();
     [ObservableProperty] private bool showDetails;
 
-    [ObservableProperty] private ObservableCollection<CourseViewModel> myCourses = [];
-    [ObservableProperty] private CourseViewModel selectedCourse = CourseViewModel.Empty;
+    [ObservableProperty] private ObservableCollection<AssessmentCourseViewModel> myCourses = [];
+    [ObservableProperty] private AssessmentCourseViewModel selectedCourse = CourseViewModel.Empty;
     [ObservableProperty] private bool courseSelected;
     [ObservableProperty] private bool showCourseSelection;
     [ObservableProperty] private bool busy;
@@ -84,32 +84,29 @@ public partial class MyAssessmentsPageViewModel :
     {
         await _registrar.WaitForInit(onError);
 
-        var myCourseIds = _registrar.MyAcademicSchedule
-            .Select(sec => sec.courseId).Distinct();
-        var courses = _registrar.CourseList.Where(course => myCourseIds.Contains(course.courseId));
-        MyCourses = [.. CourseViewModel.GetClonedViewModels(courses)];
+        MyCourses = [.. CourseViewModel.GetClonedViewModels(_service.CourseList)];
         foreach(var course in MyCourses)
         {
-            course.Selected += (_, _) =>
+            course.Course.Selected += (_, _) =>
             {
-                CourseSelected = course.IsSelected;
+                CourseSelected = course.Course.IsSelected;
                 ShowCourseSelection = false;
                 SelectedCourse = CourseSelected ? course : CourseViewModel.Empty;
             };
-            await course.LoadSections();
+            await course.Refresh();
         }
     }
 
     [RelayCommand]
-    public async Task StartNewAssessment()
+    public void StartNewAssessment()
     {
-        if (!CourseSelected || !SelectedCourse.IsSelected)
+        if (!CourseSelected || !SelectedCourse.Course.IsSelected)
             return;
 
-        await AssessmentCollection.AddGroupFor(SelectedCourse);
+        AssessmentCollection.AddGroupFor(SelectedCourse);
 
         CourseSelected = false;
-        SelectedCourse.IsSelected = false;
+        SelectedCourse.Course.IsSelected = false;
         SelectedCourse = CourseViewModel.Empty;
     }
 

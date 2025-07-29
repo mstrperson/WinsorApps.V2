@@ -48,7 +48,7 @@
                                 <HorizontalStackLayout>
                                     <Label
                                         StyleClass="H3"
-                                        Text="{Binding SelectedCourse.DisplayName}"
+                                        Text="{Binding SelectedCourse.Course.DisplayName}"
                                         WidthRequest="350">
                                         <Label.GestureRecognizers>
                                             <TapGestureRecognizer Command="{Binding ToggleShowCourseSelectionCommand}" />
@@ -76,14 +76,14 @@
                             IsVisible="{Binding ShowCourseSelection}"
                             ItemsSource="{Binding MyCourses}">
                             <CollectionView.ItemTemplate>
-                                <DataTemplate x:DataType="svm:CourseViewModel">
+                                <DataTemplate x:DataType="vm:AssessmentCourseViewModel">
                                     <HorizontalStackLayout
                                         Spacing="10">
                                         <HorizontalStackLayout.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                            <TapGestureRecognizer Command="{Binding Course.SelectCommand}" />
                                         </HorizontalStackLayout.GestureRecognizers>
-                                        <Label Text="{Binding DisplayName}" />
-                                        <Label Text="{Binding CurrentTermIdentifier, StringFormat='[{0}]'}" />
+                                        <Label Text="{Binding Course.DisplayName}" />
+                                        <Label Text="{Binding Course.CurrentTermIdentifier, StringFormat='[{0}]'}" />
                                     </HorizontalStackLayout>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
@@ -96,7 +96,7 @@
                             Spacing="30">
                             <Label
                                 StyleClass="H3"
-                                Text="{Binding AssessmentCollection.SelectedAssessmentGroup.Course.DisplayName}" />
+                                Text="{Binding AssessmentCollection.SelectedAssessmentGroup.Course.Course.DisplayName}" />
                             <Image
                                 StyleClass="BackButton">
                                 <Image.GestureRecognizers>

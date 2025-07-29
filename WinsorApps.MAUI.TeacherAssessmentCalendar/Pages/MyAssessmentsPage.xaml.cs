@@ -31,7 +31,7 @@ public partial class MyAssessmentsPage : ContentPage
     {
         foreach (var c in ViewModel.MyCourses)
         {
-            c.IsSelected = false;
+            c.Course.IsSelected = false;
         }
 
         if (sender is Picker picker && picker.SelectedItem is CourseViewModel course)

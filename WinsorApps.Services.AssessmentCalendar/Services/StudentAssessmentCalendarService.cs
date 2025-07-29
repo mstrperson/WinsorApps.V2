@@ -176,7 +176,10 @@ public partial class StudentAssessmentService(ApiService api, LocalLoggingServic
     {
         makeupTime ??= MakeupTime.Default;
 
-        var result = await _api.SendAsync<AssessmentPass?>(HttpMethod.Post, $"api/assessment-calendar/students/passes/{assessmentId}",
+        var result = await _api.SendAsync<MakeupTime, AssessmentPass?>(
+            HttpMethod.Post,
+            $"api/assessment-calendar/students/passes/{assessmentId}",
+            makeupTime,
             onError: onError);
 
         if (result is not null)

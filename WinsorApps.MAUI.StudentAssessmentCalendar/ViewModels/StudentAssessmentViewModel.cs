@@ -27,7 +27,7 @@ public partial class StudentAssessmentViewModel :
     public event EventHandler<StudentAssessmentViewModel>? LatePassRequested;
     public event EventHandler<StudentAssessmentViewModel>? LatePassSubmitted;
 
-    [ObservableProperty] private AssessmentCalendarEventViewModel @event;
+    [ObservableProperty] private AssessmentCalendarEventViewModel calendarEvent;
     [ObservableProperty] private bool busy;
     [ObservableProperty] private string busyMessage = "";
     [ObservableProperty] private string className = "";
@@ -37,7 +37,7 @@ public partial class StudentAssessmentViewModel :
     [ObservableProperty] private bool isAssessment;
     [ObservableProperty] private bool isSelected;
 
-    [ObservableProperty] private LatePassViewModel latePass;
+    [ObservableProperty] private LatePassViewModel latePass = LatePassViewModel.Empty;
 
     public static implicit operator StudentAssessmentViewModel(AssessmentCalendarEventViewModel evt) => new(evt);
 
@@ -45,10 +45,10 @@ public partial class StudentAssessmentViewModel :
     {
         if (string.IsNullOrEmpty(@event.Model.Reduce(AssessmentCalendarEvent.Empty).id))
         {
-            Event = @event;
+            CalendarEvent = @event;
             return;
         }
-        this.@event = AssessmentCalendarEventViewModel.Get(_service.MyCalendar.First(evt => evt.type == @event.Type && evt.id == @event.Id));
+        this.calendarEvent = AssessmentCalendarEventViewModel.Get(_service.MyCalendar.First(evt => evt.type == @event.Type && evt.id == @event.Id));
         if(@event.Type != AssessmentType.Note)
             LoadDetails().SafeFireAndForget(e => e.LogException());
         else
@@ -61,7 +61,7 @@ public partial class StudentAssessmentViewModel :
 
         _service.OnCacheRefreshed += (_, _) =>
         {
-            Event = AssessmentCalendarEventViewModel.Get(_service.MyCalendar.First(evt => evt.type == @event.Type && evt.id == @event.Id)); 
+            CalendarEvent = AssessmentCalendarEventViewModel.Get(_service.MyCalendar.First(evt => evt.type == @event.Type && evt.id == @event.Id)); 
             if (@event.Type != AssessmentType.Note)
                 LoadDetails().SafeFireAndForget(e => e.LogException());
         };
@@ -72,26 +72,26 @@ public partial class StudentAssessmentViewModel :
     {
         Busy = true;
         BusyMessage = "Getting Details...";
-        if (Event.Type == AssessmentType.Assessment)
+        if (CalendarEvent.Type == AssessmentType.Assessment)
         {
-            var result = await _service.GetAssessmentDetails(Event.Id, OnError.DefaultBehavior(this));
+            var result = await _service.GetAssessmentDetails(CalendarEvent.Id, OnError.DefaultBehavior(this));
             if (result is not null)
             {
                 var Model = result;
                 ClassName = $"{Model.displayName} [{Model.block}]";
                 TeacherName = $"{Model.teacher.firstName} {Model.teacher.lastName}";
-                CannotLatePass = (!Event.PassAvailable && !Event.PassUsed) || Event.Start < DateTime.Now;
+                CannotLatePass = (!CalendarEvent.PassAvailable && !CalendarEvent.PassUsed) || CalendarEvent.Start < DateTime.Now;
                 LatePassMessage = "You've already used your Late Pass for this Semester";
-                if (Event.PassUsed && Event.Start < DateTime.Now)
+                if (CalendarEvent.PassUsed && CalendarEvent.Start < DateTime.Now)
                     LatePassMessage = "You cannot withdraw your late pass after the assessment has started.";
-                if (Event.PassAvailable)
+                if (CalendarEvent.PassAvailable)
                     LatePassMessage = $"You may still submit a late pass for this assessment.{Environment.NewLine}But you will not be able to withdraw it afterward.";
                 IsAssessment = true;
             }
         }
-        if(Event.Type == AssessmentType.ApExam)
+        if(CalendarEvent.Type == AssessmentType.ApExam)
         {
-            var result = await _service.GetApExamDetails(Event.Id, OnError.DefaultBehavior(this));
+            var result = await _service.GetApExamDetails(CalendarEvent.Id, OnError.DefaultBehavior(this));
             if (result is not null)
             {
                 var Model = result;
@@ -110,12 +110,13 @@ public partial class StudentAssessmentViewModel :
     {
         Busy = true;
         BusyMessage = "Requesting Late Pass";
-        var result = await _service.RequestLatePass(Event.Id, OnError.DefaultBehavior(this), LatePass.MakeupTime);
+        var result = await _service.RequestLatePass(CalendarEvent.Id, OnError.DefaultBehavior(this), LatePass.MakeupTime);
         if(result is not null)
         {
-            Event.PassAvailable = false;
-            Event.PassUsed = true;
+            CalendarEvent.PassAvailable = false;
+            CalendarEvent.PassUsed = true;
             LatePassSubmitted?.Invoke(this, this);
+            await this.TryPopAsync();
         }
         Busy = false;
     }
@@ -125,11 +126,11 @@ public partial class StudentAssessmentViewModel :
     {
         Busy = true;
         BusyMessage = "Withdrawing Late Pass";
-        var result = await _service.WithdrawLatePass(Event.Id, OnError.DefaultBehavior(this));
+        var result = await _service.WithdrawLatePass(CalendarEvent.Id, OnError.DefaultBehavior(this));
         if (result)
         {
-            Event.PassAvailable = true;
-            Event.PassUsed = false;
+            CalendarEvent.PassAvailable = true;
+            CalendarEvent.PassUsed = false;
         }
         Busy = false;
     }

@@ -35,7 +35,7 @@ public partial class AssessmentGroupViewModel :
 
     public static readonly AssessmentGroupViewModel Empty = new();
 
-    [ObservableProperty] private CourseViewModel course = CourseViewModel.Empty;
+    [ObservableProperty] private AssessmentCourseViewModel course = CourseViewModel.Empty;
     [ObservableProperty] private string note = "";
     [ObservableProperty] private ObservableCollection<AssessmentEditorViewModel> assessments = [];
     [ObservableProperty] private bool busy;
@@ -46,13 +46,12 @@ public partial class AssessmentGroupViewModel :
 
     private AssessmentGroupViewModel() { }
 
-    public static async Task<AssessmentGroupViewModel> CreateFor(CourseViewModel course)
+    public static AssessmentGroupViewModel CreateFor(CourseViewModel course)
     {
         course.MySectionsOnly = true;
         AssessmentGroupViewModel vm = new() { Course = course, IsSelected = true, IsNew = true };
        
-        await vm.Course.LoadSections();
-        vm.Assessments = [.. vm.Course.CurrentSections.Select(AssessmentEditorViewModel.Create)];
+        vm.Assessments = [.. vm.Course.Course.CurrentSections.Select(AssessmentEditorViewModel.Create)];
         foreach(var entry in vm.Assessments)
         {
             entry.ShowDetailsRequested += (sender, details) => vm.ShowDetailsRequested?.Invoke(sender, details);
@@ -77,7 +76,7 @@ public partial class AssessmentGroupViewModel :
             }
         }
         Course = CourseViewModel.Get(course);
-        Label = string.IsNullOrEmpty(Note) ? Course.DisplayName : $"{Course.DisplayName} - {Note}";
+        Label = string.IsNullOrEmpty(Note) ? Course.Course.DisplayName : $"{Course.Course.DisplayName} - {Note}";
         LoadGroup().SafeFireAndForget(e => e.LogException());
     }
 
@@ -85,8 +84,7 @@ public partial class AssessmentGroupViewModel :
     private async Task LoadGroup()
     {
         Note = _group.note;
-        await Course.LoadSections();
-        Assessments = [.. Course.CurrentSections.Select(AssessmentEditorViewModel.Create)];
+        Assessments = [.. Course.Course.CurrentSections.Select(AssessmentEditorViewModel.Create)];
 
         foreach (var entry in Assessments)
         {
@@ -100,16 +98,17 @@ public partial class AssessmentGroupViewModel :
             var detail = await _assessmentService.GetAssessmentDetails(entry.assessmentId, OnError.DefaultBehavior(this));
             if (detail is not null)
             {
+                /* why did I make this run on the main thread?
                 MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    var vm = Assessments.FirstOrDefault(ent => ent.Section.Model.Reduce(SectionRecord.Empty).sectionId == detail.section.sectionId);
+                {*/
+                    var vm = Assessments.FirstOrDefault(ent => ent.Section.Id == detail.section.sectionId);
                     if (vm is null)
                         return;
                     vm.Model = Optional<AssessmentEntryRecord>.Some(detail);
                     vm.LoadDetails();
                     vm.IsSelected = true;
                     vm.Date = detail.assessmentDateTime;
-                });
+               // });
             }
         }
 
@@ -133,7 +132,7 @@ public partial class AssessmentGroupViewModel :
             return;
         }
         Busy = true;
-        BusyMessage = $"Creating new Assessment in {Course.DisplayName}";
+        BusyMessage = $"Creating new Assessment in {Course.Course.DisplayName}";
         var update = new CreateAssessmentRecord(
             [.. Assessments
             .Where(ent => ent.IsSelected)
@@ -145,7 +144,7 @@ public partial class AssessmentGroupViewModel :
         {
             _group = result;
             IsNew = false;
-            Label = string.IsNullOrEmpty(Note) ? Course.DisplayName : $"{Course.DisplayName} - {Note}";
+            Label = string.IsNullOrEmpty(Note) ? Course.Course.DisplayName : $"{Course.Course.DisplayName} - {Note}";
             LoadGroup().SafeFireAndForget(e => e.LogException());
             Created?.Invoke(this, EventArgs.Empty);
             Saved?.Invoke(this, EventArgs.Empty);
@@ -161,7 +160,7 @@ public partial class AssessmentGroupViewModel :
     public async Task Delete()
     {
         Busy = true;
-        BusyMessage = $"Deleting {Note} from {Course.DisplayName}";
+        BusyMessage = $"Deleting {Note} from {Course.Course.DisplayName}";
         await _assessmentService.DeleteAssessment(_group.id, OnError.DefaultBehavior(this));
         Deleted?.Invoke(this, EventArgs.Empty);
         Busy = false;
@@ -175,7 +174,7 @@ public partial class AssessmentGroupViewModel :
             return;
         }
         Busy = true;
-        BusyMessage = $"Updating {Note} in {Course.DisplayName}";
+        BusyMessage = $"Updating {Note} in {Course.Course.DisplayName}";
 
         var update = new CreateAssessmentRecord(
             [.. Assessments
@@ -187,7 +186,7 @@ public partial class AssessmentGroupViewModel :
         if (result is not null)
         {
             _group = result;
-            Label = string.IsNullOrEmpty(Note) ? Course.DisplayName : $"{Course.DisplayName} - {Note}";
+            Label = string.IsNullOrEmpty(Note) ? Course.Course.DisplayName : $"{Course.Course.DisplayName} - {Note}";
             LoadGroup().SafeFireAndForget(e => e.LogException());
             Saved?.Invoke(this, EventArgs.Empty);
         }
@@ -351,11 +350,11 @@ public partial class MyAssessmentsCollectionViewModel :
         }
     }
 
-    public async Task AddGroupFor(CourseViewModel course)
+    public void AddGroupFor(CourseViewModel course)
     {
         Busy = true;
         BusyMessage = $"Starting Assessment for {course.DisplayName}";
-        var newGroup = await AssessmentGroupViewModel.CreateFor(course);
+        var newGroup = AssessmentGroupViewModel.CreateFor(course);
 
         newGroup.Deleted += (_, _) =>
         {
@@ -405,4 +404,37 @@ public partial class MyAssessmentsCollectionViewModel :
         Busy = false;
     }
 }
+
+public partial class AssessmentCourseViewModel :
+    ObservableObject,
+    IBusyViewModel,
+    IErrorHandling
+{
+    private readonly TeacherAssessmentService _service = ServiceHelper.GetService<TeacherAssessmentService>();
+
+    [ObservableProperty] bool busy;
+    [ObservableProperty] string busyMessage = "";
+    public event EventHandler<ErrorRecord>? OnError;
+
+    [ObservableProperty] CourseViewModel course = CourseViewModel.Empty;
+
+    public static implicit operator AssessmentCourseViewModel(CourseViewModel course)
+    {
+        var vm = new AssessmentCourseViewModel() { Course = course };
+        vm.Course.MySectionsOnly = true;
+        vm.Refresh().SafeFireAndForget(e => e.LogException());
+        return vm;
+    }
+
+    public static implicit operator CourseViewModel(AssessmentCourseViewModel course) => course.Course;
+
+    [RelayCommand]
+    public async Task Refresh()
+    {
+        var sections = await _service.GetMySectionsOf(Course.Id, OnError.DefaultBehavior(this));
+        Course.Sections = [.. sections.Select(SectionViewModel.Get)];
+        Course.CurrentSections = [.. Course.Sections.Where(sec => sec.IsCurrent)];
+    }
+}
+
 

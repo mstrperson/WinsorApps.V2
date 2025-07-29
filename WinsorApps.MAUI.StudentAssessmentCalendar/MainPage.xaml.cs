@@ -1,6 +1,7 @@
 ﻿using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.Pages;
 using WinsorApps.MAUI.Shared.ViewModels;
+using WinsorApps.MAUI.StudentAssessmentCalendar.Pages;
 using WinsorApps.Services.AssessmentCalendar.Services;
 using WinsorApps.Services.Global.Services;
 
@@ -40,6 +41,15 @@ public partial class MainPage : ContentPage
             vm.UserVM = UserViewModel.Get(api.UserInfo!);
 
             Navigation.PushAsync(new AppLoadingPage(vm));
+            vm.LoadReadyContent += (_, _) =>
+            {
+                if (!vm.UpdateAvailable)
+                {
+                    var page = ServiceHelper.GetService<WeeklyCalendar>();
+                    Navigation.PopToRootAsync().Wait();
+                    page.TryPush();
+                }
+            };
         };
 
 

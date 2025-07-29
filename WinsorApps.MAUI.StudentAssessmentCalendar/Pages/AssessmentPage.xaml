@@ -27,16 +27,16 @@
                 HorizontalOptions="Center">
                 <Label
                     StyleClass="SubHeader"
-                    Text="{Binding Event.Description}" />
+                    Text="{Binding CalendarEvent.Description}" />
             </HorizontalStackLayout>
             <HorizontalStackLayout
                 HorizontalOptions="Center">
                 <Label
-                    Text="{Binding Event.Start, StringFormat='{0:dddd dd MMMM - hh:mm tt}'}" 
-                    IsVisible="{Binding Event.AllDay,Converter={StaticResource Invert}}"/>
+                    Text="{Binding CalendarEvent.Start, StringFormat='{0:dddd dd MMMM - hh:mm tt}'}" 
+                    IsVisible="{Binding CalendarEvent.AllDay,Converter={StaticResource Invert}}"/>
                 <Label
-                    Text="{Binding Event.Start, StringFormat='{0:dddd dd MMMM}'}" 
-                    IsVisible="{Binding Event.AllDay}"/>
+                    Text="{Binding CalendarEvent.Start, StringFormat='{0:dddd dd MMMM}'}" 
+                    IsVisible="{Binding CalendarEvent.AllDay}"/>
             </HorizontalStackLayout>
             <HorizontalStackLayout
                 HorizontalOptions="Center"
@@ -44,11 +44,11 @@
                 IsEnabled="{Binding Busy, Converter={StaticResource Invert}}">
                 <Button
                     Text="Use Late Pass"
-                    IsVisible="{Binding Event.PassAvailable}" 
+                    IsVisible="{Binding CalendarEvent.PassAvailable}" 
                     Command="{Binding RequestLatePassCommand}"/>
                 <Button
                     Text="Withdraw Late Pass"
-                    IsVisible="{Binding Event.PassUsed}"
+                    IsVisible="{Binding CalendarEvent.PassUsed}"
                     Command="{Binding WithdrawLatePassCommand}" />
                 <Label
                     StyleClass="H3"

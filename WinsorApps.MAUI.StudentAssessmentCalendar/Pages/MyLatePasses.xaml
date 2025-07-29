@@ -105,7 +105,7 @@
                                     StyleClass="H3" />
                                 <Label
                                     IsVisible="{Binding MakeupTime.IsScheduled}"
-                                    Text="{Binding MakeupTime.Sheduled, StringFormat='Scheduled: {0:dddd, dd MMMM} at {0:hh:mm tt}'}"
+                                    Text="{Binding MakeupTime.Scheduled, StringFormat='Scheduled: {0:dddd, dd MMMM} at {0:hh:mm tt}'}"
                                     StyleClass="H3" />
                                 <Label
                                     IsVisible="{Binding MakeupTime.IsScheduled, Converter={StaticResource Invert}}"
