@@ -294,8 +294,8 @@ public partial class TeacherAssessmentService(ApiService api, LocalLoggingServic
             $"api/assessment-calendar/teachers/assessment-details", assessmentIds,
             onError: onError);
 
-        output = [.. output, .. result];
-        foreach(var entry in result)
+        output = [.. output, .. result ?? []];
+        foreach(var entry in result ?? [])
         {
             AssessmentDetailsCache.AddOrUpdate(entry.assessmentId, entry);
         }

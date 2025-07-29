@@ -576,7 +576,6 @@ public static partial class Extensions
     /// <summary>
     /// Short-hand overload for .GetAwaiter().OnCompleted(...)
     /// </summary>
-    /// <typeparam name="T"></typeparam>
     /// <param name="task"></param>
     /// <param name="continuation"></param>
     public static void WhenCompleted(this Task task, Action continuation) => task.GetAwaiter().OnCompleted(continuation);

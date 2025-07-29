@@ -139,7 +139,7 @@ public class ApiService : IAsyncInitService, IAutoRefreshingCacheService
     /// <summary>
     /// Attempts to retrieve saved credentials and if possible, log in to the API.
     /// </summary>
-    /// <param name="onErrorAction">If something encounters an error, what do.</param>
+    /// <param name="onError">If something encounters an error, what do.</param>
     public async Task Initialize(ErrorAction onError)
     {
         Started = true;

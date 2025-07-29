@@ -28,7 +28,7 @@ namespace WinsorApps.Services.Global.Services
 
         public string AppId { get; set; } = "";
 
-        public AppInstallerGroup Group { get; private set; }
+        public AppInstallerGroup Group { get; private set; } = AppInstallerGroup.Default;
 
         public event EventHandler? AppNotAuthorized;
 

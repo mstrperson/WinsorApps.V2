@@ -277,7 +277,7 @@ public class CycleDayCollection(ApiService api, LocalLoggingService logging) :
 
     public bool Ready { get; private set; } = false;
 
-    public SchoolYear SchoolYear { get; private set; }
+    public SchoolYear SchoolYear { get; private set; } = new("", "", [], default, default, default);
 
     public bool Started { get; protected set; }
 
