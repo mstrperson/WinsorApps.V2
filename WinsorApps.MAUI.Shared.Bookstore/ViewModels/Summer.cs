@@ -16,7 +16,7 @@ namespace WinsorApps.MAUI.Shared.Bookstore.ViewModels;
 public partial class SummerBookOrderListItemViewModel :
     ObservableObject
 {
-    [ObservableProperty] private IsbnViewModel isbn;
+    [ObservableProperty] private IsbnViewModel isbn = new();
     [ObservableProperty] private int quantity;
 
     public event EventHandler? DeleteRequested;

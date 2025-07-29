@@ -164,7 +164,7 @@ public partial class StudentPageViewModel(BookstoreManagerService manager, Local
     }
 
     public void ClearCache() { if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}"); }
-    public async Task SaveCache()
+    public Task SaveCache()
     {
         throw new NotImplementedException();
     }

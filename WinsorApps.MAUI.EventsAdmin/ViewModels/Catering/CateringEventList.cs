@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Maui.Storage;
+﻿
+using CommunityToolkit.Maui.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
@@ -43,17 +44,17 @@ public partial class CateringManagementEventListPageViewModel :
     }
 
     [RelayCommand]
-    public void IncrementMonth()     
+    public async Task IncrementMonth()     
     {
         Month = Month.AddMonths(1);
-        LoadEvents();
+        await LoadEvents();
     }
 
     [RelayCommand]
-    public void DecrementMonth()
+    public async Task DecrementMonth()
     {
         Month = Month.AddMonths(-1);
-        LoadEvents();
+        await LoadEvents();
     }
 
     public async Task Initialize(ErrorAction onError)
@@ -61,7 +62,7 @@ public partial class CateringManagementEventListPageViewModel :
         Busy = true;
         BusyMessage = "Loading Events...";
         await _cacheService.WaitForInit(onError);
-        LoadEvents();
+        await LoadEvents();
     }
 
     private async Task LoadEvents()

@@ -310,7 +310,7 @@ public partial class SectionLateWorkCollection :
     }
 
     [RelayCommand]
-    public async Task ToggleShowAssessments()
+    public void ToggleShowAssessments()
     {
         ShowAssessments = !ShowAssessments;
         ShowNewLateAssessment = false;

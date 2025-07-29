@@ -225,7 +225,7 @@ public partial class OrderStatusViewModel :
 
     public static List<OrderStatusViewModel> ViewModelCache { get; private set; } = [];
 
-    public static OrderStatusViewModel Get(string status) => ViewModelCache.FirstOrDefault(st => st.label.Equals(status, StringComparison.InvariantCultureIgnoreCase))?.Clone() ?? new();
+    public static OrderStatusViewModel Get(string status) => ViewModelCache.FirstOrDefault(st => st.Label.Equals(status, StringComparison.InvariantCultureIgnoreCase))?.Clone() ?? new();
 
     public static OrderStatusViewModel Get(OrderStatus model)
     {

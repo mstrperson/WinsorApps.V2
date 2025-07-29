@@ -43,26 +43,26 @@ public partial class CateringMenuEditorViewModel :
             return;
         }
 
-        id = model.id;
-        name = model.name;
-        isDeleted = model.isDeleted;
-        fieldTripCategory = model.fieldTripCategory;
-        items = new(model.items);
-        availableItems = new(model.AvailableItems ?? []);
-        fieldTripAvailableItems = new(model.FieldTripAvailableItems ?? []);
+        Id = model.id;
+        Name = model.name;
+        IsDeleted = model.isDeleted;
+        FieldTripCategory = model.fieldTripCategory;
+        Items = new(model.items);
+        AvailableItems = new(model.AvailableItems ?? []);
+        FieldTripAvailableItems = new(model.FieldTripAvailableItems ?? []);
         Model = Optional<CateringMenuCategory>.Some(model);
     }
 
     [RelayCommand]
     public void Clear()
     {
-        id = "";
-        name = "";
-        isDeleted = false;
-        fieldTripCategory = false;
-        items = [];
-        availableItems = [];
-        fieldTripAvailableItems = [];
+        Id = "";
+        Name = "";
+        IsDeleted = false;
+        FieldTripCategory = false;
+        Items = [];
+        AvailableItems = [];
+        FieldTripAvailableItems = [];
         Model = Optional<CateringMenuCategory>.None();
     }
 

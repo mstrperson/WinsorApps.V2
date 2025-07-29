@@ -144,8 +144,8 @@ public partial class DeviceCollectionPageViewModel :
 {
     private readonly DeviceCollectionService service = ServiceHelper.GetService<DeviceCollectionService>();
     [ObservableProperty] private ObservableCollection<DeviceCollectionViewModel> collectionEntries = [];
-    [ObservableProperty] private DeviceCollectionViewModel openEntry;
-    [ObservableProperty] private DeviceCollectionViewModel prevEntry;
+    [ObservableProperty] private DeviceCollectionViewModel openEntry = new();
+    [ObservableProperty] private DeviceCollectionViewModel prevEntry = new();
     [ObservableProperty] private bool showPrev;
     [ObservableProperty] private bool busy;
     [ObservableProperty] private string busyMessage = "";

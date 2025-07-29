@@ -189,7 +189,7 @@ public partial class ApprovalRecordViewModel :
     [ObservableProperty] private UserViewModel manager = UserViewModel.Empty;
     [ObservableProperty] private string note = "";
     [ObservableProperty] private DateTime timeStamp;
-    public Optional<EventApprovalStatusRecord> Model { get; private set; }
+    public Optional<EventApprovalStatusRecord> Model { get; private set; } = Optional<EventApprovalStatusRecord>.None();
 
     public static ApprovalRecordViewModel Get(EventApprovalStatusRecord model)
     {

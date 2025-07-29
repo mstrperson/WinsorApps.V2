@@ -12,6 +12,7 @@ namespace WinsorApps.MAUI.Shared;
 
 public static class Extensions
 {
+
     public static void LogException(this Exception e)
     {
         var logging = ServiceHelper.GetService<LocalLoggingService>();
@@ -77,7 +78,7 @@ public static class Extensions
     }
 
     public static ErrorAction DefaultOnErrorAction(this ContentPage parent, Action? onConfirmAction = null) => 
-        err => parent.PushErrorPage(err, onConfirmAction);
+        err => parent.PushErrorPage(err, onConfirmAction).SafeFireAndForget(LogException);
 
     /// <summary>
     /// Pushes a SplashPage with the Error information provided from the Event.

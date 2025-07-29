@@ -17,7 +17,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
 
         private readonly CheqroomService _cheqroom;
 
-        [ObservableProperty] private ObservableCollection<CheckoutSearchResultViewModel> available;
+        [ObservableProperty] private ObservableCollection<CheckoutSearchResultViewModel> available = [];
         [ObservableProperty] private ObservableCollection<CheckoutSearchResultViewModel> allSelected = [];
         [ObservableProperty] private SelectionMode selectionMode = SelectionMode.Single;
         [ObservableProperty] private string searchText = "";
@@ -148,7 +148,7 @@ namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom
         async Task IAsyncSearchViewModel<CheckoutSearchResultViewModel>.Search() => await Task.Run(Search);
 
         [RelayCommand]
-        public async Task Export()
+        public void Export()
         {
             CSV output = 
                 new(

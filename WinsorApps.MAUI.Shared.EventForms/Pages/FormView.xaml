@@ -901,7 +901,7 @@
                                         BackgroundColor="Transparent"
                                         ItemsSource="{Binding Items}">
                                         <CollectionView.ItemTemplate>
-                                            <DataTemplate>
+                                            <DataTemplate x:DataType="vm:TheaterMenuItemViewModel">
                                                 <Label
                                                     IsVisible="{Binding IsSelected}"
                                                     Text="{Binding Name}"
@@ -1214,14 +1214,13 @@
                                     WidthRequest="1600"/>
                             </CollectionView.Header>
                             <CollectionView.ItemTemplate>
-                                <DataTemplate>
+                                <DataTemplate x:DataType="vm:VehicleRequestViewModel">
                                     <Grid
-                                        ColumnDefinitions="400,400,400,400"
+                                        ColumnDefinitions="400,400,600"
                                         RowDefinitions="Auto">
                                         <Label Grid.Column="0" Text="{Binding Category}" HorizontalTextAlignment="End"/>
-                                        <Label Grid.Column="1" Text="{Binding NumberNeeded}" HorizontalTextAlignment="Start"/>
-                                        <Label Grid.Column="2" Text="{Binding Passengers}" HorizontalTextAlignment="Start"/>
-                                        <Label Grid.Column="3" Text="{Binding Notes}" HorizontalTextAlignment="Start"/>
+                                        <Label Grid.Column="1" Text="{Binding CountRequested}" HorizontalTextAlignment="Start"/>
+                                        <Label Grid.Column="2" Text="{Binding Notes}" HorizontalTextAlignment="Start"/>
                                     </Grid>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
@@ -1282,7 +1281,7 @@
                                     WidthRequest="1600"/>
                             </CollectionView.Header>
                             <CollectionView.ItemTemplate>
-                                <DataTemplate>
+                                <DataTemplate x:DataType="vm:CateringMenuSelectionViewModel">
                                     <Label
                                         Text="{Binding Item.Name}"
                                         Margin="20,0,0,0"/>

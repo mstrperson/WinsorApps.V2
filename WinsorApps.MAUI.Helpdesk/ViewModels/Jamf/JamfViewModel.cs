@@ -77,7 +77,7 @@ public partial class JamfViewModel : ObservableObject, IDefaultValueViewModel<Ja
     [ObservableProperty] private string name = "";
     [ObservableProperty] private string assetTag = "";
     [ObservableProperty] private string serialNumber = "";
-    [ObservableProperty] private Department department;
+    [ObservableProperty] private Department department = new("", "");
     [ObservableProperty] private string model = "";
     [ObservableProperty] private UserViewModel user = UserViewModel.Empty;
     [ObservableProperty] private JamfDeviceType type = JamfDeviceType.Computer;
@@ -113,7 +113,7 @@ public partial class InventoryPreloadViewModel : ObservableObject, IDefaultValue
 {
     private readonly JamfService _jamf;
 
-    private InventoryPreloadEntry _entry;
+    private InventoryPreloadEntry _entry = new("","", "", "", "", "", "", "", "", "", "", "");
 
     [ObservableProperty] private string id = "";
     [ObservableProperty] private string serialNumber = "";
