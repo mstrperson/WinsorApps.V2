@@ -496,12 +496,6 @@ public class RegistrarService(ApiService api, LocalLoggingService logging) :
         .ThenBy(u => u.firstName)];
 
     
-    /// <summary>
-    /// Get School Year info from a given ID
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    //public SchoolYear GetSchoolYear(string id) => SchoolYears.FirstOrDefault(sy => sy.id == id);
     
     /// <summary>
     /// Flag that is set once the Initialize method has run to completion successfully.
