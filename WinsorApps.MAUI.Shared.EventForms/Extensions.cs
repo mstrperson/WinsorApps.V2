@@ -1,4 +1,6 @@
 ﻿global using ErrorAction = System.Action<WinsorApps.Services.Global.Models.ErrorRecord>;
+using WinsorApps.MAUI.Shared.EventForms.Pages;
+using WinsorApps.MAUI.Shared.EventForms.ViewModels;
 using WinsorApps.Services.EventForms.Services;
 
 namespace WinsorApps.MAUI.Shared.EventForms;
@@ -14,6 +16,8 @@ public static partial class Extensions
         builder.Services.AddSingleton<LocationService>();
         builder.Services.AddSingleton<CateringMenuService>();
         builder.Services.AddSingleton<TheaterService>();
+        builder.Services.AddSingleton<EventTwoWeekListPageViewModel>();
+        builder.Services.AddSingleton<EventTwoWeekListPage>();
 
         return builder;
     }

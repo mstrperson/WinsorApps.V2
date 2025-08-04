@@ -34,7 +34,16 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Pages\EventTwoWeekListPage.xaml.cs">
+	    <DependentUpon>EventTwoWeekListPage.xaml</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
 	  <MauiXaml Update="Pages\CateringPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\EventTwoWeekListPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\FacilitesPage.xaml">

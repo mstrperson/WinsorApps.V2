@@ -118,6 +118,21 @@ namespace WinsorApps.Services.EventForms.Services
             RefreshInBackground(CancellationToken.None, onError).SafeFireAndForget(e => e.LogException(_logging));
         }
 
+        public async Task<List<EventFormBase>> GetEvents(DateRange dates, ErrorAction onError)
+        {
+            if (!Ready)
+                await WaitForInit(onError);
+            var start = dates.start.ToString("yyyy-MM-dd");
+            var end = dates.end.ToString("yyyy-MM-dd");
+            var events = await _api.SendAsync<List<CalendarEvent<EventFormBase>>>(HttpMethod.Get, $"api/events/calendar?start={start}&end={end}", onError: onError);
+            if (events is null)
+                return [];
+
+            EventForms = EventForms.Merge(events, (a, b) => a.details.id == b.details.id);
+            OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
+            return [.. events.Select(evt => evt.details)];
+        }
+
         public async Task ManualLoadData(ErrorAction onError, int year = default)
         {
             if(year == default)

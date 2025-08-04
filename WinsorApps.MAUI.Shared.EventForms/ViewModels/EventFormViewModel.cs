@@ -45,6 +45,8 @@ public partial class EventFormViewModel :
     [ObservableProperty] private UserSearchViewModel leaderSearch = new();
     [ObservableProperty] private DateTime preapprovalDate = DateTime.Today;
     [ObservableProperty] private int attendeeCount;
+    [ObservableProperty] string locationDisplay = "";
+    [ObservableProperty] string locationToolTip = "";
     [ObservableProperty] private ObservableCollection<LocationViewModel> selectedLocations = [];
     [ObservableProperty] private LocationSearchViewModel locationSearch = new() { SelectionMode = SelectionMode.Single };
     [ObservableProperty] private ObservableCollection<LocationViewModel> selectedCustomLocations = [];
@@ -885,6 +887,22 @@ public partial class EventFormViewModel :
             vm.Attachments = new(model);
             vm.Attachments.OnError += (sender, e) => vm.OnError?.Invoke(sender, e);
         }
+
+        var locations = vm.SelectedLocations.Union(vm.SelectedCustomLocations).ToList();
+
+        vm.LocationDisplay = locations switch 
+        {
+            [] => "No Locations Selected",
+            [var loc]  => loc.Label,
+            [var loc1, var loc2] => $"{loc1.Label} and {loc2.Label}",
+            _ => $"{locations.Count} Locations Selected"
+        };
+
+        vm.LocationToolTip = locations switch
+        {
+            [] => "No Locations Selected",
+            _ => string.Join(Environment.NewLine, locations.Select(loc => loc.Label))
+        };
 
         ViewModelCache.Add(vm);
         return vm.Clone();
