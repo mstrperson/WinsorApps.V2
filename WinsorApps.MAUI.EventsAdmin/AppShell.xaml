@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:WinsorApps.MAUI.EventsAdmin"
     xmlns:pages="clr-namespace:WinsorApps.MAUI.EventsAdmin.Pages"
+    xmlns:spages="clr-namespace:WinsorApps.MAUI.Shared.EventForms.Pages;assembly=WinsorApps.MAUI.Shared.EventForms"
     xmlns:shared="clr-namespace:WinsorApps.MAUI.Shared.Pages;assembly=WinsorApps.MAUI.Shared"
     Shell.FlyoutBehavior="Flyout"
     Title="Event Forms Admin">
@@ -22,6 +23,11 @@
         Title="Master Calendar"
         ContentTemplate="{DataTemplate pages:MonthlyCalendar}"
         Route="MonthlyCalendar" />
+
+    <ShellContent
+        Title="Two Week List"
+        ContentTemplate="{DataTemplate spages:EventTwoWeekListPage}"
+        Route="EventTwoWeekListPage" />
 
     <ShellContent
         Title="Catering Menu Editor"

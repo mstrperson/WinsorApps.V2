@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WinsorApps.MAUI.Shared.EventForms.ViewModels"
+             xmlns:svm="clr-namespace:WinsorApps.MAUI.Shared.ViewModels;assembly=WinsorApps.MAUI.Shared"
+             xmlns:conv="clr-namespace:WinsorApps.MAUI.Shared.Converters;assembly=WinsorApps.MAUI.Shared"
+             x:DataType="vm:EventTwoWeekListPageViewModel"
+             x:Class="WinsorApps.MAUI.Shared.EventForms.Pages.EventTwoWeekListPage"
+             Title="{Binding NumberOfWeeks, StringFormat='{0} Week List'}">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolInverter x:Key="Invert"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem
+            Text="Filters"
+            Command="{Binding ToggleShowFilterCommand}" />
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <ScrollView>
+            <VerticalStackLayout
+                WidthRequest="1200"
+                HorizontalOptions="Center">
+                <!--Filters-->
+                <VerticalStackLayout
+    Margin="0"
+    Padding="0"
+    Width="1670"
+    HorizontalOptions="Center"
+    IsVisible="{Binding ShowFilter}">
+                    <!--Filter Selection-->
+                    <HorizontalStackLayout 
+        Margin="0"
+        Padding="0"
+        Width="1670"
+        HorizontalOptions="Center"
+        Spacing="15">
+                        <Label
+            StyleClass="SubHeader"
+            Text="Filter By:" />
+                        <CheckBox
+            IsChecked="{Binding Filter.ShowStatus}">
+                            <CheckBox.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Filter.ToggleShowStatusCommand}"/>
+                            </CheckBox.GestureRecognizers>
+                        </CheckBox>
+                        <Label
+            TranslationX="-15"
+            StyleClass="H3"
+            FontAttributes="None"
+            Text="Approval Status">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Filter.ToggleShowStatusCommand}" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <CheckBox
+            IsChecked="{Binding Filter.ShowType}">
+                            <CheckBox.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Filter.ToggleShowTypeCommand}" />
+                            </CheckBox.GestureRecognizers>
+                        </CheckBox>
+                        <Label
+            TranslationX="-15"
+            StyleClass="H3"
+            FontAttributes="None"
+            Text="Event Type">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Filter.ToggleShowTypeCommand}" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <CheckBox
+            IsChecked="{Binding Filter.ShowNeeds}">
+                            <CheckBox.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Filter.ToggleShowNeedsCommand}" />
+                            </CheckBox.GestureRecognizers>
+                        </CheckBox>
+                        <Label
+            TranslationX="-15"
+            Text="Departments">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Filter.ToggleShowNeedsCommand}" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <Button
+            Text="Apply Filters"
+            Command="{Binding ApplyFiltersCommand}" />
+                    </HorizontalStackLayout>
+                    <!--End Filter Selection-->
+                    <!--Status Filter-->
+                    <HorizontalStackLayout
+        Margin="0"
+        Padding="0"
+        WidthRequest="1670"
+        HorizontalOptions="Center"
+        HeightRequest="75"
+        IsVisible="{Binding Filter.ShowStatus}"
+        Spacing="30">
+                        <CollectionView
+            Margin="0"
+            BackgroundColor="Transparent"
+            WidthRequest="1670"
+            HeightRequest="75"
+            ItemsSource="{Binding Filter.ByStatus.Statuses}">
+                            <CollectionView.ItemsLayout>
+                                <GridItemsLayout Orientation="Horizontal" Span="1" />
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.Header>
+                                <HorizontalStackLayout Margin="0" Padding="0"
+                    WidthRequest="150">
+                                    <Label StyleClass="H3" Text="Approval Status:"/>
+                                </HorizontalStackLayout>
+                            </CollectionView.Header>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="svm:SelectableLabelViewModel">
+                                    <HorizontalStackLayout
+                        Margin="0"
+                        Padding="0"
+                        WidthRequest="180">
+                                        <CheckBox IsChecked="{Binding IsSelected}" />
+                                        <Label 
+                            Text="{Binding Label}"
+                            TranslationX="-15">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                    </HorizontalStackLayout>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </HorizontalStackLayout>
+                    <!--End Status Filter-->
+                    <!--Type Filter-->
+                    <HorizontalStackLayout
+        Margin="0"
+        Padding="0"
+        WidthRequest="1670"
+        HorizontalOptions="Center"
+        HeightRequest="75"
+        IsVisible="{Binding Filter.ShowType}"
+        Spacing="30">
+                        <CollectionView
+            Margin="0"
+            BackgroundColor="Transparent"
+            WidthRequest="1670"
+            HeightRequest="75"
+            ItemsSource="{Binding Filter.ByType.Types}">
+                            <CollectionView.ItemsLayout>
+                                <GridItemsLayout Orientation="Horizontal" Span="1" />
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.Header>
+                                <HorizontalStackLayout 
+                    Margin="0" 
+                    Padding="0"
+                    WidthRequest="150">
+                                    <Label StyleClass="H3" Text="Event Type:"/>
+                                </HorizontalStackLayout>
+                            </CollectionView.Header>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="svm:SelectableLabelViewModel">
+                                    <HorizontalStackLayout
+                        Margin="0"
+                        Padding="0"
+                        WidthRequest="180">
+                                        <CheckBox IsChecked="{Binding IsSelected}" />
+                                        <Label 
+                            Text="{Binding Label}"
+                            TranslationX="-15">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                    </HorizontalStackLayout>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </HorizontalStackLayout>
+                    <!--End Type Filter-->
+                    <!--Person Filter-->
+                    <HorizontalStackLayout
+        Margin="0"
+        Padding="0"
+        WidthRequest="1670"
+        HeightRequest="75"
+        IsVisible="{Binding Filter.ShowPeople}">
+                        <Label StyleClass="H3" Text="People:"/>
+                        <SearchBar
+            Placeholder="Leader or Creator Name"
+            WidthRequest="1200" 
+            HeightRequest="40"
+            Text="{Binding Filter.ByPerson.SearchText}"
+            SearchCommand="{Binding ApplyFiltersCommand}"/>
+
+                    </HorizontalStackLayout>
+                    <!--End Person Filter-->
+                    <!-- Needs Filter -->
+                    <HorizontalStackLayout
+        WidthRequest="1670"
+        HorizontalOptions="Center"
+        Spacing="15"
+        IsVisible="{Binding Filter.ShowNeeds}">
+                        <Border
+            StrokeThickness="1">
+                            <HorizontalStackLayout
+                Margin="0"
+                    Padding="0">
+                                <HorizontalStackLayout.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Filter.ByNeed.ToggleExclusiveCommand}"/>
+                                </HorizontalStackLayout.GestureRecognizers>
+                                <Label
+                    StyleClass="H3"
+                    Text="All Selected Departments"
+                    IsVisible="{Binding Filter.ByNeed.Exclusive}"/>
+                                <Label
+                    StyleClass="H3"
+                    Text="Any Of Selected Departments"
+                    IsVisible="{Binding Filter.ByNeed.Exclusive, Converter={StaticResource Invert}}"/>
+                            </HorizontalStackLayout>
+                        </Border>
+                        <CheckBox
+            IsChecked="{Binding Filter.ByNeed.Facilities.IsSelected}">
+                            <CheckBox.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Filter.ByNeed.Facilities.SelectCommand}"/>
+                            </CheckBox.GestureRecognizers>
+                        </CheckBox>
+                        <Label
+            StyleClass="H3"
+            Text="{Binding Filter.ByNeed.Facilities.Label}"
+            TranslationX="-15">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Filter.ByNeed.Facilities.SelectCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <CheckBox
+            IsChecked="{Binding Filter.ByNeed.Technology.IsSelected}">
+                            <CheckBox.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Filter.ByNeed.Technology.SelectCommand}"/>
+                            </CheckBox.GestureRecognizers>
+                        </CheckBox>
+                        <Label
+            StyleClass="H3"
+            Text="{Binding Filter.ByNeed.Technology.Label}"
+            TranslationX="-15">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Filter.ByNeed.Technology.SelectCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <CheckBox
+            IsChecked="{Binding Filter.ByNeed.Theater.IsSelected}">
+                            <CheckBox.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Filter.ByNeed.Theater.SelectCommand}"/>
+                            </CheckBox.GestureRecognizers>
+                        </CheckBox>
+                        <Label
+            StyleClass="H3"
+            Text="{Binding Filter.ByNeed.Theater.Label}"
+            TranslationX="-15">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Filter.ByNeed.Theater.SelectCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <CheckBox
+            IsChecked="{Binding Filter.ByNeed.Comms.IsSelected}">
+                            <CheckBox.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Filter.ByNeed.Comms.SelectCommand}"/>
+                            </CheckBox.GestureRecognizers>
+                        </CheckBox>
+                        <Label
+            StyleClass="H3"
+            Text="{Binding Filter.ByNeed.Comms.Label}"
+            TranslationX="-15">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Filter.ByNeed.Comms.SelectCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <CheckBox
+            IsChecked="{Binding Filter.ByNeed.Catering.IsSelected}">
+                            <CheckBox.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Filter.ByNeed.Catering.SelectCommand}"/>
+                            </CheckBox.GestureRecognizers>
+                        </CheckBox>
+                        <Label
+            StyleClass="H3"
+            Text="{Binding Filter.ByNeed.Catering.Label}"
+            TranslationX="-15">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Filter.ByNeed.Catering.SelectCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </HorizontalStackLayout>
+                    <!-- End Needs Filter -->
+                    <BoxView StyleClass="Bar" />
+                </VerticalStackLayout>
+                <HorizontalStackLayout
+                    HeightRequest="80"
+                    WidthRequest="1670"
+                    VerticalOptions="Center"
+                    IsVisible="{Binding Busy}">
+                    <Label 
+                        StyleClass="Header"
+                        Text="{Binding BusyMessage}" />
+                    <Image 
+                        StyleClass="loading_symbol" 
+                        VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+                <!--End Filters-->
+                <CollectionView
+                    WidthRequest="1200"
+                    BackgroundColor="Transparent"
+                    ItemsSource="{Binding Weeks}">
+                    <CollectionView.Header>
+                        <Grid
+                            Margin="0"
+                            Padding="0"
+                            ColumnDefinitions="*,400,*"
+                            WidthRequest="1200">
+                            <Label
+                                Grid.Column="0"
+                                StyleClass="Header,LeftArrow"
+                                HorizontalOptions="End"
+                                HorizontalTextAlignment="End">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding StepBackwardCommand}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label
+                                Grid.Column="1"
+                                StyleClass="Header"
+                                WidthRequest="400"
+                                HorizontalTextAlignment="Center"
+                                HorizontalOptions="Center"
+                                Text="{Binding NumberOfWeeks, StringFormat='{0} Week List'}" />
+                            <Label
+                                Grid.Column="2"
+                                StyleClass="Header,RightArrow"
+                                HorizontalOptions="Start"
+                                HorizontalTextAlignment="Start">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding StepForwardCommand}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </Grid>
+                    </CollectionView.Header>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:CalendarWeekViewModel">
+                            <VerticalStackLayout
+                                Margin="0"
+                                Padding="0">
+                                <CollectionView
+                                    Margin="0"
+                                    WidthRequest="1200"
+                                    BackgroundColor="Transparent"
+                                    ItemsSource="{Binding Days}">
+                                    <CollectionView.Header>
+                                        <VerticalStackLayout
+                                            WidthRequest="1200">
+                                            <BoxView
+                                                StyleClass="Bar"/>
+                                            <Label
+                                                StyleClass="SubHeader"
+                                                HorizontalOptions="Center"
+                                                Text="{Binding StartDate, StringFormat='Week of {0:dd MMMM}'}" />
+                                        </VerticalStackLayout>
+                                    </CollectionView.Header>
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:CalendarDayViewModel">
+                                            <VerticalStackLayout
+                                                Margin="0"
+                                                Padding="0"
+                                                WidthRequest="1200">
+                                                <CollectionView
+                                                    Margin="0"
+                                                    BackgroundColor="Transparent"
+                                                    ItemsSource="{Binding FilteredEvents}">
+                                                    <CollectionView.Header>
+                                                        <VerticalStackLayout
+                                                            WidthRequest="1200">
+                                                            <BoxView
+                                                                StyleClass="Bar"/>
+                                                            <Label
+                                                                StyleClass="SubHeader"
+                                                                Text="{Binding Date, StringFormat='{0:dddd, MMMM dd}'}" />
+                                                        </VerticalStackLayout>
+                                                    </CollectionView.Header>
+                                                    <CollectionView.ItemTemplate>
+                                                        <DataTemplate x:DataType="vm:EventFormViewModel">
+                                                            <!-- Event Row Grid -->
+                                                            <Grid Margin="0,8,0,8" Padding="0" RowDefinitions="1,Auto" ColumnDefinitions="150,500,250,200,100">
+                                                                <Grid.GestureRecognizers>
+                                                                    <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                                                </Grid.GestureRecognizers>
+                                                                <!-- Horizontal line -->
+                                                                <BoxView Grid.Row="0" Grid.ColumnSpan="5" HeightRequest="1" BackgroundColor="Gray" />
+                                                                <!-- Event Details Row -->
+                                                                <Label Grid.Row="1" Grid.Column="0"
+                                                                   Text="{Binding StartDateTime, StringFormat='{0:h:mm tt}'}"
+                                                                   VerticalTextAlignment="Center"
+                                                                   HorizontalTextAlignment="Start" />
+                                                                <Label Grid.Row="1" Grid.Column="1"
+                                                                   Text="{Binding Summary}"
+                                                                   ToolTipProperties.Text="{Binding Description}"
+                                                                   VerticalTextAlignment="Center"
+                                                                   HorizontalTextAlignment="Start" />
+                                                                <Label Grid.Row="1" Grid.Column="2"
+                                                                   Text="{Binding Leader.DisplayName}"
+                                                                   ToolTipProperties.Text="{Binding Creator.DisplayName, StringFormat='Creator: {0}'}"
+                                                                   VerticalTextAlignment="Center"
+                                                                   HorizontalTextAlignment="End" />
+                                                                <Label Grid.Row="1" Grid.Column="3"
+                                                                    Text="{Binding LocationDisplay}"
+                                                                    ToolTipProperties.Text="{Binding LocationToolTip}"
+                                                                    HorizontalTextAlignment="End"/>
+                                                                <Label Grid.Row="1" Grid.Column="4"
+                                                                   Text="{Binding Type.Type}"
+                                                                   VerticalTextAlignment="Center"
+                                                                   HorizontalTextAlignment="End" />
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </CollectionView.ItemTemplate>
+                                                </CollectionView>
+                                            </VerticalStackLayout>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
+                            </VerticalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>
