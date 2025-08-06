@@ -5,6 +5,8 @@ using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -98,6 +100,71 @@ public partial class CateringManagementEventListPageViewModel :
             };
         }
         Busy = false;
+    }
+
+    [RelayCommand]
+    public async Task PrintAll()
+    {
+
+        List<(string, byte[])> downloads = [];
+        var events = Events.Select(e => e.Event).ToList();
+
+        var invalidChars = Path.GetInvalidFileNameChars();
+
+        var evtCount = events.Count;
+        BusyMessage = $"Downloading {evtCount} events...";
+        foreach (var evt in events)
+        {
+            var pdf = await evt.GetPdfData();
+            var summary = evt.Summary;
+            foreach (var c in summary.ToArray())
+            {
+                if (invalidChars.Contains(c))
+                    summary = summary.Replace($"{c}", "");
+            }
+
+            var startTime = evt.Model.Reduce(EventFormBase.Empty).start;
+
+            downloads.Add(($"({startTime:MM-dd hh-mm tt}) {summary}.pdf", pdf));
+
+            BusyMessage = $"Downloading {--evtCount} events...";
+        }
+
+        BusyMessage = "Zipping downloaded events...";
+
+        using MemoryStream ms = new();
+        using (ZipArchive archive = new(ms, ZipArchiveMode.Create, true))
+        {
+            foreach (var (fileName, bytes) in downloads)
+            {
+                var entry = archive.CreateEntry(fileName);
+                await using var stream = entry.Open();
+                stream.Write(bytes);
+                await stream.FlushAsync();
+            }
+
+            await ms.FlushAsync();
+        }
+
+        ms.Position = 0;
+        BusyMessage = "Saving Downloaded events...";
+        var result = await FileSaver.SaveAsync($"{Month:MMMM} Catering Events.zip", ms);
+        if (!result.IsSuccessful)
+            OnError?.Invoke(this, new("File Not Saved", result.Exception?.Message ?? ""));
+
+        if (result is { IsSuccessful: true, FilePath: not null })
+        {
+            ProcessStartInfo psi = new($"{result.FilePath}")
+            {
+                UseShellExecute = true,
+                Verb = Environment.OSVersion.Platform switch 
+                {
+                    PlatformID.MacOSX => "open",
+                    _ => ""
+                }
+            };
+            Process.Start(psi);
+        }
     }
 
 

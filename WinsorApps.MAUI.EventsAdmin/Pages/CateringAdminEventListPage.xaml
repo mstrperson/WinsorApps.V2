@@ -17,6 +17,10 @@
     </ContentPage.Resources>
     <ContentPage.ToolbarItems>
         <ToolbarItem
+            Text="Download All Forms"
+            Command="{Binding PrintAllCommand}"
+            IsEnabled="{Binding ShowSelectedEvent, Converter={StaticResource Invert}}" />
+        <ToolbarItem
             Text="Download Monthly Report"
             Command="{Binding DownloadMonthlyReportCommand}"
             IsEnabled="{Binding ShowSelectedEvent, Converter={StaticResource Invert}}"/>
