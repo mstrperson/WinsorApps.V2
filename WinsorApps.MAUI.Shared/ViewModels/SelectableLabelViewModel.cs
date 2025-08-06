@@ -20,6 +20,11 @@ namespace WinsorApps.MAUI.Shared.ViewModels
             Selected?.Invoke(this, this);
         }
 
-        public static implicit operator SelectableLabelViewModel(string label) => new() { Label = label };
+        public SelectableLabelViewModel(string label)
+        {
+            Label = label;
+        }
+
+        public static implicit operator SelectableLabelViewModel(string label) => new(label);
     }
 }

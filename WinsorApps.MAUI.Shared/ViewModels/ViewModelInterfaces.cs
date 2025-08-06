@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿
+using CommunityToolkit.Mvvm.ComponentModel;
 using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.MAUI.Shared.ViewModels;
@@ -29,8 +30,25 @@ public interface IDefaultValueViewModel<T> where T : ObservableObject
 {
     public static abstract T Empty { get; }
 }
-public interface ISelectable<T> where T : ObservableObject
+
+public partial class SelectableViewModel<T>(T item, bool isSelected = false) : ObservableObject, ISelectable<T> 
 {
+    public static implicit operator SelectableViewModel<T>(T item) => new(item);
+    public event EventHandler<T>? Selected;
+
+    [ObservableProperty] bool isSelected = isSelected;
+    [ObservableProperty] T item = item;
+    
+    public void Select()
+    {
+        IsSelected = !IsSelected;
+        Selected?.Invoke(this, item);
+    }
+}
+
+public interface ISelectable<T> 
+{
+
     public event EventHandler<T>? Selected;
 
     public bool IsSelected { get; set; }

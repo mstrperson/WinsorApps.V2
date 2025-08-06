@@ -62,11 +62,11 @@ public partial class EventNeedsFilterViewModel :
     ObservableObject,
     IEventFormFilter
 {
-    [ObservableProperty] private SelectableLabelViewModel facilities = new() { Label = "Facilities" };
-    [ObservableProperty] private SelectableLabelViewModel technology = new() { Label = "Technology" };
-    [ObservableProperty] private SelectableLabelViewModel theater = new() { Label = "Theater" };
-    [ObservableProperty] private SelectableLabelViewModel comms = new() { Label = "Comms" };
-    [ObservableProperty] private SelectableLabelViewModel catering =  new() { Label = "Catering" };
+    [ObservableProperty] private SelectableLabelViewModel facilities ="Facilities";
+    [ObservableProperty] private SelectableLabelViewModel technology = "Technology";
+    [ObservableProperty] private SelectableLabelViewModel theater = "Theater";
+    [ObservableProperty] private SelectableLabelViewModel comms = "Comms";
+    [ObservableProperty] private SelectableLabelViewModel catering =  "Catering";
     [ObservableProperty] private bool exclusive;
     public void ClearFilter()
     {
@@ -114,10 +114,10 @@ public partial class TypeFilterViewModel :
 {
     [ObservableProperty] private ObservableCollection<SelectableLabelViewModel> types =
     [
-        new() { Label = EventType.Default },
-        new() { Label = EventType.Rental },
-        new() { Label = EventType.FieldTrip },
-        new() { Label = EventType.VirtualEvent }
+        new(EventType.Default),
+        new(EventType.Rental),
+        new(EventType.FieldTrip),
+        new(EventType.VirtualEvent)
     ];
 
     public Func<EventFormViewModel, bool> Filter =>
@@ -141,9 +141,9 @@ public partial class StatusFilterViewModel :
 {
     [ObservableProperty] private ObservableCollection<SelectableLabelViewModel> statuses =
         [
-            new() { Label = ApprovalStatusLabel.Approved },
-            new() { Label = ApprovalStatusLabel.Pending },
-            new() { Label = ApprovalStatusLabel.RoomNotCleared }
+            new(ApprovalStatusLabel.Approved),
+            new(ApprovalStatusLabel.Pending),
+            new(ApprovalStatusLabel.RoomNotCleared)
         ];
 
     public Func<EventFormViewModel, bool> Filter =>

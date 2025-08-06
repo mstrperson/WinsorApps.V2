@@ -28,6 +28,7 @@ public class EventFormViewModelCacheService : IAsyncInitService
         _adminService.OnCacheRefreshed += (_, _) =>
         {
             using DebugTimer asjdklf = new("Refreshing Event Form View Model Cache", _logging);
+            ViewModelCache = [];
             _ = _adminService.AllEvents.Select(Get);
         };
     }
@@ -144,7 +145,40 @@ public class EventFormViewModelCacheService : IAsyncInitService
             location.Selected += (_, _) => 
                 vm.SelectedCustomLocations.Remove(location);
         }
+        var locations = vm.SelectedLocations.Union(vm.SelectedCustomLocations).ToList();
 
+        vm.LocationDisplay = locations switch
+        {
+            [] => "No Locations Selected",
+            [var loc] => loc.Label,
+            [var loc1, var loc2] => $"{loc1.Label} and {loc2.Label}",
+            _ => $"{locations.Count} Locations Selected"
+        };
+
+        vm.LocationToolTip = locations switch
+        {
+            [] => "No Locations Selected",
+            _ => string.Join(Environment.NewLine, locations.Select(loc => loc.Label))
+        };
+
+        vm.PropertyChanged += (_, args) =>
+        {
+            var locations = vm.SelectedLocations.Union(vm.SelectedCustomLocations).ToList();
+
+            vm.LocationDisplay = locations switch
+            {
+                [] => "No Locations Selected",
+                [var loc] => loc.Label,
+                [var loc1, var loc2] => $"{loc1.Label} and {loc2.Label}",
+                _ => $"{locations.Count} Locations Selected"
+            };
+
+            vm.LocationToolTip = locations switch
+            {
+                [] => "No Locations Selected",
+                _ => string.Join(Environment.NewLine, locations.Select(loc => loc.Label))
+            };
+        };
         if (model.attachments is not null)
         {
             vm.Attachments = new(model);
@@ -153,16 +187,14 @@ public class EventFormViewModelCacheService : IAsyncInitService
         ViewModelCache.Add(vm);
         return vm.Clone();
     }
-    
-    public Task WaitForInit(ErrorAction onError)
+
+    public async Task WaitForInit(ErrorAction onError)
     {
-        throw new NotImplementedException();
+        while (!Ready)
+            await Task.Delay(250);
     }
 
-    public Task Refresh(ErrorAction onError)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task Refresh(ErrorAction onError) => await Task.CompletedTask;
 
     public bool Started { get; private set; }
     public bool Ready { get; private set; }

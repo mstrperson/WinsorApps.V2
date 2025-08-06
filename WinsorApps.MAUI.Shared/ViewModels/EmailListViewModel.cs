@@ -17,7 +17,7 @@ namespace WinsorApps.MAUI.Shared.ViewModels
             {
                 return;
             }
-            var email = new SelectableLabelViewModel() { Label = EmailEntry, IsSelected = true };
+            var email = new SelectableLabelViewModel(EmailEntry) {  IsSelected = true };
             email.Selected += (_, _) => Emails.Remove(email);
             Emails.Add(email);
             EmailEntry = "";

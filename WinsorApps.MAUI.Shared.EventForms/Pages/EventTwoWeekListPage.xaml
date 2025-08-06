@@ -393,10 +393,16 @@
                                                                 <!-- Horizontal line -->
                                                                 <BoxView Grid.Row="0" Grid.ColumnSpan="5" HeightRequest="1" BackgroundColor="Gray" />
                                                                 <!-- Event Details Row -->
-                                                                <Label Grid.Row="1" Grid.Column="0"
-                                                                   Text="{Binding StartDateTime, StringFormat='{0:h:mm tt}'}"
-                                                                   VerticalTextAlignment="Center"
-                                                                   HorizontalTextAlignment="Start" />
+                                                                <HorizontalStackLayout Grid.Row="1" Grid.Column="0"
+                                                                    Margin="0"
+                                                                    Padding="0">
+                                                                    <Label 
+                                                                       Text="{Binding StartDateTime, StringFormat='{0:h:mm tt}'}"
+                                                                       VerticalTextAlignment="Center"/>
+                                                                    <Label 
+                                                                       Text="{Binding EndDateTime, StringFormat='-  {0:h:mm tt}'}"
+                                                                       VerticalTextAlignment="Center"/>
+                                                                </HorizontalStackLayout>
                                                                 <Label Grid.Row="1" Grid.Column="1"
                                                                    Text="{Binding Summary}"
                                                                    ToolTipProperties.Text="{Binding Description}"

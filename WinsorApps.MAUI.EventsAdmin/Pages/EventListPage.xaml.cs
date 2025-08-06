@@ -2,6 +2,7 @@ using AsyncAwaitBestPractices;
 using WinsorApps.MAUI.EventsAdmin.ViewModels;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.EventForms.Pages;
+using WinsorApps.Services.Global;
 
 namespace WinsorApps.MAUI.EventsAdmin.Pages;
 
@@ -42,4 +43,5 @@ public partial class EventListPage : ContentPage
 	    ViewModel.Initialize(this.DefaultOnErrorAction()).SafeFireAndForget(ex => 
 		    ex.LogException());
     }
+
 }

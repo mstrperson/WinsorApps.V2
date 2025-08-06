@@ -37,6 +37,13 @@ public partial class EventListPageViewModel :
     [ObservableProperty] private bool showAll;
 
     [ObservableProperty] private DateTime start;
+    [ObservableProperty] private bool showMonthSelector;
+    [ObservableProperty] private ObservableCollection<SelectableViewModel<DateTime>> months = 
+    [.. 
+        new DateRange(DateTime.Today.MonthOf().AddYears(-1), DateTime.Today.MonthOf().AddYears(1))
+        .Where(dt => dt.Day == 1)
+        .Select(dt => dt.ToDateTime(default))
+    ];
     [ObservableProperty] private DateTime end;
     [ObservableProperty] private ObservableCollection<AdminFormViewModel> twoWeekList = [];
     [ObservableProperty] private double twoWeekHeight;
@@ -48,6 +55,20 @@ public partial class EventListPageViewModel :
     
     private static readonly double _headerHeight = 150;
     private static readonly double _rowHeight = 80;
+
+    [RelayCommand]
+    public async Task ToggleMonthSelector()
+    {
+        ShowMonthSelector = !ShowMonthSelector;
+        if(!ShowMonthSelector)
+        {
+            Start = Start.MonthOf();
+            End = Start.AddMonths(1);
+            await Refresh();
+        }
+    }
+
+
     public EventListPageViewModel()
     {
         var registrar = ServiceHelper.GetService<RegistrarService>();
@@ -80,6 +101,7 @@ public partial class EventListPageViewModel :
         Busy = true;
         BusyMessage = "Refreshing Events...";
         await _admin.GetAllEvents(OnError.DefaultBehavior(this), Start, End);
+        await _cacheService.Refresh(OnError.DefaultBehavior(this));
         LoadEvents([.. _admin.AllEvents]);
         Busy = false;
     }
@@ -138,8 +160,8 @@ public partial class EventListPageViewModel :
     {
         Busy = true;
         BusyMessage = "Loading Events...";
-        Start = Start.AddDays(14);
-        End = Start.AddDays(14);
+        Start = Start.AddMonths(1);
+        End = Start.AddMonths(1);
         if (End > _admin.CacheEndDate)
             _ = await _admin.GetAllEvents(OnError.DefaultBehavior(this), Start, End);
         
@@ -172,8 +194,8 @@ public partial class EventListPageViewModel :
     {
         Busy = true;
         BusyMessage = "Loading Events";
-        Start = Start.AddDays(-14);
-        End = Start.AddDays(14);
+        Start = Start.AddMonths(-1);
+        End = Start.AddMonths(1);
         if (Start < _admin.CacheStartDate)
             _ = await _admin.GetAllEvents(OnError.DefaultBehavior(this), Start, End);
         

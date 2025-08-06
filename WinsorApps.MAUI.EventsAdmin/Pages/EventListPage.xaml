@@ -60,6 +60,7 @@
                     BackgroundColor="Transparent"
                     IsVisible="{Binding ShowPending}"
                     ItemsSource="{Binding PendingEvents}"
+                    VerticalOptions="Start"
                     VerticalScrollBarVisibility="Always">
                     <CollectionView.Header>
                         <VerticalStackLayout
@@ -72,7 +73,7 @@
                             <BoxView StyleClass="Bar" />
                             <Grid
                                 RowDefinitions="*"
-                                ColumnDefinitions="120,400,200,150,600"
+                                ColumnDefinitions="120,600,300,150,600"
                                 BackgroundColor="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource SlateDark}}">
                                 <Label
                                     Grid.Column="0"
@@ -116,20 +117,35 @@
                                 <Grid
                                     WidthRequest="1600"
                                     RowDefinitions="*"
-                                    ColumnDefinitions="120,400,200,150,600">
+                                    ColumnDefinitions="120,600,300,150,600">
                                     <Label
                                         Grid.Column="0"
                                         Text="{Binding Form.Type.Type}" />
-                                    <Label
+                                    <HorizontalStackLayout
                                         Grid.Column="1"
-                                        Text="{Binding Form.Summary}">
-                                        <Label.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
-                                        </Label.GestureRecognizers>
-                                    </Label>
-                                    <Label
-                                        Grid.Column="2"
-                                        Text="{Binding Form.StartDate, StringFormat='{0:ddd d MMM, hh:mm tt}'}" />
+                                        Margin="0"
+                                        Padding="0"
+                                        Spacing="5">
+                                        <Label
+                                            StyleClass="Clickable"
+                                            Text="{Binding Form.Summary}">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                        <Label
+                                            Text="{Binding Form.LocationDisplay}"
+                                            ToolTipProperties.Text="{Binding Form.LocationToolTip}" />
+                                    </HorizontalStackLayout>
+                                    <HorizontalStackLayout
+                                        Margin="0"
+                                        Padding="0"
+                                        Grid.Column="2">
+                                        <Label
+                                            Text="{Binding Form.StartDate, StringFormat='{0:ddd d MMM, hh:mm tt}'}" />
+                                        <Label
+                                            Text="{Binding Form.EndDateTime, StringFormat='-  {0:hh:mm tt}'}" />
+                                    </HorizontalStackLayout>
                                     <Label
                                         Grid.Column="3"
                                         Text="{Binding Form.Leader.DisplayName}" />
@@ -137,7 +153,7 @@
                                         Margin="0"
                                         Padding="0"
                                         Grid.Column="4"
-                                        Spacing="15"
+                                        Spacing="5"
                                         HorizontalOptions="Center">
                                         <Button
                                             Text="Approve"
@@ -218,73 +234,83 @@
                                     Text="Events Pending Room Approval" />
                             <BoxView StyleClass="Bar" />
                             <Grid
-                                WidthRequest="1600"
-                                RowDefinitions="*"
-                                ColumnDefinitions="120,400,200,150,600"
-                                BackgroundColor="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource SlateDark}}">
+            RowDefinitions="*"
+            ColumnDefinitions="120,600,300,150,600"
+            BackgroundColor="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource SlateDark}}">
                                 <Label
-                                        Grid.Column="0"
-                                        StyleClass="SubHeader"
-                                        TextColor="White"
-                                        HorizontalTextAlignment="Center"
-                                        Text="Type" />
+                Grid.Column="0"
+                StyleClass="SubHeader"
+                TextColor="White"
+                HorizontalTextAlignment="Center"
+                Text="Type" />
                                 <Label
-                                        Grid.Column="1"
-                                        StyleClass="SubHeader"
-                                        TextColor="White"
-                                        HorizontalTextAlignment="Center"
-                                        Text="Event Name" />
+                Grid.Column="1"
+                StyleClass="SubHeader"
+                TextColor="White"
+                HorizontalTextAlignment="Center"
+                Text="Event Name" />
                                 <Label
-                                        Grid.Column="2"
-                                        StyleClass="SubHeader"
-                                        TextColor="White"
-                                        HorizontalTextAlignment="Center"
-                                        Text="Date" />
+                Grid.Column="2"
+                StyleClass="SubHeader"
+                TextColor="White"
+                HorizontalTextAlignment="Center"
+                Text="Date" />
                                 <Label
-                                        Grid.Column="3"
-                                        StyleClass="SubHeader"
-                                        TextColor="White"
-                                        HorizontalTextAlignment="Center"
-                                        Text="Leader" />
+                Grid.Column="3"
+                StyleClass="SubHeader"
+                TextColor="White"
+                HorizontalTextAlignment="Center"
+                Text="Leader" />
                                 <Label
-                                        Grid.Column="4"
-                                        StyleClass="SubHeader"
-                                        TextColor="White"
-                                        HorizontalTextAlignment="Center"
-                                        Text="Actions" />
+                Grid.Column="4"
+                StyleClass="SubHeader"
+                TextColor="White"
+                HorizontalTextAlignment="Center"
+                Text="Actions" />
                             </Grid>
                         </VerticalStackLayout>
                     </CollectionView.Header>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="vm:AdminFormViewModel">
                             <VerticalStackLayout
-                                    Margin="0"
-                                    Padding="0">
+            Margin="0"
+            Padding="0"
+            HorizontalOptions="Center">
                                 <Grid
-                                    WidthRequest="1600"
-                                    RowDefinitions="*"
-                                    ColumnDefinitions="120,400,200,150,600">
+                WidthRequest="1600"
+                RowDefinitions="*"
+                ColumnDefinitions="120,600,300,150,600">
                                     <Label
-                                            Grid.Column="0"
-                                            Text="{Binding Form.Type.Type}" />
-                                    <Label
-                                            Grid.Column="1"
-                                            Text="{Binding Form.Summary}">
-                                        <Label.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
-                                        </Label.GestureRecognizers>
-                                    </Label>
+                    Grid.Column="0"
+                    Text="{Binding Form.Type.Type}" />
                                     <HorizontalStackLayout
-                                            Margin="0"
-                                            Padding="0"
-                                            Grid.Column="2"
-                                            Spacing="15">
+                    Grid.Column="1"
+                    Margin="0"
+                    Padding="0"
+                    Spacing="5">
                                         <Label
-                                                Text="{Binding Form.StartDate, StringFormat='{0:ddd d MMM, hh:mm tt}'}" />
+                        StyleClass="Clickable"
+                        Text="{Binding Form.Summary}">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                        <Label
+                        Text="{Binding Form.LocationDisplay}"
+                        ToolTipProperties.Text="{Binding Form.LocationToolTip}" />
+                                    </HorizontalStackLayout>
+                                    <HorizontalStackLayout
+                    Margin="0"
+                    Padding="0"
+                    Grid.Column="2">
+                                        <Label
+                        Text="{Binding Form.StartDate, StringFormat='{0:ddd d MMM, hh:mm tt}'}" />
+                                        <Label
+                        Text="{Binding Form.EndDateTime, StringFormat='-  {0:hh:mm tt}'}" />
                                     </HorizontalStackLayout>
                                     <Label
-                                            Grid.Column="3"
-                                            Text="{Binding Form.Leader.DisplayName}" />
+                    Grid.Column="3"
+                    Text="{Binding Form.Leader.DisplayName}" />
                                     <HorizontalStackLayout
                                             Margin="0"
                                             Padding="0"
@@ -344,7 +370,7 @@
                                     </Border>
                                 </HorizontalStackLayout>
                                 <BoxView 
-                                    WidthRequest="1170"
+                                    WidthRequest="1600"
                                     Margin="0"
                                     HeightRequest="1"
                                     StyleClass="Bar" />
@@ -390,79 +416,83 @@
                             </HorizontalStackLayout>
                             <BoxView StyleClass="Bar" />
                             <Grid
-                                WidthRequest="1600"
-                                RowDefinitions="*"
-                                ColumnDefinitions="120,400,200,150,600"
-                                BackgroundColor="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource SlateDark}}">
+            RowDefinitions="*"
+            ColumnDefinitions="120,600,300,150,600"
+            BackgroundColor="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource SlateDark}}">
                                 <Label
-                                        Grid.Column="0"
-                                        StyleClass="SubHeader"
-                                        TextColor="White"
-                                        HorizontalTextAlignment="Center"
-                                        Text="Type" />
+                Grid.Column="0"
+                StyleClass="SubHeader"
+                TextColor="White"
+                HorizontalTextAlignment="Center"
+                Text="Type" />
                                 <Label
-                                        Grid.Column="1"
-                                        StyleClass="SubHeader"
-                                        TextColor="White"
-                                        HorizontalTextAlignment="Center"
-                                        Text="Event Name" />
+                Grid.Column="1"
+                StyleClass="SubHeader"
+                TextColor="White"
+                HorizontalTextAlignment="Center"
+                Text="Event Name" />
                                 <Label
-                                        Grid.Column="2"
-                                        StyleClass="SubHeader"
-                                        TextColor="White"
-                                        HorizontalTextAlignment="Center"
-                                        Text="Date" />
+                Grid.Column="2"
+                StyleClass="SubHeader"
+                TextColor="White"
+                HorizontalTextAlignment="Center"
+                Text="Date" />
                                 <Label
-                                        Grid.Column="3"
-                                        StyleClass="SubHeader"
-                                        TextColor="White"
-                                        HorizontalTextAlignment="Center"
-                                        Text="Leader" />
+                Grid.Column="3"
+                StyleClass="SubHeader"
+                TextColor="White"
+                HorizontalTextAlignment="Center"
+                Text="Leader" />
                                 <Label
-                                        Grid.Column="4"
-                                        StyleClass="SubHeader"
-                                        TextColor="White"
-                                        HorizontalTextAlignment="Center"
-                                        Text="Actions" />
+                Grid.Column="4"
+                StyleClass="SubHeader"
+                TextColor="White"
+                HorizontalTextAlignment="Center"
+                Text="Actions" />
                             </Grid>
                         </VerticalStackLayout>
                     </CollectionView.Header>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="vm:AdminFormViewModel">
                             <VerticalStackLayout
-                                    Margin="0"
-                                    Padding="0">
+            Margin="0"
+            Padding="0"
+            HorizontalOptions="Center">
                                 <Grid
-                                    WidthRequest="1600"
-                                    RowDefinitions="*"
-                                    ColumnDefinitions="120,400,200,150,600">
+                WidthRequest="1600"
+                RowDefinitions="*"
+                ColumnDefinitions="120,600,300,150,600">
                                     <Label
-                                            Grid.Column="0"
-                                            Text="{Binding Form.Type.Type}" />
+                    Grid.Column="0"
+                    Text="{Binding Form.Type.Type}" />
                                     <HorizontalStackLayout
-                                        Margin="0"
-                                        Padding="0"
-                                        Spacing="10"
-                                        Grid.Column="1">
-                                        <HorizontalStackLayout.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
-                                        </HorizontalStackLayout.GestureRecognizers>
+                    Grid.Column="1"
+                    Margin="0"
+                    Padding="0"
+                    Spacing="5">
                                         <Label
-                                            Text="{Binding Form.StatusSelection.Selected.Label, StringFormat='[{0}]'}" />
+                        StyleClass="Clickable"
+                        Text="{Binding Form.Summary}">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
                                         <Label
-                                            Text="{Binding Form.Summary}"/>
+                        Text="{Binding Form.LocationDisplay}"
+                        ToolTipProperties.Text="{Binding Form.LocationToolTip}" />
                                     </HorizontalStackLayout>
                                     <HorizontalStackLayout
-                                        Margin="0"
-                                        Padding="0"
-                                        Grid.Column="2"
-                                        Spacing="15">
+                    Margin="0"
+                    Padding="0"
+                    Grid.Column="2">
                                         <Label
-                                            Text="{Binding Form.StartDate, StringFormat='{0:ddd d MMM, hh:mm tt}'}" />
+                        Text="{Binding Form.StartDate, StringFormat='{0:ddd d MMM, hh:mm tt}'}" />
+                                        <Label
+                        Text="{Binding Form.EndDateTime, StringFormat='-  {0:hh:mm tt}'}" />
                                     </HorizontalStackLayout>
                                     <Label
-                                        Grid.Column="3"
-                                        Text="{Binding Form.Leader.DisplayName}" />
+                    Grid.Column="3"
+                    Text="{Binding Form.Leader.DisplayName}" />
                                     <HorizontalStackLayout
                                         Margin="0"
                                         Padding="0"
@@ -514,7 +544,7 @@
                                     </Border>
                                 </HorizontalStackLayout>
                                 <BoxView 
-                                    WidthRequest="1170"
+                                    WidthRequest="1600"
                                     Margin="0"
                                     HeightRequest="1"
                                     StyleClass="Bar" />
@@ -525,15 +555,18 @@
                 <!-- End Other Events -->
                 <!-- Two Week List -->
                 <CollectionView
-                    HeightRequest="{Binding TwoWeekHeight}"
+                    HeightRequest="{OnPlatform MacCatalyst={Binding TwoWeekHeight}}"
                     BackgroundColor="Transparent"
                     IsVisible="{Binding ShowAll}"
                     ItemsSource="{Binding TwoWeekList}"
+                    WidthRequest="1600"
                     VerticalScrollBarVisibility="Always">
                     <CollectionView.Header>
                         <VerticalStackLayout
                             Margin="0"
-                            Padding="0">
+                            Padding="0"
+                            WidthRequest="1600"
+                            HorizontalOptions="Center">
                             <HorizontalStackLayout
                                 Margin="0"
                                 Padding="0"
@@ -547,7 +580,28 @@
                                 </Image>
                                 <Label
                                     StyleClass="Header"
-                                    Text="{Binding Start, StringFormat='Two Week List: {0:ddd d MMMM yyyy}'}" />
+                                    IsVisible="{Binding ShowMonthSelector, Converter={StaticResource Invert}}"
+                                    Text="{Binding Start, StringFormat='Month of {0:MMMM yyyy}'}">
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding ToggleMonthSelectorCommand}" />
+                                    </Label.GestureRecognizers>
+                                </Label>
+                                <HorizontalStackLayout
+                                    Margin="0"
+                                    Padding="0"
+                                    IsVisible="{Binding ShowMonthSelector}"
+                                    Spacing="15">
+                                    <DatePicker
+                                        FontSize="Title"
+                                        Date="{Binding Start}"/>
+                                    <Image 
+                                        StyleClass="DownArrow"
+                                        WidthRequest="40">
+                                        <Image.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding ToggleMonthSelectorCommand}" />
+                                        </Image.GestureRecognizers>
+                                    </Image>
+                                </HorizontalStackLayout>
                                 <Image
                                     StyleClass="RightArrow">
                                     <Image.GestureRecognizers>
@@ -558,7 +612,7 @@
                             <BoxView StyleClass="Bar" />
                             <Grid
                                 RowDefinitions="*"
-                                ColumnDefinitions="120,550,200,150,150"
+                                ColumnDefinitions="120,550,400,150,150"
                                 BackgroundColor="{AppThemeBinding Light={StaticResource WinsorRed}, Dark={StaticResource SlateDark}}">
                                 <Label
                                     Grid.Column="0"
@@ -589,7 +643,7 @@
                                     StyleClass="SubHeader"
                                     TextColor="White"
                                     HorizontalTextAlignment="Center"
-                                    Text="Actions" />
+                                    Text="Locations" />
                             </Grid>
                         </VerticalStackLayout>
                     </CollectionView.Header>
@@ -600,8 +654,8 @@
                                     Padding="0">
                                 <Grid
                                     RowDefinitions="*"
-                                    WidthRequest="1170"
-                                    ColumnDefinitions="120,550,200,150,150">
+                                    WidthRequest="1600"
+                                    ColumnDefinitions="120,550,400,150,300">
                                     <Label
                                         Grid.Column="0"
                                         HorizontalTextAlignment="Center"
@@ -623,27 +677,20 @@
                                         Margin="0"
                                         Padding="0"
                                         Grid.Column="2"
-                                        HorizontalOptions="Center"
-                                        Spacing="15">
+                                        HorizontalOptions="Center">
                                         <Label
                                             Text="{Binding Form.StartDate, StringFormat='{0:ddd d MMM, hh:mm tt}'}" />
+                                        <Label
+                                            Text="{Binding Form.EndDateTime, StringFormat='-  {0:hh:mm tt}'}" />
                                     </HorizontalStackLayout>
                                     <Label
                                         Grid.Column="3"
                                         Text="{Binding Form.Leader.DisplayName}" />
-                                    <HorizontalStackLayout
-                                        Margin="0"
-                                        Padding="0"
-                                        Grid.Column="4"
-                                        HorizontalOptions="Center"
-                                        Spacing="15">
-                                        <Label
-                                                Text="Add Note">
-                                            <Label.GestureRecognizers>
-                                                <TapGestureRecognizer Command="{Binding ToggleShowNoteEditorCommand}" />
-                                            </Label.GestureRecognizers>
-                                        </Label>
-                                    </HorizontalStackLayout>
+                                    <Label
+                                            Grid.Column="4"
+                                            Text="{Binding Form.LocationDisplay}"
+                                            ToolTipProperties.Text="{Binding Form.LocationToolTip}"/>
+
                                 </Grid>
                                 <HorizontalStackLayout
                                     HorizontalOptions="Center"
@@ -684,7 +731,7 @@
                                     </Border>
                                 </HorizontalStackLayout>
                                 <BoxView 
-                                    WidthRequest="1170"
+                                    WidthRequest="1600"
                                     Margin="0"
                                     HeightRequest="1"
                                     StyleClass="Bar" />
