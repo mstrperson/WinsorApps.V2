@@ -276,6 +276,16 @@ public partial class EventFormViewModel :
                 $"Downloaded PDF for {Summary}.",
                 $"FileSaverResult has status IsSuccessful: {result.IsSuccessful}",
                 $"Saved file to: {result.FilePath ?? "nowhere"}");
+
+            if (result is { IsSuccessful: true, FilePath: not null })
+            {
+                ProcessStartInfo psi = new($"{result.FilePath}")
+                {
+                    UseShellExecute = true,
+                    Verb = "open"
+                };
+                Process.Start(psi);
+            }
         }
 
         Busy= false;
