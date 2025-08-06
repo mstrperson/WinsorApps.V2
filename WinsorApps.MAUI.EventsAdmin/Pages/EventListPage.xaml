@@ -56,7 +56,7 @@
                 </HorizontalStackLayout>
                 <!-- Pending Events -->
                 <CollectionView
-                    HeightRequest="{Binding PendingHeight}"
+                    HeightRequest="{OnPlatform MacCatalyst=1000}"
                     BackgroundColor="Transparent"
                     IsVisible="{Binding ShowPending}"
                     ItemsSource="{Binding PendingEvents}"
@@ -218,7 +218,7 @@
                 <!-- End Pending Events -->
                 <!-- Room Use Events -->
                 <CollectionView
-                    HeightRequest="{Binding WaitingHeight}"
+                    HeightRequest="{OnPlatform MacCatalyst=1000}"
                     WidthRequest="1600"
                     BackgroundColor="Transparent"
                     IsVisible="{Binding ShowWaiting}"
@@ -381,7 +381,7 @@
                 <!-- End Waiting Events -->
                 <!-- Other Events -->
                 <CollectionView
-                    HeightRequest="{Binding OtherHeight}"
+                    HeightRequest="{OnPlatform MacCatalyst=1000}"
                     WidthRequest="1600"
                     BackgroundColor="Transparent"
                     IsVisible="{Binding ShowOther}"
@@ -555,7 +555,7 @@
                 <!-- End Other Events -->
                 <!-- Two Week List -->
                 <CollectionView
-                    HeightRequest="{OnPlatform MacCatalyst={Binding TwoWeekHeight}}"
+                    HeightRequest="{OnPlatform MacCatalyst=1000}"
                     BackgroundColor="Transparent"
                     IsVisible="{Binding ShowAll}"
                     ItemsSource="{Binding TwoWeekList}"
