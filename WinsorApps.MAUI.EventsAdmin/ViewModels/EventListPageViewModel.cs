@@ -64,7 +64,9 @@ public partial class EventListPageViewModel :
         {
             Start = Start.MonthOf();
             End = Start.AddMonths(1);
-            await Refresh();
+            if (End > _admin.CacheEndDate || Start < _admin.CacheStartDate)
+                _ = await _admin.GetAllEvents(OnError.DefaultBehavior(this), Start, End);
+            await ReloadLists();
         }
     }
 
@@ -100,7 +102,8 @@ public partial class EventListPageViewModel :
     {
         Busy = true;
         BusyMessage = "Refreshing Events...";
-        await _admin.GetAllEvents(OnError.DefaultBehavior(this), Start, End);
+        _admin.ClearCache();
+        await _admin.ForceDelta(OnError.DefaultBehavior(this), DateTime.Today.AddDays(-7));
         await _cacheService.Refresh(OnError.DefaultBehavior(this));
         LoadEvents([.. _admin.AllEvents]);
         Busy = false;
@@ -111,21 +114,28 @@ public partial class EventListPageViewModel :
         Busy = true;
         BusyMessage = "Loading Events.";
 
-        AllEvents = [..  events.OrderBy(evt => evt.start).Select(_cacheService.Get)]; 
-        TwoWeekList = [.. AllEvents.Where(evt => 
-               evt.Form.StartDate >= Start 
+        AllEvents = [.. events.OrderBy(evt => evt.start).Select(_cacheService.Get)];
+        TwoWeekList = [.. AllEvents.Where(evt =>
+               evt.Form.StartDate >= Start
             && evt.Form.EndDate <= End
             && evt.Form.StatusSelection.Selected.Label != ApprovalStatusLabel.Withdrawn
             && evt.Form.StatusSelection.Selected.Label != ApprovalStatusLabel.Declined)];
         TwoWeekHeight = _headerHeight + (_rowHeight * TwoWeekList.Count);
-        
+
         PendingEvents = [.. AllEvents.Where(evt => evt.Form.StatusSelection.Selected.Label == ApprovalStatusLabel.Pending)];
         PendingHeight = _headerHeight + (_rowHeight * PendingEvents.Count);
         WaitingEvents = [.. AllEvents.Where(evt => evt.Form.StatusSelection.Selected.Label == ApprovalStatusLabel.RoomNotCleared)];
         WaitingHeight = _headerHeight + (_rowHeight * WaitingEvents.Count);
         OtherEvents = [.. TwoWeekList.Where(evt => !SpecificStates.Contains(evt.Form.StatusSelection.Selected.Label))];
         OtherHeight = _headerHeight + (_rowHeight * OtherEvents.Count);
+        ConnectEvents();
 
+        Busy = false;
+        HasLoaded = true;
+    }
+
+    private void ConnectEvents()
+    {
         foreach (var evt in AllEvents)
         {
             evt.OnError += (sender, e) => OnError?.Invoke(sender, e);
@@ -133,13 +143,13 @@ public partial class EventListPageViewModel :
             evt.PropertyChanged += ((IBusyViewModel)this).BusyChangedCascade;
             evt.StatusChanged += (_, _) =>
             {
-                TwoWeekList = [.. AllEvents.Where(evt => 
-                    evt.Form.StartDate >= Start 
+                TwoWeekList = [.. AllEvents.Where(evt =>
+                    evt.Form.StartDate >= Start
                     && evt.Form.EndDate <= End
                     && evt.Form.StatusSelection.Selected.Label != ApprovalStatusLabel.Withdrawn
                     && evt.Form.StatusSelection.Selected.Label != ApprovalStatusLabel.Declined)];
                 TwoWeekHeight = _headerHeight + (_rowHeight * TwoWeekList.Count);
-        
+
                 PendingEvents = [.. AllEvents.Where(evt => evt.Form.StatusSelection.Selected.Label == ApprovalStatusLabel.Pending)];
                 PendingHeight = _headerHeight + (_rowHeight * PendingEvents.Count);
                 WaitingEvents = [.. AllEvents.Where(evt => evt.Form.StatusSelection.Selected.Label == ApprovalStatusLabel.RoomNotCleared)];
@@ -148,9 +158,6 @@ public partial class EventListPageViewModel :
                 OtherHeight = _headerHeight + (_rowHeight * OtherEvents.Count);
             };
         }
-
-        Busy = false;
-        HasLoaded = true;
     }
 
     private static readonly string[] SpecificStates = [ApprovalStatusLabel.Pending, ApprovalStatusLabel.Approved, ApprovalStatusLabel.RoomNotCleared];
@@ -186,7 +193,11 @@ public partial class EventListPageViewModel :
         TwoWeekHeight = _headerHeight + (_rowHeight * TwoWeekList.Count);
         OtherEvents = [.. TwoWeekList.Where(evt => !SpecificStates.Contains(evt.Form.StatusSelection.Selected.Label))];
         OtherHeight = _headerHeight + (_rowHeight * OtherEvents.Count);
+
+        ConnectEvents();
+
         Busy = false;
+
     });
 
     [RelayCommand]

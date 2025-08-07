@@ -27,7 +27,11 @@ public partial class EventsAdminService(ApiService api, RegistrarService registr
     public List<EventFormBase> PendingEvents => [.. AllEvents.Where(evt => evt.status == ApprovalStatusLabel.Pending)];
     public List<EventFormBase> WaitingForRoom => [.. AllEvents.Where(evt => evt.status == ApprovalStatusLabel.RoomNotCleared)];
     public string CacheFileName => ".events-admin.cache";
-    public void ClearCache() { if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}"); }
+    public void ClearCache() 
+    { 
+        if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}");
+        AllEvents = [];
+    }
     public async Task SaveCache()
     {
         var json = JsonSerializer.Serialize(AllEvents);
@@ -126,6 +130,13 @@ public partial class EventsAdminService(ApiService api, RegistrarService registr
         await SaveCache();
     }
 
+    public async Task ForceDelta(ErrorAction onError, DateTime since)
+    {
+        _lastUpdated = new(Math.Min(_lastUpdated.Ticks, since.Ticks));
+
+        await Refresh(onError);
+    }
+
     private DateTime _lastUpdated;
 
     public async Task Refresh(ErrorAction onError)
@@ -134,8 +145,8 @@ public partial class EventsAdminService(ApiService api, RegistrarService registr
         if(result is not null && result.Count > 0)
         {
             await ComputeChangesAndUpdates(result);   
-            OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
-            await SaveCache();
+            //OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
+            //await SaveCache();
         }
         _lastUpdated = DateTime.Now;
     }

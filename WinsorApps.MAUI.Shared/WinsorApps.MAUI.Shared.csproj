@@ -22,7 +22,7 @@
     <ItemGroup>
         <PackageReference Include="CommunityToolkit.Maui.Core" Version="12.1.0" />
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-        <PackageReference Include="CoxProgramming.CSV" Version="1.2.0" />
+        <PackageReference Include="CoxProgramming.CSV" Version="1.2.2" />
         <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.12.1" />
         <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.12.1" />
         <PackageReference Include="Microsoft.Maui.Controls" Version="9.0.81" />

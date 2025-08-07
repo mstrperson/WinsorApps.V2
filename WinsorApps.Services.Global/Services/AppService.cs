@@ -36,6 +36,11 @@ namespace WinsorApps.Services.Global.Services
 
         public async Task<AppInstallerAvailableRoles> GetAllowedRoles(ErrorAction onError)
         {
+            if (string.IsNullOrEmpty(AppId))
+            {
+                _logging.LogMessage(LogLevel.Error, "AppId is not set. Cannot get allowed roles.");
+                return new("", "", []);
+            }
             var result = await _api.SendAsync<AppInstallerAvailableRoles>(HttpMethod.Get,
                 $"api/apps/{AppId}/roles", authorize: false, onError: onError);
 
@@ -44,6 +49,11 @@ namespace WinsorApps.Services.Global.Services
 
         public async Task<bool> AmIAllowed(ErrorAction onError)
         {
+            if (string.IsNullOrEmpty(AppId))
+            {
+                _logging.LogMessage(LogLevel.Error, "AppId is not set. Cannot check if user is allowed.");
+                return true;
+            }
             var roles = await _api.UserInfo!.GetRoles(_api);
             if (roles.Contains("System Admin"))
                 return true;
@@ -61,6 +71,11 @@ namespace WinsorApps.Services.Global.Services
 
         public async Task<bool> CheckForUpdates()
         {
+            if (string.IsNullOrEmpty(AppId))
+            {
+                _logging.LogMessage(LogLevel.Error, "AppId is not set. Cannot check for updates.");
+                return false;
+            }
             var app = await CheckAppStatus();
             if (app is null)
                 return false;
@@ -84,6 +99,11 @@ namespace WinsorApps.Services.Global.Services
 
         public async Task CheckForUpdates(Action<FileStreamWrapper> onNewVersionAvailable, ErrorAction onError)
         {
+            if (string.IsNullOrEmpty(AppId))
+            {
+                _logging.LogMessage(LogLevel.Error, "AppId is not set. Cannot check for updates.");
+                return;
+            }
             var app = await CheckAppStatus();
             if (app is null)
                 return;

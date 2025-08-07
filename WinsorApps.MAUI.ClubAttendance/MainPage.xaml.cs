@@ -24,9 +24,11 @@ namespace WinsorApps.MAUI.ClubAttendance
             [
                 new(registrar, "Registrar Data"),
                 new(clubs, "Club Info"),
-                new(app, "Checking for Updates")
+                //new(app, "Checking for Updates")
 
-            ], app, api, logging)
+            ], 
+            app,
+            api, logging)
             {
                 Completion = [
                 ],

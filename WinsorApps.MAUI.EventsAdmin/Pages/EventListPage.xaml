@@ -123,6 +123,7 @@
                                         Text="{Binding Form.Type.Type}" />
                                     <HorizontalStackLayout
                                         Grid.Column="1"
+                                        MinimumHeightRequest="40"
                                         Margin="0"
                                         Padding="0"
                                         Spacing="5">
@@ -148,24 +149,52 @@
                                     </HorizontalStackLayout>
                                     <Label
                                         Grid.Column="3"
-                                        Text="{Binding Form.Leader.DisplayName}" />
+                                        Text="{Binding Form.Leader.DisplayName}"
+                                        ToolTipProperties.Text="{Binding Form.Creator.DisplayName}"/>
                                     <HorizontalStackLayout
                                         Margin="0"
                                         Padding="0"
                                         Grid.Column="4"
                                         Spacing="5"
                                         HorizontalOptions="Center">
-                                        <Button
-                                            Text="Approve"
-                                            IsVisible="{Binding IsAdmin}"
-                                            Command="{Binding ApproveCommand}" />
-                                        <Button
-                                            Text="Decline"
-                                            IsVisible="{Binding IsAdmin}"
-                                            Command="{Binding RejectCommand}" />
-                                        <Button
-                                            Text="Add Note"
+                                        <Border
+                                            HeightRequest="30">
+                                            <Label
+                                                VerticalTextAlignment="Center"
+                                                StyleClass="Clickable"
+                                                Text="Approve"
+                                                IsVisible="{Binding IsAdmin}">
+                                                <Label.GestureRecognizers>
+                                                    <TapGestureRecognizer
+                                                        Command="{Binding ApproveCommand}" />
+                                                </Label.GestureRecognizers>
+                                            </Label>
+                                        </Border>
+                                        <Border
+                                            HeightRequest="30">
+                                            <Label
+                                                VerticalTextAlignment="Center"
+                                                StyleClass="Clickable"
+                                                Text="Decline"
+                                                IsVisible="{Binding IsAdmin}">
+                                                <Label.GestureRecognizers>
+                                                    <TapGestureRecognizer
+                                                        Command="{Binding RejectCommand}" />
+                                                </Label.GestureRecognizers>
+                                            </Label>
+                                        </Border>
+                                        <Border
+                                            HeightRequest="30">
+                                            <Label
+                                                VerticalTextAlignment="Center"
+                                                StyleClass="Clickable"
+                                            Text="Add Note">
+                                                <Label.GestureRecognizers>
+                                                    <TapGestureRecognizer
                                             Command="{Binding ToggleShowNoteEditorCommand}" />
+                                                </Label.GestureRecognizers>
+                                            </Label>
+                                        </Border>
                                     </HorizontalStackLayout>
                                 </Grid>
                                 <HorizontalStackLayout
@@ -656,6 +685,9 @@
                                     RowDefinitions="*"
                                     WidthRequest="1600"
                                     ColumnDefinitions="120,550,400,150,300">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                    </Grid.GestureRecognizers>
                                     <Label
                                         Grid.Column="0"
                                         HorizontalTextAlignment="Center"
@@ -665,13 +697,13 @@
                                         Padding="0"
                                         Spacing="10"
                                         Grid.Column="1">
-                                        <HorizontalStackLayout.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding SelectCommand}" />
-                                        </HorizontalStackLayout.GestureRecognizers>
                                         <Label
+                                            StyleClass="Clickable"
                                             Text="{Binding Form.StatusSelection.Selected.Label, StringFormat='[{0}]'}" />
                                         <Label
-                                            Text="{Binding Form.Summary}"/>
+                                            StyleClass="Clickable"
+                                            Text="{Binding Form.Summary}"
+                                            ToolTipProperties.Text="{Binding Form.Description}"/>
                                     </HorizontalStackLayout>
                                     <HorizontalStackLayout
                                         Margin="0"
@@ -685,7 +717,8 @@
                                     </HorizontalStackLayout>
                                     <Label
                                         Grid.Column="3"
-                                        Text="{Binding Form.Leader.DisplayName}" />
+                                        Text="{Binding Form.Leader.DisplayName}"
+                                        ToolTipProperties.Text="{Binding Form.Creator.DisplayName}"/>
                                     <Label
                                             Grid.Column="4"
                                             Text="{Binding Form.LocationDisplay}"
