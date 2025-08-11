@@ -1,5 +1,4 @@
 using WinsorApps.MAUI.TeacherAssessmentCalendar.ViewModels;
-using WinsorApps.MAUI.Shared;
 
 namespace WinsorApps.MAUI.TeacherAssessmentCalendar.Pages;
 

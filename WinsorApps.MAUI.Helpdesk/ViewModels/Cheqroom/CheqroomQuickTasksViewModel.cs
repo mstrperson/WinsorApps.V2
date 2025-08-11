@@ -1,7 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using WinsorApps.MAUI.Shared;
-using WinsorApps.MAUI.Shared.ViewModels;
+﻿using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Helpdesk.Services;
 

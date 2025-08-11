@@ -1,6 +1,3 @@
-using AsyncAwaitBestPractices;
-using WinsorApps.MAUI.Shared;
-
 namespace WinsorApps.MAUI.Helpdesk.Pages;
 
 public partial class CheckoutResultPage : ContentPage

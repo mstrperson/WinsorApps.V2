@@ -1,7 +1,4 @@
-﻿using Android.App;
-using Android.Runtime;
-
-namespace WinsorApps.MAUI.CDRE
+﻿namespace WinsorApps.MAUI.CDRE
 {
     [Application]
     public class MainApplication(IntPtr handle, JniHandleOwnership ownership) : MauiApplication(handle, ownership)

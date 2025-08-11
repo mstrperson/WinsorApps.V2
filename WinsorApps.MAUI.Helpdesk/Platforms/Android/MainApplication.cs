@@ -1,7 +1,4 @@
-﻿using Android.App;
-using Android.Runtime;
-
-namespace WinsorApps.MAUI.Helpdesk;
+﻿namespace WinsorApps.MAUI.Helpdesk;
 
 [Application]
 public class MainApplication(IntPtr handle, JniHandleOwnership ownership) : MauiApplication(handle, ownership)

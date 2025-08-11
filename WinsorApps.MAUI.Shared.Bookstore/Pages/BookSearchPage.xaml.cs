@@ -1,6 +1,4 @@
 using WinsorApps.MAUI.Shared.Bookstore.ViewModels;
-using WinsorApps.Services.Bookstore.Services;
-using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.Shared.Bookstore.Pages;
 

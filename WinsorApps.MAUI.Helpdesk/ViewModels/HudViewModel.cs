@@ -1,17 +1,10 @@
-﻿using AsyncAwaitBestPractices;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using System.Collections.Immutable;
-using System.Collections.ObjectModel;
-using WinsorApps.MAUI.Helpdesk.Pages;
+﻿using WinsorApps.MAUI.Helpdesk.Pages;
 using WinsorApps.MAUI.Helpdesk.Pages.Devices;
 using WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom;
 using WinsorApps.MAUI.Helpdesk.ViewModels.Devices;
 using WinsorApps.MAUI.Helpdesk.ViewModels.ServiceCases;
-using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.Pages;
 using WinsorApps.MAUI.Shared.ViewModels;
-using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Helpdesk.Services;
 

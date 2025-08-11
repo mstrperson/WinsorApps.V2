@@ -1,6 +1,4 @@
-﻿using Foundation;
-
-namespace WinsorApps.MAUI.CDRE
+﻿namespace WinsorApps.MAUI.CDRE
 {
     [Register("AppDelegate")]
     public class AppDelegate : MauiUIApplicationDelegate

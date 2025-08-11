@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using Microsoft.IdentityModel.JsonWebTokens;
+﻿using Microsoft.IdentityModel.JsonWebTokens;
 using System.Text.Json;
 using WinsorApps.Services.Global.Services;
 

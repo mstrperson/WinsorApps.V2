@@ -1,6 +1,4 @@
-﻿using UIKit;
-
-namespace WinsorApps.MAUI.StudentAssessmentCalendar
+﻿namespace WinsorApps.MAUI.StudentAssessmentCalendar
 {
     public class Program
     {

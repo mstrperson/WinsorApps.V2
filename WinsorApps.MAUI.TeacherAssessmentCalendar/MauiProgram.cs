@@ -1,12 +1,9 @@
 ﻿global using ErrorAction = System.Action<WinsorApps.Services.Global.Models.ErrorRecord>;
-
-using AsyncAwaitBestPractices;
 using CommunityToolkit.Maui.Core;
 using Microsoft.Extensions.Logging;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Global.Services;
-using WinsorApps.Services.Global;
 using WinsorApps.Services.AssessmentCalendar.Services;
 using WinsorApps.MAUI.TeacherAssessmentCalendar.ViewModels;
 using WinsorApps.MAUI.TeacherAssessmentCalendar.Pages;

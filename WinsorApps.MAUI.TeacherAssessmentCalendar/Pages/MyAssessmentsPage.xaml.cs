@@ -1,8 +1,6 @@
-using AsyncAwaitBestPractices;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.MAUI.TeacherAssessmentCalendar.ViewModels;
-using WinsorApps.Services.Global;
 
 namespace WinsorApps.MAUI.TeacherAssessmentCalendar.Pages;
 

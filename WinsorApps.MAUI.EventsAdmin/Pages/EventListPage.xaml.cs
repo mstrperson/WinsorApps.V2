@@ -2,7 +2,6 @@ using AsyncAwaitBestPractices;
 using WinsorApps.MAUI.EventsAdmin.ViewModels;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.EventForms.Pages;
-using WinsorApps.Services.Global;
 
 namespace WinsorApps.MAUI.EventsAdmin.Pages;
 

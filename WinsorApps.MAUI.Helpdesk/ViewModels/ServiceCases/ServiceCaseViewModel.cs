@@ -1,12 +1,3 @@
-using System.Collections.Concurrent;
-using System.Collections.Immutable;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using AsyncAwaitBestPractices;
-using CommunityToolkit.Maui.Storage;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using System.Printing;
 using WinsorApps.MAUI.Helpdesk.ViewModels.Devices;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.ViewModels;

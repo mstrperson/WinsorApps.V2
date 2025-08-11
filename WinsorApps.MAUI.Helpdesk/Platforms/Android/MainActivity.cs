@@ -1,7 +1,4 @@
-﻿using Android.App;
-using Android.Content.PM;
-
-namespace WinsorApps.MAUI.Helpdesk;
+﻿namespace WinsorApps.MAUI.Helpdesk;
 
 [Activity(Theme = "@style/Maui.SplashTheme", MainLauncher = true,
     ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode |

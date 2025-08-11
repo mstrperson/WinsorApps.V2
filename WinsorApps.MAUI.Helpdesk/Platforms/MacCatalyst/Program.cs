@@ -1,6 +1,4 @@
-﻿using UIKit;
-
-namespace WinsorApps.MAUI.Helpdesk;
+﻿namespace WinsorApps.MAUI.Helpdesk;
 
 public class Program
 {

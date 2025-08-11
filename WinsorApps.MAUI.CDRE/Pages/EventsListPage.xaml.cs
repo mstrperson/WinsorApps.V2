@@ -1,5 +1,4 @@
 using WinsorApps.MAUI.CDRE.ViewModels;
-using WinsorApps.MAUI.Shared;
 
 namespace WinsorApps.MAUI.CDRE.Pages;
 

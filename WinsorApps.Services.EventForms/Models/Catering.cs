@@ -1,6 +1,4 @@
-﻿using System.Collections.Immutable;
-
-namespace WinsorApps.Services.EventForms.Models;
+﻿namespace WinsorApps.Services.EventForms.Models;
 
 public record CreateCateringMenuItem(string name, double cost, bool availableForFieldTrip, DateTime effectiveDate = default, int ordinal = 0);
 public record CateringMenuItem(string id, string name, double pricePerPerson, string category, bool isDeleted, bool fieldTripItem, int ordinal);

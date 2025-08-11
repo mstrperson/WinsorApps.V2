@@ -1,6 +1,4 @@
-﻿using Foundation;
-
-namespace WinsorApps.MAUI.Helpdesk;
+﻿namespace WinsorApps.MAUI.Helpdesk;
 
 [Register("AppDelegate")]
 public class AppDelegate : MauiUIApplicationDelegate

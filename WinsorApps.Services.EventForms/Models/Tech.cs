@@ -1,6 +1,4 @@
-﻿using System.Collections.Immutable;
-
-namespace WinsorApps.Services.EventForms.Models;
+﻿namespace WinsorApps.Services.EventForms.Models;
 public record NewVirtualEvent(bool webinar, bool registration, bool chatEnabled,
         bool qaEnabled, string qaSupportPerson, bool recording, bool reminder, bool transcript,
         bool registrantList, bool zoomLink, string hostContactId, List<string> panelistIds);

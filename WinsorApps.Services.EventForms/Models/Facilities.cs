@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using WinsorApps.Services.Global.Models;
+﻿using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.Services.EventForms.Models;
 public record NewLocationSetup(string locationId, string instructions, bool includeSandwichSign = false, DateTime setupTime = default)

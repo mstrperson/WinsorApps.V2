@@ -1,13 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.ViewModels;
-using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.EventForms.Services;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;

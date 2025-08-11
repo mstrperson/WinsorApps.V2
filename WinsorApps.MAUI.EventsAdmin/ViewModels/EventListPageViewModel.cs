@@ -7,8 +7,6 @@ using WinsorApps.Services.EventForms.Models;
 using WinsorApps.Services.Global.Models;
 using WinsorApps.Services.Global.Services;
 using WinsorApps.Services.EventForms.Services.Admin;
-using System.Collections.Immutable;
-using WinsorApps.MAUI.Shared.EventForms.ViewModels;
 using WinsorApps.Services.Global;
 
 namespace WinsorApps.MAUI.EventsAdmin.ViewModels;
@@ -74,6 +72,11 @@ public partial class EventListPageViewModel :
     public EventListPageViewModel()
     {
         var registrar = ServiceHelper.GetService<RegistrarService>();
+        _cacheService.CacheUpdated += (_, args) =>
+        {
+            var toReplace = AllEvents.Where(evt => args.UpdatedEvents.Any(up => up.Id == evt.Form.Id)).ToList();
+            AllEvents = [..AllEvents.Except(toReplace), ..args.UpdatedEvents, ..args.NewEvents];
+        };
         isAdmin = registrar.MyRoles.Intersect(["System Admin", "Winsor - Events Admin"]).Any();
         isRegistrar = registrar.MyRoles.Intersect(["System Admin", "Registrar"]).Any();
         Start = DateTime.Today;
@@ -93,19 +96,27 @@ public partial class EventListPageViewModel :
         LoadEvents([.. _admin.AllEvents.Where(evt =>
             evt.status == ApprovalStatusLabel.Pending || evt.status == ApprovalStatusLabel.RoomNotCleared ||
             evt.start.MonthOf() == DateTime.Today.MonthOf())]);
-        _admin.OnCacheRefreshed += (_, _) => 
-            LoadEvents([.. _admin.AllEvents]);
+        
+        _cacheService.CacheUpdated += async (_, args) =>
+        {
+            var toReplace = AllEvents.Where(evt => args.UpdatedEvents.Any(up => up.Id == evt.Form.Id)).ToList();
+            AllEvents = [..AllEvents.Except(toReplace), ..args.UpdatedEvents, ..args.NewEvents];
+            AllEvents = [.. AllEvents.OrderBy(evt => evt.Form.StartDateTime)];
+            var updatedSubset = AllEvents.Where(evt => 
+                args.UpdatedEvents.Union(args.NewEvents).Any(up => up.Id == evt.Form.Id)).ToList();
+            ConnectEvents(updatedSubset);
+        };
     }
 
     [RelayCommand]
     public async Task Refresh()
     {
+        using DebugTimer _ = new("Refreshing Event List", ServiceHelper.GetService<LocalLoggingService>());
         Busy = true;
         BusyMessage = "Refreshing Events...";
-        _admin.ClearCache();
-        await _admin.ForceDelta(OnError.DefaultBehavior(this), DateTime.Today.AddDays(-7));
+        await _admin.GetAllEvents(OnError.DefaultBehavior(this), Start, End, true);
         await _cacheService.Refresh(OnError.DefaultBehavior(this));
-        LoadEvents([.. _admin.AllEvents]);
+        //LoadEvents([.. _admin.AllEvents]);
         Busy = false;
     }
     
@@ -128,15 +139,15 @@ public partial class EventListPageViewModel :
         WaitingHeight = _headerHeight + (_rowHeight * WaitingEvents.Count);
         OtherEvents = [.. TwoWeekList.Where(evt => !SpecificStates.Contains(evt.Form.StatusSelection.Selected.Label))];
         OtherHeight = _headerHeight + (_rowHeight * OtherEvents.Count);
-        ConnectEvents();
+        ConnectEvents(AllEvents);
 
         Busy = false;
         HasLoaded = true;
     }
 
-    private void ConnectEvents()
+    private void ConnectEvents(IEnumerable<AdminFormViewModel> events)
     {
-        foreach (var evt in AllEvents)
+        foreach (var evt in events)
         {
             evt.OnError += (sender, e) => OnError?.Invoke(sender, e);
             evt.Selected += (_, _) => FormSelected?.Invoke(this, evt);
@@ -194,7 +205,7 @@ public partial class EventListPageViewModel :
         OtherEvents = [.. TwoWeekList.Where(evt => !SpecificStates.Contains(evt.Form.StatusSelection.Selected.Label))];
         OtherHeight = _headerHeight + (_rowHeight * OtherEvents.Count);
 
-        ConnectEvents();
+        ConnectEvents(AllEvents);
 
         Busy = false;
 

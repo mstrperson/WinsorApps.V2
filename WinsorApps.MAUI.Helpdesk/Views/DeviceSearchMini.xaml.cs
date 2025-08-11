@@ -1,5 +1,3 @@
-using System.Collections.Immutable;
-using System.Diagnostics;
 using WinsorApps.MAUI.Helpdesk.ViewModels.Devices;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.Services.Helpdesk.Services;

@@ -1,6 +1,4 @@
-﻿using Foundation;
-
-namespace WinsorApps.MAUI.StudentAssessmentCalendar
+﻿namespace WinsorApps.MAUI.StudentAssessmentCalendar
 {
     [Register("AppDelegate")]
     public class AppDelegate : MauiUIApplicationDelegate

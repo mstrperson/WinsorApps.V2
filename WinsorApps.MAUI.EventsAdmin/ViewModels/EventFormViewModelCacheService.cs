@@ -1,7 +1,5 @@
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using WinsorApps.MAUI.Shared;
-using WinsorApps.MAUI.Shared.Converters;
 using WinsorApps.MAUI.Shared.EventForms.ViewModels;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.EventForms.Models;
@@ -24,13 +22,13 @@ public class EventFormViewModelCacheService : IAsyncInitService
         _adminService = adminService;
         _registrar = registrar;
         _logging = logging;
-
+/*
         _adminService.OnCacheRefreshed += (_, _) =>
         {
             using DebugTimer asjdklf = new("Refreshing Event Form View Model Cache", _logging);
             ViewModelCache = [];
             _ = _adminService.AllEvents.Select(Get);
-        };
+        };*/
     }
 
     private bool IsAdmin => _registrar.MyRoles.Intersect(["Winsor - Events Admin", "System Admin"]).Any();
@@ -194,9 +192,45 @@ public class EventFormViewModelCacheService : IAsyncInitService
             await Task.Delay(250);
     }
 
-    public async Task Refresh(ErrorAction onError) => await Task.CompletedTask;
+    public async Task Refresh(ErrorAction onError) => await Task.Run(() =>
+    {
+        using DebugTimer _ = new("Refreshing Event Form View Model Cache", _logging);
+        var allEvents = _adminService.AllEvents
+            .Select(evt => new KeyValuePair<string, EventFormBase>(evt.id, evt))
+            .ToDictionary();
+        var cache = ViewModelCache
+            .Select(evt => new KeyValuePair<string, EventFormBase>(evt.Id, evt.Model.Reduce(EventFormBase.Empty)))
+            .Where(kvp => !string.IsNullOrEmpty(kvp.Key))
+            .ToDictionary();
+        var unchanged = ViewModelCache
+            .Where(evt => allEvents[evt.Id].IsSameAs(cache[evt.Id]))
+            .ToList();
+
+        var newEvents = allEvents
+            .Where(kvp => !cache.ContainsKey(kvp.Key))
+            .Select(kvp => Get(kvp.Value))
+            .ToList();
+
+        var updatedEvents = ViewModelCache.Except(unchanged).ToList();
+        ViewModelCache.RemoveAll(updatedEvents.Contains);
+        updatedEvents.ForEach(evt => Get(allEvents[evt.Id]));
+        ViewModelCache.AddRange(newEvents);
+        CacheUpdated?.Invoke(this,
+            new([..ViewModelCache.Where(evt => updatedEvents.Any(up => evt.Id == up.Id))], newEvents));
+        _logging.LogMessage(LocalLoggingService.LogLevel.Debug, "Event Form View Model Cache",
+            $"Cache refreshed. {newEvents.Count} new events, {updatedEvents.Count} updated");
+    });
+
+    public event EventHandler<EventCacheUpdatedEventArgs>? CacheUpdated;
 
     public bool Started { get; private set; }
     public bool Ready { get; private set; }
     public double Progress { get; private set; }
+}
+
+public class EventCacheUpdatedEventArgs(List<EventFormViewModel> UpdatedEvents, List<EventFormViewModel> NewEvents)
+    : EventArgs
+{
+    public List<EventFormViewModel> UpdatedEvents { get; } = UpdatedEvents;
+    public List<EventFormViewModel> NewEvents { get; } = NewEvents;
 }

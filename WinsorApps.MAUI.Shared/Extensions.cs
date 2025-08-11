@@ -1,7 +1,6 @@
 global using ErrorAction = System.Action<WinsorApps.Services.Global.Models.ErrorRecord>;
 
 using AsyncAwaitBestPractices;
-using System.Threading.Tasks;
 using WinsorApps.MAUI.Shared.Pages;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Global;

@@ -3,9 +3,7 @@
 using AsyncAwaitBestPractices;
 using CommunityToolkit.Maui.Core;
 using Microsoft.Extensions.Logging;
-using Microsoft.Maui.Handlers;
 using WinsorApps.MAUI.Shared;
-using WinsorApps.MAUI.Shared.Athletics;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.MAUI.WorkoutAdmin.Pages;
 using WinsorApps.MAUI.WorkoutAdmin.ViewModels;

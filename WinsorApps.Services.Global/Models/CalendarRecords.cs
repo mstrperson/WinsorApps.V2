@@ -1,6 +1,4 @@
-﻿using System.Collections.Immutable;
-
-namespace WinsorApps.Services.Global.Models;
+﻿namespace WinsorApps.Services.Global.Models;
 
 public record CalendarEvent<T>(
     DateTime start,
