@@ -211,7 +211,8 @@
                         Margin="0">
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="vm:CateringMenuSelectionViewModel">
-                                <StackLayout>
+                                <StackLayout
+                                    IsVisible="{Binding Item.Deleted, Converter={StaticResource Invert}}">
                                     <StackLayout Orientation="Horizontal">
                                         <Label
                                             Text="{Binding Item.Name}" 
