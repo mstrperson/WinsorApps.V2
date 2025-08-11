@@ -292,6 +292,7 @@ public partial class CateringMenuCollectionViewModel :
     IErrorHandling
 {
     private readonly CateringMenuService _service;
+    private readonly LocalLoggingService _logging = ServiceHelper.GetService<LocalLoggingService>();
     [ObservableProperty] private List<CateringMenuViewModel> menus = [];
     [ObservableProperty] private CateringMenuViewModel selectedMenu = new();
     [ObservableProperty] private bool showMenus = true;
@@ -305,7 +306,7 @@ public partial class CateringMenuCollectionViewModel :
         }
     }
 
-    public CateringMenuSelectionViewModel this[CateringMenuItem item]
+    public CateringMenuSelectionViewModel? this[CateringMenuItem item]
     {
         get
         {
@@ -315,12 +316,19 @@ public partial class CateringMenuCollectionViewModel :
                     return menu.Items.First(sel => sel.Item.Id == item.id);
             }
 
-            throw new ArgumentException(nameof(item), $"Item {item.id} not found");
+            foreach(var menu in Menus)
+            {
+                if (menu.Items.Any(sel => sel.Item.Name == item.name))
+                    return menu.Items.First(sel => sel.Item.Name == item.name);
+            }
+
+            (new ArgumentException(nameof(item), $"Item {item.id} not found")).LogException();
+            return null;
         }
     }
 
 
-    public CateringMenuSelectionViewModel this[CateringMenuItemViewModel item]
+    public CateringMenuSelectionViewModel? this[CateringMenuItemViewModel item]
     {
         get
         {
@@ -330,7 +338,14 @@ public partial class CateringMenuCollectionViewModel :
                     return menu.Items.First(sel => sel.Item.Id == item.Id);
             }
 
-            throw new ArgumentException(nameof(item), $"Item {item.Id} not found");
+            foreach (var menu in Menus)
+            {
+                if (menu.Items.Any(sel => sel.Item.Name == item.Name))
+                    return menu.Items.First(sel => sel.Item.Name == item.Name);
+            }
+
+            (new ArgumentException(nameof(item), $"Item {item.Name} not found")).LogException();
+            return null;
         }
     }
 
@@ -386,6 +401,8 @@ public partial class CateringMenuCollectionViewModel :
         foreach (var sel in selections)
         {
             var vm = this[sel.item];
+            if (vm is null)
+                continue;
             vm.Quantity = sel.quantity;
             vm.Cost = sel.cost;
             vm.IsSelected = true;

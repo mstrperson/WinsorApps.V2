@@ -42,7 +42,7 @@ namespace WinsorApps.Services.EventForms.Services
             Started = true;
             if (!LoadCache())
             {
-                MenuCategories = await _api.SendAsync<List<CateringMenuCategory>?>(HttpMethod.Get, "api/events/catering/menu/all") ?? [];
+                MenuCategories = await _api.SendAsync<List<CateringMenuCategory>?>(HttpMethod.Get, "api/events/catering/menu?availableOnly=false") ?? [];
                 await SaveCache();
             }
             Progress = 1;
@@ -52,7 +52,7 @@ namespace WinsorApps.Services.EventForms.Services
 
         public async Task Refresh(ErrorAction onError)
         {
-            MenuCategories = await _api.SendAsync<List<CateringMenuCategory>?>(HttpMethod.Get, "api/events/catering/menu/all") ?? [];
+            MenuCategories = await _api.SendAsync<List<CateringMenuCategory>?>(HttpMethod.Get, "api/events/catering/menu?availableOnly=false") ?? [];
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
             await SaveCache();
         }
@@ -100,7 +100,7 @@ namespace WinsorApps.Services.EventForms.Services
 
         public async Task RefreshCache()
         {
-            MenuCategories = await _api.SendAsync<List<CateringMenuCategory>?>(HttpMethod.Get, "api/events/catering/menu") ?? [];
+            MenuCategories = await _api.SendAsync<List<CateringMenuCategory>?>(HttpMethod.Get, "api/events/catering/menu?availableOnly=false") ?? [];
             await SaveCache();
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         }
