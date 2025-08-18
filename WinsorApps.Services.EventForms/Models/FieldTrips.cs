@@ -1,4 +1,6 @@
-﻿namespace WinsorApps.Services.EventForms.Models;
+﻿using System.Collections.Immutable;
+
+namespace WinsorApps.Services.EventForms.Models;
 
 public record VehicleCategory(string id, string label, int passengers);
 

@@ -1,4 +1,5 @@
-﻿using WinsorApps.Services.Global.Models;
+﻿using System.Collections.Immutable;
+using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.Services.EventForms.Models;
 public record TheaterMenuCategory(string id, string name, List<TheaterMenuItem> items, bool deleted = false);

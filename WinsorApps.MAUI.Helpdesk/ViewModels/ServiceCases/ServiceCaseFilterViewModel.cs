@@ -1,4 +1,5 @@
-﻿using WinsorApps.MAUI.Helpdesk.ViewModels.Devices;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using WinsorApps.MAUI.Helpdesk.ViewModels.Devices;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Helpdesk.Models;
 

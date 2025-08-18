@@ -2,8 +2,15 @@
 using CommunityToolkit.Maui.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Diagnostics.Contracts;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.Bookstore.ViewModels;
 using WinsorApps.MAUI.Shared.ViewModels;

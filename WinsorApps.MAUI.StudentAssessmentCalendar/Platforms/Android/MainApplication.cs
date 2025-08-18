@@ -1,4 +1,7 @@
-﻿namespace WinsorApps.MAUI.StudentAssessmentCalendar
+﻿using Android.App;
+using Android.Runtime;
+
+namespace WinsorApps.MAUI.StudentAssessmentCalendar
 {
     [Application]
     public class MainApplication(IntPtr handle, JniHandleOwnership ownership) : MauiApplication(handle, ownership)

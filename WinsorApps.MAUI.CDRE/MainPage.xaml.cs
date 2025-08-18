@@ -1,4 +1,5 @@
-﻿using WinsorApps.MAUI.CDRE.Pages;
+﻿using AsyncAwaitBestPractices;
+using WinsorApps.MAUI.CDRE.Pages;
 using WinsorApps.MAUI.CDRE.ViewModels;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.Pages;

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Immutable;
+using System.Diagnostics;
 using System.IO.Compression;
 using CommunityToolkit.Maui.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -61,7 +62,7 @@ public partial class AdminCalendarViewModel :
 
         Calendar.PropertyChanged += ((IBusyViewModel)this).BusyChangedCascade;
         
-        _cacheService.CacheUpdated += async (_, _) =>
+        _admin.OnCacheRefreshed += async (_, _) =>
         {
             Busy = true;
             BusyMessage = "Refreshing Event List";

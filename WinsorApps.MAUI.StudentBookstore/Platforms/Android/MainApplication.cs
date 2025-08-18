@@ -1,4 +1,7 @@
-﻿namespace WinsorApps.MAUI.StudentBookstore
+﻿using Android.App;
+using Android.Runtime;
+
+namespace WinsorApps.MAUI.StudentBookstore
 {
     [Application]
     public class MainApplication(IntPtr handle, JniHandleOwnership ownership) : MauiApplication(handle, ownership)

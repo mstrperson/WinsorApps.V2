@@ -1,11 +1,17 @@
 ﻿global using ErrorAction = System.Action<WinsorApps.Services.Global.Models.ErrorRecord>;
+
+using AsyncAwaitBestPractices;
+using CommunityToolkit.Maui.Core;
+using Microsoft.Extensions.Logging;
 using WinsorApps.MAUI.Helpdesk.Pages;
 using WinsorApps.MAUI.Helpdesk.Pages.Devices;
 using WinsorApps.MAUI.Helpdesk.ViewModels;
 using WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom;
+using WinsorApps.MAUI.Helpdesk.ViewModels.Devices;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.Pages;
 using WinsorApps.MAUI.Shared.ViewModels;
+using WinsorApps.Services.Global;
 using WinsorApps.Services.Global.Services;
 using WinsorApps.Services.Helpdesk.Services;
 

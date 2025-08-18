@@ -1,7 +1,12 @@
-﻿using WinsorApps.MAUI.Shared;
+﻿using Microsoft.Extensions.Logging;
+using CommunityToolkit.Maui.Core;
+using WinsorApps.Services.Global;
+using WinsorApps.MAUI.Shared;
 using WinsorApps.Services.Global.Services;
+using AsyncAwaitBestPractices;
 using WinsorApps.MAUI.CDRE.Pages;
 using WinsorApps.MAUI.CDRE.ViewModels;
+using Xe.AcrylicView;
 
 namespace WinsorApps.MAUI.CDRE
 {

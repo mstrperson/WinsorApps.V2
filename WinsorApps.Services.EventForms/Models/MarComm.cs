@@ -1,4 +1,6 @@
-﻿namespace WinsorApps.Services.EventForms.Models;
+﻿using System.Collections.Immutable;
+
+namespace WinsorApps.Services.EventForms.Models;
 public record NewMarCommRequest(bool printInvite, bool digitalInvite,
         bool newsletterReminder, bool emailReminder, bool scriptHelp, bool printedProgram, bool digitalProgram,
         bool needCreatedMedia, bool needPhotographer, List<string> inviteContactIds);

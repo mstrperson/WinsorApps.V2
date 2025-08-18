@@ -1,4 +1,5 @@
-﻿using WinsorApps.MAUI.Shared.ViewModels;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Helpdesk.Models;
 
 namespace WinsorApps.MAUI.Helpdesk.ViewModels.Cheqroom

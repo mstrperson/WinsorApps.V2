@@ -4,6 +4,8 @@ using AsyncAwaitBestPractices;
 using CommunityToolkit.Maui.Core;
 using Microsoft.Extensions.Logging;
 using WinsorApps.MAUI.Shared;
+using WinsorApps.MAUI.Shared.Athletics;
+using WinsorApps.MAUI.Shared.Athletics.ViewModels;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Athletics.Services;
 using WinsorApps.Services.Global;

@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Collections.Immutable;
+using System.Text.Json;
 using WinsorApps.Services.Global.Models;
 using static WinsorApps.Services.Global.Services.LocalLoggingService;
 

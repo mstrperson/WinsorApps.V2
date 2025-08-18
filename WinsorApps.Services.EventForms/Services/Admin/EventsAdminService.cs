@@ -1,5 +1,6 @@
 ﻿using WinsorApps.Services.Global.Services;
 using WinsorApps.Services.EventForms.Models;
+using System.Collections.Immutable;
 using WinsorApps.Services.Global;
 using WinsorApps.Services.EventForms.Models.Admin;
 using System.Text.Json;
@@ -9,14 +10,14 @@ using AsyncAwaitBestPractices;
 namespace WinsorApps.Services.EventForms.Services.Admin;
 
 public partial class EventsAdminService(ApiService api, RegistrarService registrar, LocalLoggingService logging) :
-    IAsyncInitService
-    //IAutoRefreshingCacheService
+    IAsyncInitService,
+    IAutoRefreshingCacheService
 {
     private readonly RegistrarService _registrar = registrar;
     private readonly ApiService _api = api;
     private readonly LocalLoggingService _logging = logging;
 
-    //public event EventHandler? OnCacheRefreshed;
+    public event EventHandler? OnCacheRefreshed;
 
     public DateTime CacheStartDate { get; private set; }
     public DateTime CacheEndDate { get; private set; }
@@ -166,8 +167,8 @@ public partial class EventsAdminService(ApiService api, RegistrarService registr
         var toReplace = AllEvents.Where(evt => changes.Any(update => update.id == evt.id)).ToList();
 
         AllEvents = [.. AllEvents.Except(toReplace).Union(changes).Union(newEvents)];
-        //if(!suppressRefresh)
-        //    OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
+        if(!suppressRefresh)
+            OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
         await SaveCache();
     }
 
@@ -196,7 +197,6 @@ public partial class EventsAdminService(ApiService api, RegistrarService registr
 
     public async Task<List<EventFormBase>> GetAllEvents(ErrorAction onError, DateTime start, DateTime end, bool suppressRefresh = false)
     {
-        using DebugTimer _ = new($"Getting All Events Between {start:yyyy MMMM dd} and {end:yyyy MMMM dd}", _logging);
         if(suppressRefresh)
             return [.. AllEvents.Where(evt => evt.start >= start && evt.end <= end)];
 
@@ -238,7 +238,7 @@ public partial class EventsAdminService(ApiService api, RegistrarService registr
         if (result is not null)
         {
             await ComputeChangesAndUpdates([result]);
-            //OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
+            OnCacheRefreshed?.Invoke(this, EventArgs.Empty);
             _logging.LogMessage(LocalLoggingService.LogLevel.Information, $"{result.summary} - {result.start:yyyy-MM-dd} was declined.");
             return Optional<EventFormBase>.Some(result);
         }

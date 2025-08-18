@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace WinsorApps.Services.Bookstore.Models;
 
 public record BookSearchFilter(string? title = null, string? isbn = null, string? publisher = null)

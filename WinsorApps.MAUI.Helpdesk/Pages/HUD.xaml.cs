@@ -1,5 +1,6 @@
 using WinsorApps.MAUI.Helpdesk.Pages.ServiceCase;
 using WinsorApps.MAUI.Helpdesk.ViewModels;
+using WinsorApps.MAUI.Shared;
 
 namespace WinsorApps.MAUI.Helpdesk.Pages;
 

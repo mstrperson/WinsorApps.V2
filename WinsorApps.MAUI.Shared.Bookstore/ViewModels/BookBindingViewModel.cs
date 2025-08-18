@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using System.Collections.Concurrent;
 using WinsorApps.MAUI.Shared.ViewModels;
 using WinsorApps.Services.Bookstore.Models;
 using WinsorApps.Services.Bookstore.Services;

@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Maui.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System.Collections.Concurrent;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using WinsorApps.MAUI.Shared.ViewModels;
@@ -951,12 +953,13 @@ public partial class EventFormViewModel :
     {
         await service.WaitForInit(onError);
 
-        /*service.OnCacheRefreshed += (_, _) =>
+        service.OnCacheRefreshed += (_, _) =>
         {
             _ = service.AllEvents.Select(Get);
-        };*/
+        };
         
         _ = service.AllEvents.Select(Get);
+        
     }
     
     public EventFormViewModel Clone() => 

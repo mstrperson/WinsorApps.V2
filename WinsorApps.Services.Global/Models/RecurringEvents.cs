@@ -1,4 +1,6 @@
-﻿namespace WinsorApps.Services.Global.Models;
+﻿using System.Collections.Immutable;
+
+namespace WinsorApps.Services.Global.Models;
 
 public record CycleDayRecurringEvent(string id, DateOnly beginning, DateOnly ending, string creatorId,
         string summary, string description, List<string> attendees, bool allDay, TimeOnly time, int duration,

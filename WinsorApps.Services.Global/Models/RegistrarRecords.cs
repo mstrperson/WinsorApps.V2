@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Immutable;
+using System.Diagnostics;
 using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.Services.Global.Models;

@@ -1,4 +1,7 @@
-﻿namespace WinsorApps.Services.Global.Models;
+﻿using System.Collections.Immutable;
+using System.Text.Json.Serialization;
+
+namespace WinsorApps.Services.Global.Models;
 
 public record NoteRecord(string note)
 {
