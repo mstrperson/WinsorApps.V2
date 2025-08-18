@@ -78,10 +78,36 @@
                         Grid.Row="0"
                         HorizontalOptions="End">
                         <Label Text="Every"/>
-                        <Picker
-                            SelectedItem="{Binding Frequency }"
-                            ItemsSource="{Binding FrequencyOptions}"
-                            TranslationY="-3"/>
+                        <Border StrokeThickness="1">
+                            <VerticalStackLayout
+                                Padding="0"
+                                Margin="0">
+                                <Label
+                                    Text="{Binding Frequency}"
+                                    IsVisible="{Binding ShowFrequencyOptions, Converter={StaticResource Invert}}">
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding ToggleShowFreqOptsCommand}"/>
+                                    </Label.GestureRecognizers>
+                                </Label>
+                                <CollectionView
+                                    ItemsSource="{Binding FrequencyOptions}"
+                                    IsVisible="{Binding ShowFrequencyOptions}"
+                                    WidthRequest="100">
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate x:DataType="svm:SelectableLabelViewModel">
+                                            <HorizontalStackLayout
+                                                Margin="0"
+                                                Padding="0">
+                                                <HorizontalStackLayout.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding SelectCommand}"/>
+                                                </HorizontalStackLayout.GestureRecognizers>
+                                                <Label Text="{Binding Label}"/>
+                                            </HorizontalStackLayout>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
+                            </VerticalStackLayout>
+                        </Border>
                         <Label Text="Cycle(s)"/>
                     </HorizontalStackLayout>
                     <HorizontalStackLayout
@@ -197,7 +223,8 @@
                         IsEnabled="True"/>
                 </HorizontalStackLayout>
 
-                <HorizontalStackLayout>
+                <HorizontalStackLayout
+                    Spacing="50">
                        <Button 
                             Text="Save" 
                             Command="{Binding SubmitCommand}"

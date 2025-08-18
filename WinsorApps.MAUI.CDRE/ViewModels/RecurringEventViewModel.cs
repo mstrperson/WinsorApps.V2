@@ -133,18 +133,31 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         [ObservableProperty] private int frequency = 1;
         [ObservableProperty] private bool isPublic;
         [ObservableProperty] private bool showDelete = false;
-        [ObservableProperty] private int[] frequencyOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+        [ObservableProperty] private ObservableCollection<SelectableLabelViewModel> frequencyOptions = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
+        [ObservableProperty] private bool showFrequencyOptions;
         [ObservableProperty] private bool busy;
         [ObservableProperty] private string busyMessage = "Loading";
        
         public int Duration => (int)(EndTime - StartTime).TotalMinutes;
 
-
+        public RecurringEventViewModel()
+        {
+            foreach (var entry in FrequencyOptions)
+                entry.Selected += (_, _) =>
+                {
+                    Frequency = int.Parse(entry.Label);
+                    ShowFrequencyOptions = false;
+                };
+        }
+        
         public event EventHandler<RecurringEventViewModel>? OnCreated;
         public event EventHandler<RecurringEventViewModel>? OnUpdated;
         public event EventHandler<RecurringEventViewModel>? OnDelete;
         public event EventHandler<RecurringEventViewModel>? EditRequested;
 
+        [RelayCommand]
+        public void ToggleShowFreqOpts() => ShowFrequencyOptions = !ShowFrequencyOptions;
+        
         [RelayCommand]
         public async Task Submit()
         {
