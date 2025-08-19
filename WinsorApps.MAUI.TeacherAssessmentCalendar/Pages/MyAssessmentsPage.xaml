@@ -155,7 +155,7 @@
                     <BoxView StyleClass="Bar" />
                     <!-- Existing Assessments -->
                     <CollectionView
-                        MinimumHeightRequest="800"
+                        MinimumHeightRequest="{OnPlatform MacCatalyst=800}"
                         IsVisible="{Binding AssessmentCollection.ShowSelectedGroup, Converter={StaticResource Invert}}"
                         ItemsSource="{Binding AssessmentCollection.MyAssessmentGroups}"
                         BackgroundColor="Transparent">
@@ -174,24 +174,28 @@
                                     Margin="0"
                                     Padding="0">
                                     <BoxView StyleClass="Bar"/>
-                                    <HorizontalStackLayout
+                                    <Grid
+                                        ColumnDefinitions="650,*"
                                         Margin="0"
-                                        Padding="0"
-                                        Spacing="30">
+                                        Padding="0">
                                         <Label
-                                            StyleClass="H3"
+                                            Grid.Column="0"
+                                            MaximumWidthRequest="650"
+                                            StyleClass="H3,Clickable"
                                             Text="{Binding Label}">
                                             <Label.GestureRecognizers>
                                                 <TapGestureRecognizer Command="{Binding SelectCommand}" />
                                             </Label.GestureRecognizers>
                                         </Label>
                                         <Image
+                                            Grid.Column="1"
+                                            HeightRequest="30"
                                             StyleClass="DeleteButton">
                                             <Image.GestureRecognizers>
                                                 <TapGestureRecognizer Command="{Binding DeleteCommand}" />
                                             </Image.GestureRecognizers>
                                         </Image>
-                                    </HorizontalStackLayout>
+                                    </Grid>
                                     <CollectionView
                                         MinimumHeightRequest="75"
                                         ItemsSource="{Binding Assessments}"

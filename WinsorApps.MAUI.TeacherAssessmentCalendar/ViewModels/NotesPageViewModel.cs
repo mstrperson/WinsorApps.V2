@@ -112,10 +112,10 @@ public partial class NoteViewModel :
     [ObservableProperty] string note = "";
     [ObservableProperty] ObservableCollection<SelectableLabelViewModel> affectedClasses =
         [
-            new() { Label = "Class V" },
-            new() { Label = "Class VI" },
-            new() { Label = "Class VII" },
-            new() { Label = "Class VIII" }
+            new("Class V"),
+            new("Class VI"),
+            new("Class VII"),
+            new("Class VIII")
         ];
     [ObservableProperty] DateTime date = DateTime.Today;
 

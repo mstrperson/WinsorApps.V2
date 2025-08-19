@@ -6,7 +6,7 @@
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
   IgnorableNamespaces="uap rescap">
 
-  <Identity Name="maui-package-name-placeholder" Publisher="CN=The Winsor School, O=The Winsor School, L=Boston, S=Massachusetts, C=US" Version="1.3.1.0" />
+  <Identity Name="maui-package-name-placeholder" Publisher="CN=The Winsor School, O=The Winsor School, L=Boston, S=Massachusetts, C=US" Version="1.3.2.0" />
 
   <mp:PhoneIdentity PhoneProductId="BF326157-6179-4D0B-BABB-DC9002F9BCF1" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 

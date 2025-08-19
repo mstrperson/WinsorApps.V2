@@ -120,6 +120,8 @@
                     <Editor
                         HeightRequest="100"
                         Placeholder="Please enter details that are relevant to everyone to see here.  Sub forms will have specific information for other folks."
+                        TextColor="{DynamicResource DarkBlue}"
+                        BackgroundColor="{DynamicResource WarmGrey}"
                         Text="{Binding Description}" />
                     <BoxView StyleClass="Bar"/>
                     <!-- Start and End Dates and Times -->

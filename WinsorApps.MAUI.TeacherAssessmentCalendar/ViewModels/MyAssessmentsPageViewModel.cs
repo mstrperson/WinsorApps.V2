@@ -58,7 +58,6 @@ public partial class MyAssessmentsPageViewModel :
             PageRequested?.Invoke(this, studentPage);
         };
 
-
         _service = service;
         _registrar = registrar;
 

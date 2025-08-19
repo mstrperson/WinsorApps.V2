@@ -81,7 +81,7 @@ public partial class AssessmentGroupViewModel :
     }
 
     [RelayCommand]
-    private async Task LoadGroup()
+    public async Task LoadGroup()
     {
         Note = _group.note;
         Assessments = [.. Course.Course.CurrentSections.Select(AssessmentEditorViewModel.Create)];
@@ -187,7 +187,7 @@ public partial class AssessmentGroupViewModel :
         {
             _group = result;
             Label = string.IsNullOrEmpty(Note) ? Course.Course.DisplayName : $"{Course.Course.DisplayName} - {Note}";
-            LoadGroup().SafeFireAndForget(e => e.LogException());
+            await LoadGroup();
             Saved?.Invoke(this, EventArgs.Empty);
         }
         Busy = false;
@@ -197,6 +197,8 @@ public partial class AssessmentGroupViewModel :
     public void Select()
     {
         IsSelected = !IsSelected;
+        if (IsSelected)
+            MainThread.BeginInvokeOnMainThread(async () => await LoadGroup());
         Selected?.Invoke(this, this);
     }
 }
@@ -319,9 +321,9 @@ public partial class MyAssessmentsCollectionViewModel :
             .Select(grp => new AssessmentGroupViewModel(grp))
         ];
 
-        foreach(var assessment in MyAssessmentGroups.SelectMany(grp => grp.Assessments))
-            assessment.LoadDetails();
-        
+        foreach (var group in MyAssessmentGroups)
+            await group.LoadGroup();
+                
         foreach(var group in MyAssessmentGroups)
         {
             group.Deleted += (_, _) =>
