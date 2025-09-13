@@ -4,6 +4,7 @@ using WinsorApps.MAUI.Shared;
 using WinsorApps.Services.Clubs.Services;
 using WinsorApps.Services.Global.Services;
 using WinsorApps.MAUI.Shared.ViewModels;
+using WinsorApps.Services.Global.Models;
 
 namespace WinsorApps.MAUI.ClubAttendance
 {
@@ -38,6 +39,13 @@ namespace WinsorApps.MAUI.ClubAttendance
             ServiceHelper.Initialize(app.Services);
 
             var logging = ServiceHelper.GetService<LocalLoggingService>();
+
+            var credManager = ServiceHelper.GetService<ISavedCredential>() ?? SavedCredential.Default;
+
+            if (!credManager.SavedCredExists)
+            {
+                credManager.Save("winsorrobotics@winsor.edu", "placeholder");
+            }
 
             app.InitializeGlobalServices();
 
