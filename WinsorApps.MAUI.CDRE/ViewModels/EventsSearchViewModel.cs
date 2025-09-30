@@ -35,8 +35,8 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         public EventsSearchViewModel()
         {
             cycleDayRecurringEventService = ServiceHelper.GetService<CycleDayRecurringEventService>();
-
-            Available = [..RecurringEventViewModel.ViewModelCache];
+            
+            Available = [..RecurringEventViewModel.GetClonedViewModels(cycleDayRecurringEventService.RecurringEvents)];
 
             foreach (var Event in Available)
             {

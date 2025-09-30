@@ -39,6 +39,8 @@ public class RegistrarService(ApiService api, LocalLoggingService logging) :
     /// </summary>
     public List<SchoolYear> SchoolYears { get; private set; } = [];
 
+    public async Task<List<BlockRecord>> ListBlocks() => await _api.SendAsync<List<BlockRecord>>(HttpMethod.Get, "api/schedule/blocks") ?? [];
+
     public string CacheFileName => ".registrar.cache";
     public void ClearCache() { if (File.Exists($"{_logging.AppStoragePath}{CacheFileName}")) File.Delete($"{_logging.AppStoragePath}{CacheFileName}"); }
     public async Task SaveCache()

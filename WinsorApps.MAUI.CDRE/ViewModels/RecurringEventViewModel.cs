@@ -11,7 +11,9 @@ using WinsorApps.Services.Global.Services;
 
 namespace WinsorApps.MAUI.CDRE.ViewModels
 {
-    public partial class CycleDaySelectionViewModel : ObservableObject, ICheckBoxListViewModel<SelectableLabelViewModel>
+    public partial class CycleDaySelectionViewModel : 
+        ObservableObject, 
+        ICheckBoxListViewModel<SelectableLabelViewModel>
     {
         [ObservableProperty]
         private ObservableCollection<SelectableLabelViewModel> items = [];
@@ -111,12 +113,13 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
     }
     public partial class RecurringEventViewModel :
         ObservableObject,
-        ICachedViewModel<RecurringEventViewModel, CycleDayRecurringEvent, CycleDayRecurringEventService>,
         ISelectable<RecurringEventViewModel>,
         IDefaultValueViewModel<RecurringEventViewModel>,
         IErrorHandling,
-        IBusyViewModel
+        IBusyViewModel,
+        IModelCarrier<RecurringEventViewModel, CycleDayRecurringEvent>
     {
+        private readonly RegistrarService _registrar = ServiceHelper.GetService<RegistrarService>();
         private readonly CycleDayRecurringEventService _eventService = ServiceHelper.GetService<CycleDayRecurringEventService>();
 
         [ObservableProperty] private string id = "";
@@ -132,12 +135,20 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         [ObservableProperty] private CycleDaySelectionViewModel cycleDays = new();
         [ObservableProperty] private int frequency = 1;
         [ObservableProperty] private bool isPublic;
+        [ObservableProperty] private bool isOnBlock;
+        [ObservableProperty] private ObservableCollection<SelectableLabelViewModel> blocks = [ "A", "B", "C", "D", "E", "F", "G", "Break", "Lunch" ];
+        [ObservableProperty] private bool blockSelected = true;
+        [ObservableProperty] private string block = "Click to Select Block";
+        [ObservableProperty] private ObservableCollection<SelectableLabelViewModel> schoolLevels = ["Upper School", "Lower School"];
+        [ObservableProperty] private bool schoolLevelSelected = false;
+        [ObservableProperty] private string schoolLevel = "";
         [ObservableProperty] private bool showDelete = false;
         [ObservableProperty] private ObservableCollection<SelectableLabelViewModel> frequencyOptions = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
         [ObservableProperty] private bool showFrequencyOptions;
         [ObservableProperty] private bool busy;
         [ObservableProperty] private string busyMessage = "Loading";
        
+        public Optional<CycleDayRecurringEvent> Model { get; private set; } = Optional<CycleDayRecurringEvent>.None();
         public int Duration => (int)(EndTime - StartTime).TotalMinutes;
 
         public RecurringEventViewModel()
@@ -148,12 +159,64 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
                     Frequency = int.Parse(entry.Label);
                     ShowFrequencyOptions = false;
                 };
+
+            foreach(var entry in schoolLevels)
+                entry.Selected += (_, _) =>
+                {
+                    SchoolLevel = entry.Label;
+                    SchoolLevelSelected = true;
+                };
+
+            foreach(var entry in blocks)
+            {
+                entry.Selected += (_, _) =>
+                {
+                    Block = entry.Label;
+                    BlockSelected = true;
+                };
+            }
         }
         
         public event EventHandler<RecurringEventViewModel>? OnCreated;
         public event EventHandler<RecurringEventViewModel>? OnUpdated;
         public event EventHandler<RecurringEventViewModel>? OnDelete;
         public event EventHandler<RecurringEventViewModel>? EditRequested;
+
+        [RelayCommand]
+        public void ToggleIsOnBlock()
+        {
+            IsOnBlock = !IsOnBlock;
+            if (IsOnBlock)
+            {
+                Block = "Click to Select Block";
+                BlockSelected = true;
+                StartTime = TimeSpan.Zero;
+                EndTime = TimeSpan.Zero;
+            }
+            else
+            {
+                BlockSelected = false;
+                SchoolLevelSelected = false;
+                Block = "";
+                SchoolLevel = "";
+            }
+        }
+
+        [RelayCommand]
+        public void ToggleSchoolLevelSelected()
+        {
+            SchoolLevelSelected = !SchoolLevelSelected;
+            if (!SchoolLevelSelected)
+                SchoolLevel = "";
+        }
+
+        [RelayCommand]
+        public void ToggleBlockSelected()
+        {
+            BlockSelected = !BlockSelected;
+            if (!BlockSelected)
+                Block = "Click to Select Block";
+        }
 
         [RelayCommand]
         public void ToggleShowFreqOpts() => ShowFrequencyOptions = !ShowFrequencyOptions;
@@ -168,7 +231,30 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
                 Busy = false;
                 return;
             }
-            CreateRecurringEvent create = new                (DateOnly.FromDateTime(Beginning), DateOnly.FromDateTime(Ending), Summary, Description, [.. Attendees.Emails.Select(x => x.Label)], [.. CycleDays.Items.Where(item => item.IsSelected).Select(item => item.Label)], Frequency, IsPublic, AllDay, TimeOnly.FromTimeSpan(StartTime), Duration);
+            CreateRecurringEvent create = new (
+                DateOnly.FromDateTime(Beginning), 
+                DateOnly.FromDateTime(Ending), 
+                Summary, 
+                Description, 
+                [.. Attendees.Emails.Select(x => x.Label)], 
+                [.. CycleDays.Items.Where(item => item.IsSelected).Select(item => item.Label)], 
+                Frequency, 
+                IsPublic);
+
+            create = IsOnBlock ?
+                create with
+                {
+                    block = Block,
+                    schoolLevel = SchoolLevel
+                } :
+                create with
+                {
+                    allDay = AllDay,
+                    time = TimeOnly.FromTimeSpan(StartTime),
+                    duration = Duration
+                };
+
+
             if (string.IsNullOrEmpty(Id))
             {
                 var result = await _eventService.CreateNewEvent(create, OnError.DefaultBehavior(this));
@@ -192,7 +278,7 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         public async Task Delete()
         {
             Busy = true;
-            await _eventService.DeleteEvent(Id, OnError.DefaultBehavior(this));
+            await _eventService.DeleteEvent(Id, IsOnBlock, OnError.DefaultBehavior(this));
             OnDelete?.Invoke(this, this);
             Busy = false;
         }
@@ -216,18 +302,14 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         #endregion // ISelectable
 
         #region ICachedViewModel stuff
-        public static List<RecurringEventViewModel> ViewModelCache { get; private set; } = [];
-
         public static RecurringEventViewModel Empty => new();
 
         public static RecurringEventViewModel Get(CycleDayRecurringEvent model)
         {
-            var vm = ViewModelCache.FirstOrDefault(re => re.Id == model.id);
-            if (vm is not null)
-                return vm.Clone();
 
-            vm = new()
+            var vm = new RecurringEventViewModel()
             {
+                Model = Optional<CycleDayRecurringEvent>.Some(model),
                 Id = model.id,
                 Beginning = model.beginning.ToDateTime(default),
                 Ending = model.ending.ToDateTime(default),
@@ -235,6 +317,11 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
                 Summary = model.summary,
                 Description = model.description,
                 AllDay = model.allDay,
+                IsOnBlock = model.isBlock,
+                BlockSelected = model.isBlock,
+                Block = model.isBlock ? model.block : "Click to Select Block",
+                SchoolLevelSelected = model.isBlock,
+                SchoolLevel = model.schoolLevel,
                 StartTime = model.time.ToTimeSpan(),
                 EndTime = model.time.AddMinutes(model.duration).ToTimeSpan(),
                 CycleDays = new(),
@@ -252,8 +339,8 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
                 }
                
             }
-            ViewModelCache.Add(vm);
-            return vm.Clone();
+
+            return vm;
         }
 
         public static List<RecurringEventViewModel> GetClonedViewModels(IEnumerable<CycleDayRecurringEvent> models)
@@ -268,16 +355,9 @@ namespace WinsorApps.MAUI.CDRE.ViewModels
         public static async Task Initialize(CycleDayRecurringEventService service, Action<ErrorRecord> onError)
         {
             await service.WaitForInit(onError);
-            ViewModelCache = [];
             _ = GetClonedViewModels(service.RecurringEvents);
         }
 
-        /// <summary>
-        /// Makes a shallow copy of this ViewModel.
-        /// The point of this is to maintain clean copies in the ViewModelCache
-        /// </summary>
-        /// <returns></returns>
-        public RecurringEventViewModel Clone() => (RecurringEventViewModel)MemberwiseClone();
         #endregion // ICachedViewModel
 
     }

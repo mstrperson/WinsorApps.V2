@@ -134,9 +134,9 @@ namespace WinsorApps.Services.Global.Services
             return result;
         }
 
-        public async Task DeleteEvent(string eventId, ErrorAction onError)
+        public async Task DeleteEvent(string eventId, bool byBlock, ErrorAction onError)
         {
-            await _api.SendAsync(HttpMethod.Delete, $"api/users/self/cycle-day-recurring-events/{eventId}", onError: onError);
+            await _api.SendAsync(HttpMethod.Delete, $"api/users/self/cycle-day-recurring-events/{eventId}?byBlock={byBlock}", onError: onError);
             RecurringEvents.Remove(RecurringEvents.First(evt => evt.id == eventId));
             await SaveCache();
             OnCacheRefreshed?.Invoke(this, EventArgs.Empty);

@@ -126,7 +126,66 @@
                             Date="{Binding Ending}"/>
                     </HorizontalStackLayout>
                 </Grid>
-                <HorizontalStackLayout>
+                <HorizontalStackLayout IsVisible="{Binding IsOnBlock}">
+                    <Button
+                        Text="Schedule By Time"
+                        Command="{Binding ToggleIsOnBlockCommand}" />
+                    <CollectionView
+                        IsVisible="{Binding SchoolLevelSelected, Converter={StaticResource Invert}}"
+                        ItemsSource="{Binding SchoolLevels}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="svm:SelectableLabelViewModel">
+                                <HorizontalStackLayout>
+                                    <HorizontalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectCommand}"/>
+                                    </HorizontalStackLayout.GestureRecognizers>
+                                    <Label
+                                        Text="{Binding Label}"
+                                        StyleClass="H3,Clickable"
+                                        VerticalOptions="Center"/>
+                                </HorizontalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <Label
+                        StyleClass="SubHeader,Clickable"
+                        IsVisible="{Binding SchoolLevelSelected}"
+                        Text="{Binding SchoolLevel}">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ToggleSchoolLevelSelectedCommand}"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+                    
+                    <CollectionView
+                        IsVisible="{Binding BlockSelected, Converter={StaticResource Invert}}"
+                        ItemsSource="{Binding Blocks}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="svm:SelectableLabelViewModel">
+                                <HorizontalStackLayout>
+                                    <HorizontalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectCommand}"/>
+                                    </HorizontalStackLayout.GestureRecognizers>
+                                    <Label
+                                        Text="{Binding Label}"
+                                        StyleClass="H3,Clickable"
+                                        VerticalOptions="Center"/>
+                                </HorizontalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <Label
+                        StyleClass="SubHeader,Clickable"
+                        IsVisible="{Binding BlockSelected}"
+                        Text="{Binding Block}">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ToggleBlockSelectedCommand}"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+                </HorizontalStackLayout>
+                <HorizontalStackLayout IsVisible="{Binding IsOnBlock, Converter={StaticResource Invert}}">
+                    <Button
+                        Text="Schedule By Block"
+                        Command="{Binding ToggleIsOnBlockCommand}" />
                     <Label
                         Text="All Day"
                         HorizontalOptions="Start"/>
