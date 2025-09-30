@@ -433,6 +433,7 @@ public partial class AssessmentCourseViewModel :
     [RelayCommand]
     public async Task Refresh()
     {
+        await (ServiceHelper.GetService<RegistrarService>()).WaitForInit(OnError.DefaultBehavior(this));
         var sections = await _service.GetMySectionsOf(Course.Id, OnError.DefaultBehavior(this));
         Course.Sections = [.. sections.Select(SectionViewModel.Get)];
         Course.CurrentSections = [.. Course.Sections.Where(sec => sec.IsCurrent)];
