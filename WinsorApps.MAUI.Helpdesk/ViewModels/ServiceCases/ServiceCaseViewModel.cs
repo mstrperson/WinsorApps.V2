@@ -6,7 +6,6 @@ using AsyncAwaitBestPractices;
 using CommunityToolkit.Maui.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System.Printing;
 using WinsorApps.MAUI.Helpdesk.ViewModels.Devices;
 using WinsorApps.MAUI.Shared;
 using WinsorApps.MAUI.Shared.ViewModels;
@@ -288,9 +287,6 @@ public partial class ServiceCaseViewModel :
             {
                 try
                 {
-                    // Print using System.Printing
-                    var printQueue = LocalPrintServer.GetDefaultPrintQueue();
-                    var printJob = printQueue.AddJob($"ServiceCase_{Id}", result.FilePath, false);
                 }
                 catch (Exception ex)
                 {
