@@ -17,6 +17,8 @@
         <ScrollView>
             <VerticalStackLayout 
                 Spacing="3" 
+                WidthRequest="800"
+                HorizontalOptions="Center"
                 Padding="15" 
                 IsEnabled="{Binding Busy,Converter={StaticResource Invert}}">
                 
@@ -126,11 +128,14 @@
                             Date="{Binding Ending}"/>
                     </HorizontalStackLayout>
                 </Grid>
-                <HorizontalStackLayout IsVisible="{Binding IsOnBlock}">
+                <HorizontalStackLayout 
+                    IsVisible="{Binding IsOnBlock}"
+                    WidthRequest="800">
                     <Button
                         Text="Schedule By Time"
                         Command="{Binding ToggleIsOnBlockCommand}" />
                     <CollectionView
+                        WidthRequest="350"
                         IsVisible="{Binding SchoolLevelSelected, Converter={StaticResource Invert}}"
                         ItemsSource="{Binding SchoolLevels}">
                         <CollectionView.ItemTemplate>
@@ -157,6 +162,7 @@
                     </Label>
                     
                     <CollectionView
+                        WidthRequest="250"
                         IsVisible="{Binding BlockSelected, Converter={StaticResource Invert}}"
                         ItemsSource="{Binding Blocks}">
                         <CollectionView.ItemTemplate>
@@ -244,12 +250,14 @@
                     </Image>
                 </HorizontalStackLayout>
                 
-                <HorizontalStackLayout>
+                <VerticalStackLayout>
                     <Label
                         Text="Added:"
                         VerticalOptions="Start"
                         TranslationY="-3.5"/>
                     <CollectionView 
+                        WidthRequest="800"
+                        BackgroundColor="Transparent"
                         ItemsSource="{Binding Attendees.Emails}">
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="svm:SelectableLabelViewModel">
@@ -271,7 +279,7 @@
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
-                </HorizontalStackLayout>
+                </VerticalStackLayout>
                 
                 <HorizontalStackLayout HorizontalOptions="Start" Margin="0">
                     <Label 
